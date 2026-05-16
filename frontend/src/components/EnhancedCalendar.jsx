@@ -219,7 +219,7 @@ const EnhancedCalendar = ({
           fontWeight: '600',
           color: '#1f2937'
         }}>
-          {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          {currentMonth.toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata', month: 'long', year: 'numeric' })}
           {loading && <i className="fa fa-spinner fa-spin" style={{ marginLeft: '8px' }} />}
         </h3>
         

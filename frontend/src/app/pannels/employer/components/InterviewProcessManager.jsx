@@ -424,7 +424,9 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
               )}
               <div className="col-12 mt-2">
                 <small className="text-muted d-block">Sent on:</small>
-                <strong>{new Date(interviewProcess.interviewInvite.sentAt).toLocaleString()}</strong>
+                <strong>{new Date(interviewProcess.interviewInvite.sentAt).toLocaleString('en-IN', {
+                  timeZone: 'Asia/Kolkata'
+                })}</strong>
               </div>
             </div>
           </div>
@@ -549,7 +551,9 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
               )}
               <div className="col-12 mt-2">
                 <small className="text-muted d-block">Responded on:</small>
-                <strong>{new Date(candidateResponse.respondedAt).toLocaleString()}</strong>
+                <strong>{new Date(candidateResponse.respondedAt).toLocaleString('en-IN', {
+                  timeZone: 'Asia/Kolkata'
+                })}</strong>
               </div>
             </div>
             <button
@@ -587,7 +591,9 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
               </div>
               <div className="col-12 mt-2">
                 <small className="text-muted d-block">Confirmed on:</small>
-                <strong>{new Date(interviewProcess.interviewInvite.confirmedAt).toLocaleString()}</strong>
+                <strong>{new Date(interviewProcess.interviewInvite.confirmedAt).toLocaleString('en-IN', {
+                  timeZone: 'Asia/Kolkata'
+                })}</strong>
               </div>
             </div>
           </div>

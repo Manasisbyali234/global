@@ -179,7 +179,7 @@ function EmpTransactionsPage() {
                                             <tr key={t._id}>
                                                 <td>
                                                     <div className="text-nowrap">{formatDate(t.createdAt)}</div>
-                                                    <small className="text-muted">{new Date(t.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                                                    <small className="text-muted">{new Date(t.createdAt).toLocaleTimeString([], {timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit'})}</small>
                                                 </td>
                                                 <td>
                                                     <div className="fw-bold">{t.candidateId?.name || 'Guest'}</div>

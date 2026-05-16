@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, Clock, FileText, Award, BookOpen } from 'lucide-react';
 import { api } from '../../../utils/api';
+import { formatTimeToAMPM } from '../../../utils/dateFormatter';
 import { disableBodyScroll, enableBodyScroll } from '../../../utils/scrollUtils';
 
 const PopupInterviewRoundDetails = ({ isOpen, onClose, roundDetails, roundType, assessmentId }) => {
@@ -86,15 +87,7 @@ const PopupInterviewRoundDetails = ({ isOpen, onClose, roundDetails, roundType, 
 
     const formatTime = (timeString) => {
         if (!timeString) return 'Not set';
-        // Create a date object with the time in local timezone
-        const [hours, minutes] = timeString.split(':');
-        const date = new Date();
-        date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-        return date.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
+        return formatTimeToAMPM(timeString);
     };
 
     return (

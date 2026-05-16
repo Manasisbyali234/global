@@ -11,6 +11,7 @@ const { createProfileCompletionNotification, createNotification } = require('./n
 const { sendWelcomeEmail, sendJobApplicationConfirmationEmail, sendMailWithGreeting } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { sendSMS } = require('../utils/smsProvider');
+const { buildUtcDateTimeFromIst } = require('../utils/dateTime');
 const { formatDate } = require('../utils/dateFormatter');
 const {
   buildApplicationStatusSnapshot: buildSharedApplicationStatusSnapshot
@@ -1476,47 +1477,25 @@ function getAssessmentTimerInfo(job) {
     return null;
   }
 
-  const now = new Date();
-  const startDate = new Date(job.assessmentStartDate);
-  const endDate = new Date(job.assessmentEndDate);
-  
-  // Parse start and end times if available
-  let startTime = null;
-  let endTime = null;
-  
-  if (job.assessmentStartTime) {
-    const [hours, minutes] = job.assessmentStartTime.split(':');
-    startTime = { hours: parseInt(hours), minutes: parseInt(minutes) };
+  const now = Date.now();
+  const assessmentStart = buildUtcDateTimeFromIst(job.assessmentStartDate, job.assessmentStartTime || '', 'start');
+  const assessmentEnd = buildUtcDateTimeFromIst(job.assessmentEndDate, job.assessmentEndTime || '', 'end');
+
+  if (!assessmentStart || !assessmentEnd) {
+    return null;
   }
-  
-  if (job.assessmentEndTime) {
-    const [hours, minutes] = job.assessmentEndTime.split(':');
-    endTime = { hours: parseInt(hours), minutes: parseInt(minutes) };
-  }
-  
-  // Create full datetime objects for start and end
-  let assessmentStart = new Date(startDate);
-  let assessmentEnd = new Date(endDate);
-  
-  if (startTime) {
-    assessmentStart.setHours(startTime.hours, startTime.minutes, 0, 0);
-  }
-  
-  if (endTime) {
-    assessmentEnd.setHours(endTime.hours, endTime.minutes, 0, 0);
-  }
-  
-  const isBeforeStart = now < assessmentStart;
-  const isAfterEnd = now > assessmentEnd;
+
+  const isBeforeStart = now < assessmentStart.getTime();
+  const isAfterEnd = now > assessmentEnd.getTime();
   const isActive = !isBeforeStart && !isAfterEnd;
   
   let timeRemaining = null;
   let timeUntilStart = null;
   
   if (isBeforeStart) {
-    timeUntilStart = Math.max(0, assessmentStart.getTime() - now.getTime());
+    timeUntilStart = Math.max(0, assessmentStart.getTime() - now);
   } else if (isActive) {
-    timeRemaining = Math.max(0, assessmentEnd.getTime() - now.getTime());
+    timeRemaining = Math.max(0, assessmentEnd.getTime() - now);
   }
   
   return {

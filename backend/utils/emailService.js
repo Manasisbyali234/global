@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const { formatTimeToAMPM } = require('./timeUtils');
+const { INDIA_TIME_ZONE } = require('./dateTime');
 
 const MAIL_GREETING_LINE = '<p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #333;">Greeting from Taleglobal</p>';
 
@@ -357,6 +358,7 @@ const sendPasswordCreationEmail = async (email, name) => {
 const formatAssessmentDate = (date) => {
   const parsed = new Date(date);
   return parsed.toLocaleString('en-US', {
+    timeZone: INDIA_TIME_ZONE,
     dateStyle: 'medium',
     timeStyle: 'short'
   });
@@ -719,7 +721,9 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
     const formatDateSafe = (d) => {
       if (!d) return null;
       const parsed = new Date(d);
-      return Number.isNaN(parsed.getTime()) ? null : parsed.toLocaleDateString('en-GB');
+      return Number.isNaN(parsed.getTime()) ? null : parsed.toLocaleDateString('en-GB', {
+        timeZone: INDIA_TIME_ZONE
+      });
     };
     const formatDateRange = (fromDate, toDate) => {
       const from = formatDateSafe(fromDate);
@@ -861,6 +865,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
   const formattedApplicationDate = Number.isNaN(parsedApplicationDate.getTime())
     ? applicationDate
     : parsedApplicationDate.toLocaleDateString('en-GB', {
+        timeZone: INDIA_TIME_ZONE,
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'

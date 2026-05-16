@@ -2,6 +2,7 @@ const InterviewProcess = require('../models/InterviewProcess');
 const Application = require('../models/Application');
 const Job = require('../models/Job');
 const Candidate = require('../models/Candidate');
+const { buildUtcDateTimeFromIst } = require('../utils/dateTime');
 const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
 
 // Create or update interview process
@@ -172,20 +173,18 @@ const scheduleInterviewStage = async (req, res) => {
     }
 
     // Update stage scheduling details
-    // Combine date and time into full datetime for proper timezone handling
     if (scheduledDate && scheduledTime) {
       const normalizedTime = normalizeTimeFormat(scheduledTime);
-      const dateTimeString = `${scheduledDate}T${normalizedTime}`;
-      stage.scheduledDate = new Date(dateTimeString);
+      stage.scheduledDate = buildUtcDateTimeFromIst(scheduledDate, normalizedTime, 'start');
       stage.scheduledTime = normalizedTime;
     } else if (scheduledDate) {
-      stage.scheduledDate = new Date(scheduledDate);
+      stage.scheduledDate = buildUtcDateTimeFromIst(scheduledDate, '', 'start');
     } else if (scheduledTime) {
       stage.scheduledTime = normalizeTimeFormat(scheduledTime);
     }
     
-    if (fromDate) stage.fromDate = new Date(fromDate);
-    if (toDate) stage.toDate = new Date(toDate);
+    if (fromDate) stage.fromDate = buildUtcDateTimeFromIst(fromDate, '', 'start');
+    if (toDate) stage.toDate = buildUtcDateTimeFromIst(toDate, '', 'start');
     if (location) stage.location = location;
     if (interviewerName) stage.interviewerName = interviewerName;
     if (interviewerEmail) stage.interviewerEmail = interviewerEmail;

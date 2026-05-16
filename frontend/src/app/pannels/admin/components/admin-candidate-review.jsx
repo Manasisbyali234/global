@@ -48,6 +48,7 @@ function AdminCandidateReviewPage() {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Not provided';
             return date.toLocaleDateString('en-US', {
+                timeZone: 'Asia/Kolkata',
                 year: 'numeric',
                 month: 'numeric',
                 day: 'numeric'

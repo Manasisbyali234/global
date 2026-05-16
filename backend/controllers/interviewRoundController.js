@@ -1,9 +1,10 @@
 const InterviewRound = require('../models/InterviewRound');
 const Job = require('../models/Job');
+const { buildUtcDateTimeFromIst } = require('../utils/dateTime');
 
 const mapDayStages = (stages = []) => {
   return stages.map((sub) => ({
-    fromDate: sub.fromDate || sub.fromdate || sub.date,
+    fromDate: buildUtcDateTimeFromIst(sub.fromDate || sub.fromdate || sub.date, '', 'start'),
     startTime: sub.startTime,
     endTime: sub.endTime,
     breakTime: sub.breakTime || 0
@@ -36,8 +37,12 @@ exports.createInterviewRound = async (req, res) => {
       jobId,
       name,
       roundType,
-      fromdate: req.body.fromdate || req.body.fromDate || date,
-      todate: req.body.todate || req.body.toDate || req.body.fromdate || req.body.fromDate || date,
+      fromdate: buildUtcDateTimeFromIst(req.body.fromdate || req.body.fromDate || date, '', 'start'),
+      todate: buildUtcDateTimeFromIst(
+        req.body.todate || req.body.toDate || req.body.fromdate || req.body.fromDate || date,
+        '',
+        'start'
+      ),
       startTime,
       endTime,
       description,
@@ -86,6 +91,16 @@ exports.updateInterviewRound = async (req, res) => {
     const { id } = req.params;
     const updates = { ...req.body };
     const inputStages = updates.days || updates.daysArray || updates.subStages || updates.subStagesArray;
+    if (updates.fromdate || updates.fromDate || updates.date) {
+      updates.fromdate = buildUtcDateTimeFromIst(updates.fromdate || updates.fromDate || updates.date, '', 'start');
+    }
+    if (updates.todate || updates.toDate || updates.fromdate || updates.fromDate || updates.date) {
+      updates.todate = buildUtcDateTimeFromIst(
+        updates.todate || updates.toDate || updates.fromdate || updates.fromDate || updates.date,
+        '',
+        'start'
+      );
+    }
     if (Array.isArray(inputStages)) {
       updates.subStages = mapDayStages(inputStages);
     }

@@ -10,6 +10,7 @@ import { loadScript } from "../../../../globals/constants";
 import { api } from "../../../../utils/api";
 import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
+import { buildUtcDateTimeFromIst } from "../../../../utils/timezoneUtils";
 import { pubRoute, publicUser, canRoute, candidate } from "../../../../globals/route-names";
 import CanPostedJobs from "./can-posted-jobs";
 import PopupInterviewRoundDetails from "../../../common/popups/popup-interview-round-details";
@@ -326,45 +327,21 @@ function CanStatusPage() {
 	});
 
 	const getAssessmentWindowInfo = (job, roundDetails = null) => {
-		const now = new Date();
+		const now = Date.now();
 		const scheduleSource = getAssessmentScheduleSource(job, roundDetails);
-		const startRaw = scheduleSource.startDate ? new Date(scheduleSource.startDate) : null;
-		const endRaw = scheduleSource.endDate ? new Date(scheduleSource.endDate) : null;
-		const isValid = (date) => date instanceof Date && !isNaN(date.getTime());
-		let startDate = isValid(startRaw) ? startRaw : null;
-		let endDate = isValid(endRaw) ? endRaw : null;
-		
-		// Apply time if available
-		if (startDate && scheduleSource.startTime) {
-			const [hours, minutes] = scheduleSource.startTime.split(':').map(Number);
-			if (!isNaN(hours) && !isNaN(minutes)) {
-				startDate = new Date(startDate);
-				startDate.setHours(hours, minutes, 0, 0);
-			}
-		}
-		if (endDate && scheduleSource.endTime) {
-			const [hours, minutes] = scheduleSource.endTime.split(':').map(Number);
-			if (!isNaN(hours) && !isNaN(minutes)) {
-				endDate = new Date(endDate);
-				// Set to end of the minute (59 seconds, 999 milliseconds)
-				endDate.setHours(hours, minutes, 59, 999);
-			} else {
-				// If no valid time, set to end of day
-				endDate = new Date(endDate);
-				endDate.setHours(23, 59, 59, 999);
-			}
-		} else if (endDate) {
-			// If no end time specified, set to end of day
-			endDate = new Date(endDate);
-			endDate.setHours(23, 59, 59, 999);
-		}
-		
-		const isBeforeStart = startDate ? now < startDate : false;
-		const isAfterEnd = endDate ? now > endDate : false;
+		const startDate = scheduleSource.startDate
+			? buildUtcDateTimeFromIst(scheduleSource.startDate, scheduleSource.startTime || '', 'start')
+			: null;
+		const endDate = scheduleSource.endDate
+			? buildUtcDateTimeFromIst(scheduleSource.endDate, scheduleSource.endTime || '', 'end')
+			: null;
+
+		const isBeforeStart = startDate ? now < startDate.getTime() : false;
+		const isAfterEnd = endDate ? now > endDate.getTime() : false;
 		return {
 			isBeforeStart,
 			isAfterEnd,
-			isWithinWindow: startDate && endDate ? (now >= startDate && now <= endDate) : !isBeforeStart && !isAfterEnd,
+			isWithinWindow: startDate && endDate ? (now >= startDate.getTime() && now <= endDate.getTime()) : !isBeforeStart && !isAfterEnd,
 			startDate,
 			endDate
 		};
@@ -755,31 +732,7 @@ function CanStatusPage() {
 
 		const applyTimeToDate = (dateObj, timeValue, isEnd = false) => {
 			if (!dateObj) return null;
-			const withTime = new Date(dateObj);
-			if (!timeValue || typeof timeValue !== 'string') {
-				withTime.setHours(isEnd ? 23 : 0, isEnd ? 59 : 0, isEnd ? 59 : 0, isEnd ? 999 : 0);
-				return withTime;
-			}
-
-			const matches = timeValue.match(/(\d{1,2}):(\d{2})(?:\s*([AaPp][Mm]))?/);
-			if (!matches) {
-				withTime.setHours(isEnd ? 23 : 0, isEnd ? 59 : 0, isEnd ? 59 : 0, isEnd ? 999 : 0);
-				return withTime;
-			}
-
-			let hours = Number(matches[1]);
-			const minutes = Number(matches[2]);
-			const meridian = matches[3]?.toUpperCase();
-			if (meridian === 'PM' && hours < 12) hours += 12;
-			if (meridian === 'AM' && hours === 12) hours = 0;
-
-			if (isNaN(hours) || isNaN(minutes)) {
-				withTime.setHours(isEnd ? 23 : 0, isEnd ? 59 : 0, isEnd ? 59 : 0, isEnd ? 999 : 0);
-				return withTime;
-			}
-
-			withTime.setHours(hours, minutes, isEnd ? 59 : 0, isEnd ? 999 : 0);
-			return withTime;
+			return buildUtcDateTimeFromIst(dateObj, timeValue || '', isEnd ? 'end' : 'start');
 		};
 
 		const startBase = parseBaseDate(roundDetails.fromDate || roundDetails.date);
@@ -1685,13 +1638,21 @@ function CanStatusPage() {
 		try {
 			const date = new Date(startDate);
 			if (isNaN(date.getTime())) return 'Assessment scheduled. Test will open on the scheduled date and time.';
-			const day = date.getDate();
+			const parts = new Intl.DateTimeFormat('en-US', {
+				timeZone: 'Asia/Kolkata',
+				day: 'numeric',
+				month: 'long',
+				hour: 'numeric',
+				minute: '2-digit',
+				hour12: true
+			}).formatToParts(date);
+			const getPart = (type) => parts.find((part) => part.type === type)?.value || '';
+			const day = Number(getPart('day'));
 			const suffix = day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th';
-			const month = date.toLocaleString('en-US', { month: 'long' });
-			let hours = date.getHours();
-			const minutes = date.getMinutes();
-			const ampm = hours >= 12 ? 'pm' : 'am';
-			hours = hours % 12 || 12;
+			const month = getPart('month');
+			const hours = getPart('hour');
+			const minutes = Number(getPart('minute'));
+			const ampm = getPart('dayPeriod').toLowerCase();
 			const timeStr = minutes === 0 ? `${hours}${ampm}` : `${hours}:${String(minutes).padStart(2, '0')}${ampm}`;
 			return `Assessment will be live on ${day}${suffix} ${month} at ${timeStr}`;
 		} catch (e) {
@@ -2015,11 +1976,19 @@ function CanStatusPage() {
 		const windowInfo = getAssessmentWindowInfo(job, roundDetails);
 		if (!windowInfo.isWithinWindow) {
 			if (windowInfo.isBeforeStart) {
-				const startLabel = windowInfo.startDate ? windowInfo.startDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : null;
+				const startLabel = windowInfo.startDate ? windowInfo.startDate.toLocaleString('en-IN', {
+					timeZone: 'Asia/Kolkata',
+					dateStyle: 'medium',
+					timeStyle: 'short'
+				}) : null;
 				showWarning(startLabel ? `⏰ Assessment Not Yet Available\n\nThe assessment will open on ${startLabel}. Please log in 5 minutes before the scheduled time.` : '⏰ Assessment is not yet available. Please wait for the scheduled time.');
 				return;
 			}
-			const endLabel = windowInfo.endDate ? windowInfo.endDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : null;
+			const endLabel = windowInfo.endDate ? windowInfo.endDate.toLocaleString('en-IN', {
+				timeZone: 'Asia/Kolkata',
+				dateStyle: 'medium',
+				timeStyle: 'short'
+			}) : null;
 			showError(endLabel ? `⛔ Assessment Window Closed\n\nThe assessment window ended on ${endLabel}.` : '⛔ Assessment window has ended.');
 			return;
 		}
@@ -3311,18 +3280,7 @@ function CanStatusPage() {
 													const bookedSlotInterviewer = bookedSlot?.interviewerName;
 													const bookedSlotEndDateTime = (() => {
 														if (!bookedSlotDate || !bookedSlotEnd) return null;
-														const dateObj = new Date(bookedSlotDate);
-														if (isNaN(dateObj.getTime())) return null;
-														const matches = String(bookedSlotEnd).match(/(\d{1,2}):(\d{2})(?:\s*([AaPp][Mm]))?/);
-														if (!matches) return null;
-														let hours = Number(matches[1]);
-														const minutes = Number(matches[2]);
-														const meridian = matches[3]?.toUpperCase();
-														if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
-														if (meridian === 'PM' && hours < 12) hours += 12;
-														if (meridian === 'AM' && hours === 12) hours = 0;
-														dateObj.setHours(hours, minutes, 0, 0);
-														return dateObj;
+														return buildUtcDateTimeFromIst(bookedSlotDate, bookedSlotEnd, 'start');
 													})();
 													const isBookedSlotExpired = bookedSlotEndDateTime ? Date.now() > bookedSlotEndDateTime.getTime() : false;
 

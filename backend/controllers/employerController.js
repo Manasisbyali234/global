@@ -18,6 +18,7 @@ const { cacheInvalidation } = require('../utils/cacheInvalidation');
 const { sendSMS } = require('../utils/smsProvider');
 const { validateGSTFormat, fetchGSTInfo, mapGSTToProfile } = require('../utils/gstService');
 const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
+const { buildUtcDateTimeFromIst, getStartOfCurrentIstDayUtc } = require('../utils/dateTime');
 const { formatDate } = require('../utils/dateFormatter');
 const {
   buildApplicationStatusSnapshot: buildSharedApplicationStatusSnapshot
@@ -132,24 +133,15 @@ const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
 
 const AUTO_REJECT_EXPIRED_SESSION_NOTE = 'Auto-rejected after application session expired';
 
+const normalizeDateOnlyField = (value) => buildUtcDateTimeFromIst(value, '', 'start');
+
 const getApplicationDeadline = (jobData = {}) => {
   if (!jobData?.lastDateOfApplication) return null;
-
-  const deadline = new Date(jobData.lastDateOfApplication);
-  if (Number.isNaN(deadline.getTime())) {
-    return null;
-  }
-
-  if (jobData.lastDateOfApplicationTime && typeof jobData.lastDateOfApplicationTime === 'string') {
-    const [hours, minutes] = jobData.lastDateOfApplicationTime.split(':').map((part) => Number(part));
-    if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
-      deadline.setHours(hours, minutes, 59, 999);
-      return deadline;
-    }
-  }
-
-  deadline.setHours(23, 59, 59, 999);
-  return deadline;
+  return buildUtcDateTimeFromIst(
+    jobData.lastDateOfApplication,
+    jobData.lastDateOfApplicationTime || '',
+    'end'
+  );
 };
 
 const getAssessmentRoundOrderKeys = (jobData = {}) => (
@@ -173,35 +165,7 @@ const getAssessmentScheduleSource = (jobData = {}) => {
 };
 
 const buildScheduledDateTime = (dateValue, timeValue = '', boundary = 'start') => {
-  if (!dateValue) {
-    return null;
-  }
-
-  const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  if (timeValue && typeof timeValue === 'string') {
-    const [hours, minutes] = String(timeValue).split(':').map((part) => Number(part));
-    if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
-      date.setHours(
-        hours,
-        minutes,
-        boundary === 'end' ? 59 : 0,
-        boundary === 'end' ? 999 : 0
-      );
-      return date;
-    }
-  }
-
-  if (boundary === 'end') {
-    date.setHours(23, 59, 59, 999);
-  } else {
-    date.setHours(0, 0, 0, 0);
-  }
-
-  return date;
+  return buildUtcDateTimeFromIst(dateValue, timeValue, boundary);
 };
 
 const hasOpenOrUpcomingAssessmentWindow = (application = {}) => {
@@ -223,14 +187,14 @@ const hasOpenOrUpcomingAssessmentWindow = (application = {}) => {
   const scheduleSource = getAssessmentScheduleSource(jobData);
   const assessmentStartAt = buildScheduledDateTime(scheduleSource.startDate, scheduleSource.startTime, 'start');
   const assessmentEndAt = buildScheduledDateTime(scheduleSource.endDate, scheduleSource.endTime, 'end');
-  const now = new Date();
+  const now = Date.now();
 
   if (assessmentEndAt) {
-    return now <= assessmentEndAt;
+    return now <= assessmentEndAt.getTime();
   }
 
   if (assessmentStartAt) {
-    return now <= assessmentStartAt;
+    return now <= assessmentStartAt.getTime();
   }
 
   return true;
@@ -288,7 +252,7 @@ const shouldAutoRejectExpiredApplication = (application = {}) => {
   }
 
   const deadline = getApplicationDeadline(application.jobId);
-  if (!deadline || new Date() <= deadline) {
+  if (!deadline || Date.now() <= deadline.getTime()) {
     return false;
   }
 
@@ -1725,20 +1689,20 @@ exports.createJob = async (req, res) => {
     if (jobData.assessment && jobData.assessment.assessmentId) {
       jobData.assessmentId = jobData.assessment.assessmentId;
       if (jobData.assessment.fromDate) {
-        jobData.assessmentStartDate = new Date(jobData.assessment.fromDate);
+        jobData.assessmentStartDate = normalizeDateOnlyField(jobData.assessment.fromDate);
       }
       if (jobData.assessment.toDate) {
-        jobData.assessmentEndDate = new Date(jobData.assessment.toDate);
+        jobData.assessmentEndDate = normalizeDateOnlyField(jobData.assessment.toDate);
       }
       delete jobData.assessment;
     }
     
     // Also handle direct assessment date fields
     if (jobData.assessmentStartDate && typeof jobData.assessmentStartDate === 'string') {
-      jobData.assessmentStartDate = new Date(jobData.assessmentStartDate);
+      jobData.assessmentStartDate = normalizeDateOnlyField(jobData.assessmentStartDate);
     }
     if (jobData.assessmentEndDate && typeof jobData.assessmentEndDate === 'string') {
-      jobData.assessmentEndDate = new Date(jobData.assessmentEndDate);
+      jobData.assessmentEndDate = normalizeDateOnlyField(jobData.assessmentEndDate);
     }
 
     // Handle assessment time fields (startTime and endTime)
@@ -1795,15 +1759,17 @@ exports.createJob = async (req, res) => {
 
           // Normalize dates
           let fromDate = value.fromDate || value.date || null;
-          
-          if (fromDate && typeof fromDate === 'string' && fromDate !== '') fromDate = new Date(fromDate);
+          let toDate = value.toDate || value.todate || fromDate || null;
+
+          if (fromDate) fromDate = normalizeDateOnlyField(fromDate);
+          if (toDate) toDate = normalizeDateOnlyField(toDate);
 
           interviewRounds.push({
             key: key,
             name: value.customType || (isAssessment ? 'Assessment' : key.replace(/_\d+$/, '')),
             roundType: roundType,
             fromdate: fromDate,
-            todate: value.toDate || value.todate || fromDate,
+            todate: toDate || fromDate,
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             assessmentId: value.assessmentId || null,
@@ -2120,20 +2086,20 @@ exports.updateJob = async (req, res) => {
     if (req.body.assessment && req.body.assessment.assessmentId) {
       req.body.assessmentId = req.body.assessment.assessmentId;
       if (req.body.assessment.fromDate) {
-        req.body.assessmentStartDate = new Date(req.body.assessment.fromDate);
+        req.body.assessmentStartDate = normalizeDateOnlyField(req.body.assessment.fromDate);
       }
       if (req.body.assessment.toDate) {
-        req.body.assessmentEndDate = new Date(req.body.assessment.toDate);
+        req.body.assessmentEndDate = normalizeDateOnlyField(req.body.assessment.toDate);
       }
       delete req.body.assessment;
     }
     
     // Also handle direct assessment date fields
     if (req.body.assessmentStartDate && typeof req.body.assessmentStartDate === 'string') {
-      req.body.assessmentStartDate = new Date(req.body.assessmentStartDate);
+      req.body.assessmentStartDate = normalizeDateOnlyField(req.body.assessmentStartDate);
     }
     if (req.body.assessmentEndDate && typeof req.body.assessmentEndDate === 'string') {
-      req.body.assessmentEndDate = new Date(req.body.assessmentEndDate);
+      req.body.assessmentEndDate = normalizeDateOnlyField(req.body.assessmentEndDate);
     }
 
     if (req.body.assessmentStartTime) {
@@ -2169,15 +2135,17 @@ exports.updateJob = async (req, res) => {
 
           // Normalize dates
           let fromDate = value.fromDate || value.date || null;
-          
-          if (fromDate && typeof fromDate === 'string' && fromDate !== '') fromDate = new Date(fromDate);
+          let toDate = value.toDate || value.todate || fromDate || null;
+
+          if (fromDate) fromDate = normalizeDateOnlyField(fromDate);
+          if (toDate) toDate = normalizeDateOnlyField(toDate);
 
           interviewRounds.push({
             key: key,
             name: value.customType || value.name || (isAssessment ? 'Assessment' : key.replace(/_\d+$/, '')),
             roundType: roundType,
             fromdate: fromDate,
-            todate: value.toDate || value.todate || fromDate,
+            todate: toDate || fromDate,
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             assessmentId: value.assessmentId || null,
@@ -2520,8 +2488,7 @@ exports.deleteJob = async (req, res) => {
 
 exports.getEmployerJobs = async (req, res) => {
   try {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const today = getStartOfCurrentIstDayUtc();
 
     await Job.updateMany(
       {
@@ -3680,15 +3647,15 @@ exports.scheduleInterviewRound = async (req, res) => {
     
     if (interviewRound) {
       interviewRound.name = roundKey.replace(/_\d+$/, '');
-      interviewRound.fromdate = new Date(fromDate);
-      interviewRound.todate = new Date(toDate);
+      interviewRound.fromdate = normalizeDateOnlyField(fromDate);
+      interviewRound.todate = normalizeDateOnlyField(toDate);
       interviewRound.startTime = normalizeTimeFormat(time || '');
       interviewRound.assessmentId = roundType === 'assessment' ? assessmentId : interviewRound.assessmentId;
       interviewRound.description = (description && description.trim()) ? description : (roundType !== 'assessment' ? `Interview round for ${roundKey.replace(/_\d+$/, '') || 'candidate evaluation'}.` : interviewRound.description);
       if (subStages || subStagesArray || days || daysArray) {
         const stagesToUse = subStages || subStagesArray || days || daysArray || [];
         interviewRound.subStages = stagesToUse.map(sub => ({
-          fromDate: sub.fromDate || sub.fromdate || sub.date,
+          fromDate: normalizeDateOnlyField(sub.fromDate || sub.fromdate || sub.date),
           startTime: normalizeTimeFormat(sub.startTime),
           endTime: normalizeTimeFormat(sub.endTime)
         }));
@@ -3728,14 +3695,14 @@ exports.scheduleInterviewRound = async (req, res) => {
         jobId: job._id,
         key: roundKey,
         name: roundKey.replace(/_\d+$/, ''),
-        fromdate: new Date(fromDate),
-        todate: new Date(toDate),
+        fromdate: normalizeDateOnlyField(fromDate),
+        todate: normalizeDateOnlyField(toDate),
         startTime: normalizeTimeFormat(time || ''),
         assessmentId: roundType === 'assessment' ? assessmentId : null,
         description: (description && description.trim()) ? description : (roundType !== 'assessment' ? `Interview round for ${roundKey.replace(/_\d+$/, '') || 'candidate evaluation'}.` : ''),
         applicationLimit: job.applicationLimit || 50,
         subStages: (subStages || subStagesArray || days || daysArray || []).map(sub => ({
-          fromDate: sub.fromDate || sub.fromdate || sub.date,
+          fromDate: normalizeDateOnlyField(sub.fromDate || sub.fromdate || sub.date),
           startTime: normalizeTimeFormat(sub.startTime),
           endTime: normalizeTimeFormat(sub.endTime)
         })),
@@ -3761,8 +3728,8 @@ exports.scheduleInterviewRound = async (req, res) => {
     // If it's an assessment round, also update assessment fields
     if (roundType === 'assessment') {
       updateData.assessmentId = assessmentId;
-      updateData.assessmentStartDate = new Date(fromDate);
-      updateData.assessmentEndDate = new Date(toDate);
+      updateData.assessmentStartDate = normalizeDateOnlyField(fromDate);
+      updateData.assessmentEndDate = normalizeDateOnlyField(toDate);
       updateData.assessmentStartTime = normalizeTimeFormat(time || '');
     }
     

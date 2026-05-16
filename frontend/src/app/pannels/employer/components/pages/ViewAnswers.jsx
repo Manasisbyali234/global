@@ -635,7 +635,9 @@ export default function ViewAnswers() {
                               <div>
                                 <div style={{ fontWeight: '600', color: '#374151' }}>{answer.uploadedFile.originalName || 'Uploaded file'}</div>
                                 <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                                  {(answer.uploadedFile.size / 1024).toFixed(1)} KB • {new Date(answer.uploadedFile.uploadedAt).toLocaleString()}
+                                  {(answer.uploadedFile.size / 1024).toFixed(1)} KB • {new Date(answer.uploadedFile.uploadedAt).toLocaleString('en-IN', {
+                                    timeZone: 'Asia/Kolkata'
+                                  })}
                                 </div>
                                 <a 
                                   href={resolveFileUrl(answer.uploadedFile.path)} 

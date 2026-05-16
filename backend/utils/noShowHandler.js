@@ -7,6 +7,7 @@
  */
 
 const Application = require('../models/Application');
+const { buildUtcDateTimeFromIst } = require('./dateTime');
 
 /**
  * Atomically update an application to the no-show / expired state.
@@ -75,8 +76,12 @@ const isNoShowCandidate = (application) => {
   const interviewTimeStr = invite.confirmedTime || invite.proposedTime;
   if (!interviewDateStr) return false;
 
-  const interviewDateTime = new Date(`${interviewDateStr}T${interviewTimeStr || '23:59'}:00`);
-  if (isNaN(interviewDateTime.getTime())) return false;
+  const interviewDateTime = buildUtcDateTimeFromIst(
+    interviewDateStr,
+    interviewTimeStr || '23:59',
+    'start'
+  );
+  if (!interviewDateTime || isNaN(interviewDateTime.getTime())) return false;
 
   // Add a 30-minute grace period before marking as no-show
   const gracePeriodMs = 30 * 60 * 1000;

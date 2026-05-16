@@ -6,6 +6,7 @@ const Job = require('../models/Job');
 const InterviewRound = require('../models/InterviewRound');
 const InterviewProcess = require('../models/InterviewProcess');
 const { sendAssessmentResultPublishedEmail } = require('../utils/emailService');
+const { buildUtcDateTimeFromIst } = require('../utils/dateTime');
 const { normalizeTimeFormat } = require('../utils/timeUtils');
 
 const RESTRICTION_WARNING_LIMIT = 4;
@@ -430,41 +431,13 @@ const parseScheduledTime = (timeValue = '') => {
   };
 };
 
-const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000; // UTC+5:30
-
 const buildScheduledDateTime = (dateValue, timeValue = '', boundary = 'start') => {
-  if (!dateValue) {
-    return null;
-  }
-
-  // Normalise to a plain date string (YYYY-MM-DD) so we can build an IST timestamp
-  const raw = new Date(dateValue);
-  if (Number.isNaN(raw.getTime())) {
-    return null;
-  }
-
-  // Extract the calendar date in IST
-  const istNow = new Date(raw.getTime() + IST_OFFSET_MS);
-  const yyyy = istNow.getUTCFullYear();
-  const mm   = String(istNow.getUTCMonth() + 1).padStart(2, '0');
-  const dd   = String(istNow.getUTCDate()).padStart(2, '0');
-
   const parsedTime = parseScheduledTime(timeValue);
-  let hh, min, ss, ms;
-  if (parsedTime) {
-    hh  = parsedTime.hours;
-    min = parsedTime.minutes;
-    ss  = boundary === 'end' ? 59 : 0;
-    ms  = boundary === 'end' ? 999 : 0;
-  } else if (boundary === 'end') {
-    hh = 23; min = 59; ss = 59; ms = 999;
-  } else {
-    hh = 0; min = 0; ss = 0; ms = 0;
-  }
+  const normalizedTime = parsedTime
+    ? `${String(parsedTime.hours).padStart(2, '0')}:${String(parsedTime.minutes).padStart(2, '0')}`
+    : '';
 
-  // Build the UTC timestamp that corresponds to this IST date+time
-  const istMs = Date.UTC(yyyy, Number(mm) - 1, Number(dd), hh, min, ss, ms) - IST_OFFSET_MS;
-  return new Date(istMs);
+  return buildUtcDateTimeFromIst(dateValue, normalizedTime, boundary);
 };
 
 const findAssessmentRoundDetails = (job = {}, assessmentId, matchedDbRound = null) => {

@@ -7,6 +7,7 @@ import SectionPagination from "../common/section-pagination";
 import { requestCache } from "../../../../../utils/requestCache";
 import { performanceMonitor } from "../../../../../utils/performanceMonitor";
 import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
+import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
 import "../../../../../new-job-card.css";
 
 const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
@@ -174,17 +175,11 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
             const applicationCount = Number(job?.applicationCount || 0);
             const applicationLimit = Number(job?.applicationLimit || 0);
             const limitReachedNow = applicationCount >= applicationLimit;
-            const now = new Date();
-            const deadlineDate = job?.lastDateOfApplication ? new Date(job.lastDateOfApplication) : null;
-            if (deadlineDate && !Number.isNaN(deadlineDate.getTime())) {
-                if (job?.lastDateOfApplicationTime && typeof job.lastDateOfApplicationTime === "string") {
-                    const [hours, minutes] = job.lastDateOfApplicationTime.split(":").map((part) => Number(part));
-                    deadlineDate.setHours(Number.isFinite(hours) ? hours : 23, Number.isFinite(minutes) ? minutes : 59, 59, 999);
-                } else {
-                    deadlineDate.setHours(23, 59, 59, 999);
-                }
-            }
-            const isExpiredNow = !!deadlineDate && deadlineDate < now;
+            const now = Date.now();
+            const deadlineDate = job?.lastDateOfApplication
+                ? buildUtcDateTimeFromIst(job.lastDateOfApplication, job.lastDateOfApplicationTime || "", "end")
+                : null;
+            const isExpiredNow = !!deadlineDate && deadlineDate.getTime() < now;
             const normalizedStatus = (job?.status || job?.jobStatus || job?.applicationStatus || "").toString().trim().toLowerCase();
             const isClosedByStatus = normalizedStatus && normalizedStatus !== "active";
             return {

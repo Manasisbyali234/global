@@ -12,6 +12,7 @@ import { pendingPaymentManager } from '../../../../../utils/pendingPaymentManage
 import { checkResumeReadyToApply } from '../../../../../utils/profileCompletion';
 import { formatJobEducationDisplay } from '../../../../../utils/jobEducationOptions';
 import { getJobDisplayBanner, getJobDisplayLogo, isConsultantJobPost } from "../../../../../utils/jobBranding";
+import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
 import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
 import "../../../../../job-detail-section-spacing.css";
@@ -46,18 +47,11 @@ function JobDetail1Page() {
     const { limitReached, isEnded, isExpired } = useMemo(() => {
         if (!job) return { limitReached: false, isEnded: false, isExpired: false };
         const limitReached = typeof job.applicationLimit === 'number' && job.applicationLimit > 0 && (job.applicationCount || 0) >= job.applicationLimit;
-        const now = new Date();
-        const deadlineDate = job.lastDateOfApplication ? new Date(job.lastDateOfApplication) : null;
-        if (deadlineDate && !Number.isNaN(deadlineDate.getTime())) {
-            if (job.lastDateOfApplicationTime && typeof job.lastDateOfApplicationTime === 'string') {
-                const [hours, minutes] = job.lastDateOfApplicationTime.split(':').map((part) => Number(part));
-                deadlineDate.setHours(Number.isFinite(hours) ? hours : 23, Number.isFinite(minutes) ? minutes : 59, 59, 999);
-            } else {
-                // If no explicit end time is provided, keep applications open till end of that day.
-                deadlineDate.setHours(23, 59, 59, 999);
-            }
-        }
-        const isExpired = !!deadlineDate && deadlineDate < now;
+        const now = Date.now();
+        const deadlineDate = job.lastDateOfApplication
+            ? buildUtcDateTimeFromIst(job.lastDateOfApplication, job.lastDateOfApplicationTime || '', 'end')
+            : null;
+        const isExpired = !!deadlineDate && deadlineDate.getTime() < now;
         const isEnded = (job.status && job.status !== 'active') || limitReached || isExpired;
         return { limitReached, isEnded, isExpired };
     }, [job]);

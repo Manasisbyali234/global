@@ -3,6 +3,8 @@
  * Ensures consistent DD/MM/YYYY format across the application
  */
 
+const { formatDateInIst, formatDateTimeInIst } = require('./dateTime');
+
 /**
  * Format date to DD/MM/YYYY
  * @param {Date|string} dateInput - Date object or date string
@@ -12,14 +14,11 @@ const formatDate = (dateInput) => {
   if (!dateInput) return 'N/A';
   
   try {
-    const date = new Date(dateInput);
-    if (isNaN(date.getTime())) return 'Invalid Date';
-    
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    
-    return `${day}/${month}/${year}`;
+    return formatDateInIst(dateInput, 'en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }) || 'Invalid Date';
   } catch (error) {
     return 'Invalid Date';
   }
@@ -34,16 +33,15 @@ const formatDateTime = (dateInput) => {
   if (!dateInput) return 'N/A';
   
   try {
-    const date = new Date(dateInput);
-    if (isNaN(date.getTime())) return 'Invalid Date';
-    
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
+    const formatted = formatDateTimeInIst(dateInput, 'en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    return formatted ? formatted.replace(',', '') : 'Invalid Date';
   } catch (error) {
     return 'Invalid Date';
   }

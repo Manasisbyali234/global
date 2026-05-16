@@ -1,28 +1,27 @@
 /**
- * Utility functions for handling time and timezone conversions
+ * Utility functions for handling time and India timezone display
  */
 
+import { buildUtcDateTimeFromIst, formatTimeInIst } from "./timezoneUtils";
+
 /**
- * Format time string to local time
+ * Format time string to India time
  * @param {string} timeString - Time in HH:MM format
  * @param {Date} date - Optional date to combine with time
- * @returns {string} Formatted time in local timezone
+ * @returns {string} Formatted time in IST
  */
 export const formatTimeToLocal = (timeString, date = null) => {
   if (!timeString) return 'Not set';
   
   try {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    
-    // Use provided date or create new date object
-    const dateObj = date ? new Date(date) : new Date();
-    dateObj.setHours(hours, minutes, 0, 0);
-    
-    return dateObj.toLocaleTimeString('en-US', {
+    const dateObj = buildUtcDateTimeFromIst(date || new Date(), timeString, 'start');
+    if (!dateObj) return timeString;
+
+    return formatTimeInIst(dateObj, 'en-US', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
-    });
+    }) || timeString;
   } catch (error) {
     console.error('Error formatting time:', error);
     return timeString;
@@ -30,7 +29,7 @@ export const formatTimeToLocal = (timeString, date = null) => {
 };
 
 /**
- * Format datetime to local date and time
+ * Format datetime to India date and time
  * @param {Date|string} datetime - Date object or ISO string
  * @returns {object} Object with formatted date and time
  */
@@ -39,23 +38,27 @@ export const formatDateTimeToLocal = (datetime) => {
   
   try {
     const dateObj = new Date(datetime);
-    
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const year = dateObj.getFullYear();
+    if (Number.isNaN(dateObj.getTime())) {
+      return { date: null, time: null };
+    }
+
+    const date = dateObj.toLocaleDateString('en-GB', {
+      timeZone: 'Asia/Kolkata',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+
+    const time = formatTimeInIst(dateObj, 'en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
     
     return {
-      date: `${day}/${month}/${year}`,
-      time: dateObj.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      }),
-      full: `${day}/${month}/${year} ${dateObj.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      })}`
+      date,
+      time,
+      full: time ? `${date} ${time}` : date
     };
   } catch (error) {
     console.error('Error formatting datetime:', error);
@@ -65,19 +68,14 @@ export const formatDateTimeToLocal = (datetime) => {
 
 /**
  * Get timezone offset string
- * @returns {string} Timezone offset (e.g., "GMT+5:30")
+ * @returns {string} Timezone label
  */
 export const getTimezoneOffset = () => {
-  const offset = -new Date().getTimezoneOffset();
-  const hours = Math.floor(Math.abs(offset) / 60);
-  const minutes = Math.abs(offset) % 60;
-  const sign = offset >= 0 ? '+' : '-';
-  
-  return `GMT${sign}${hours}:${minutes.toString().padStart(2, '0')}`;
+  return 'IST (GMT+5:30)';
 };
 
 /**
- * Convert time string with date to local timezone display
+ * Convert time string with date to India timezone display
  * @param {string} timeString - Time in HH:MM format
  * @param {Date|string} date - Date to combine with time
  * @returns {string} Formatted time with timezone info

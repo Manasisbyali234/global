@@ -69,7 +69,9 @@ const ViolationModal = ({ isOpen, violationType, timestamp, onAcknowledge }) => 
 
                     <div className="modal-body">
                         <div className="alert alert-danger">
-                            <strong>Violation Time:</strong> {new Date(timestamp).toLocaleString()}
+                            <strong>Violation Time:</strong> {new Date(timestamp).toLocaleString('en-IN', {
+                                timeZone: 'Asia/Kolkata'
+                            })}
                         </div>
 
                         <p className="mb-3">{violation.message}</p>

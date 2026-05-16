@@ -1,3 +1,5 @@
+const { buildUtcDateTimeFromIst } = require('./dateTime');
+
 const normalizeApplicationStatusValue = (value = '') =>
   String(value || '')
     .trim()
@@ -91,35 +93,7 @@ const getAssessmentScheduleSource = (jobData = {}, assessmentId = '') => {
 };
 
 const buildScheduledDateTime = (dateValue, timeValue = '', boundary = 'start') => {
-  if (!dateValue) {
-    return null;
-  }
-
-  const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  if (timeValue && typeof timeValue === 'string') {
-    const [hours, minutes] = String(timeValue).split(':').map((part) => Number(part));
-    if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
-      date.setHours(
-        hours,
-        minutes,
-        boundary === 'end' ? 59 : 0,
-        boundary === 'end' ? 999 : 0
-      );
-      return date;
-    }
-  }
-
-  if (boundary === 'end') {
-    date.setHours(23, 59, 59, 999);
-  } else {
-    date.setHours(0, 0, 0, 0);
-  }
-
-  return date;
+  return buildUtcDateTimeFromIst(dateValue, timeValue, boundary);
 };
 
 const getCanonicalStatusKey = (value = '', fallback = 'pending') => {

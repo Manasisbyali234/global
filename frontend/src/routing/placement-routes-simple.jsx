@@ -339,6 +339,7 @@ function PlacementDashboard() {
                             <div className="mb-3">
                                 <label className="text-muted mb-1">Registration Date</label>
                                 <p className="mb-0">{new Date(placementData.createdAt).toLocaleDateString('en-US', {
+                                    timeZone: 'Asia/Kolkata',
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric'

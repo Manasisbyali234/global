@@ -1163,6 +1163,7 @@ function EmpCandidateReviewPage() {
                 return 'Not provided';
             }
             return date.toLocaleDateString('en-US', {
+                timeZone: 'Asia/Kolkata',
                 year: 'numeric',
                 month: 'numeric',
                 day: 'numeric'

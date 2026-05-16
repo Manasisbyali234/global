@@ -14,6 +14,7 @@ const Application = require('./models/Application');
 const Job = require('./models/Job');
 const { sendAssessmentNotificationEmail } = require('./utils/emailService');
 const { applyNoShowRejection, isNoShowCandidate } = require('./utils/noShowHandler');
+const { getStartOfCurrentIstDayUtc } = require('./utils/dateTime');
 
 // Import Routes
 const publicRoutes = require('./routes/public');
@@ -127,8 +128,7 @@ const startJobDeactivationScheduler = () => {
     }
     isRunning = true;
     try {
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const today = getStartOfCurrentIstDayUtc();
       
       // Close jobs once either the application deadline or offer-letter date has passed.
       // We use 'today' to ensure jobs stay open throughout the configured final date.

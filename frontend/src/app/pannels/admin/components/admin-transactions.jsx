@@ -150,7 +150,7 @@ function AdminTransactionsPage() {
         const headers = ['Date', 'Time', 'Candidate Name', 'Candidate Email', 'Company', 'Company Email', 'Job Role', 'Payment ID', 'Amount (INR)'];
         const rows = filteredTransactions.map((t) => [
             formatDate(t.createdAt),
-            new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            new Date(t.createdAt).toLocaleTimeString([], { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }),
             t.candidateId?.name || 'N/A',
             t.candidateId?.email || 'N/A',
             t.employerId?.companyName || 'N/A',
@@ -311,7 +311,7 @@ function AdminTransactionsPage() {
                                             <tr key={t._id}>
                                                 <td>
                                                     <div className="text-nowrap">{formatDate(t.createdAt)}</div>
-                                                    <small className="text-muted">{new Date(t.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                                                    <small className="text-muted">{new Date(t.createdAt).toLocaleTimeString([], {timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit'})}</small>
                                                 </td>
                                                 <td>
                                                     <div className="fw-bold">{t.candidateId?.name || 'N/A'}</div>

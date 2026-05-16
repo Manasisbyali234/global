@@ -16,6 +16,7 @@ export default function AssessmentCard({ data, onDelete, onEdit, onView, index }
 	const formatDate = (dateString) => {
 		const date = new Date(dateString);
 		return date.toLocaleDateString('en-US', {
+			timeZone: 'Asia/Kolkata',
 			year: 'numeric',
 			month: 'short',
 			day: 'numeric'

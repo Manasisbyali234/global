@@ -11,6 +11,7 @@ const FAQ = require('../models/FAQ');
 const Review = require('../models/Review');
 const { cache } = require('../utils/cache');
 const { isDBConnected } = require('../config/database');
+const { buildUtcDateTimeFromIst, getStartOfCurrentIstDayUtc } = require('../utils/dateTime');
 
 const resolveEmployerPostingType = (employer, profile) => {
   const employerType = employer?.employerType?.toString().trim().toLowerCase();
@@ -160,17 +161,15 @@ exports.getJobs = async (req, res) => {
       const hasAvailableSlots = applicationCount < applicationLimit;
       
       // Filter out jobs past application deadline
-      const now = new Date();
+      const now = Date.now();
       let isBeforeDeadline = true;
       if (job.lastDateOfApplication) {
-        const deadline = new Date(job.lastDateOfApplication);
-        if (job.lastDateOfApplicationTime) {
-          const [hours, minutes] = job.lastDateOfApplicationTime.split(':');
-          deadline.setHours(parseInt(hours), parseInt(minutes), 59, 999);
-        } else {
-          deadline.setHours(23, 59, 59, 999);
-        }
-        isBeforeDeadline = now <= deadline;
+        const deadline = buildUtcDateTimeFromIst(
+          job.lastDateOfApplication,
+          job.lastDateOfApplicationTime || '',
+          'end'
+        );
+        isBeforeDeadline = !deadline || now <= deadline.getTime();
       }
       
       return employer && employer.status === 'active' && employer.isApproved && hasAvailableSlots && isBeforeDeadline;
@@ -966,14 +965,14 @@ exports.getJobFilterCounts = async (req, res) => {
     }
 
     // Get only currently active (non-expired) jobs with approved employers
-    const now = new Date();
+    const todayStart = getStartOfCurrentIstDayUtc();
     const jobs = await Job.find({
       status: 'active',
       employerId: { $exists: true },
       $or: [
         { lastDateOfApplication: { $exists: false } },
         { lastDateOfApplication: null },
-        { lastDateOfApplication: { $gte: now } }
+        { lastDateOfApplication: { $gte: todayStart } }
       ]
     })
     .populate({

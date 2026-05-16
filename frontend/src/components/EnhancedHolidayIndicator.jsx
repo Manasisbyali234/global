@@ -50,6 +50,7 @@ const EnhancedHolidayIndicator = ({
     const date = parseLocalDate(dateString);
     if (!date) return dateString;
     return date.toLocaleDateString('en-US', {
+      timeZone: 'Asia/Kolkata',
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -60,7 +61,7 @@ const EnhancedHolidayIndicator = ({
   const getDayOfWeek = (dateString) => {
     const date = parseLocalDate(dateString);
     if (!date) return '';
-    return date.toLocaleDateString('en-US', { weekday: 'long' });
+    return date.toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata', weekday: 'long' });
   };
 
   if (loading) {

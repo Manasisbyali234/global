@@ -735,7 +735,7 @@ function AdminSupportTickets() {
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getStatusBadge(ticket.status)}</td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={formatDateTime(ticket.createdAt)}>
                                                             <div className="ticket-date">{formatDate(ticket.createdAt)}</div>
-                                                            <div className="user-email">{new Date(ticket.createdAt).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true})}</div>
+                                                            <div className="user-email">{new Date(ticket.createdAt).toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true})}</div>
                                                         </td>
                                                         <td style={{overflow: 'visible', textAlign: 'center'}}>
                                                             <div className="action-buttons">

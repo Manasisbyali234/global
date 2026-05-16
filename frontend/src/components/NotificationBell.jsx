@@ -309,7 +309,9 @@ const NotificationBell = ({ userRole }) => {
                       {notification.message.length > 150 ? notification.message.substring(0, 150) + '...' : notification.message}
                     </p>
                     <small style={{ color: '#999', fontSize: '11px' }}>
-                      {new Date(notification.createdAt).toLocaleDateString()}
+                      {new Date(notification.createdAt).toLocaleDateString('en-IN', {
+                        timeZone: 'Asia/Kolkata'
+                      })}
                     </small>
                   </div>
                   {hoveredId === notification._id && (

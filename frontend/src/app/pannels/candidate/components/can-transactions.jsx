@@ -353,7 +353,7 @@ function CanTransactionsPage() {
                                                         <>
                                                 <td>
                                                     <div className="text-nowrap" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>{formatDate(t.createdAt)}</div>
-                                                    <small className="text-muted d-none d-sm-block">{new Date(t.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                                                    <small className="text-muted d-none d-sm-block">{new Date(t.createdAt).toLocaleTimeString([], {timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit'})}</small>
                                                 </td>
                                                 <td>
                                                     <div className="fw-bold" style={{ fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>{t.jobId?.title || 'N/A'}</div>

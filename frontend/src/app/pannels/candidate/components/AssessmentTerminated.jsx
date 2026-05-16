@@ -73,7 +73,9 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
     };
 
     const violation = getViolationDetails(violationType);
-    const suspensionTime = violationTimestamp ? new Date(violationTimestamp).toLocaleString() : 'N/A';
+    const suspensionTime = violationTimestamp ? new Date(violationTimestamp).toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata'
+    }) : 'N/A';
     const infoCardBorder = violation.color === 'warning' ? '#0dcaf0' : '#dc3545';
     const infoCardBackground = violation.color === 'warning' ? '#f0fbff' : '#fff5f5';
 

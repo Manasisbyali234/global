@@ -47,6 +47,7 @@ const HolidayDashboard = ({ country = 'IN', showUpcoming = true, maxUpcoming = 5
     const date = parseLocalDate(dateString);
     if (!date) return dateString;
     return date.toLocaleDateString('en-US', {
+      timeZone: 'Asia/Kolkata',
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -72,7 +73,7 @@ const HolidayDashboard = ({ country = 'IN', showUpcoming = true, maxUpcoming = 5
       const holidayDate = parseLocalDate(holiday.date);
       if (!holidayDate) return;
 
-      const month = holidayDate.toLocaleDateString('en-US', { month: 'long' });
+      const month = holidayDate.toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata', month: 'long' });
       if (!monthlyData[month]) {
         monthlyData[month] = [];
       }

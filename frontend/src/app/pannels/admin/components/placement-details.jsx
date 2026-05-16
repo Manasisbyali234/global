@@ -467,6 +467,7 @@ function PlacementDetails() {
         }
 
         return new Date(value).toLocaleTimeString([], {
+            timeZone: 'Asia/Kolkata',
             hour: '2-digit',
             minute: '2-digit'
         });
