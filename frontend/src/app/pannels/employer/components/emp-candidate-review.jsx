@@ -574,9 +574,13 @@ function EmpCandidateReviewPage() {
     };
 
     const getStageAssessmentSummary = (stageData, fallbackSummary = null) => buildAssessmentSummary({
-        score: stageData?.assessmentScore ?? fallbackSummary?.score ?? null,
+        score: (stageData?.assessmentScore != null && stageData.assessmentScore !== 0)
+            ? stageData.assessmentScore
+            : (fallbackSummary?.score ?? stageData?.assessmentScore ?? null),
         totalMarks: stageData?.assessmentTotalMarks ?? fallbackSummary?.totalMarks ?? null,
-        percentage: stageData?.assessmentPercentage ?? fallbackSummary?.percentage ?? null,
+        percentage: (stageData?.assessmentPercentage != null && stageData.assessmentPercentage !== 0)
+            ? stageData.assessmentPercentage
+            : (fallbackSummary?.percentage ?? stageData?.assessmentPercentage ?? null),
         result: resolveAssessmentValue(stageData?.assessmentResult ?? stageData?.result, fallbackSummary?.result),
         status: resolveAssessmentValue(stageData?.status ?? stageData?.assessmentAttemptStatus, fallbackSummary?.status) || '',
         captures: stageData?.assessmentCaptures || fallbackSummary?.captures || [],

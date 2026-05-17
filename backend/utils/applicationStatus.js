@@ -530,6 +530,13 @@ const getLatestMeaningfulTrackedStatus = (application = {}, options = {}) => {
   return '';
 };
 
+const hadOfferSentInStatusHistory = (application = {}) =>
+  Array.isArray(application?.statusHistory) &&
+  application.statusHistory.some((entry) => {
+    const normalized = normalizeApplicationStatusValue(entry?.status);
+    return normalized === 'offer sent' || normalized === 'offer_sent';
+  });
+
 const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) => {
   const explicitDisplayStatus = String(
     application?.applicationStatus ||
@@ -545,6 +552,11 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
   const fallbackBaseStatus = baseStatus === 'under_review' ? 'pending' : baseStatus;
   if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
     return baseStatus;
+  }
+
+  // If candidate rejected an offer letter, always show as rejected
+  if (baseStatus === 'rejected' && hadOfferSentInStatusHistory(application)) {
+    return 'rejected';
   }
 
   if (getRejectedInterviewInviteDisplayStatus(application, baseStatus)) {
@@ -610,16 +622,36 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
 
   // For multiple interview rounds: derive overall status from the latest meaningful
   // tracked process status so the application status stays in sync with round progress.
+  const trackedProcessesForStatus = getResolvedTrackedProcesses(application, options);
   const latestTrackedStatus = getLatestMeaningfulTrackedStatus(application, options);
   if (latestTrackedStatus) {
-    // Positive round statuses (shortlisted, selected, shortlisted_for_next_round) mean
-    // the candidate is progressing — surface as 'shortlisted' at the application level.
-    if (isPositiveInterviewProcessStatus(latestTrackedStatus)) {
+    // Only update Application Status to 'shortlisted' when the FINAL round has status 'selected'.
+    // Intermediate positive statuses (shortlisted_for_next_round, shortlisted) do NOT
+    // promote the application status — they only indicate round-level progression.
+    const lastRoundWithMeaningfulStatus = (() => {
+      for (let i = trackedProcessesForStatus.length - 1; i >= 0; i -= 1) {
+        const statusKey = getCanonicalStatusKey(trackedProcessesForStatus[i]?.status || '', '');
+        if (statusKey && !PENDING_LIKE_INTERVIEW_STATUSES.has(normalizeApplicationStatusValue(statusKey))) {
+          return { process: trackedProcessesForStatus[i], index: i };
+        }
+      }
+      return null;
+    })();
+
+    const isFinalRound = lastRoundWithMeaningfulStatus !== null &&
+      lastRoundWithMeaningfulStatus.index === trackedProcessesForStatus.length - 1;
+    const isFinalRoundSelected = isFinalRound &&
+      getCanonicalStatusKey(lastRoundWithMeaningfulStatus.process?.status || '', '') === 'selected';
+
+    if (isFinalRoundSelected) {
       return 'shortlisted';
     }
     // Any other meaningful status (scheduled, completed, in_progress, etc.) that is
-    // not a rejection should be reflected as the application status.
-    if (!PENDING_LIKE_INTERVIEW_STATUSES.has(normalizeApplicationStatusValue(latestTrackedStatus))) {
+    // not a rejection and not an intermediate positive status should be reflected.
+    if (
+      !PENDING_LIKE_INTERVIEW_STATUSES.has(normalizeApplicationStatusValue(latestTrackedStatus)) &&
+      !isPositiveInterviewProcessStatus(latestTrackedStatus)
+    ) {
       return latestTrackedStatus;
     }
   }
