@@ -159,7 +159,7 @@ function CanDashboardPage() {
         {/* Welcome Card */}
         <div className="candidate-page-shell candidate-page-shell--header welcome-card-container">
           <div style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'nowrap' }}>
               {candidate.profilePicture ? (
                 <img 
                   src={getProfileImageSrc(candidate.profilePicture)} 

@@ -237,3 +237,71 @@ body.sidebar-open {
     font-size: 0.875rem !important;
   }
 }
+
+/* Match employer mobile gutters to post-job page */
+@media (max-width: 991px) {
+  #content.employer-panel-layout.mobile-view {
+    --employer-mobile-page-gutter: 10px;
+  }
+
+  #content.employer-panel-layout.mobile-view .twm-right-section-panel.site-bg-gray,
+  #content.employer-panel-layout.mobile-view .dashboard-content.employer-support-tickets-page {
+    padding-left: var(--employer-mobile-page-gutter) !important;
+    padding-right: var(--employer-mobile-page-gutter) !important;
+  }
+
+  #content.employer-panel-layout.mobile-view .employer-page-shell,
+  #content.employer-panel-layout.mobile-view .dashboard-content.employer-support-tickets-page .container-fluid {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.employer-panel-layout.mobile-view .emp-dashboard > div,
+  #content.employer-panel-layout.mobile-view .view-answers-page > div:last-child {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.employer-panel-layout.mobile-view .twm-right-section-panel :is(
+    label,
+    .form-label,
+    .page-toolbar__label,
+    .assessment-instructions-inline-label,
+    .assessment-selector-label,
+    .assessment-status-filter-label,
+    .manage-jobs-toolbar__date-label,
+    .manage-jobs-toolbar__status-label,
+    .dashboard-stat-label,
+    .stats-card__label,
+    .panel-tittle
+  ),
+  #content.employer-panel-layout.mobile-view .dashboard-content.employer-support-tickets-page :is(
+    label,
+    .form-label,
+    .page-toolbar__label,
+    .stats-card__label
+  ) {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    text-overflow: clip !important;
+    line-height: 1.35 !important;
+  }
+
+  #content.employer-panel-layout.mobile-view .twm-right-section-panel :is(
+    .page-toolbar__label,
+    .assessment-instructions-inline-label,
+    .assessment-selector-label,
+    .assessment-status-filter-label,
+    .manage-jobs-toolbar__date-label,
+    .manage-jobs-toolbar__status-label
+  ),
+  #content.employer-panel-layout.mobile-view .dashboard-content.employer-support-tickets-page .page-toolbar__label {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+}

@@ -64,6 +64,8 @@ import "./about-page-banner-fix.css";
 import "./create-password-banner-fix.css";
 // MOBILE CLICKABILITY FIX - restore taps after broad mobile CSS overrides
 import "./mobile-clickability-fix.css";
+// PANEL MOBILE OVERFLOW GUARD - final mobile text wrapping protection for candidate/employer panel pages
+import "./panel-mobile-overflow-guard.css";
 
 
 function App() {

@@ -167,11 +167,30 @@ select:focus {
     font-weight: bold;
     color: #111827;
     margin: 0 0 0.5rem 0;
+    max-width: 100%;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .resume-page-subtitle {
     color: #6b7280;
     margin: 0;
+    max-width: 100%;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.5;
+}
+
+.candidate-resume-page,
+.candidate-resume-page .resume-page-header-container,
+.candidate-resume-page .resume-page-header-inner,
+.candidate-resume-page .resume-content-container,
+.candidate-resume-page .twm-panel-inner,
+.candidate-resume-page .dashboard-cover-pic {
+    max-width: 100%;
+    min-width: 0;
 }
 
 .resume-content-container {
@@ -180,6 +199,42 @@ select:focus {
 
 /* Responsive Padding for Resume Page */
 @media (max-width: 768px) {
+    #content.candidate-panel-layout.mobile-view .candidate-resume-page :is(
+        .resume-page-title,
+        .resume-page-subtitle,
+        .panel-tittle,
+        .panel-body p,
+        .panel-body span,
+        .panel-body small,
+        .panel-body label,
+        .panel-body .text-muted,
+        .dashboard-cover-pic p,
+        .dashboard-cover-pic span,
+        .dashboard-cover-pic small,
+        .dashboard-cover-pic label,
+        .dashboard-cover-pic .text-muted
+    ) {
+        max-width: 100% !important;
+        min-width: 0 !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+        hyphens: auto !important;
+        text-overflow: clip !important;
+    }
+
+    #content.candidate-panel-layout.mobile-view .candidate-resume-page :is(
+        .resume-page-header-inner,
+        .resume-page-header-inner > div,
+        .panel-heading,
+        .panel-body,
+        .twm-panel-inner,
+        .dashboard-cover-pic
+    ) {
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+
     .resume-page-header-container {
         padding: 1rem 1rem 0 1rem;
     }
@@ -191,6 +246,11 @@ select:focus {
     
     .resume-page-title {
         font-size: 1.5rem !important;
+    }
+
+    .resume-page-subtitle {
+        font-size: 0.95rem;
+        line-height: 1.5;
     }
 
     .candidate-skills-dropdown-actions {
@@ -226,6 +286,7 @@ select:focus {
     
     .resume-page-subtitle {
         font-size: 0.875rem;
+        line-height: 1.45;
     }
     
     .resume-content-container {

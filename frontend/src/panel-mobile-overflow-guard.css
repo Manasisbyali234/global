@@ -1,0 +1,43 @@
+@media (max-width: 991px) {
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main > .twm-right-section-panel,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main > .dashboard-content,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main > * {
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+  }
+
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main > *,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .panel,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .panel-heading,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .panel-body,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .twm-panel-inner,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .row > *,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main [class*="col-"],
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .d-flex > *,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .page-toolbar,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .page-toolbar__section,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .page-toolbar__control-wrap {
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main *:not(.btn):not(.btn *):not(button):not(button *):not(.site-button):not(.site-button *):not(.badge):not(.badge *):not([class*="badge"]):not([class*="badge"] *):not(.form-control):not(.form-select):not(select):not(option):not(input):not(textarea):not(img):not(svg):not(i):not(video):not(canvas):not(table):not(thead):not(tbody):not(tr):not(th):not(td):not(.nav-link):not(.nav-link *):not(.dropdown-item):not(.dropdown-item *):not(.page-link):not(.page-link *):not(.pagination):not(.pagination *):not(.breadcrumb):not(.breadcrumb *):not(.swiper-wrapper):not(.swiper-slide) {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+    text-overflow: clip !important;
+  }
+
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .page-toolbar__label {
+    align-items: flex-start !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+}

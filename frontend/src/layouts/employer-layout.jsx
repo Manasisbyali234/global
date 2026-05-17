@@ -49,6 +49,7 @@ function EmployerLayout() {
     }
 
     const contentClasses = [
+        "employer-panel-layout",
         !isMobile && !sidebarActive ? "sidebar-hidden" : "",
         isMobile ? "mobile-view" : ""
     ].filter(Boolean).join(" ");

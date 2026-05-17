@@ -499,7 +499,7 @@ function SectionCandidateOverview() {
 								style={{ 
 									backgroundColor: card.bg,
 									cursor: card.clickable ? 'pointer' : 'default',
-									padding: '1.5rem',
+									padding: '1.25rem 1rem',
 									minHeight: '100px'
 								}}
 								onClick={card.clickable ? card.onClick : undefined}

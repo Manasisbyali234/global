@@ -40,6 +40,25 @@
     min-height: calc(100vh - 60px) !important;
   }
 
+  #content.mobile-view .twm-right-section-panel.site-bg-gray.can-dashboard {
+    padding: 0.75rem 0.5rem !important;
+  }
+
+  #content.mobile-view .can-dashboard .candidate-page-shell {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  #content.mobile-view .can-dashboard .candidate-page-shell--header,
+  #content.mobile-view .can-dashboard .candidate-page-shell--content {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  #content.mobile-view .can-dashboard .welcome-card-container > div {
+    padding: 0.75rem !important;
+  }
+
   #content.mobile-view .can-dashboard .welcome-card-container,
   #content.mobile-view .can-dashboard > div:last-child,
   #content.mobile-view .candidate-page-shell,
@@ -50,16 +69,16 @@
   #content.mobile-view .candidate-interviews,
   #content.mobile-view .candidate-save-job,
   #content.mobile-view .candidate-change-password-page {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
   }
 
   #content.mobile-view .can-dashboard .welcome-card-container,
   #content.mobile-view .candidate-page-shell,
   #content.mobile-view .candidate-save-job,
   #content.mobile-view .candidate-change-password-page {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
   }
 
   #content.mobile-view .candidate-page-header-card,
@@ -67,11 +86,14 @@
   #content.mobile-view .status-page-header-card,
   #content.mobile-view .candidate-interviews-header-card,
   #content.mobile-view .candidate-transactions-page .wt-admin-right-page-header,
+  #content.mobile-view .candidate-transactions-page .panel.panel-default.site-bg-white,
   #content.mobile-view .can-dashboard .welcome-card-container > div,
+  #content.mobile-view .candidate-notifications-stat-card,
+  #content.mobile-view .candidate-notification-card,
   #content.mobile-view .candidate-save-job .product-filter-wrap,
   #content.mobile-view .candidate-save-job .twm-jobs-list-style1,
   #content.mobile-view .candidate-save-job .twm-cv-manager-list-style1 {
-    padding: 1rem !important;
+    padding: 0.875rem !important;
     border-radius: 12px !important;
   }
 
@@ -85,7 +107,7 @@
 
   #content.mobile-view .panel-heading.wt-panel-heading,
   #content.mobile-view .panel-body.wt-panel-body {
-    padding: 1rem !important;
+    padding: 0.875rem !important;
   }
 
   #content.mobile-view .can-dashboard .row,
@@ -207,6 +229,16 @@
     max-width: none !important;
   }
 
+  #content.mobile-view .candidate-transactions-page .page-toolbar > .page-toolbar__section,
+  #content.mobile-view .candidate-transactions-page .page-toolbar > .d-flex.align-items-center.gap-3 {
+    margin-left: 0 !important;
+  }
+
+  #content.mobile-view .candidate-transactions-page .page-toolbar > .d-flex.align-items-center.gap-3 {
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+
   #content.mobile-view .candidate-transactions-page table {
     min-width: 640px !important;
   }
@@ -264,11 +296,202 @@
     min-height: calc(100vh - 56px) !important;
   }
 
+  #content.mobile-view .twm-right-section-panel.site-bg-gray.can-dashboard {
+    padding: 0.5rem !important;
+  }
+
+  #content.mobile-view .can-dashboard .candidate-page-shell {
+    padding-left: 0.35rem !important;
+    padding-right: 0.35rem !important;
+  }
+
+  #content.mobile-view .can-dashboard .candidate-page-shell--header,
+  #content.mobile-view .can-dashboard .candidate-page-shell--content {
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.35rem !important;
+  }
+
+  #content.mobile-view .can-dashboard .welcome-card-container > div {
+    padding: 0.5rem !important;
+  }
+
+  #content.mobile-view .can-dashboard .welcome-card-container,
+  #content.mobile-view .can-dashboard > div:last-child,
+  #content.mobile-view .candidate-page-shell,
+  #content.mobile-view .status-page-header-container,
+  #content.mobile-view .status-page-content-container,
+  #content.mobile-view .resume-page-header-container,
+  #content.mobile-view .resume-content-container,
+  #content.mobile-view .candidate-interviews,
+  #content.mobile-view .candidate-save-job,
+  #content.mobile-view .candidate-change-password-page {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  #content.mobile-view .can-dashboard .welcome-card-container,
+  #content.mobile-view .candidate-page-shell,
+  #content.mobile-view .candidate-save-job,
+  #content.mobile-view .candidate-change-password-page {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  #content.mobile-view .candidate-page-header-card,
+  #content.mobile-view .resume-page-header-inner,
+  #content.mobile-view .status-page-header-card,
+  #content.mobile-view .candidate-interviews-header-card,
+  #content.mobile-view .candidate-transactions-page .wt-admin-right-page-header,
+  #content.mobile-view .candidate-transactions-page .panel.panel-default.site-bg-white,
+  #content.mobile-view .can-dashboard .welcome-card-container > div,
+  #content.mobile-view .candidate-notifications-stat-card,
+  #content.mobile-view .candidate-notification-card,
+  #content.mobile-view .candidate-save-job .product-filter-wrap,
+  #content.mobile-view .candidate-save-job .twm-jobs-list-style1,
+  #content.mobile-view .candidate-save-job .twm-cv-manager-list-style1,
+  #content.mobile-view .panel-heading.wt-panel-heading,
+  #content.mobile-view .panel-body.wt-panel-body {
+    padding: 0.75rem !important;
+  }
+
   #content.mobile-view .candidate-page-title {
     font-size: 1.25rem !important;
   }
 
   #content.mobile-view .candidate-page-subtitle {
     font-size: 0.875rem !important;
+  }
+}
+
+/* Make candidate profile layout match employer post-job mobile spacing */
+@media (max-width: 991px) {
+  #content.mobile-view .candidate-page-shell {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.mobile-view .candidate-page-shell--header,
+  #content.mobile-view .candidate-page-shell--content {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  /* Make panels use a consistent inner padding like employer page */
+  #content.mobile-view .candidate-profile-page .panel.panel-default,
+  #content.mobile-view .candidate-profile-page .candidate-page-header-card,
+  #content.mobile-view .candidate-profile-page .panel-heading.wt-panel-heading,
+  #content.mobile-view .candidate-profile-page .panel-body.wt-panel-body {
+    padding: 1rem !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+  }
+
+  /* Reduce the side gap caused by utility padding classes inside candidate panels */
+  #content.mobile-view .candidate-profile-page .panel-body.p-a20,
+  #content.mobile-view .candidate-profile-page .panel-body.wt-panel-body.p-a20,
+  #content.mobile-view .candidate-profile-page .panel-heading.p-a20,
+  #content.mobile-view .candidate-profile-page .panel-heading.wt-panel-heading.p-a20 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Remove extra container padding/safe-area inset on candidate pages */
+  #content.mobile-view .candidate-profile-page .container,
+  #content.mobile-view .candidate-profile-page .container-fluid {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Aggressive override for wrapper elements to remove any leftover left inset */
+  #content.mobile-view .candidate-profile-page,
+  #content.mobile-view .candidate-profile-page .page-wraper,
+  #content.mobile-view .candidate-profile-page .twm-right-section-panel,
+  #content.mobile-view .candidate-profile-page .content-admin-main,
+  #content.mobile-view .candidate-profile-page #content,
+  #content.mobile-view .candidate-profile-page #root {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #content.mobile-view .candidate-page-shell {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.mobile-view .candidate-profile-page .panel.panel-default,
+  #content.mobile-view .candidate-profile-page .panel-heading.wt-panel-heading,
+  #content.mobile-view .candidate-profile-page .panel-body.wt-panel-body {
+    padding: 0.75rem !important;
+    border-radius: 12px !important;
+  }
+
+  #content.mobile-view .candidate-profile-page .panel-body.p-a20,
+  #content.mobile-view .candidate-profile-page .panel-heading.p-a20 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* Remove extra container padding on very small screens */
+  #content.mobile-view .candidate-profile-page .container,
+  #content.mobile-view .candidate-profile-page .container-fluid {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Match candidate mobile gutters to employer post-job page */
+@media (max-width: 991px) {
+  #content.candidate-panel-layout.mobile-view {
+    --candidate-mobile-page-gutter: 10px;
+  }
+
+  #content.candidate-panel-layout.mobile-view .twm-right-section-panel.site-bg-gray {
+    padding-left: var(--candidate-mobile-page-gutter) !important;
+    padding-right: var(--candidate-mobile-page-gutter) !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .candidate-page-shell,
+  #content.candidate-panel-layout.mobile-view .status-page-header-container,
+  #content.candidate-panel-layout.mobile-view .status-page-content-container,
+  #content.candidate-panel-layout.mobile-view .resume-page-header-container,
+  #content.candidate-panel-layout.mobile-view .resume-content-container,
+  #content.candidate-panel-layout.mobile-view .candidate-transactions-shell,
+  #content.candidate-panel-layout.mobile-view .candidate-support-shell {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .twm-right-section-panel :is(
+    label,
+    .form-label,
+    .page-toolbar__label,
+    .status-page-filter-label,
+    .panel-tittle,
+    .stats-card__label
+  ) {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    text-overflow: clip !important;
+    line-height: 1.35 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .twm-right-section-panel :is(
+    .page-toolbar__label,
+    .status-page-filter-label
+  ) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
   }
 }

@@ -157,10 +157,17 @@ select option[value*="others"] {
     padding-bottom: 10px !important;
   }
   
-  /* Prevent text wrapping in all elements that might contain interview type text */
-  .d-flex.gap-1,
-  .twm-right-section-panel .d-flex,
-  .twm-right-section-panel * {
+  /* Keep the interview badge rows on one line without affecting the entire panel */
+  .interview-process-container .d-flex.gap-1,
+  .interview-manager-container .d-flex.gap-1,
+  .interview-process-container .interview-type-badge,
+  .interview-process-container .stage-type-badge,
+  .interview-process-container .round-type-badge,
+  .interview-manager-container .interview-type-badge,
+  .interview-manager-container .stage-type-badge,
+  .interview-manager-container .round-type-badge,
+  .interview-process-container .badge,
+  .interview-manager-container .badge {
     word-wrap: normal !important;
     overflow-wrap: normal !important;
     word-break: keep-all !important;
@@ -171,20 +178,15 @@ select option[value*="others"] {
 
 /* Override any existing text wrapping rules for mobile */
 @media (max-width: 768px) {
-  .twm-right-section-panel * {
-    word-wrap: normal !important;
-    overflow-wrap: normal !important;
-    word-break: keep-all !important;
-    hyphens: none !important;
-  }
-  
-  .d-flex.gap-1 {
+  .interview-process-container .d-flex.gap-1,
+  .interview-manager-container .d-flex.gap-1 {
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
   }
-  
-  .twm-right-section-panel .d-flex {
+
+  .interview-process-container .d-flex,
+  .interview-manager-container .d-flex {
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;

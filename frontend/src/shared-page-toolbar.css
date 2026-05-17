@@ -146,6 +146,17 @@
 
     .page-toolbar__title {
         width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .page-toolbar__label {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
     }
 
     .page-toolbar__controls--dual,

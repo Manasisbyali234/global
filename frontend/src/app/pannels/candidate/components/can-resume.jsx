@@ -102,7 +102,7 @@ function CanMyResumePage() {
 
     return (
 			<>
-				<div className="twm-right-section-panel site-bg-gray">
+				<div className="twm-right-section-panel site-bg-gray candidate-resume-page">
 					{/* Resume Page Header */}
 					<div className="resume-page-header-container">
 						<div className="resume-page-header-inner">

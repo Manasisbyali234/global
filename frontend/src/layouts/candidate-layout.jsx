@@ -54,6 +54,7 @@ function CandidateLayout() {
 
 
     const contentClasses = [
+        "candidate-panel-layout",
         !isMobile && !sidebarActive ? "sidebar-hidden" : "",
         isMobile ? "mobile-view" : ""
     ].filter(Boolean).join(" ");
