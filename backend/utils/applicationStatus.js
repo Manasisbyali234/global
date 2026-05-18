@@ -644,7 +644,7 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
       getCanonicalStatusKey(lastRoundWithMeaningfulStatus.process?.status || '', '') === 'selected';
 
     if (isFinalRoundSelected) {
-      return 'pending';
+      return fallbackBaseStatus === 'shortlisted' ? 'shortlisted' : 'pending';
     }
     // Any other meaningful status (scheduled, completed, in_progress, etc.) that is
     // not a rejection and not an intermediate positive status should be reflected.
