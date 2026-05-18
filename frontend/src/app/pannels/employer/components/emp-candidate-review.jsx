@@ -162,14 +162,16 @@ function EmpCandidateReviewPage() {
 
     const normalizeTrackedProcessState = (process) => {
         let status = String(process?.status || 'pending');
+        const rawAssessmentStatus = isAssessmentProcess(process) && isAutoAssessmentStageStatus(status) ? status : null;
 
-        if (isAssessmentProcess(process) && isAutoAssessmentStageStatus(status)) {
+        if (rawAssessmentStatus) {
             status = 'pending';
         }
 
         return {
             ...process,
             status,
+            rawAssessmentStatus: rawAssessmentStatus || process?.rawAssessmentStatus || null,
             isCompleted: status !== 'pending'
         };
     };
@@ -574,15 +576,18 @@ function EmpCandidateReviewPage() {
     };
 
     const getStageAssessmentSummary = (stageData, fallbackSummary = null) => buildAssessmentSummary({
-        score: (stageData?.assessmentScore != null && stageData.assessmentScore !== 0)
+        score: stageData?.assessmentScore != null
             ? stageData.assessmentScore
-            : (fallbackSummary?.score ?? stageData?.assessmentScore ?? null),
+            : (fallbackSummary?.score ?? null),
         totalMarks: stageData?.assessmentTotalMarks ?? fallbackSummary?.totalMarks ?? null,
-        percentage: (stageData?.assessmentPercentage != null && stageData.assessmentPercentage !== 0)
+        percentage: stageData?.assessmentPercentage != null
             ? stageData.assessmentPercentage
-            : (fallbackSummary?.percentage ?? stageData?.assessmentPercentage ?? null),
+            : (fallbackSummary?.percentage ?? null),
         result: resolveAssessmentValue(stageData?.assessmentResult ?? stageData?.result, fallbackSummary?.result),
-        status: resolveAssessmentValue(stageData?.status ?? stageData?.assessmentAttemptStatus, fallbackSummary?.status) || '',
+        status: resolveAssessmentValue(
+            stageData?.rawAssessmentStatus ?? stageData?.status ?? stageData?.assessmentAttemptStatus,
+            fallbackSummary?.status
+        ) || '',
         captures: stageData?.assessmentCaptures || fallbackSummary?.captures || [],
         manualEvaluationPendingCount:
             stageData?.manualEvaluationPendingCount ??
@@ -1868,7 +1873,7 @@ function EmpCandidateReviewPage() {
                                                                             <button
                                                                                 className="btn-decision btn-shortlist-action"
                                                                                 onClick={() => updateApplicationStatus('shortlisted')}
-                                                                                disabled={applicationStatusForActions === 'shortlisted'}
+                                                                                disabled={['shortlisted', 'offer_sent', 'accepted', 'hired'].includes(applicationStatusForActions)}
                                                                             >
                                                                                 <i className="fas fa-check-circle"></i> Shortlisted
                                                                             </button>
