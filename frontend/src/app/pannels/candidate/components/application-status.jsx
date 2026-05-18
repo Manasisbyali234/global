@@ -2764,10 +2764,6 @@ function CanStatusPage() {
 																	Reject Offer
 																</button>
 															</div>
-														) : selectedApplicationDisplayStatus === 'accepted' ? (
-															<div className="mt-3">
-																<span className="btn btn-sm btn-outline-success disabled">Offer Accepted</span>
-															</div>
 														) : hasRejectedOffer ? (
 															<div className="mt-3">
 																<span className="btn btn-sm btn-outline-danger disabled">Offer Rejected</span>

@@ -309,6 +309,10 @@ const getInterviewCardStatus = (application = {}) => {
       : "rejected";
   }
 
+  if (applicationStatusKey === "shortlisted") {
+    return "shortlisted";
+  }
+
   if (hasMeaningfulInterviewStatus) {
     return interviewStatusKey;
   }
