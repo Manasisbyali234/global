@@ -774,6 +774,16 @@
 
 .btn-shortlist-action { border-left: 4px solid var(--primary-gold) !important; }
 .btn-shortlist-action i { color: var(--primary-gold); }
+.btn-shortlist-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #e9ecef;
+    border-color: #ced4da !important;
+    border-left-color: #adb5bd !important;
+    color: #6c757d;
+    transform: none;
+}
+.btn-shortlist-action:disabled i { color: #6c757d; }
 
 .btn-hold-action { border-left: 4px solid #ffc107 !important; }
 .btn-hold-action i { color: #ffc107; }
