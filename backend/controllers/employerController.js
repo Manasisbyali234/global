@@ -5,6 +5,7 @@ const EmployerPublicProfile = require('../models/EmployerPublicProfile');
 const EmployerAdminProfile = require('../models/EmployerAdminProfile');
 const Job = require('../models/Job');
 const InterviewRound = require('../models/InterviewRound');
+const InterviewProcess = require('../models/InterviewProcess');
 const Application = require('../models/Application');
 const Message = require('../models/Message');
 const Notification = require('../models/Notification');
@@ -4201,9 +4202,11 @@ exports.saveInterviewReview = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Application not found' });
     }
 
-    // Fetch assessment attempts to ensure status calculation includes all relevant data
+    // Fetch assessment attempts and interviewProcess so the save response calculation
+    // matches the detailed GET response used by the UI.
     const AssessmentAttempt = require('../models/AssessmentAttempt');
     let assessmentAttemptsByAssessmentId = {};
+    let interviewProcess = null;
     try {
       const assessmentAttempts = await AssessmentAttempt.find({
         applicationId: application._id
@@ -4218,7 +4221,12 @@ exports.saveInterviewReview = async (req, res) => {
       }, {});
     } catch (assessmentError) {
       console.error('Error fetching assessment attempts for save response:', assessmentError);
-      // Continue anyway - assessment data is optional for basic status calculation
+    }
+
+    try {
+      interviewProcess = await InterviewProcess.findOne({ applicationId: application._id }).lean();
+    } catch (processError) {
+      console.error('Error fetching interviewProcess for save response:', processError);
     }
 
     if (shouldNotifyInterviewStatusUpdates && previousInterviewProcesses) {
@@ -4297,7 +4305,8 @@ exports.saveInterviewReview = async (req, res) => {
       success: true,
       message: 'Interview review saved successfully',
       application: decorateEmployerApplicationStatusFields(application, {
-        assessmentAttemptsByAssessmentId
+        assessmentAttemptsByAssessmentId,
+        interviewProcess
       })
     });
   } catch (error) {
