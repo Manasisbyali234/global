@@ -650,7 +650,8 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     // not a rejection and not an intermediate positive status should be reflected.
     if (
       !PENDING_LIKE_INTERVIEW_STATUSES.has(normalizeApplicationStatusValue(latestTrackedStatus)) &&
-      !isPositiveInterviewProcessStatus(latestTrackedStatus)
+      !isPositiveInterviewProcessStatus(latestTrackedStatus) &&
+      isFinalRound
     ) {
       return latestTrackedStatus;
     }
@@ -688,9 +689,25 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
     return 'no_show';
   }
 
+  const trackedProcessesForStatus = getResolvedTrackedProcesses(application, options);
   const latestTrackedStatus = getLatestMeaningfulTrackedStatus(application, options);
   if (latestTrackedStatus) {
-    return latestTrackedStatus === 'interviewed' ? 'interview_completed' : latestTrackedStatus;
+    const lastRoundWithMeaningfulStatus = (() => {
+      for (let i = trackedProcessesForStatus.length - 1; i >= 0; i -= 1) {
+        const statusKey = getCanonicalStatusKey(trackedProcessesForStatus[i]?.status || '', '');
+        if (statusKey && !PENDING_LIKE_INTERVIEW_STATUSES.has(normalizeApplicationStatusValue(statusKey))) {
+          return { process: trackedProcessesForStatus[i], index: i };
+        }
+      }
+      return null;
+    })();
+
+    const isFinalRound = lastRoundWithMeaningfulStatus !== null &&
+      lastRoundWithMeaningfulStatus.index === trackedProcessesForStatus.length - 1;
+
+    if (isFinalRound) {
+      return latestTrackedStatus === 'interviewed' ? 'interview_completed' : latestTrackedStatus;
+    }
   }
 
   if (baseStatus === 'shortlisted' || (baseStatus === 'pending' && application?.isSelectedForProcess)) {
