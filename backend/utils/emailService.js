@@ -24,26 +24,35 @@ const getMailFromHeader = () => {
   return `"${senderName}" <${senderAddress}>`;
 };
 
+const extractMailAddress = (value = '') => {
+  const trimmedValue = String(value || '').trim();
+  if (!trimmedValue) {
+    return '';
+  }
+
+  const headerMatch = trimmedValue.match(/<([^>]+)>/);
+  return String(headerMatch ? headerMatch[1] : trimmedValue).trim().toLowerCase();
+};
+
 const resolveMailFrom = (fromValue) => {
   const trimmedFromValue = String(fromValue || '').trim();
   const defaultFromHeader = getMailFromHeader();
   const authUser = String(process.env.EMAIL_USER || '').trim().toLowerCase();
+  const normalizedDefaultFrom = defaultFromHeader.toLowerCase();
+  const normalizedFromAddress = extractMailAddress(trimmedFromValue);
+  const normalizedDefaultFromAddress = extractMailAddress(defaultFromHeader);
 
   if (!trimmedFromValue) {
     return defaultFromHeader;
   }
 
-  if (authUser && !authUser.includes('@')) {
-    const normalizedFromValue = trimmedFromValue.toLowerCase();
-    const normalizedDefaultFrom = defaultFromHeader.toLowerCase();
-
-    if (
-      normalizedFromValue === authUser
-      || normalizedFromValue === normalizedDefaultFrom
-      || !trimmedFromValue.includes('@')
-    ) {
-      return defaultFromHeader;
-    }
+  if (
+    trimmedFromValue.toLowerCase() === normalizedDefaultFrom
+    || (normalizedDefaultFromAddress && normalizedFromAddress === normalizedDefaultFromAddress)
+    || !trimmedFromValue.includes('@')
+    || (authUser && normalizedFromAddress === authUser)
+  ) {
+    return defaultFromHeader;
   }
 
   return trimmedFromValue;

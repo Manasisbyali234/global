@@ -10,6 +10,7 @@ const AssessmentAttempt = require('../models/AssessmentAttempt');
 const { createProfileCompletionNotification, createNotification } = require('./notificationController');
 const {
   createTransport,
+  getMailFromHeader,
   sendWelcomeEmail,
   sendJobApplicationConfirmationEmail,
   sendMailWithGreeting
@@ -1048,7 +1049,7 @@ exports.respondToInterviewInvite = async (req, res) => {
       const transporter = createTransport();
       
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: getMailFromHeader(),
         to: application.employerId.email,
         subject: `Interview Response - ${application.jobId.title}`,
         html: `

@@ -13,7 +13,7 @@ const Subscription = require('../models/Subscription');
 const Support = require('../models/Support');
 const mongoose = require('mongoose');
 const { createNotification } = require('./notificationController');
-const { createTransport, sendWelcomeEmail, sendMailWithGreeting } = require('../utils/emailService');
+const { createTransport, getMailFromHeader, sendWelcomeEmail, sendMailWithGreeting } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { cacheInvalidation } = require('../utils/cacheInvalidation');
 const { sendSMS } = require('../utils/smsProvider');
@@ -2800,7 +2800,7 @@ exports.updateApplicationStatus = async (req, res) => {
           try {
             const transporter = createTransport();
             const emailResult = await sendMailWithGreeting(transporter, {
-              from: process.env.EMAIL_USER,
+              from: getMailFromHeader(),
               to: application.candidateId.email,
               subject: `Congratulations! You've been shortlisted for ${jobTitle}`,
               html: `
@@ -2836,7 +2836,7 @@ exports.updateApplicationStatus = async (req, res) => {
             const safeNotes = escapeHtml(trimmedNotes);
 
             await sendMailWithGreeting(transporter, {
-              from: process.env.EMAIL_USER,
+              from: getMailFromHeader(),
               to: application.candidateId.email,
               subject: `Offer Letter Sent for ${jobTitle}`,
               html: `
@@ -3835,7 +3835,7 @@ exports.sendInterviewInvite = async (req, res) => {
     const transporter = createTransport();
     
     const mailOptions = {
-      from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
+      from: getMailFromHeader(),
       to: application.candidateId.email,
       subject: `Interview Invitation - ${application.jobId.title}`,
       html: `
@@ -3910,7 +3910,7 @@ exports.confirmInterview = async (req, res) => {
     const formattedDate = formatDate(confirmedDate);
     
     const mailOptions = {
-      from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
+      from: getMailFromHeader(),
       to: application.candidateId.email,
       subject: `âœ“ Interview Confirmed - ${application.jobId.title}`,
       html: `
