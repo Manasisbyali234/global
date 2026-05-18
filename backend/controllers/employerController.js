@@ -4201,6 +4201,26 @@ exports.saveInterviewReview = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Application not found' });
     }
 
+    // Fetch assessment attempts to ensure status calculation includes all relevant data
+    const AssessmentAttempt = require('../models/AssessmentAttempt');
+    let assessmentAttemptsByAssessmentId = {};
+    try {
+      const assessmentAttempts = await AssessmentAttempt.find({
+        applicationId: application._id
+      }).sort({ updatedAt: -1, createdAt: -1 });
+
+      assessmentAttemptsByAssessmentId = assessmentAttempts.reduce((acc, attempt) => {
+        const attemptAssessmentId = String(attempt?.assessmentId || '').trim();
+        if (attemptAssessmentId && !acc[attemptAssessmentId]) {
+          acc[attemptAssessmentId] = attempt;
+        }
+        return acc;
+      }, {});
+    } catch (assessmentError) {
+      console.error('Error fetching assessment attempts for save response:', assessmentError);
+      // Continue anyway - assessment data is optional for basic status calculation
+    }
+
     if (shouldNotifyInterviewStatusUpdates && previousInterviewProcesses) {
       try {
         const candidateId = application.candidateId?._id;
@@ -4276,7 +4296,9 @@ exports.saveInterviewReview = async (req, res) => {
     res.json({
       success: true,
       message: 'Interview review saved successfully',
-      application: decorateEmployerApplicationStatusFields(application)
+      application: decorateEmployerApplicationStatusFields(application, {
+        assessmentAttemptsByAssessmentId
+      })
     });
   } catch (error) {
     console.error('Error saving interview review:', error);
