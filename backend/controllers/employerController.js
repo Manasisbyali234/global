@@ -4043,6 +4043,18 @@ exports.saveInterviewReview = async (req, res) => {
     if (interviewRounds) updateData.interviewRounds = interviewRounds;
     if (remarks) updateData.employerRemarks = remarks;
     if (typeof isSelected === 'boolean') updateData.isSelectedForProcess = isSelected;
+
+    if (applicationId === '6a0adb74a9e49375392a4af7') {
+      console.log('DEBUG employer.saveInterviewReview incoming', {
+        applicationId,
+        interviewRounds,
+        interviewProcesses,
+        remarks,
+        isSelected,
+        processRemarks,
+        existingApplicationStatus
+      });
+    }
     
     if (interviewProcesses && Array.isArray(interviewProcesses)) {
       const normalizeInterviewProcessStatus = (value = '') =>
@@ -4301,13 +4313,27 @@ exports.saveInterviewReview = async (req, res) => {
       }
     }
     
+    const decoratedApplication = decorateEmployerApplicationStatusFields(application, {
+      assessmentAttemptsByAssessmentId,
+      interviewProcess
+    });
+
+    if (applicationId === '6a0adb74a9e49375392a4af7') {
+      console.log('DEBUG employer.saveInterviewReview response', {
+        applicationId,
+        status: application.status,
+        applicationStatus: decoratedApplication.applicationStatus,
+        applicationDisplayStatus: decoratedApplication.applicationDisplayStatus,
+        displayStatus: decoratedApplication.displayStatus,
+        interviewCurrentStatus: decoratedApplication.interviewCurrentStatus,
+        interviewProcesses: application.interviewProcesses
+      });
+    }
+
     res.json({
       success: true,
       message: 'Interview review saved successfully',
-      application: decorateEmployerApplicationStatusFields(application, {
-        assessmentAttemptsByAssessmentId,
-        interviewProcess
-      })
+      application: decoratedApplication
     });
   } catch (error) {
     console.error('Error saving interview review:', error);

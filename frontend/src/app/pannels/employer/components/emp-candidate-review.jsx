@@ -933,6 +933,17 @@ function EmpCandidateReviewPage() {
             
             if (response.ok) {
                 const data = await response.json();
+                if (applicationId === '6a0adb74a9e49375392a4af7') {
+                    console.debug('DEBUG fetchApplicationDetails response', {
+                        applicationId,
+                        status: data?.application?.status,
+                        applicationStatus: data?.application?.applicationStatus,
+                        applicationDisplayStatus: data?.application?.applicationDisplayStatus,
+                        displayStatus: data?.application?.displayStatus,
+                        interviewCurrentStatus: data?.application?.interviewCurrentStatus,
+                        interviewProcesses: data?.application?.interviewProcesses
+                    });
+                }
                 const assessmentSummary = getAssessmentSummary(data.application);
                 const orderedAssessmentRounds = getOrderedAssessmentRounds(data.application);
                 setApplication(data.application);
@@ -1316,6 +1327,17 @@ function EmpCandidateReviewPage() {
 
             if (response.ok) {
                 const data = await response.json().catch(() => ({}));
+                if (applicationId === '6a0adb74a9e49375392a4af7') {
+                    console.debug('DEBUG saveInterviewProcesses response', {
+                        applicationId,
+                        ok: response.ok,
+                        dataApplicationStatus: data?.application?.status,
+                        dataApplicationDisplayStatus: data?.application?.applicationDisplayStatus,
+                        dataDisplayStatus: data?.application?.displayStatus,
+                        dataInterviewCurrentStatus: data?.application?.interviewCurrentStatus,
+                        interviewProcesses: data?.application?.interviewProcesses
+                    });
+                }
                 if (data?.application?.status) {
                     setApplication(prev => mergeApplicationStatusFields(prev, data.application));
                 }
