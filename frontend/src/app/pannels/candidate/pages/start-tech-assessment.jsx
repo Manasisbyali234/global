@@ -621,26 +621,17 @@ const StartAssessment = () => {
         }
     }, [assessmentState, logViolation]);
 
-    const screenCaptureSuspendedRef = useRef(false);
-
     const handleScreenCaptureAttempt = useCallback((source) => {
-        if (assessmentState !== 'in_progress' || screenCaptureSuspendedRef.current) {
+        if (assessmentState !== 'in_progress') {
             return;
         }
-        screenCaptureSuspendedRef.current = true;
 
-        // Log to backend async but do NOT wait — suspend immediately
-        api.logAssessmentViolation({
-            attemptId,
-            type: 'screen_capture',
-            details: `Screen capture shortcut detected via ${source}.`
-        }).catch(() => {});
-
-        suspendAssessment(
+        registerRestrictionViolation(
             'screen_capture',
-            'Screenshot or screen-recording activity was detected. Your assessment has been suspended immediately.'
+            'Screenshot or screen-recording shortcuts are not allowed during the assessment.',
+            `Screen capture shortcut detected via ${source}.`
         );
-    }, [assessmentState, attemptId, suspendAssessment]);
+    }, [assessmentState, registerRestrictionViolation]);
 
     const handleScreenCaptureKey = useCallback((e) => {
         if (assessmentState !== 'in_progress') return;
@@ -657,6 +648,7 @@ const StartAssessment = () => {
         const isWindowsSnippingShortcut = isWindowsPlatform && e.metaKey && e.shiftKey && normalizedKey === 's';
         const isMacCaptureShortcut = isMacPlatform && e.metaKey && e.shiftKey && ['3', '4', '5'].includes(normalizedKey);
         const isMacClipboardCaptureShortcut = isMacPlatform && e.metaKey && e.shiftKey && e.ctrlKey && ['3', '4'].includes(normalizedKey);
+        const isMacScreenRecordingShortcut = isMacPlatform && e.metaKey && e.shiftKey && normalizedKey === '5';
         const isWindowsGameBarShortcut = isWindowsPlatform && e.metaKey && normalizedKey === 'g';
         const isWindowsRecordShortcut = isWindowsPlatform && e.metaKey && e.altKey && normalizedKey === 'r';
 
@@ -667,8 +659,10 @@ const StartAssessment = () => {
             captureSource = 'windows_snipping_tool';
         } else if (isMacClipboardCaptureShortcut) {
             captureSource = `mac_clipboard_capture_${normalizedKey}`;
+        } else if (isMacScreenRecordingShortcut) {
+            captureSource = 'mac_screen_recording_toolbar';
         } else if (isMacCaptureShortcut) {
-            captureSource = normalizedKey === '5' ? 'mac_screen_recording_toolbar' : `mac_capture_${normalizedKey}`;
+            captureSource = normalizedKey === '5' ? 'mac_capture_toolbar' : `mac_capture_${normalizedKey}`;
         } else if (isWindowsGameBarShortcut) {
             captureSource = 'windows_game_bar';
         } else if (isWindowsRecordShortcut) {
@@ -1334,38 +1328,6 @@ const StartAssessment = () => {
 	}, [assessmentId, jobId, applicationId]);
 
 
-
-	// Mac screenshot secondary detection: Cmd+Shift held when visibility changes
-	const macCaptureKeysRef = useRef({ meta: false, shift: false });
-	useEffect(() => {
-		if (assessmentState !== 'in_progress') return;
-
-		const platform = typeof navigator === 'undefined' ? '' : navigator.userAgentData?.platform || navigator.platform || '';
-		if (!/mac/i.test(platform)) return;
-
-		const onKeyDown = (e) => {
-			if (e.metaKey) macCaptureKeysRef.current.meta = true;
-			if (e.shiftKey) macCaptureKeysRef.current.shift = true;
-		};
-		const onKeyUp = () => {
-			macCaptureKeysRef.current = { meta: false, shift: false };
-		};
-		const onVisibilityChange = () => {
-			if (document.hidden && macCaptureKeysRef.current.meta && macCaptureKeysRef.current.shift) {
-				handleScreenCaptureAttempt('mac_screenshot_visibility_trigger');
-			}
-		};
-
-		document.addEventListener('keydown', onKeyDown, true);
-		document.addEventListener('keyup', onKeyUp, true);
-		document.addEventListener('visibilitychange', onVisibilityChange);
-
-		return () => {
-			document.removeEventListener('keydown', onKeyDown, true);
-			document.removeEventListener('keyup', onKeyUp, true);
-			document.removeEventListener('visibilitychange', onVisibilityChange);
-		};
-	}, [assessmentState, handleScreenCaptureAttempt]);
 
 	// Add security listeners when assessment starts
 	useEffect(() => {
