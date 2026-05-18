@@ -16,7 +16,7 @@ const ASSESSMENT_PROGRESS_KEY = 'candidateCurrentAssessmentProgress';
 const RESTRICTION_WARNING_LIMIT = 4;
 const RESTRICTION_SUSPEND_THRESHOLD = 5;
 const IMMEDIATE_RESTRICTION_TYPES = new Set(['screen_capture']);
-const LOCKED_CAPTURE_KEYS = ['PrintScreen', 'MetaLeft', 'MetaRight'];
+const LOCKED_CAPTURE_KEYS = ['PrintScreen', 'MetaLeft', 'MetaRight', 'ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight'];
 const CAMERA_START_REQUIRED_MESSAGE = 'Camera access is required before the assessment can begin.';
 const CAMERA_RESUME_REQUIRED_MESSAGE = 'Camera access is required to continue this assessment.';
 const CAMERA_HELP_MESSAGE = 'Allow camera access in your browser and close any other app that may be using the webcam.';
@@ -481,7 +481,7 @@ const StartAssessment = () => {
                 violationType,
                 response?.message || (
                     isImmediateRestriction
-                        ? 'Screenshot or screen-recording activity was detected. Your assessment has been suspended immediately.'
+                        ? 'Screenshot or screen-recording activity was detected (e.g. Cmd+Shift+3/4/5, Control+Cmd+Shift+3/4, or PrintScreen). Your assessment has been suspended immediately.'
                         : `${userMessage} This was your 5th mistake. Your assessment has been suspended.`
                 )
             );
@@ -647,6 +647,8 @@ const StartAssessment = () => {
         const isPrintScreen = key === 'PrintScreen' || keyCode === 44;
         const isWindowsSnippingShortcut = isWindowsPlatform && e.metaKey && e.shiftKey && normalizedKey === 's';
         const isMacCaptureShortcut = isMacPlatform && e.metaKey && e.shiftKey && ['3', '4', '5'].includes(normalizedKey);
+        const isMacClipboardCaptureShortcut = isMacPlatform && e.metaKey && e.shiftKey && e.ctrlKey && ['3', '4'].includes(normalizedKey);
+        const isMacScreenRecordingShortcut = isMacPlatform && e.metaKey && e.shiftKey && normalizedKey === '5';
         const isWindowsGameBarShortcut = isWindowsPlatform && e.metaKey && normalizedKey === 'g';
         const isWindowsRecordShortcut = isWindowsPlatform && e.metaKey && e.altKey && normalizedKey === 'r';
 
@@ -655,6 +657,10 @@ const StartAssessment = () => {
             captureSource = e.altKey ? 'alt_print_screen' : 'print_screen';
         } else if (isWindowsSnippingShortcut) {
             captureSource = 'windows_snipping_tool';
+        } else if (isMacClipboardCaptureShortcut) {
+            captureSource = `mac_clipboard_capture_${normalizedKey}`;
+        } else if (isMacScreenRecordingShortcut) {
+            captureSource = 'mac_screen_recording_toolbar';
         } else if (isMacCaptureShortcut) {
             captureSource = normalizedKey === '5' ? 'mac_capture_toolbar' : `mac_capture_${normalizedKey}`;
         } else if (isWindowsGameBarShortcut) {
