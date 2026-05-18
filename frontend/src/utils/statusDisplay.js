@@ -87,8 +87,30 @@ export const getStatusLabel = (value = 'pending') => {
   return STATUS_LABELS[statusKey] || statusKey.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-const normalizeApplicationDisplayStatusKey = (statusKey = 'pending') =>
-  statusKey === 'under_review' ? 'pending' : statusKey;
+const normalizeApplicationDisplayStatusKey = (statusKey = 'pending') => {
+  switch (statusKey) {
+    case 'under_review':
+    case 'passed':
+    case 'completed':
+    case 'scheduled':
+    case 'in_progress':
+    case 'interview_scheduled':
+    case 'interview_completed':
+    case 'pending_decision':
+    case 'on_hold':
+      return 'pending';
+    case 'selected':
+    case 'shortlisted_for_next_round':
+      return 'shortlisted';
+    case 'no_show':
+    case 'session_expired':
+    case 'not_advanced_to_next_round':
+    case 'not_advanced_to_next_stage':
+      return 'rejected';
+    default:
+      return statusKey;
+  }
+};
 
 export const isRejectedStatusKey = (value = '') => {
   const statusKey = getCanonicalStatusKey(value, '');

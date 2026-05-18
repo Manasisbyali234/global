@@ -211,6 +211,43 @@ const isPositiveInterviewProcessStatus = (value = '') => {
   ].includes(normalizedStatus);
 };
 
+const isAssessmentEmployerDecisionStatus = (value = '') => {
+  const normalizedStatus = normalizeApplicationStatusValue(value);
+  if (!normalizedStatus) return false;
+
+  return [
+    'shortlisted for next round',
+    'shortlisted',
+    'selected',
+    'on hold',
+    'pending decision',
+    'no show',
+    'rejected',
+    'not advanced to next stage',
+    'not advanced to next round'
+  ].includes(normalizedStatus);
+};
+
+const shouldReflectTrackedStatusInApplicationDisplay = (process = {}, status = '') => {
+  const statusKey = getCanonicalStatusKey(status, '');
+  if (!statusKey) return false;
+
+  if (PENDING_LIKE_INTERVIEW_STATUSES.has(normalizeApplicationStatusValue(statusKey))) {
+    return false;
+  }
+
+  if (isPositiveInterviewProcessStatus(statusKey)) {
+    return false;
+  }
+
+  const processType = normalizeApplicationStatusValue(process?.type || process?.stageType);
+  if (processType === 'assessment') {
+    return isAssessmentEmployerDecisionStatus(statusKey);
+  }
+
+  return true;
+};
+
 const isAutoRejectedFromInterviewStageStatus = (application = {}) => {
   if (normalizeApplicationStatusValue(application?.status) !== 'rejected') {
     return false;
@@ -264,6 +301,28 @@ const getStageTrackedProcesses = (application = {}, interviewProcess = null) => 
       _source: 'stage'
     }));
 };
+
+const getAssessmentContextCount = (application = {}, options = {}) => {
+  const interviewProcess = options?.interviewProcess || null;
+  const configuredAssessmentCount = getAssessmentRoundOrderKeys(application?.jobId || {}).length;
+  const manualAssessmentCount = (Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [])
+    .filter((process) => normalizeApplicationStatusValue(process?.type || process?.stageType) === 'assessment')
+    .length;
+  const stageAssessmentCount = getStageTrackedProcesses(application, interviewProcess)
+    .filter((process) => normalizeApplicationStatusValue(process?.type || process?.stageType) === 'assessment')
+    .length;
+  const directAssessmentCount = application?.jobId?.assessmentId ? 1 : 0;
+
+  return Math.max(
+    configuredAssessmentCount,
+    manualAssessmentCount,
+    stageAssessmentCount,
+    directAssessmentCount
+  );
+};
+
+const hasSingleAssessmentContext = (application = {}, options = {}) =>
+  getAssessmentContextCount(application, options) <= 1;
 
 const buildTrackedProcessLookupTokens = (process = {}) => {
   const tokens = new Set();
@@ -376,7 +435,11 @@ const getAssessmentAttemptForWindow = (application = {}, options = {}, assessmen
     return attemptsByAssessmentId[requestedAssessmentId];
   }
 
-  return getLatestAssessmentAttempt(application, options);
+  if (hasSingleAssessmentContext(application, options)) {
+    return getLatestAssessmentAttempt(application, options);
+  }
+
+  return null;
 };
 
 const getLatestAssessmentAttempt = (application = {}, options = {}) => {
@@ -432,7 +495,11 @@ const hasExpiredAssessmentWindowWithoutActivity = (application = {}, options = {
         matchedAttempt?.result,
         'pending'
       )
-    : resolveAssessmentOutcomeStatus(application?.assessmentStatus, application?.assessmentResult, 'pending');
+    : (
+      hasSingleAssessmentContext(application, options)
+        ? resolveAssessmentOutcomeStatus(application?.assessmentStatus, application?.assessmentResult, 'pending')
+        : 'pending'
+    );
 
   if (resolvedOutcome !== 'pending') {
     return false;
@@ -474,9 +541,10 @@ const resolveTrackedProcessStatus = (process = {}, application = {}, options = {
 
   const attemptsByAssessmentId = getAssessmentAttemptLookup(application, options);
   const processAssessmentId = normalizeAssessmentId(process?.assessmentId);
+  const singleAssessmentContext = hasSingleAssessmentContext(application, options);
   const matchedAttempt = (
     (processAssessmentId && attemptsByAssessmentId[processAssessmentId]) ||
-    getLatestAssessmentAttempt(application, options)
+    (singleAssessmentContext ? getLatestAssessmentAttempt(application, options) : null)
   );
 
   if (matchedAttempt) {
@@ -487,11 +555,14 @@ const resolveTrackedProcessStatus = (process = {}, application = {}, options = {
     );
   }
 
-  const applicationOutcomeStatus = resolveAssessmentOutcomeStatus(
-    application?.assessmentStatus,
-    application?.assessmentResult,
-    getCanonicalStatusKey(rawStatus || 'pending')
-  );
+  const defaultProcessStatus = getCanonicalStatusKey(rawStatus || 'pending');
+  const applicationOutcomeStatus = singleAssessmentContext
+    ? resolveAssessmentOutcomeStatus(
+        application?.assessmentStatus,
+        application?.assessmentResult,
+        defaultProcessStatus
+      )
+    : defaultProcessStatus;
 
   if (
     getCanonicalStatusKey(applicationOutcomeStatus, 'pending') === 'pending' &&
@@ -646,11 +717,11 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     if (isFinalRoundSelected) {
       return fallbackBaseStatus === 'shortlisted' ? 'shortlisted' : 'pending';
     }
-    // Any other meaningful status (scheduled, completed, in_progress, etc.) that is
-    // not a rejection and not an intermediate positive status should be reflected.
     if (
-      !PENDING_LIKE_INTERVIEW_STATUSES.has(normalizeApplicationStatusValue(latestTrackedStatus)) &&
-      !isPositiveInterviewProcessStatus(latestTrackedStatus) &&
+      shouldReflectTrackedStatusInApplicationDisplay(
+        lastRoundWithMeaningfulStatus?.process,
+        latestTrackedStatus
+      ) &&
       isFinalRound
     ) {
       return latestTrackedStatus;
