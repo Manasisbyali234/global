@@ -140,8 +140,12 @@ function SignupCandidate() {
                 setShowOtpModal(true);
                 startOtpTimer();
             } else if (response.status === 409) {
-                showError(data.message || 'This email is already registered. Please log in instead.');
-                setTimeout(() => navigate(publicUser.pages.LOGIN_CANDIDATE), 2000);
+                if (data.field === 'mobile') {
+                    setFieldErrors(prev => ({ ...prev, mobile: data.message }));
+                } else {
+                    showError(data.message || 'This email is already registered. Please log in instead.');
+                    setTimeout(() => navigate(publicUser.pages.LOGIN_CANDIDATE), 2000);
+                }
             } else {
                 // Show first validation error if present, otherwise show general message
                 const errMsg = data.errors?.[0]?.msg || data.message || 'Registration failed.';

@@ -13,7 +13,7 @@ const employerSchema = new mongoose.Schema({
     }
   },
   password: { type: String, required: false },
-  phone: { type: String },
+  phone: { type: String, unique: true, sparse: true },
   companyName: { type: String, required: true },
   brandName: { type: String },
   employerType: { type: String, enum: ['company', 'consultant'], default: 'company' },

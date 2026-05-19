@@ -13,7 +13,7 @@ function AdminAddCandidate() {
         mobileNumber: '',
         email: '',
         collegeName: '',
-        credits: 0
+        credits: ''
     });
 
 
@@ -63,9 +63,12 @@ function AdminAddCandidate() {
         // College name is optional - no validation needed
         
         // Credits validation
-        if (formData.credits < 0) {
-            newErrors.credits = 'Credits cannot be negative';
-        } else if (formData.credits > 10000) {
+        const creditsVal = parseInt(formData.credits);
+        if (formData.credits === '' || formData.credits === null || formData.credits === undefined) {
+            newErrors.credits = 'Credits is required';
+        } else if (isNaN(creditsVal) || creditsVal < 1) {
+            newErrors.credits = 'At least 1 credit is required';
+        } else if (creditsVal > 10000) {
             newErrors.credits = 'Credits cannot exceed 10000';
         }
         
@@ -92,7 +95,7 @@ function AdminAddCandidate() {
                     mobileNumber: '',
                     email: '',
                     collegeName: '',
-                    credits: 0
+                    credits: ''
                 });
                 setTimeout(() => {
                     navigate('/admin/placement-credits');
@@ -166,11 +169,11 @@ function AdminAddCandidate() {
                                 <input
                                     type="number"
                                     name="credits"
-                                    min="0"
+                                    min="1"
                                     className={`form-control ${errors.credits ? 'is-invalid' : ''}`}
                                     value={formData.credits}
                                     onChange={handleChange}
-                                    placeholder="Enter credits (0-10000)"
+                                    placeholder="Enter credits (min 1)"
                                 />
                                 {errors.credits && <div className="text-danger mt-1" style={{fontSize: '0.875rem'}}>{errors.credits}</div>}
                             </div>

@@ -518,6 +518,14 @@ exports.registerEmployer = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
 
+    const fullPhone = phone ? phone.trim() : '';
+    if (fullPhone) {
+      const existingPhone = await Employer.findOne({ phone: fullPhone });
+      if (existingPhone) {
+        return res.status(409).json({ success: false, field: 'mobile', message: 'This mobile number is already registered. Please use a different number.' });
+      }
+    }
+
     const finalEmployerType = employerType || (employerCategory === 'consultancy' ? 'consultant' : 'company');
 
     // Create employer without password - they will create it via email link
@@ -588,6 +596,9 @@ exports.registerEmployer = async (req, res) => {
       requiresOtpVerification: !skipOtpVerification
     });
   } catch (error) {
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.phone) {
+      return res.status(409).json({ success: false, field: 'mobile', message: 'This mobile number is already registered. Please use a different number.' });
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 };

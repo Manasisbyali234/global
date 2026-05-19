@@ -251,6 +251,14 @@ exports.registerCandidate = async (req, res) => {
       return res.status(409).json({ success: false, message: `This email is already registered${roleMsg}. Please log in instead.` });
     }
 
+    const fullPhone = phone ? phone.trim() : '';
+    if (fullPhone) {
+      const existingPhone = await Candidate.findOne({ phone: fullPhone });
+      if (existingPhone) {
+        return res.status(409).json({ success: false, field: 'mobile', message: 'This mobile number is already registered. Please use a different number.' });
+      }
+    }
+
     // Create candidate without password - they will create it via email link
     const candidateData = { 
       firstName: resolvedFirstName,
@@ -327,6 +335,10 @@ exports.registerCandidate = async (req, res) => {
   } catch (error) {
     console.error('Registration error:', error);
     if (error.code === 11000) {
+      const isPhoneDuplicate = error.keyPattern && error.keyPattern.phone;
+      if (isPhoneDuplicate) {
+        return res.status(409).json({ success: false, field: 'mobile', message: 'This mobile number is already registered. Please use a different number.' });
+      }
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
     res.status(500).json({ success: false, message: error.message });

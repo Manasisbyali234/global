@@ -16,7 +16,7 @@ const candidateSchema = new mongoose.Schema({
     }
   },
   password: { type: String, required: false },
-  phone: { type: String },
+  phone: { type: String, unique: true, sparse: true },
   course: { type: String }, // Course/Branch from Excel data
   credits: { type: Number, default: 0 },
   registrationMethod: { type: String, enum: ['signup', 'admin', 'placement', 'email_signup'], default: 'signup' },

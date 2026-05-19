@@ -156,6 +156,8 @@ function SignupEmployer() {
                 setOtp('');
                 setShowOtpModal(true);
                 startOtpTimer();
+            } else if (response.status === 409 && data.field === 'mobile') {
+                setFieldErrors(prev => ({ ...prev, mobile: data.message }));
             } else {
                 const message = data.message || 'Registration failed.';
                 if (String(message).toLowerCase().includes('email already registered')) {
