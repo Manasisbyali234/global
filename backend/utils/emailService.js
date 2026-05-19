@@ -3,6 +3,7 @@ const { formatTimeToAMPM } = require('./timeUtils');
 const { INDIA_TIME_ZONE } = require('./dateTime');
 
 const MAIL_GREETING_LINE = '<p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #333;">Greeting from Taleglobal</p>';
+const LOGO_HTML = '<div style="margin: 0 0 20px 0; text-align: left;"><img src="https://taleglobal.net/assets/images/logo-dark.png" alt="TaleGlobal" width="160" style="width: 160px; height: auto; display: block; border: 0;" /></div>';
 
 const getMailFromAddress = () => {
   const senderAddress = String(process.env.EMAIL_FROM || '').trim();
@@ -91,12 +92,12 @@ const prependMailGreeting = (html = '') => {
   const insertionMatch = containerMatches[1] || containerMatches[0];
 
   if (!insertionMatch || insertionMatch.index === undefined) {
-    return `${MAIL_GREETING_LINE}${html}`;
+    return `${LOGO_HTML}${MAIL_GREETING_LINE}${html}`;
   }
 
   const insertAt = insertionMatch.index + insertionMatch[0].length;
   return `${html.slice(0, insertAt)}
-          ${MAIL_GREETING_LINE}${html.slice(insertAt)}`;
+          ${LOGO_HTML}${MAIL_GREETING_LINE}${html.slice(insertAt)}`;
 };
 
 const sendMailWithGreeting = async (transporter, mailOptions = {}) => (
