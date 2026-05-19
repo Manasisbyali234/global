@@ -37,7 +37,7 @@ function SignupCandidate() {
         if (name === 'firstName') {
             if (!value || !value.trim()) {
                 errors.firstName = 'First name is required';
-            } else if (value.trim().length < 2) {
+            } else if (value.trim().length < 1) {
                 errors.firstName = 'First name must be at least 1 character long';
             } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
                 errors.firstName = 'First name can only contain letters and spaces';
