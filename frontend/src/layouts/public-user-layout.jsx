@@ -11,12 +11,18 @@ function PublicUserLayout() {
     const isEmpGrid = currentpath === '/emp-grid';
     const isContactPage = currentpath === '/contact-us';
     const isAboutPage = currentpath === '/about-us';
+    const isTermsPage = currentpath === '/terms-conditions';
+    const isPrivacyPage = currentpath === '/privacy-policy';
     const isJobGridPage = currentpath.startsWith('/job-grid');
     const isCreatePasswordPage = currentpath === '/create-password';
     const pageClass = isContactPage
         ? 'contact-page-active'
         : isAboutPage
             ? 'about-page-active'
+            : isTermsPage
+                ? 'terms-page-active'
+            : isPrivacyPage
+                ? 'privacy-page-active'
             : isJobGridPage
                 ? 'job-grid-banner-active'
             : isCreatePasswordPage

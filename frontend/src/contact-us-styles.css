@@ -1,78 +1,61 @@
 /* ===================================
    CONTACT US PAGE BANNER OVERRIDE
+   Scoped to .contact-page-active to avoid bleeding into other pages
    =================================== */
 
-/* IMPORTANT: Override global mobile CSS with higher specificity */
-html body .wt-bnr-inr {
-    height: 300px !important;
+.contact-page-active .wt-bnr-inr {
+    height: 84px !important;
+    min-height: 84px !important;
+    padding: 0 !important;
 }
 
-/* Desktop: Move heading down by adding top margin to banner */
-@media screen and (min-width: 992px) {
-    html body .wt-bnr-inr {
-        height: 300px !important;
-        min-height: 300px !important;
-        margin-top: 100px !important;
-    }
-    
-    html body .wt-bnr-inr .overlay-main {
-        height: 300px !important;
-        min-height: 300px !important;
-    }
-    
-    html body .wt-bnr-inr .wt-bnr-inr-entry {
-        padding-top: 80px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-    }
+.contact-page-active .wt-bnr-inr .container,
+.contact-page-active .wt-bnr-inr .overlay-main {
+    height: 100% !important;
+    min-height: 100% !important;
 }
 
-/* Tablet */
+.contact-page-active .wt-bnr-inr-entry {
+    height: 84px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.contact-page-active .banner-title-outer,
+.contact-page-active .banner-title-name,
+.contact-page-active .banner-title-name .wt-title {
+    margin: 0 !important;
+}
+
+.contact-page-active .banner-title-name .wt-title {
+    line-height: 1.1 !important;
+}
+
 @media (max-width: 991px) {
-    html body .wt-bnr-inr {
-        height: 120px !important;
-        min-height: 120px !important;
-        margin-top: 90px !important;
+    .contact-page-active .wt-bnr-inr {
+        height: 72px !important;
+        min-height: 72px !important;
     }
-    
-    html body .wt-bnr-inr .overlay-main {
-        height: 120px !important;
-        min-height: 120px !important;
-    }
-    
-    html body .wt-bnr-inr .wt-bnr-inr-entry {
-        height: 120px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        text-align: center !important;
-        padding: 0 !important;
+
+    .contact-page-active .wt-bnr-inr-entry {
+        height: 72px !important;
     }
 }
 
-/* Mobile */
 @media (max-width: 767px) {
-    html body .wt-bnr-inr {
-        height: 100px !important;
-        min-height: 100px !important;
-        margin-top: 80px !important;
+    .contact-page-active .wt-bnr-inr {
+        height: 60px !important;
+        min-height: 60px !important;
     }
-    
-    html body .wt-bnr-inr .overlay-main {
-        height: 100px !important;
-        min-height: 100px !important;
+
+    .contact-page-active .wt-bnr-inr-entry {
+        height: 60px !important;
     }
-    
-    html body .wt-bnr-inr .wt-bnr-inr-entry {
-        height: 100px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        text-align: center !important;
-        padding: 0 !important;
+
+    .contact-page-active .banner-title-name .wt-title {
+        font-size: 20px !important;
     }
 }
 
@@ -85,12 +68,12 @@ html body .wt-bnr-inr {
 .twm-contact-one .section-content {
     background-color: transparent !important;
     padding: 0.5rem 0 !important;
-    margin-left: 3rem !important;
+    margin-left: 0 !important;
 }
 
 .contact-one-inner {
-    padding-left: 3rem !important;
-    padding-right: 3rem !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     padding-top: 10px !important;
     padding-bottom: 40px !important;
 }
@@ -173,23 +156,23 @@ html body .wt-bnr-inr {
 
 @media (max-width: 991px) {
     .twm-contact-one .section-content {
-        margin-left: 1rem !important;
+        margin-left: 0 !important;
     }
     
     .contact-one-inner {
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
     }
 }
 
 @media (max-width: 767px) {
     .twm-contact-one .section-content {
-        margin-left: 0.5rem !important;
+        margin-left: 0 !important;
     }
     
     .contact-one-inner {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
     }
     
     .cons-contact-form .site-button {

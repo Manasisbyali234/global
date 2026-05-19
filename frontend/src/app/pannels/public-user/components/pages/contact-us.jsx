@@ -85,9 +85,9 @@ function ContactUsPage() {
 
     return (
         <>
-            <div className="section-full twm-contact-one">
+            <div className="section-full py-3 twm-contact-one" style={{paddingLeft: '20px', paddingRight: '20px'}}>
                 <div className="section-content">
-                    <div className="container">
+                    <div>
                         {/* CONTACT FORM*/}
                         <div className="contact-one-inner">
                             <div className="row">
@@ -229,8 +229,8 @@ function ContactUsPage() {
                 </div>
             </div>
 
-            <div className="section-full" style={{ padding: '0 0 40px 0' }}>
-                <div className="container">
+            <div className="section-full" style={{ padding: '0 0 40px 0', paddingLeft: '20px', paddingRight: '20px' }}>
+                <div>
                     <div style={{ marginBottom: '14px', textAlign: 'center' }}>
                         <h3 className="wt-title" style={{ marginBottom: '6px', textAlign: 'center' }}>Our Location</h3>
                         <p style={{ margin: 0, color: '#6c757d', textAlign: 'center' }}>

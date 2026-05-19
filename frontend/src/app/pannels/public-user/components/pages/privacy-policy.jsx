@@ -2,7 +2,7 @@ import React from 'react';
 
 function PrivacyPolicyPage() {
     return (
-        <div className="page-content" style={{backgroundColor: 'oklch(98.5% 0.002 247.839)', minHeight: '100vh'}}>
+        <div className="page-content" style={{backgroundColor: 'oklch(98.5% 0.002 247.839)', minHeight: '100vh', paddingLeft: '20px', paddingRight: '20px'}}>
             <style>
                 {`
                     .privacy-container {
@@ -116,8 +116,7 @@ function PrivacyPolicyPage() {
                 `}
             </style>
             
-            <div className="container">
-                <div className="section-full p-t120 p-b90">
+            <div className="section-full py-3" style={{paddingLeft: '20px', paddingRight: '20px'}}>
                     <div className="privacy-container">
                         <div className="privacy-header">
                             <h1>Privacy Policy</h1>
@@ -184,7 +183,6 @@ function PrivacyPolicyPage() {
                             Address: Bangalore, 560092</p>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     );

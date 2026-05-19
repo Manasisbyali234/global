@@ -26,11 +26,10 @@ function TermsConditionsPage() {
     }, []);
 
     return (
-        <div className="page-content" style={{backgroundColor: 'oklch(98.5% 0.002 247.839)', minHeight: '100vh', marginTop: '40px'}}>
+        <div className="page-content" style={{backgroundColor: 'oklch(98.5% 0.002 247.839)', minHeight: '100vh', paddingLeft: '20px', paddingRight: '20px'}}>
             <style>
                 {`
                     @media (max-width: 991px) {
-                        .section-full { padding-top: 5px !important; padding-bottom: 5px !important; }
                         .terms-container { margin-top: 0 !important; }
                         .terms-header { padding: 10px 15px !important; }
                         .terms-header h1 { font-size: 1.5rem !important; margin: 0 !important; }
@@ -81,8 +80,7 @@ function TermsConditionsPage() {
                 `}
             </style>
             
-            <div className="container">
-                <div className="section-full" style={{paddingTop: '5px', paddingBottom: '5px'}}>
+            <div className="section-full py-3" style={{paddingLeft: '20px', paddingRight: '20px'}}>
                     <div className="terms-container">
                         <div className="terms-header">
                             <h1>Terms & Conditions</h1>
@@ -414,7 +412,6 @@ function TermsConditionsPage() {
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     );

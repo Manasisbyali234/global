@@ -1,7 +1,7 @@
 .about-page-active .wt-bnr-inr {
-    height: 88px !important;
-    min-height: 88px !important;
-    margin-top: 100px !important;
+    height: 84px !important;
+    min-height: 84px !important;
+    padding: 0 !important;
 }
 
 .about-page-active .wt-bnr-inr .container,
@@ -11,12 +11,11 @@
 }
 
 .about-page-active .wt-bnr-inr-entry {
-    height: 88px !important;
+    height: 84px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     padding: 0 !important;
-    vertical-align: middle !important;
 }
 
 .about-page-active .banner-title-outer,
@@ -33,7 +32,6 @@
     .about-page-active .wt-bnr-inr {
         height: 72px !important;
         min-height: 72px !important;
-        margin-top: 90px !important;
     }
 
     .about-page-active .wt-bnr-inr-entry {
@@ -45,7 +43,6 @@
     .about-page-active .wt-bnr-inr {
         height: 60px !important;
         min-height: 60px !important;
-        margin-top: 80px !important;
     }
 
     .about-page-active .wt-bnr-inr-entry {
@@ -53,6 +50,120 @@
     }
 
     .about-page-active .banner-title-name .wt-title {
+        font-size: 20px !important;
+    }
+}
+
+/* Terms & Conditions page — matches emp-grid banner spacing */
+.terms-page-active .wt-bnr-inr {
+    height: 84px !important;
+    min-height: 84px !important;
+    padding: 0 !important;
+}
+
+.terms-page-active .wt-bnr-inr .container,
+.terms-page-active .wt-bnr-inr .overlay-main {
+    height: 100% !important;
+    min-height: 100% !important;
+}
+
+.terms-page-active .wt-bnr-inr-entry {
+    height: 84px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.terms-page-active .banner-title-outer,
+.terms-page-active .banner-title-name,
+.terms-page-active .banner-title-name .wt-title {
+    margin: 0 !important;
+}
+
+.terms-page-active .banner-title-name .wt-title {
+    line-height: 1.1 !important;
+}
+
+@media (max-width: 991px) {
+    .terms-page-active .wt-bnr-inr {
+        height: 72px !important;
+        min-height: 72px !important;
+    }
+
+    .terms-page-active .wt-bnr-inr-entry {
+        height: 72px !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .terms-page-active .wt-bnr-inr {
+        height: 60px !important;
+        min-height: 60px !important;
+    }
+
+    .terms-page-active .wt-bnr-inr-entry {
+        height: 60px !important;
+    }
+
+    .terms-page-active .banner-title-name .wt-title {
+        font-size: 20px !important;
+    }
+}
+
+/* Privacy Policy page — matches emp-grid banner spacing */
+.privacy-page-active .wt-bnr-inr {
+    height: 84px !important;
+    min-height: 84px !important;
+    padding: 0 !important;
+}
+
+.privacy-page-active .wt-bnr-inr .container,
+.privacy-page-active .wt-bnr-inr .overlay-main {
+    height: 100% !important;
+    min-height: 100% !important;
+}
+
+.privacy-page-active .wt-bnr-inr-entry {
+    height: 84px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.privacy-page-active .banner-title-outer,
+.privacy-page-active .banner-title-name,
+.privacy-page-active .banner-title-name .wt-title {
+    margin: 0 !important;
+}
+
+.privacy-page-active .banner-title-name .wt-title {
+    line-height: 1.1 !important;
+}
+
+@media (max-width: 991px) {
+    .privacy-page-active .wt-bnr-inr {
+        height: 72px !important;
+        min-height: 72px !important;
+    }
+
+    .privacy-page-active .wt-bnr-inr-entry {
+        height: 72px !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .privacy-page-active .wt-bnr-inr {
+        height: 60px !important;
+        min-height: 60px !important;
+    }
+
+    .privacy-page-active .wt-bnr-inr-entry {
+        height: 60px !important;
+    }
+
+    .privacy-page-active .banner-title-name .wt-title {
         font-size: 20px !important;
     }
 }
