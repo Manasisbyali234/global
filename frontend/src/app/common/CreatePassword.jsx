@@ -128,7 +128,7 @@ function CreatePassword() {
     };
 
     return (
-        <div className="row justify-content-center">
+        <div className="row justify-content-center create-password-wrapper">
                 <div className="col-md-6">
                     <div className="card">
                         <div className="card-header text-center">

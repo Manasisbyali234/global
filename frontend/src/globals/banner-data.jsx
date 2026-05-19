@@ -148,7 +148,9 @@ export function showBanner(currentpath) {
         currentpath === publicUser.pages.LOGIN ||
         currentpath === publicUser.pages.ADMIN_LOGIN ||
         currentpath === publicUser.pages.SUB_ADMIN_LOGIN ||
-        currentpath === publicUser.pages.AFTER_LOGIN) {
+        currentpath === publicUser.pages.AFTER_LOGIN ||
+        currentpath === '/create-password' ||
+        currentpath === '/forgot-password') {
         return false;
     }
     return true;

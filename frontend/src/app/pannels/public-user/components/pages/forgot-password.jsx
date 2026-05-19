@@ -193,6 +193,7 @@ function ForgotPassword() {
   };
 
   return (
+    <div className="forgot-password-wrapper">
     <div className="container p-4" style={{ maxWidth: '500px' }}>
       <h2 className="mb-2">Forgot Password</h2>
       <p className="text-muted mb-4">Enter your email address and we will send you an OTP to reset your password.</p>
@@ -329,6 +330,7 @@ function ForgotPassword() {
           </div>
         </form>
       )}
+    </div>
     </div>
   );
 }
