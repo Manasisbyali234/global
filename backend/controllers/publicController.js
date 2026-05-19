@@ -11,6 +11,7 @@ const FAQ = require('../models/FAQ');
 const Review = require('../models/Review');
 const { cache } = require('../utils/cache');
 const { isDBConnected } = require('../config/database');
+const { createTransport, sendMailWithGreeting } = require('../utils/emailService');
 const { buildUtcDateTimeFromIst, getStartOfCurrentIstDayUtc } = require('../utils/dateTime');
 
 const resolveEmployerPostingType = (employer, profile) => {
@@ -377,6 +378,29 @@ exports.submitContactForm = async (req, res) => {
         receiverRole: 'admin'
       })
     ]);
+
+    try {
+      const transporter = createTransport();
+      await sendMailWithGreeting(transporter, {
+        to: 'support@taleglobal.net',
+        subject: `New Contact Form Submission: ${normalizedSubject}`,
+        html: `
+          <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa;">
+            <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+              <h2 style="color: #2c3e50;">New Contact Form Submission</h2>
+              <p><strong>Name:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+              <p><strong>Subject:</strong> ${normalizedSubject}</p>
+              <p><strong>Message:</strong></p>
+              <p style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">${message}</p>
+            </div>
+          </div>
+        `
+      });
+    } catch (emailError) {
+      console.error('Failed to send contact form notification email:', emailError);
+    }
 
     res.status(201).json({ 
       success: true, 
