@@ -642,7 +642,7 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null, offi
           <p>We are happy to inform you that your TaleGlobal Placement Dean account has been approved.</p>
           
           <p>You may now log in to your dashboard and begin updating final-year candidate details on behalf of your college. Please ensure that the information entered is accurate, as candidates will later complete their profiles independently.</p>
-          
+          <p>Please create password using the link below and log into your dashboard and begin updating only final year .......</p>
           <div style="text-align: center; margin: 30px 0;">
             <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(255, 107, 53, 0.3);">🔐 Create Password</a>
           </div>
@@ -1297,9 +1297,9 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <p>Dear ${name || 'Placement Dean'},</p>
         
-        <p>We are happy to inform you that your TaleGlobal Placement Dean account has been approved.</p>
+        <p>Welcome to TaleGlobal.</p>
         
-        <p>You may now log in to your dashboard and begin updating final-year candidate details on behalf of your college. Please ensure that the information entered is accurate, as candidates will later complete their profiles independently.</p>
+        <p>Your account has been successfully approved. We're excited to collaborate with you. You can now access the portal and upload student data.</p>
         
         <p>If you need any assistance while using the platform, feel free to reach out to our support team.</p>
         
