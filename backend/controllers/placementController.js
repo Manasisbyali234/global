@@ -66,7 +66,7 @@ const buildEmailConflictMessage = ({ duplicateEmails = [], existingEmails = [], 
   if (existingEmails.length > 0) {
     const count = existingEmails.length;
     const emailLabel = count === 1 ? 'email is' : 'emails are';
-    const removeLabel = count === 1 ? 'Please remove this email and' : 'Please remove these emails and';
+    const removeLabel = count === 1 ? 'Please remove the below mail and' : 'Please remove the below mails and';
     messageParts.push(`${count} ${emailLabel} already registered in the system. ${removeLabel} ${action}.`);
   }
 

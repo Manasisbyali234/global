@@ -578,7 +578,7 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
         </p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Reset Password</a>
+          <a href="${resetPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Set Your Password</a>
         </div>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
@@ -594,7 +594,7 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Your TaleGlobal Account Is Ready – Reset Password & Start Applying',
+    subject: 'Your TaleGlobal Account Is Ready – Set Your Password & Start Applying',
     html: template
   };
 
