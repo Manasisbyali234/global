@@ -215,7 +215,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null, offic
           
           <p>Thank you for registering as a Consultant on TaleGlobal.</p>
           
-          <p>To proceed with approval, please log in to your dashboard and complete your company profile by updating the required basic details and uploading the necessary documents.</p>
+          <p>Please create your password using the link below, log in to your dashboard, and complete your company profile by updating the required basic details and uploading the necessary documents to proceed with the approval process.</p>
           
           <p>Once submitted, your profile will be reviewed by the TaleGlobal admin team.</p>
           
