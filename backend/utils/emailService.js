@@ -641,8 +641,8 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null, offi
           
           <p>We are happy to inform you that your TaleGlobal Placement Dean account has been approved.</p>
           
-          <p>You may now log in to your dashboard and begin updating final-year candidate details on behalf of your college. Please ensure that the information entered is accurate, as candidates will later complete their profiles independently.</p>
-          <p>Please create password using the link below and log into your dashboard and begin updating only final year .......</p>
+          <p>Please create  password using the link below and log in to your dashboard to begin updating the details of final-year candidates on behalf of your college. Ensure that all information entered is accurate, as candidates will later complete and manage their profiles independently.</p>
+          
           <div style="text-align: center; margin: 30px 0;">
             <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(255, 107, 53, 0.3);">🔐 Create Password</a>
           </div>
