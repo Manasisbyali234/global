@@ -63,14 +63,18 @@ const buildEmailConflictMessage = ({ duplicateEmails = [], existingEmails = [], 
   }
 
   if (existingEmails.length > 0) {
-    messageParts.push(`Emails already registered in the system: ${formatConflictPreview(existingEmails)}.`);
+    const emailLabel = existingEmails.length === 1 ? 'Email' : 'Emails';
+    messageParts.push(`${emailLabel} already registered in the system: ${formatConflictPreview(existingEmails)}.`);
   }
 
   if (messageParts.length === 0) {
     return `Please fix the email conflicts and ${action}.`;
   }
 
-  messageParts.push(`Please remove these emails and ${action}.`);
+  const removeLabel = existingEmails.length === 1 && duplicateEmails.length === 0
+    ? 'Please remove this email and'
+    : 'Please remove these emails and';
+  messageParts.push(`${removeLabel} ${action}.`);
   return messageParts.join(' ');
 };
 
