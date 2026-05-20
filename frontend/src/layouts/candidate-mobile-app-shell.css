@@ -1,0 +1,101 @@
+/* Candidate mobile shell: remove shared side gutters without touching desktop layout. */
+
+@media (max-width: 991px) {
+  #content.candidate-panel-layout.mobile-view,
+  #content.candidate-panel-layout.mobile-view .content-admin-main,
+  #content.candidate-panel-layout.mobile-view .content-admin-main > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .twm-right-section-panel,
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .role-notifications-page {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .content-admin-main :is(.container, .container-fluid) {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .content-admin-main :is(
+    .candidate-page-shell,
+    .resume-page-header-container,
+    .resume-content-container,
+    .status-page-header-container,
+    .status-page-content-container,
+    .candidate-transactions-shell,
+    .candidate-support-shell,
+    .role-notifications-shell,
+    .content-a,
+    .twm-dashboard-style-2
+  ) {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .content-admin-main :is(
+    .candidate-page-header-card,
+    .resume-page-header-inner,
+    .status-page-header-card,
+    .candidate-interviews-header-card,
+    .role-notifications-header-card,
+    .wt-admin-right-page-header,
+    .welcome-card-container > div
+  ) {
+    border-radius: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .content-admin-main :is(
+    .panel.panel-default,
+    .panel.panel-default.site-bg-white,
+    .candidate-notifications-panel
+  ) {
+    border-radius: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page > .alert,
+  #content.candidate-panel-layout.mobile-view .candidate-status-details-page > div:first-child,
+  #content.candidate-panel-layout.mobile-view .candidate-status-details-page > .panel,
+  #content.candidate-panel-layout.mobile-view .candidate-status-details-page > .card {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .candidate-status-details-page > div:first-child {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #content.candidate-panel-layout.mobile-view .content-admin-main :is(
+    .candidate-page-header-card,
+    .resume-page-header-inner,
+    .status-page-header-card,
+    .candidate-interviews-header-card,
+    .role-notifications-header-card,
+    .wt-admin-right-page-header,
+    .welcome-card-container > div,
+    .panel.panel-default,
+    .panel.panel-default.site-bg-white,
+    .candidate-notifications-panel,
+    .candidate-resume-page > .alert
+  ) {
+    border-radius: 0 !important;
+  }
+}

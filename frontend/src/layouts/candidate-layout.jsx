@@ -8,6 +8,7 @@ import CanSidebarSection from "../app/pannels/candidate/common/can-sidebar";
 import CandidateRoutes from "../routing/candidate-routes";
 import "../logout-modal-fix.css";
 import "./candidate-mobile-header.css";
+import "./candidate-mobile-app-shell.css";
 
 function CandidateLayout() {
 

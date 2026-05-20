@@ -2130,7 +2130,7 @@ function CanStatusPage() {
 	return (
 		<>
 			{!isInterviewDetailsPage && (
-			<div className="twm-right-section-panel site-bg-gray">
+			<div className="twm-right-section-panel site-bg-gray candidate-status-page">
 				{/* Status Page Header */}
 				<div className="status-page-header-container">
 					<div className="status-page-header-card">
@@ -2627,7 +2627,7 @@ function CanStatusPage() {
 			)}
 
 			{isInterviewDetailsPage && !selectedApplication && (
-				<div className="twm-right-section-panel site-bg-gray">
+				<div className="twm-right-section-panel site-bg-gray candidate-status-page candidate-status-details-page">
 					<div style={{padding: '16px 20px'}}>
 						<button
 							type="button"
@@ -2668,7 +2668,7 @@ function CanStatusPage() {
 			{/* All Interview Details Modal */}
 			{isInterviewDetailsPage && selectedApplication && (
 				<div
-					className="twm-right-section-panel site-bg-gray"
+					className="twm-right-section-panel site-bg-gray candidate-status-page candidate-status-details-page"
 					style={{ display: 'block' }}
 				>
 					<div style={{ padding: '16px 20px' }}>
