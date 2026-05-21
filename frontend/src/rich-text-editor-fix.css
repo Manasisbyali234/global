@@ -32,10 +32,9 @@
   min-width: 0 !important;
   box-sizing: border-box !important;
   margin: 0 !important;
-  padding-left: 18px !important;
-  padding-right: 16px !important;
-  padding-inline-start: unset !important;
-  -webkit-padding-start: unset !important;
+  padding-inline-start: 18px !important;
+  padding-inline-end: 16px !important;
+  -webkit-padding-start: 18px !important;
   white-space: pre-wrap !important;
   word-break: break-word !important;
   overflow-wrap: anywhere !important;
