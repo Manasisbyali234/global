@@ -1902,13 +1902,20 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><MapPin size={16} className="me-2" /> Google Maps Embed Code</label>
                                     <textarea
-                                        className="form-control"
+                                        className={`form-control ${formData.googleMapsEmbed && !formData.googleMapsEmbed.match(/src=["']([^"']+)["']/) ? 'is-invalid' : ''}`}
                                         rows={3}
                                         value={formData.googleMapsEmbed || ''}
                                         onChange={(e) => handleInputChange('googleMapsEmbed', e.target.value)}
                                         placeholder='<iframe src="https://www.google.com/maps/embed?pb=..." width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>'
                                     />
-                                    <small className="text-muted mt-1">Paste Google Maps embed iframe code here</small>
+                                    {formData.googleMapsEmbed && !formData.googleMapsEmbed.match(/src=["']([^"']+)["']/) && (
+                                        <div className="invalid-feedback d-block">
+                                            <strong>Please paste the correct embed code.</strong>
+                                        </div>
+                                    )}
+                                    <small className="text-muted mt-1 d-block">
+                                        To get the Google Maps embed code: Open Google Maps → Search your location → Click Share → Select "Embed a map" → Click "Copy HTML" → Paste the copied iframe code here.
+                                    </small>
                                     
                                     {formData.googleMapsEmbed && (() => {
                                         const srcMatch = formData.googleMapsEmbed.match(/src=["']([^"']+)["']/);
@@ -1929,7 +1936,7 @@ function EmpCompanyProfilePage() {
                                                 </div>
                                             );
                                         }
-                                        return <p className="text-warning mt-2">Invalid embed code format</p>;
+                                        return null;
                                     })()}
                                 </div>
                             </div>
