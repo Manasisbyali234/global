@@ -651,7 +651,16 @@ function AdminCandidateReviewPage() {
                                             <h4>Resume Headline</h4>
                                         </div>
                                         <div className="summary-content">
-                                            <p>{candidate.resumeHeadline}</p>
+                                            <ul style={{paddingLeft: '20px', margin: 0}}>
+                                                {candidate.resumeHeadline
+                                                    .split(/\n|•|\|/)
+                                                    .map(s => s.trim())
+                                                    .filter(s => s.length > 0)
+                                                    .map((point, i) => (
+                                                        <li key={i} style={{marginBottom: '4px'}}>{point}</li>
+                                                    ))
+                                                }
+                                            </ul>
                                         </div>
                                     </div>
                                 )}
@@ -679,7 +688,16 @@ function AdminCandidateReviewPage() {
                                             <h4>Profile Summary</h4>
                                         </div>
                                         <div className="summary-content">
-                                            <p>{candidate.profileSummary}</p>
+                                            <ul style={{paddingLeft: '20px', margin: 0}}>
+                                                {candidate.profileSummary
+                                                    .split(/\n|•|\|/)
+                                                    .map(s => s.trim())
+                                                    .filter(s => s.length > 0)
+                                                    .map((point, i) => (
+                                                        <li key={i} style={{marginBottom: '4px'}}>{point}</li>
+                                                    ))
+                                                }
+                                            </ul>
                                         </div>
                                     </div>
                                 )}
