@@ -701,30 +701,30 @@ function EmployerDetails() {
                 <div className="row">
                     <div className="col-lg-6">
                         <div className="profile-field" data-aos="fade-right" data-aos-delay="300">
-                            <h6><i className="fa fa-user"></i>Contact First Name</h6>
+                            <h6><i className="fa fa-user"></i>First Name</h6>
                             <p>{profile.contactFullName || 'N/A'}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-right" data-aos-delay="325">
-                            <h6><i className="fa fa-user"></i>Contact Middle Name</h6>
+                            <h6><i className="fa fa-user"></i>Middle Name</h6>
                             <p>{profile.contactMiddleName || 'N/A'}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-right" data-aos-delay="350">
-                            <h6><i className="fa fa-user"></i>Contact Last Name</h6>
+                            <h6><i className="fa fa-user"></i>Last Name</h6>
                             <p>{profile.contactLastName || 'N/A'}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-right" data-aos-delay="375">
-                            <h6><i className="fa fa-id-badge"></i>Contact Designation</h6>
+                            <h6><i className="fa fa-id-badge"></i>Designation</h6>
                             <p>{profile.contactDesignation || 'N/A'}</p>
                         </div>
                     </div>
                     
                     <div className="col-lg-6">
                         <div className="profile-field" data-aos="fade-left" data-aos-delay="300">
-                            <h6><i className="fa fa-envelope"></i>Contact Official Email</h6>
+                            <h6><i className="fa fa-envelope"></i>Official Email</h6>
                             <p>{profile.contactOfficialEmail || 'N/A'}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-left" data-aos-delay="325">
-                            <h6><i className="fa fa-mobile"></i>Contact Mobile</h6>
+                            <h6><i className="fa fa-mobile"></i>Mobile</h6>
                             <p>{profile.contactMobile || 'N/A'}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-left" data-aos-delay="350">
