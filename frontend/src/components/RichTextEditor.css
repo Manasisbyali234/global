@@ -45,10 +45,11 @@
     width: 100%;
     min-width: 0;
     margin: 0;
-    padding: 16px 16px 16px 18px;
-    padding-inline-start: 18px;
-    padding-inline-end: 16px;
-    -webkit-padding-start: 18px;
+    padding: 16px 16px 16px 18px !important;
+    padding-left: 18px !important;
+    padding-right: 16px !important;
+    padding-inline-start: unset;
+    -webkit-padding-start: unset;
     line-height: 1.6;
     font-size: 14px;
     color: #000000 !important;
@@ -133,10 +134,11 @@
 
     .rich-text-editor-content {
         min-height: 150px;
-        padding: 12px 12px 12px 14px;
-        padding-inline-start: 14px;
-        padding-inline-end: 12px;
-        -webkit-padding-start: 14px;
+        padding: 12px 12px 12px 14px !important;
+        padding-left: 14px !important;
+        padding-right: 12px !important;
+        padding-inline-start: unset;
+        -webkit-padding-start: unset;
         font-size: 14px;
     }
 }
@@ -158,10 +160,11 @@
     }
 
     .rich-text-editor-content {
-        padding: 10px 10px 10px 12px;
-        padding-inline-start: 12px;
-        padding-inline-end: 10px;
-        -webkit-padding-start: 12px;
+        padding: 10px 10px 10px 12px !important;
+        padding-left: 12px !important;
+        padding-right: 10px !important;
+        padding-inline-start: unset;
+        -webkit-padding-start: unset;
         font-size: 13px;
     }
 }
