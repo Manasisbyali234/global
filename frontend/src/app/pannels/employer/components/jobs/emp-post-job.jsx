@@ -748,7 +748,7 @@ export default function EmpPostJob({ onNext }) {
 	const getAssessmentMinDate = (lastDateOfApplication = formData.lastDateOfApplication) => {
 		const normalizedLastDate = normalizeToYMD(lastDateOfApplication);
 		if (!normalizedLastDate) return today;
-		return normalizedLastDate;
+		return getNextDayDateString(normalizedLastDate) || normalizedLastDate;
 	};
 
 	const getMinDateForRoundFromState = (state, roundKey) => {
@@ -4673,7 +4673,7 @@ export default function EmpPostJob({ onNext }) {
 													const specifiedCount = parseInt(s.interviewRoundsCount) || 0;
 													if (specifiedCount > 0 && newState.interviewRoundOrder.length < specifiedCount) {
 														setTimeout(() => {
-															showWarning(`You need ${specifiedCount - newState.interviewRoundOrder.length} more interview round(s) to match your specified count of ${specifiedCount}.`);
+															showWarning(`You have mentioned ${specifiedCount} interview rounds, but only ${newState.interviewRoundOrder.length} interview round${newState.interviewRoundOrder.length === 1 ? ' has' : 's have'} been updated. Please complete all interview rounds to proceed.`);
 														}, 100);
 													}
 													
