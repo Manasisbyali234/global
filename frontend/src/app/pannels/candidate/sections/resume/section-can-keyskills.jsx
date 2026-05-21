@@ -117,6 +117,7 @@ function SectionCanKeySkills({ profile }) {
                 ? prev.filter(s => s !== skill)
                 : [...prev, skill]
         );
+        setSearchTerm('');
     };
 
     const handleAddCustom = () => {

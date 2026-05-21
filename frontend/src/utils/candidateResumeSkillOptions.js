@@ -256,6 +256,228 @@ export const degreeSkillCatalog = [
             "Business understanding",
             "Reporting"
         ]
+    },
+    {
+        name: "SAP & ERP",
+        technicalSkills: [
+            "SAP",
+            "SAP ABAP",
+            "SAP FICO",
+            "SAP MM",
+            "SAP SD",
+            "SAP HR",
+            "SAP BASIS",
+            "SAP S/4HANA",
+            "SAP BW",
+            "SAP CRM",
+            "Oracle ERP",
+            "Microsoft Dynamics",
+            "Tally ERP",
+            "Zoho CRM",
+            "Salesforce"
+        ],
+        softSkills: [
+            "Business process understanding",
+            "ERP implementation",
+            "Change management"
+        ]
+    },
+    {
+        name: "Cloud & DevOps",
+        technicalSkills: [
+            "AWS",
+            "Azure",
+            "Google Cloud Platform",
+            "Docker",
+            "Kubernetes",
+            "Jenkins",
+            "CI/CD",
+            "Terraform",
+            "Ansible",
+            "Linux",
+            "Shell scripting",
+            "Monitoring & Logging"
+        ],
+        softSkills: [
+            "Infrastructure planning",
+            "Incident management",
+            "Collaboration"
+        ]
+    },
+    {
+        name: "Finance & Accounting",
+        technicalSkills: [
+            "Tally",
+            "QuickBooks",
+            "MS Excel (Advanced)",
+            "Financial reporting",
+            "GST",
+            "TDS",
+            "Accounts payable",
+            "Accounts receivable",
+            "Budgeting",
+            "Auditing",
+            "Cost accounting",
+            "Balance sheet",
+            "P&L analysis"
+        ],
+        softSkills: [
+            "Attention to detail",
+            "Numerical accuracy",
+            "Compliance awareness"
+        ]
+    },
+    {
+        name: "Human Resources",
+        technicalSkills: [
+            "Recruitment",
+            "Talent acquisition",
+            "Onboarding",
+            "Payroll management",
+            "HRMS",
+            "Performance management",
+            "Employee engagement",
+            "Labor law compliance",
+            "Training & development",
+            "Exit management"
+        ],
+        softSkills: [
+            "Empathy",
+            "Conflict resolution",
+            "Interpersonal skills",
+            "Confidentiality"
+        ]
+    },
+    {
+        name: "Sales & Marketing",
+        technicalSkills: [
+            "Lead generation",
+            "CRM tools",
+            "Cold calling",
+            "B2B sales",
+            "B2C sales",
+            "Market research",
+            "Brand management",
+            "Social media marketing",
+            "Content marketing",
+            "Email campaigns",
+            "Sales forecasting"
+        ],
+        softSkills: [
+            "Persuasion",
+            "Networking",
+            "Customer relationship management",
+            "Target orientation"
+        ]
+    },
+    {
+        name: "Operations & Supply Chain",
+        technicalSkills: [
+            "Supply chain management",
+            "Inventory management",
+            "Logistics",
+            "Procurement",
+            "Vendor management",
+            "Warehouse management",
+            "ERP systems",
+            "Lean manufacturing",
+            "Six Sigma",
+            "Quality control"
+        ],
+        softSkills: [
+            "Process optimization",
+            "Coordination",
+            "Deadline management"
+        ]
+    },
+    {
+        name: "Healthcare & Pharma",
+        technicalSkills: [
+            "Clinical research",
+            "Pharmacovigilance",
+            "Medical coding",
+            "Healthcare IT",
+            "EMR/EHR systems",
+            "Regulatory affairs",
+            "GCP",
+            "GMP",
+            "Lab techniques",
+            "Patient care"
+        ],
+        softSkills: [
+            "Compassion",
+            "Precision",
+            "Ethical conduct"
+        ]
+    },
+    {
+        name: "Legal & Compliance",
+        technicalSkills: [
+            "Contract drafting",
+            "Legal research",
+            "Compliance management",
+            "Corporate law",
+            "Intellectual property",
+            "Litigation support",
+            "Regulatory compliance",
+            "Due diligence"
+        ],
+        softSkills: [
+            "Analytical thinking",
+            "Attention to detail",
+            "Integrity"
+        ]
+    },
+    {
+        name: "Teaching & Education",
+        technicalSkills: [
+            "Curriculum development",
+            "E-learning tools",
+            "LMS platforms",
+            "Instructional design",
+            "Assessment design",
+            "Classroom management"
+        ],
+        softSkills: [
+            "Communication",
+            "Patience",
+            "Mentoring",
+            "Adaptability"
+        ]
+    },
+    {
+        name: "General Professional Skills",
+        technicalSkills: [
+            "Microsoft Office",
+            "Microsoft Word",
+            "Microsoft Excel",
+            "Microsoft PowerPoint",
+            "Google Workspace",
+            "Zoom",
+            "Slack",
+            "Jira",
+            "Trello",
+            "Notion",
+            "Canva",
+            "Photoshop",
+            "Illustrator",
+            "Video editing",
+            "Content writing",
+            "Copywriting",
+            "Translation",
+            "Research"
+        ],
+        softSkills: [
+            "Time management",
+            "Communication",
+            "Critical thinking",
+            "Multitasking",
+            "Work ethic",
+            "Accountability",
+            "Creativity",
+            "Flexibility",
+            "Positive attitude"
+        ]
     }
 ];
 
