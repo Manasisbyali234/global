@@ -430,13 +430,22 @@ function AdminEmployersAllRequest() {
                                                 </td>
                                                 <td style={{textAlign: 'center'}}>
                                                     <div className="action-buttons">
-                                                        {employer.isProfileComplete && getEmployerReviewStatus(employer) === 'pending' ? (
+                                                        {employer.isProfileComplete && getEmployerReviewStatus(employer) === 'pending' ? (() => {
+                                                            const approvedDocCount = [
+                                                                employer.panCardVerified,
+                                                                employer.cinVerified,
+                                                                employer.gstVerified,
+                                                                employer.incorporationVerified
+                                                            ].filter(s => s === 'approved').length;
+                                                            const canApprove = approvedDocCount >= 3;
+                                                            return (
                                                             <>
                                                                 <button
                                                                     type="button"
                                                                     className="action-btn btn-approve"
                                                                     onClick={() => handleApprove(employer._id)}
-                                                                    disabled={actionLoading[employer._id]}
+                                                                    disabled={actionLoading[employer._id] || !canApprove}
+                                                                    title={!canApprove ? `At least 3 documents must be approved (${approvedDocCount}/3 approved)` : 'Approve Employer'}
                                                                 >
                                                                     <i className="fa fa-check"></i>
                                                                     Approve
@@ -450,8 +459,15 @@ function AdminEmployersAllRequest() {
                                                                     <i className="fa fa-times"></i>
                                                                     Reject
                                                                 </button>
+                                                                {!canApprove && (
+                                                                    <div style={{fontSize: '0.75rem', color: '#f59e0b', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                                                                        <i className="fa fa-exclamation-triangle"></i>
+                                                                        {approvedDocCount}/3 docs approved
+                                                                    </div>
+                                                                )}
                                                             </>
-                                                        ) : (getEmployerReviewStatus(employer) === 'incomplete') ? (
+                                                            );
+                                                        })() : (getEmployerReviewStatus(employer) === 'incomplete') ? (
                                                             <span style={{color: '#dc3545', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'}}>
                                                                 <i className="fa fa-exclamation-circle"></i>
                                                                 Profile not completed

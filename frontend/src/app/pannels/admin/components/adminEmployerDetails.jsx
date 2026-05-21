@@ -724,11 +724,11 @@ function EmployerDetails() {
                             <p>{profile.contactOfficialEmail || 'N/A'}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-left" data-aos-delay="325">
-                            <h6><i className="fa fa-mobile"></i>Mobile</h6>
+                            <h6><i className="fa fa-mobile"></i>Mobile Number</h6>
                             <p>{profile.contactMobile || 'N/A'}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-left" data-aos-delay="350">
-                            <h6><i className="fa fa-phone-alt"></i>Alternate Contact</h6>
+                            <h6><i className="fa fa-phone-alt"></i>Alternate Contact Number</h6>
                             <p>{formatOptionalPhone(profile.alternateContact)}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-left" data-aos-delay="375">
