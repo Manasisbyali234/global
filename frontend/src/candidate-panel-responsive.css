@@ -28,20 +28,53 @@
 
 @media (max-width: 991px) {
   #content.mobile-view {
-    margin-top: 60px !important;
+    margin-top: 0 !important;
     padding-top: 0 !important;
   }
 
   #content.mobile-view .content-admin-main {
-    min-height: calc(100vh - 60px);
+    min-height: 100vh;
   }
 
   #content.mobile-view .twm-right-section-panel {
-    min-height: calc(100vh - 60px) !important;
+    min-height: 100vh !important;
+    padding-top: 0 !important;
+  }
+
+  #content.mobile-view .candidate-page-shell--header,
+  #content.mobile-view .candidate-page-shell--content,
+  #content.mobile-view .status-page-header-container,
+  #content.mobile-view .resume-page-header-container,
+  #content.mobile-view .resume-content-container,
+  #content.mobile-view .candidate-support-shell,
+  #content.mobile-view .candidate-transactions-shell,
+  #content.mobile-view .candidate-status-page > div,
+  #content.mobile-view .candidate-status-details-page > div,
+  #content.mobile-view .candidate-transactions-page .candidate-page-shell--header,
+  #content.mobile-view .candidate-transactions-page .candidate-page-shell--content {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  #content.mobile-view,
+  #content.mobile-view .content-admin-main,
+  #content.mobile-view .twm-right-section-panel,
+  #content.mobile-view .candidate-page-shell,
+  #content.mobile-view .candidate-resume-page,
+  #content.mobile-view .candidate-profile-page,
+  #content.mobile-view .candidate-interviews,
+  #content.mobile-view .candidate-save-job,
+  #content.mobile-view .candidate-change-password-page,
+  #content.mobile-view .candidate-support-shell,
+  #content.mobile-view .candidate-transactions-shell,
+  #content.mobile-view .role-notifications-page,
+  #content.mobile-view .candidate-status-details-page {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
   }
 
   #content.mobile-view .twm-right-section-panel.site-bg-gray.can-dashboard {
-    padding: 0.75rem 0.5rem !important;
+    padding: 0 0.5rem 0.75rem !important;
   }
 
   #content.mobile-view .can-dashboard .candidate-page-shell {
@@ -108,6 +141,15 @@
   #content.mobile-view .panel-heading.wt-panel-heading,
   #content.mobile-view .panel-body.wt-panel-body {
     padding: 0.875rem !important;
+  }
+
+  /* Add left page padding for resume section headings on candidate mobile resume page */
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page #key-skills .panel-heading,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page #education .panel-heading,
+  #content.mobile-view .candidate-resume-page #key-skills .panel-heading,
+  #content.mobile-view .candidate-resume-page #education .panel-heading {
+    padding-left: 1rem !important;
+    padding-right: 0.875rem !important;
   }
 
   #content.mobile-view .can-dashboard .row,
@@ -285,15 +327,33 @@
 
 @media (max-width: 480px) {
   #content.mobile-view {
-    margin-top: 56px !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  #content.mobile-view,
+  #content.mobile-view .content-admin-main,
+  #content.mobile-view .twm-right-section-panel,
+  #content.mobile-view .candidate-page-shell,
+  #content.mobile-view .candidate-resume-page,
+  #content.mobile-view .candidate-profile-page,
+  #content.mobile-view .candidate-interviews,
+  #content.mobile-view .candidate-save-job,
+  #content.mobile-view .candidate-change-password-page,
+  #content.mobile-view .candidate-support-shell,
+  #content.mobile-view .candidate-transactions-shell,
+  #content.mobile-view .role-notifications-page,
+  #content.mobile-view .candidate-status-details-page {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
   }
 
   #content.mobile-view .content-admin-main {
-    min-height: calc(100vh - 56px);
+    min-height: 100vh;
   }
 
   #content.mobile-view .twm-right-section-panel {
-    min-height: calc(100vh - 56px) !important;
+    min-height: 100vh !important;
   }
 
   #content.mobile-view .twm-right-section-panel.site-bg-gray.can-dashboard {
@@ -466,6 +526,48 @@
   #content.candidate-panel-layout.mobile-view .candidate-support-shell {
     padding-left: 0 !important;
     padding-right: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .resume-page-header-container,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .resume-content-container,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .resume-page-header-inner,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .row,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .row > *,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page [class*="col-"],
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .col,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .col-12,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .d-flex {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view {
+    --candidate-mobile-page-gutter: 0px;
+  }
+
+  #content.candidate-panel-layout.mobile-view .twm-right-section-panel.site-bg-gray.candidate-resume-page,
+  #content.mobile-view .twm-right-section-panel.site-bg-gray.candidate-resume-page {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .twm-right-section-panel.site-bg-gray.candidate-resume-page .resume-page-header-container,
+  #content.candidate-panel-layout.mobile-view .twm-right-section-panel.site-bg-gray.candidate-resume-page .resume-content-container,
+  #content.candidate-panel-layout.mobile-view .twm-right-section-panel.site-bg-gray.candidate-resume-page .resume-page-header-inner,
+  #content.mobile-view .twm-right-section-panel.site-bg-gray.candidate-resume-page .resume-page-header-container,
+  #content.mobile-view .twm-right-section-panel.site-bg-gray.candidate-resume-page .resume-content-container,
+  #content.mobile-view .twm-right-section-panel.site-bg-gray.candidate-resume-page .resume-page-header-inner {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
   }
 
   #content.candidate-panel-layout.mobile-view .twm-right-section-panel :is(

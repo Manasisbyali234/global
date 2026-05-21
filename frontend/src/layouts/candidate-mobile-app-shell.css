@@ -3,11 +3,43 @@
 @media (max-width: 991px) {
   #content.candidate-panel-layout.mobile-view,
   #content.candidate-panel-layout.mobile-view .content-admin-main,
-  #content.candidate-panel-layout.mobile-view .content-admin-main > * {
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .twm-right-section-panel,
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .role-notifications-page,
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .candidate-page-shell,
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .candidate-resume-page,
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .candidate-profile-page {
     width: 100% !important;
     max-width: 100% !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view,
+  #content.candidate-panel-layout.mobile-view .content-admin-main,
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .twm-right-section-panel,
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .role-notifications-page,
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .candidate-page-shell,
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .candidate-resume-page,
+  #content.candidate-panel-layout.mobile-view .content-admin-main > .candidate-profile-page {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .candidate-page-shell--header,
+  #content.candidate-panel-layout.mobile-view .candidate-page-shell--content,
+  #content.candidate-panel-layout.mobile-view .status-page-header-container,
+  #content.candidate-panel-layout.mobile-view .resume-page-header-container,
+  #content.candidate-panel-layout.mobile-view .resume-content-container,
+  #content.candidate-panel-layout.mobile-view .candidate-support-shell,
+  #content.candidate-panel-layout.mobile-view .candidate-transactions-shell,
+  #content.candidate-panel-layout.mobile-view .candidate-status-page > div,
+  #content.candidate-panel-layout.mobile-view .candidate-status-details-page > div,
+  #content.candidate-panel-layout.mobile-view .candidate-transactions-page .candidate-page-shell--header,
+  #content.candidate-panel-layout.mobile-view .candidate-transactions-page .candidate-page-shell--content {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
   }
 
   #content.candidate-panel-layout.mobile-view .content-admin-main > .twm-right-section-panel,
@@ -41,6 +73,24 @@
   ) {
     padding-left: 0 !important;
     padding-right: 0 !important;
+  }
+
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .resume-page-header-container,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .resume-content-container,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .resume-page-header-inner,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .row,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .row > *,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page [class*="col-"],
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .col,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .col-12,
+  #content.candidate-panel-layout.mobile-view .candidate-resume-page .d-flex {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   #content.candidate-panel-layout.mobile-view .content-admin-main :is(

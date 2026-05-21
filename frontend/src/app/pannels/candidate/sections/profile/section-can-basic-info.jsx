@@ -3,9 +3,10 @@ import { createPortal } from "react-dom";
 import { api } from "../../../../../utils/api";
 import TermsModal from "../../../../../components/TermsModal";
 import PageLoader from "../../../../../components/PageLoader";
-import { imageUtils } from "../../../../../utils/imageUtils";
+import ImageResizer from "../../../../../components/ImageResizer";
+import { useImageResizer } from "../../../../../hooks/useImageResizer";
 import '../../../../../remove-profile-hover-effects.css';
-import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
+import { showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 import { fetchLocationFromPincode } from '../../../../../utils/pincodeService';
 const indianCities = [
     'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad',
@@ -64,6 +65,15 @@ function SectionCandicateBasicInfo() {
     const [fetchingLocation, setFetchingLocation] = useState(false);
     const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
     const locationDropdownRef = useRef(null);
+    const {
+        isResizerOpen,
+        currentImage: resizerImage,
+        resizeConfig,
+        openProfileResizer,
+        handleFileWithResize,
+        handleSave: handleResizerSave,
+        closeResizer
+    } = useImageResizer();
 
     useEffect(() => {
         fetchProfile();
@@ -452,21 +462,19 @@ function SectionCandicateBasicInfo() {
             }
 
             try {
-                const profileDimensions = imageUtils.getOptimalDimensions('profile');
-                const sourceDataUrl = await imageUtils.fileToDataURL(file);
-                const processedImage = await imageUtils.generateThumbnail(
-                    sourceDataUrl,
-                    profileDimensions.width,
-                    0.9
-                );
-
-                await applyProcessedProfilePicture(processedImage);
+                await handleFileWithResize(file, 'profile', applyProcessedProfilePicture);
             } catch (error) {
                 setErrors(prev => ({ ...prev, profilePicture: error.message || 'Unable to process image' }));
                 setNotification({ type: 'error', message: error.message || 'Unable to process image' });
             } finally {
                 e.target.value = '';
             }
+        }
+    };
+
+    const handleEditProfileImage = () => {
+        if (previewImageSrc) {
+            openProfileResizer(previewImageSrc, applyProcessedProfilePicture);
         }
     };
 
@@ -683,9 +691,21 @@ function SectionCandicateBasicInfo() {
                                     </div>
                                 )}
                                 {previewImageSrc && (
+                                    <div className="mt-2">
+                                        <button
+                                            type="button"
+                                            className="btn btn-sm btn-outline-secondary"
+                                            onClick={handleEditProfileImage}
+                                            style={{ borderColor: '#ff6b35', color: '#ff6b35' }}
+                                        >
+                                            <i className="fa fa-edit me-1"></i> Resize & Crop
+                                        </button>
+                                    </div>
+                                )}
+                                {previewImageSrc && (
                                     <small className="profile-image-preview-copy">Click the profile image to preview it</small>
                                 )}
-                                <small className="text-muted mt-2 d-block">Upload JPG, PNG or WEBP (Max 5MB)</small>
+                                <small className="text-muted mt-2 d-block">Upload JPG, PNG or WEBP (Max 5MB). Upload opens the crop editor before saving.</small>
                             </div>
                         </div>
                     </div>
@@ -987,6 +1007,17 @@ function SectionCandicateBasicInfo() {
                 </div>,
                 document.body
             )}
+            <ImageResizer
+                src={resizerImage}
+                isOpen={isResizerOpen}
+                onClose={closeResizer}
+                onSave={handleResizerSave}
+                aspectRatio={resizeConfig.aspectRatio}
+                maxWidth={resizeConfig.maxWidth}
+                maxHeight={resizeConfig.maxHeight}
+                lockCropArea={resizeConfig.lockCropArea}
+                quality={resizeConfig.quality}
+            />
         </form>
         </>
     );
