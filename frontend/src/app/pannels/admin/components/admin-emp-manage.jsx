@@ -443,9 +443,15 @@ function AdminEmployersAllRequest() {
                                                                 <button
                                                                     type="button"
                                                                     className="action-btn btn-approve"
-                                                                    onClick={() => handleApprove(employer._id)}
-                                                                    disabled={actionLoading[employer._id] || !canApprove}
-                                                                    title={!canApprove ? `At least 3 documents must be approved (${approvedDocCount}/3 approved)` : 'Approve Employer'}
+                                                                    onClick={() => {
+                                                                        if (!canApprove) {
+                                                                            showWarning(`Cannot approve profile. At least 3 documents must be verified first. Currently ${approvedDocCount} of 3 required documents are approved. Please verify the documents on the employer details page.`);
+                                                                            return;
+                                                                        }
+                                                                        handleApprove(employer._id);
+                                                                    }}
+                                                                    disabled={actionLoading[employer._id]}
+                                                                    style={!canApprove ? { opacity: 0.45, cursor: 'not-allowed', filter: 'grayscale(1)' } : {}}
                                                                 >
                                                                     <i className="fa fa-check"></i>
                                                                     Approve
@@ -459,12 +465,6 @@ function AdminEmployersAllRequest() {
                                                                     <i className="fa fa-times"></i>
                                                                     Reject
                                                                 </button>
-                                                                {!canApprove && (
-                                                                    <div style={{fontSize: '0.75rem', color: '#f59e0b', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px'}}>
-                                                                        <i className="fa fa-exclamation-triangle"></i>
-                                                                        {approvedDocCount}/3 docs approved
-                                                                    </div>
-                                                                )}
                                                             </>
                                                             );
                                                         })() : (getEmployerReviewStatus(employer) === 'incomplete') ? (
