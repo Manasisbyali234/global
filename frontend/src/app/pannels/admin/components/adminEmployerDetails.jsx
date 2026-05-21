@@ -136,6 +136,30 @@ function EmployerDetails() {
         setIsMaximized(false);
     };
 
+    const formatDocumentName = (name) => {
+        if (!name) return 'Document Preview';
+        const labelMap = {
+            panCardImage: 'PAN Card Image',
+            cinImage: 'CIN Document',
+            gstImage: 'GST Certificate',
+            certificateOfIncorporation: 'Certificate of Incorporation',
+            companyIdCardPicture: 'Company ID Card',
+            logo: 'Company Logo',
+            coverImage: 'Cover Image',
+        };
+        if (labelMap[name]) return labelMap[name];
+        const acronyms = new Set(['PAN', 'GST', 'CIN', 'PDF', 'ID', 'URL']);
+        return name
+            .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+            .replace(/([a-z])([A-Z])/g, '$1 $2')
+            .split(' ')
+            .map(word => {
+                const upper = word.toUpperCase();
+                return acronyms.has(upper) ? upper : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            })
+            .join(' ');
+    };
+
     const normalizeCompanyName = (value) => String(value || '').trim().toLowerCase();
 
     const getLetterCompanyName = (letter) => (
@@ -1322,7 +1346,7 @@ function EmployerDetails() {
                         <div className="image-modal-header">
                             <h5 className="image-modal-title">
                                 <i className={`fa ${currentImageType === 'application/pdf' ? 'fa-file-pdf' : 'fa-image'} me-2`}></i>
-                                {currentPreviewName || (currentImageType === 'application/pdf' ? 'Document Preview' : 'Image Preview')}
+                                {formatDocumentName(currentPreviewName) || (currentImageType === 'application/pdf' ? 'Document Preview' : 'Image Preview')}
                             </h5>
                             <div className="image-modal-controls">
                                 <button className="modal-control-btn minimize-btn" onClick={() => setIsMinimized(!isMinimized)} title={isMinimized ? "Restore" : "Minimize"}>
