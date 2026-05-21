@@ -1358,6 +1358,37 @@ exports.rejectFile = async (req, res) => {
   }
 };
 
+// Delete rejected file from history
+exports.deleteRejectedFile = async (req, res) => {
+  try {
+    const placementId = req.user.id;
+    const { fileId } = req.params;
+
+    const placement = await Placement.findById(placementId);
+    if (!placement) {
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
+    }
+
+    const file = placement.fileHistory.id(fileId);
+    if (!file) {
+      return res.status(404).json({ success: false, message: 'File not found' });
+    }
+
+    if (file.status !== 'rejected') {
+      return res.status(400).json({ success: false, message: 'Only rejected files can be deleted' });
+    }
+
+    await Placement.findByIdAndUpdate(placementId, {
+      $pull: { fileHistory: { _id: file._id } }
+    });
+
+    res.json({ success: true, message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting rejected file:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Resubmit rejected file
 exports.resubmitFile = async (req, res) => {
   try {

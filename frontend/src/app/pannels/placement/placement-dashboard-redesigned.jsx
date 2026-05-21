@@ -82,6 +82,9 @@ function PlacementDashboardRedesigned() {
     const [resubmitUniversity, setResubmitUniversity] = useState('');
     const [resubmitBatch, setResubmitBatch] = useState('');
     const [resubmitting, setResubmitting] = useState(false);
+    const [deletingFileId, setDeletingFileId] = useState(null);
+    const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+    const [fileToDelete, setFileToDelete] = useState(null);
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [selectedRejectionReason, setSelectedRejectionReason] = useState('');
     const [studentSearch, setStudentSearch] = useState('');
@@ -533,6 +536,36 @@ function PlacementDashboardRedesigned() {
         } catch (error) {
             console.error('Error viewing file:', error);
             showError('Error viewing file. Please try again.');
+        }
+    };
+
+    const handleDeleteRejectedFile = (file) => {
+        setFileToDelete(file);
+        setShowDeleteConfirmModal(true);
+    };
+
+    const confirmDeleteFile = async () => {
+        if (!fileToDelete) return;
+        setDeletingFileId(fileToDelete._id);
+        setShowDeleteConfirmModal(false);
+        try {
+            const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+            const response = await fetch(`${API_BASE_URL}/placement/files/${fileToDelete._id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('placementToken')}` }
+            });
+            const data = await response.json();
+            if (data.success) {
+                showSuccess('File deleted successfully.');
+                await fetchPlacementDetails();
+            } else {
+                showError(data.message || 'Failed to delete file.');
+            }
+        } catch (error) {
+            showError('Error deleting file. Please try again.');
+        } finally {
+            setDeletingFileId(null);
+            setFileToDelete(null);
         }
     };
 
@@ -1886,14 +1919,24 @@ function PlacementDashboardRedesigned() {
                                                                                 <i className="fa fa-eye"></i>
                                                                             </button>
                                                                             {file.status === 'rejected' && (
-                                                                                <button
-                                                                                    className="reupload-btn"
-                                                                                    onClick={() => handleResubmitFile(file)}
-                                                                                    title="Reupload corrected file"
-                                                                                    style={{backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '0.8rem', cursor: 'pointer'}}
-                                                                                >
-                                                                                    <i className="fa fa-upload"></i>
-                                                                                </button>
+                                                                                <>
+                                                                                    <button
+                                                                                        className="reupload-btn"
+                                                                                        onClick={() => handleResubmitFile(file)}
+                                                                                        title="Reupload corrected file"
+                                                                                        style={{backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '0.8rem', cursor: 'pointer'}}
+                                                                                    >
+                                                                                        <i className="fa fa-upload"></i>
+                                                                                    </button>
+                                                                                    <button
+                                                                                        onClick={() => handleDeleteRejectedFile(file)}
+                                                                                        title="Delete rejected file"
+                                                                                        disabled={deletingFileId === file._id}
+                                                                                        style={{backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '0.8rem', cursor: deletingFileId === file._id ? 'not-allowed' : 'pointer', opacity: deletingFileId === file._id ? 0.7 : 1}}
+                                                                                    >
+                                                                                        <i className={deletingFileId === file._id ? 'fa fa-spinner fa-spin' : 'fa fa-trash'}></i>
+                                                                                    </button>
+                                                                                </>
                                                                             )}
                                                                         </div>
                                                                     </td>
@@ -2339,6 +2382,40 @@ function PlacementDashboardRedesigned() {
                                         Resubmit File
                                     </>
                                 )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirmModal && fileToDelete && (
+                <div className="modal-overlay" onClick={() => { setShowDeleteConfirmModal(false); setFileToDelete(null); }}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{maxWidth: '440px'}}>
+                        <div className="modal-header">
+                            <h3>
+                                <i className="fa fa-trash me-2" style={{color: '#dc3545'}}></i>
+                                Delete File
+                            </h3>
+                            <button className="close-btn" onClick={() => { setShowDeleteConfirmModal(false); setFileToDelete(null); }}>
+                                <i className="fa fa-times"></i>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div style={{padding: '16px 0', fontSize: '15px', color: '#333', lineHeight: '1.6'}}>
+                                Are you sure you want to delete <strong>{fileToDelete.customName || fileToDelete.fileName}</strong>? This action cannot be reversed..
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button
+                                onClick={confirmDeleteFile}
+                                style={{backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', padding: '8px 20px', fontSize: '14px', fontWeight: '600', cursor: 'pointer'}}
+                            >
+                                <i className="fa fa-trash me-1"></i>
+                                Yes, Delete
+                            </button>
+                            <button className="btn-secondary" onClick={() => { setShowDeleteConfirmModal(false); setFileToDelete(null); }}>
+                                No
                             </button>
                         </div>
                     </div>

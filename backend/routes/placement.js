@@ -164,6 +164,9 @@ router.get('/files/:fileId/view', auth(['placement']), placementController.viewF
 // Resubmit rejected file
 router.post('/files/:fileId/resubmit', auth(['placement']), upload.single('studentData'), placementController.resubmitFile);
 
+// Delete rejected file
+router.delete('/files/:fileId', auth(['placement']), placementController.deleteRejectedFile);
+
 // Get placement data (for Placement Dean to view their own data)
 router.get('/data', auth(['placement']), async (req, res) => {
   try {
