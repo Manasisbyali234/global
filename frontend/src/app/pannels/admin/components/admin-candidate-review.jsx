@@ -651,7 +651,7 @@ function AdminCandidateReviewPage() {
                                             <h4>Resume Headline</h4>
                                         </div>
                                         <div className="summary-content">
-                                            <ul style={{paddingLeft: '20px', margin: 0}}>
+                                            <ul style={{paddingLeft: '20px', margin: 0, listStyle: 'none'}}>
                                                 {candidate.resumeHeadline
                                                     .split(/\n|•|\|/)
                                                     .map(s => s.trim())
