@@ -1683,6 +1683,26 @@ export default function EmpPostJob({ onNext }) {
 	const handleAssessmentRoundSelection = (roundKey, newAssessmentId) => {
 		if (!newAssessmentId) return;
 
+		// Check if the same assessment is already selected in another round
+		const duplicateRoundKey = formData.interviewRoundOrder.find(
+			(key) =>
+				key !== roundKey &&
+				formData.interviewRoundTypes[key] === 'assessment' &&
+				formData.interviewRoundDetails?.[key]?.assessmentId === newAssessmentId
+		);
+
+		if (duplicateRoundKey) {
+			const duplicateStage = formData.interviewRoundOrder.indexOf(duplicateRoundKey) + 1;
+			const assessmentLabel = formatAssessmentOptionLabel(
+				availableAssessments.find((a) => getAssessmentOptionId(a) === newAssessmentId),
+				employerType
+			);
+			showWarning(
+				`"${assessmentLabel}" is already selected in Stage ${duplicateStage}. Please choose a different assessment for this round.`
+			);
+			return;
+		}
+
 		showConfirmation(
 			'Once this assessment is selected, you will not be able to edit or delete it from Create Assessment. Do you want to proceed?',
 			() => {
