@@ -89,7 +89,7 @@ function SectionCanPersonalDetail({ profile }) {
             setFormData(newFormData);
 
             // Show errors for any empty required fields on load
-            const requiredFields = ['dateOfBirth', 'gender', 'fatherName', 'motherName', 'residentialAddress', 'permanentAddress'];
+            const requiredFields = ['dateOfBirth', 'gender', 'fatherName', 'motherName', 'residentialAddress'];
             const initialErrors = {};
             requiredFields.forEach(field => {
                 const value = newFormData[field];
@@ -99,8 +99,7 @@ function SectionCanPersonalDetail({ profile }) {
                         gender: 'Gender is required',
                         fatherName: "Father's/Husband's Name is required",
                         motherName: "Mother's Name is required",
-                        residentialAddress: 'Residential Address is required',
-                        permanentAddress: 'Permanent Address is required'
+                        residentialAddress: 'Residential Address is required'
                     };
                     initialErrors[field] = labels[field];
                 }
@@ -209,9 +208,7 @@ function SectionCanPersonalDetail({ profile }) {
                 }
                 break;
             case 'permanentAddress':
-                if (!value || !value.trim()) {
-                    newErrors[field] = 'Permanent Address is required';
-                } else if (value.length > 200) {
+                if (value && value.length > 200) {
                     newErrors[field] = 'Address cannot exceed 200 characters';
                 } else {
                     delete newErrors[field];
@@ -233,7 +230,7 @@ function SectionCanPersonalDetail({ profile }) {
     };
 
     const validateAllRequiredFields = () => {
-        const requiredFields = ['dateOfBirth', 'gender', 'fatherName', 'motherName', 'residentialAddress', 'permanentAddress'];
+        const requiredFields = ['dateOfBirth', 'gender', 'fatherName', 'motherName', 'residentialAddress'];
         let isValid = true;
         
         requiredFields.forEach(field => {
@@ -550,7 +547,7 @@ function SectionCanPersonalDetail({ profile }) {
                                         <i className="fa fa-copy me-1"></i> Same as Residential Address
                                     </label>
                                 </div>
-                                <label className="required-field"><i className="fa fa-map-marker me-1"></i> Permanent Address</label>
+                                <label><i className="fa fa-map-marker me-1"></i> Permanent Address</label>
                                 <textarea
                                     className={`form-control ${errors.permanentAddress ? 'is-invalid' : ''}`}
                                     rows={2}
@@ -561,7 +558,6 @@ function SectionCanPersonalDetail({ profile }) {
                                         validateField('permanentAddress', e.target.value);
                                     }}
                                     disabled={sameAsResidential}
-                                    required
                                 ></textarea>
                                 {errors.permanentAddress && <div className="text-danger mt-1"><small>{errors.permanentAddress}</small></div>}
                             </div>
