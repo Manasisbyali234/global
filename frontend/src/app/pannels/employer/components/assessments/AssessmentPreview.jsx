@@ -32,6 +32,21 @@ const AssessmentPreview = ({ assessment, onBack }) => {
             overflowY: "auto",
             borderRadius: "12px"
         }}>
+            <style>{`
+                .assessment-preview-instructions ol {
+                    padding-left: 28px;
+                    margin-left: 0;
+                    list-style-position: outside;
+                }
+                .assessment-preview-instructions li {
+                    word-break: break-word;
+                    overflow-wrap: break-word;
+                    margin-bottom: 6px;
+                }
+                .assessment-preview-instructions {
+                    overflow-x: hidden;
+                }
+            `}</style>
             <div style={{ maxWidth: "800px", margin: "0 auto" }}>
                 {/* Header for Preview */}
                 <div style={{ 
@@ -100,6 +115,7 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                             Instructions
                         </div>
                         <div
+                            className="assessment-preview-instructions"
                             style={{ fontSize: "14px", color: "#4b5563", lineHeight: "1.7" }}
                             dangerouslySetInnerHTML={{ __html: formatAssessmentContent(assessment.instructions || assessment.description) }}
                         />
