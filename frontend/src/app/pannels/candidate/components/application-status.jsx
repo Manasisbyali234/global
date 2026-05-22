@@ -2350,7 +2350,11 @@ function CanStatusPage() {
 																		const assessmentRoundInfo = roundName === 'Assessment'
 																			? getAssessmentRoundInfo(app, roundName, roundDetails)
 																			: null;
-																			const roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
+																			let roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
+																			// If overall app is rejected and this round still shows Pending, show Rejected (same as interview-details page)
+																			if (applicationDisplayStatus === 'rejected' && normalizeStatusValue(roundStatus?.text) === 'pending') {
+																				roundStatus = { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+																			}
 																			const assessmentSchedule = roundName === 'Assessment'
 																				? getAssessmentScheduleSource(app.jobId, roundDetails)
 																				: null;
