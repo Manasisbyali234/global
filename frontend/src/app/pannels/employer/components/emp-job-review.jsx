@@ -463,8 +463,9 @@ function EmpJobReviewPage() {
                                                     group: 'Group',
                                                     situational: 'Situational / Behavioral',
                                                     others: 'Others – Specify.',
-                                                    assessment: 'Assessment',
-                                                    oneOnOnePanel: 'One-on-One / Panel'
+                                                    assessment: 'MCQ/Assessment Schedule',
+                                                    oneOnOnePanel: 'One-on-One / Panel',
+                                                    hr: 'HR Round'
                                                 };
                                                 return <div key={key}>{index + 1}. {roundNames[roundType] || roundType}</div>;
                                             })
