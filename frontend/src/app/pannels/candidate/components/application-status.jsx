@@ -2890,8 +2890,11 @@ function CanStatusPage() {
 											? getAssessmentRoundInfo(selectedApplication, roundName, roundDetails)
 											: null;
 										let roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName, true, roundDetails);
-										// If overall app is rejected and this round still shows Pending, show Rejected
-										if (selectedAppDisplayStatus === 'rejected' && normalizeStatusValue(roundStatus?.text) === 'pending') {
+										// If overall app is rejected and this round still shows Pending (or a scheduled/not-started message), show Rejected
+										const roundStatusNorm = normalizeStatusValue(roundStatus?.text);
+										const isPendingLikeStatus = roundStatusNorm === 'pending' || roundStatusNorm === 'started' ||
+											(roundStatus?.text && !['pass', 'fail', 'rejected', 'no show', 'suspended', 'completed', 'selected', 'shortlisted', 'shortlisted for next round', 'not advanced to next stage'].includes(roundStatusNorm));
+										if (selectedAppDisplayStatus === 'rejected' && isPendingLikeStatus) {
 											roundStatus = { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 										}
 										const assessmentSchedule = roundName === 'Assessment'
