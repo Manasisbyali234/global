@@ -1935,13 +1935,6 @@ const StartAssessment = () => {
 							<h2 style={{ margin: "0", fontSize: "24px", fontWeight: "700", color: "#0f172a" }}>
 						{decodeAssessmentText(assessment.title)}
 							</h2>
-							<div style={{ fontSize: "14px", color: "#555", marginTop: "10px" }}>
-								Progress:{" "}
-								{Math.round(
-									((currentQuestionIndex + 1) / assessment.questions.length) * 100
-								)}
-								% complete
-							</div>
 							<div style={{ fontSize: "13px", color: "#64748b", marginTop: "6px", lineHeight: "1.5" }}>
 								Assessment is running in a dedicated tab. Fullscreen, single-screen use, and staying on this tab are required throughout the test.
 							</div>

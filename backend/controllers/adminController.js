@@ -1,4 +1,4 @@
-Ôªøconst jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
 const Admin = require('../models/Admin');
@@ -1224,11 +1224,11 @@ exports.getJobApplicantsForOverview = async (req, res) => {
           oneOnOne: 'One-to-One',
           oneOnOnePanel: 'One-on-One / Panel',
           panel: 'Panel',
-          group: 'Group',
-          technical: 'Technical',
+          group: 'Group Discussion',
+          technical: 'Technical Round',
           managerial: 'Managerial Round',
           hr: 'HR Round',
-          situational: 'Situational / Behavioral',
+          situational: 'Situational / Behavioral Round',
           others: 'Others - Specify.',
           assessment: 'Assessment'
         };
@@ -3454,7 +3454,7 @@ exports.approveAuthorizationLetter = async (req, res) => {
 
       const notificationData = {
         title: 'Authorization Letter Approved',
-        message: `Your authorization letter ‚Äú${approvedLetter.fileName}‚Äù has been successfully approved. Please continue with the next steps.`,
+        message: `Your authorization letter ì${approvedLetter.fileName}î has been successfully approved. Please continue with the next steps.`,
         type: 'document_approved',
         role: 'employer',
         relatedId: new mongoose.Types.ObjectId(employerId),

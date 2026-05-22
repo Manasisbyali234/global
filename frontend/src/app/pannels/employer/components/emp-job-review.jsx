@@ -48,11 +48,11 @@ function EmpJobReviewPage() {
     if (!jobDetails) return <div>Job not found</div>;
 
     const roundNames = {
-        technical: 'Technical',
+        technical: 'Technical Round',
         oneOnOne: 'One-on-One',
         panel: 'Panel',
-        group: 'Group',
-        situational: 'Situational / Behavioral',
+        group: 'Group Discussion',
+        situational: 'Situational / Behavioral Round',
         others: 'Others',
         assessment: 'Assessment',
         oneOnOnePanel: 'One-on-One / Panel',
@@ -457,11 +457,11 @@ function EmpJobReviewPage() {
                                             jobDetails.interviewRoundOrder.map((key, index) => {
                                                 const roundType = jobDetails.interviewRoundTypes?.[key];
                                                 const roundNames = {
-                                                    technical: 'Technical',
+                                                    technical: 'Technical Round',
                                                     oneOnOne: 'One-on-One',
                                                     panel: 'Panel',
-                                                    group: 'Group',
-                                                    situational: 'Situational / Behavioral',
+                                                    group: 'Group Discussion',
+                                                    situational: 'Situational / Behavioral Round',
                                                     others: 'Others – Specify.',
                                                     assessment: 'MCQ/Assessment Schedule',
                                                     oneOnOnePanel: 'One-on-One / Panel',

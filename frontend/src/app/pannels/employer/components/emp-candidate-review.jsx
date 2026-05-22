@@ -1092,11 +1092,11 @@ function EmpCandidateReviewPage() {
                         oneOnOne: 'One-to-One',
                         oneOnOnePanel: 'One-on-One / Panel',
                         panel: 'Panel',
-                        group: 'Group',
-                        technical: 'Technical',
+                        group: 'Group Discussion',
+                        technical: 'Technical Round',
                         managerial: 'Managerial Round',
                         hr: 'HR Round',
-                        situational: 'Situational / Behavioral',
+                        situational: 'Situational / Behavioral Round',
                         others: 'Others – Specify.',
                         assessment: 'Assessment'
                     };

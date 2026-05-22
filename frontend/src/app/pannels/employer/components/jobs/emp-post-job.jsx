@@ -1532,7 +1532,7 @@ export default function EmpPostJob({ onNext }) {
 				const otherRoundKey = formData.interviewRoundOrder[i];
 				const otherRoundDetails = formData.interviewRoundDetails[otherRoundKey];
 				if (otherRoundDetails?.fromDate === value) {
-					showWarning(`This date clashes with Stage ${i + 1}. Please choose a different date.`);
+					showWarning(`The selected interview date conflicts with the 2nd and 3rd interview rounds. Please choose a different date to continue.`);
 					return;
 				}
 			}
@@ -1596,7 +1596,7 @@ export default function EmpPostJob({ onNext }) {
 					const otherRoundKey = s.interviewRoundOrder[i];
 					const otherRoundDetails = s.interviewRoundDetails[otherRoundKey];
 					if (otherRoundDetails?.fromDate === value) {
-						showWarning(`This date clashes with Stage ${i + 1}. Please choose a different date.`);
+						showWarning(`The selected interview date conflicts with the 2nd and 3rd interview rounds. Please choose a different date to continue.`);
 						return s;
 					}
 				}
@@ -2025,12 +2025,12 @@ export default function EmpPostJob({ onNext }) {
 			const roundType = formData.interviewRoundTypes[uniqueKey];
 			const details = formData.interviewRoundDetails[uniqueKey];
 			const roundNames = {
-				technical: 'Technical',
+				technical: 'Technical Round',
 				managerial: 'Managerial Round',
 				hr: 'HR Round',
 				oneOnOnePanel: 'One-on-One / Panel',
-				group: 'Group',
-				situational: 'Situational / Behavioral',
+				group: 'Group Discussion',
+				situational: 'Situational / Behavioral Round',
 				assessment: 'Assessment',
 				others: 'Others – Specify.'
 			};
@@ -4526,11 +4526,11 @@ export default function EmpPostJob({ onNext }) {
 							<option value="">-- Select Round Type --</option>
 							<option value="assessment">MCQ/Assessment</option>
 							<option value="oneOnOnePanel">One-on-One / Panel</option>
-							<option value="group">Group</option>
+							<option value="group">Group Discussion</option>
 							<option value="managerial">Managerial Round</option>
-							<option value="technical">Technical</option>
+							<option value="technical">Technical Round</option>
 							<option value="hr">HR Round</option>
-							<option value="situational">Situational / Behavioral</option>
+							<option value="situational">Situational / Behavioral Round</option>
 							<option value="others">Others – Specify.</option>
 						</select>
 
@@ -4611,12 +4611,12 @@ export default function EmpPostJob({ onNext }) {
 							{formData.interviewRoundOrder.map((uniqueKey, index) => {
 								const roundType = formData.interviewRoundTypes[uniqueKey];
 								const roundNames = {
-									technical: 'Technical',
+									technical: 'Technical Round',
 									managerial: 'Managerial Round',
 									hr: 'HR Round',
 									oneOnOnePanel: 'One-on-One / Panel',
-									group: 'Group',
-									situational: 'Situational / Behavioral',
+									group: 'Group Discussion',
+									situational: 'Situational / Behavioral Round',
 									assessment: 'MCQ/Assessment Schedule',
 									others: 'Others – Specify.'
 								};
@@ -5148,12 +5148,12 @@ export default function EmpPostJob({ onNext }) {
 								.map((uniqueKey) => {
 									const roundType = formData.interviewRoundTypes[uniqueKey];
 									const roundNames = {
-										technical: 'Technical',
+										technical: 'Technical Round',
 										managerial: 'Managerial Round',
 										hr: 'HR Round',
 										oneOnOnePanel: 'One-on-One / Panel',
-										group: 'Group',
-										situational: 'Situational / Behavioral',
+										group: 'Group Discussion',
+										situational: 'Situational / Behavioral Round',
 										assessment: 'Assessment',
 										others: 'Others – Specify.'
 									};
@@ -6211,12 +6211,12 @@ export default function EmpPostJob({ onNext }) {
 										const roundType = formData.interviewRoundTypes[uniqueKey];
 										const details = formData.interviewRoundDetails[uniqueKey];
 										const roundNames = {
-											technical: 'Technical',
+											technical: 'Technical Round',
 											managerial: 'Managerial Round',
 											hr: 'HR Round',
 											oneOnOnePanel: 'One-on-One / Panel',
-											group: 'Group',
-											situational: 'Situational / Behavioral',
+											group: 'Group Discussion',
+											situational: 'Situational / Behavioral Round',
 											assessment: 'Assessment',
 											others: 'Others – Specify.'
 										};
