@@ -1619,7 +1619,7 @@ function EmpCandidateReviewPage() {
         );
     }
 
-    const applicationDisplayStatus = getApplicationStatusKey(application);
+    const applicationDisplayStatus = getApplicationDisplayStatus(application, interviewProcesses);
     const isAssessmentNoShowApplication = isApplicationSessionExpired(application, interviewProcesses);
     const applicationStatusForActions = applicationDisplayStatus;
 
