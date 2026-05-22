@@ -348,7 +348,12 @@ function CanStatusPage() {
 			knownAssessmentIds.length <= 1 &&
 			(!assessmentId || assessmentId === normalizeAssessmentId(application?.jobId?.assessmentId));
 
-		const trackedAssessmentDecisionStatus = getTrackedAssessmentDecisionStatus(application, roundDetails);
+		const stageAssessmentDecisionStatus = isAssessmentEmployerDecisionStatus(relatedStage?.status)
+			? relatedStage.status
+			: '';
+		const trackedAssessmentDecisionStatus =
+			getTrackedAssessmentDecisionStatus(application, roundDetails) ||
+			stageAssessmentDecisionStatus;
 
 		const applicationFallbackStatus = shouldUseApplicationFallback
 			? String(application?.assessmentStatus || '').toLowerCase()
@@ -1607,6 +1612,12 @@ function CanStatusPage() {
 				return { ...mappedDecision, feedback: '' };
 			}
 			const { status, isPassed, isFailed, isCompleted, isInProgress, isExpired, isSuspended, isNoShow } = assessmentRoundInfo.completionInfo;
+			if (status && isAssessmentEmployerDecisionStatus(status)) {
+				const mappedDecision = mapProcessStatusToBadge(status, {
+					isFinalStage: false
+				});
+				return { ...mappedDecision, feedback: '' };
+			}
 			const assessmentActivationState = roundIndex > 0
 				? getRoundActivationState(application, roundIndex)
 				: { canStart: true, previousAssessmentFailed: false };
