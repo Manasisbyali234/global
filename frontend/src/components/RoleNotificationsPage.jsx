@@ -324,7 +324,7 @@ function RoleNotificationsPage({
       <div className={contentShellClasses}>
         <div className="role-notifications-stats">
           {stats.map((stat) => (
-            <div key={stat.label} className={`role-notifications-stat-card tone-${stat.tone}`}>
+            <div key={stat.label} className="role-notifications-stat-card">
               <div className="role-notifications-stat-card__body">
                 <div className="role-notifications-stat-card__top">
                   <div className="role-notifications-stat-icon">

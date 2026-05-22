@@ -415,7 +415,7 @@ function SectionCandidateOverview() {
 
 	const baseCards = [
 		{
-			bg: "#e0f7fa",
+			bg: "#ffffff",
 			icon: "flaticon-resume",
 			color: "text-info",
 			count: stats.applied,
@@ -428,7 +428,7 @@ function SectionCandidateOverview() {
 			}
 		},
 		{
-			bg: "#fff3e0",
+			bg: "#ffffff",
 			icon: "flaticon-envelope",
 			color: "text-warning",
 			count: stats.inProgress,
@@ -437,7 +437,7 @@ function SectionCandidateOverview() {
 			onClick: () => navigate('/candidate/status')
 		},
 		{
-			bg: "#fff3e0",
+			bg: "#ffffff",
 			icon: "flaticon-bell",
 			color: "text-warning",
 			count: stats.shortlisted,
@@ -450,7 +450,7 @@ function SectionCandidateOverview() {
 			}
 		},
 		{
-			bg: "#e8f5e9",
+			bg: "#ffffff",
 			icon: "fa fa-briefcase",
 			color: "text-warning",
 			count: stats.hired,
@@ -461,7 +461,7 @@ function SectionCandidateOverview() {
 	];
 
 	const creditsCard = {
-		bg: "#f0f4ff",
+		bg: "#ffffff",
 		icon: "flaticon-job",
 		color: "text-primary",
 		count: candidate.credits || 0,

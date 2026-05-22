@@ -65,7 +65,8 @@
   min-height: 60px !important;
   padding: 0.85rem !important;
   border-radius: 20px !important;
-  background: rgba(255, 255, 255, 0.35) !important;
+  background: transparent !important;
+  box-shadow: none !important;
   vertical-align: middle !important;
 }
 
@@ -365,7 +366,7 @@
 .can-dashboard .dashboard-cards-container .dashboard-card-2 {
   background: var(--stat-card-bg) !important;
   background-color: var(--stat-card-bg) !important;
-  border: none !important;
+  border: 1px solid #eef2f7 !important;
   border-radius: 12px !important;
   opacity: 1 !important;
 }
