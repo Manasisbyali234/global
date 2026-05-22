@@ -158,7 +158,7 @@ function CanDashboardPage() {
       <div className="twm-right-section-panel site-bg-gray can-dashboard">
         {/* Welcome Card */}
         <div className="candidate-page-shell candidate-page-shell--header welcome-card-container">
-          <div style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', marginBottom: '2rem' }}>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', marginBottom: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'nowrap' }}>
               {candidate.profilePicture ? (
                 <img 

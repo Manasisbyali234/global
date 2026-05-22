@@ -108,30 +108,6 @@ function CanStatusPage() {
 		].includes(normalized);
 	};
 
-	const getLatestStatusHistoryEntry = (application = {}) => {
-		const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
-		for (let index = statusHistory.length - 1; index >= 0; index -= 1) {
-			if (statusHistory[index]?.status) {
-				return statusHistory[index];
-			}
-		}
-
-		return null;
-	};
-
-	const wasAutoRejectedFromInterviewStageStatus = (application = {}) => {
-		if (normalizeStatusValue(application?.status) !== 'rejected') {
-			return false;
-		}
-
-		const latestStatusEntry = getLatestStatusHistoryEntry(application);
-		return normalizeStatusValue(latestStatusEntry?.status) === 'rejected' &&
-			normalizeStatusValue(latestStatusEntry?.notes).includes('auto updated from interview stage status');
-	};
-
-	const isAssessmentProcess = (process = {}) =>
-		normalizeStatusValue(process?.type || process?.stageType) === 'assessment';
-
 	const getPreferredTrackedProcesses = (application = {}) => {
 		const manualProcesses = Array.isArray(application?.interviewProcesses)
 			? application.interviewProcesses.filter(Boolean)
@@ -188,131 +164,30 @@ function CanStatusPage() {
 		].includes(normalized);
 	};
 
-	const hadOfferSentInHistory = (application = {}) =>
-		Array.isArray(application?.statusHistory) &&
-		application.statusHistory.some((entry) => {
-			const s = normalizeStatusValue(entry?.status);
-			return s === 'offer sent' || s === 'offer_sent';
-		});
-
-	const getApplicationDisplayStatus = (application = {}) => {
-
-		return getApplicationStatusKey(application);
-
-		const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
-		if (['accepted', 'hired'].includes(baseStatus)) {
-			return baseStatus;
-		}
-
-		// If candidate rejected an offer, always show as rejected
-		if (baseStatus === 'rejected' && hadOfferSentInHistory(application)) {
-			return 'rejected';
-		}
-
-		const trackedProcesses = getPreferredTrackedProcesses(application);
-		if (trackedProcesses.some(isRejectedTrackedProcessForDisplay)) {
-			return 'rejected';
-		}
-
-		// Check interviewRounds (legacy) for failed status
-		const hasFailedRound = Array.isArray(application?.interviewRounds) &&
-			application.interviewRounds.some((round) => String(round?.status || '').toLowerCase() === 'failed');
-		if (hasFailedRound) {
-			return 'rejected';
-		}
-
-		// Check assessment-derived statuses (no_show, suspended, failed) from attempt data
-		const assessmentStatus = String(application?.assessmentStatus || '').toLowerCase();
-		const assessmentResult = String(application?.assessmentResult || '').toLowerCase();
-		const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
-		const failedStatuses = ['failed', 'fail'];
-		const failedResults = ['failed', 'fail'];
-		// Treat expired as no-show (rejected) when there is no score/activity (candidate never started)
-		const hasAssessmentScore =
-			(application?.assessmentScore !== null && application?.assessmentScore !== undefined) ||
-			(application?.assessmentPercentage !== null && application?.assessmentPercentage !== undefined);
-		const isExpiredNoShow = assessmentStatus === 'expired' && !hasAssessmentScore;
-		if (
-			isExpiredNoShow ||
-			rejectedAssessmentStatuses.includes(assessmentStatus) ||
-			failedStatuses.includes(assessmentStatus) ||
-			failedResults.includes(assessmentResult)) {
-			return 'rejected';
-		}
-
-		// Check all assessment attempts for no_show, suspended, or failed
-		const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
-		const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
-			const s = String(attempt?.status || '').toLowerCase();
-			const r = String(attempt?.result || '').toLowerCase();
-			const hasAttemptScore =
-				(attempt?.score !== null && attempt?.score !== undefined) ||
-				(attempt?.percentage !== null && attempt?.percentage !== undefined);
-			// Treat expired as no-show (rejected) when there is no score (candidate never started)
-			const isExpiredNoShow = s === 'expired' && !hasAttemptScore;
-			return isExpiredNoShow || rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedResults.includes(r);
-		});
-		if (hasRejectedAttempt) {
-			return 'rejected';
-		}
-
-		const rounds = getInterviewRounds(application?.jobId, application);
-		const hasDerivedRejectedAssessmentRound = rounds.some((round, roundIndex) => {
+	const hasRejectedRoundStatus = (application = {}, interviewRounds = null) => {
+		const rounds =
+			Array.isArray(interviewRounds) && interviewRounds.length > 0
+				? interviewRounds
+				: getInterviewRounds(application?.jobId, application);
+		return rounds.some((round, roundIndex) => {
 			const roundName = typeof round === 'string' ? round : round?.name;
-			const roundType = normalizeStatusValue(
-				typeof round === 'object'
-					? (round?.roundType || round?.type || roundName)
-					: roundName
-			);
-			const isAssessmentRound = roundName === 'Assessment' || roundType.includes('assessment');
-			if (!isAssessmentRound) {
-				return false;
-			}
-
 			const roundDetails = resolveRoundDetails(application, round, roundIndex, rounds);
-			const assessmentRoundInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
-			const completionInfo = assessmentRoundInfo?.completionInfo || {};
-			const windowInfo = getAssessmentWindowInfo(application?.jobId, roundDetails);
-			const attemptResult = String(assessmentRoundInfo?.attempt?.result || '').toLowerCase();
-			const derivedNoShowFromWindow =
-				(completionInfo.isNoShow || completionInfo.isExpired || windowInfo.isAfterEnd) &&
-				!completionInfo.isCompleted &&
-				!completionInfo.isInProgress &&
-				!completionInfo.isSuspended &&
-				attemptResult !== 'pending';
-
-			return completionInfo.isFailed || completionInfo.isSuspended || derivedNoShowFromWindow;
+			const roundStatus = getRoundStatus(application, roundIndex, roundName, false, roundDetails);
+			return isRejectedInterviewProcessStatus(roundStatus?.text);
 		});
-		if (hasDerivedRejectedAssessmentRound) {
+	};
+
+	const getApplicationDisplayStatus = (application = {}, interviewRounds = null) => {
+		const baseDisplayStatus = getApplicationStatusKey(application);
+		if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(baseDisplayStatus)) {
+			return baseDisplayStatus;
+		}
+
+		if (hasRejectedRoundStatus(application, interviewRounds)) {
 			return 'rejected';
 		}
 
-		// Only revert auto-rejected status to pending if NO tracked process has a rejected/no_show status
-		const hasAnyRejectedTrackedProcess = trackedProcesses.some(isRejectedTrackedProcessForDisplay);
-		if (
-			baseStatus === 'rejected' &&
-			wasAutoRejectedFromInterviewStageStatus(application) &&
-			trackedProcesses.length > 0 &&
-			!hasAnyRejectedTrackedProcess
-		) {
-			return 'pending';
-		}
-
-		// If baseStatus is rejected but no tracked process is rejected and no assessment round exists,
-		// treat as pending (backend may have auto-set rejected incorrectly)
-		const hasAssessmentRound =
-			Boolean(application?.jobId?.assessmentId) ||
-			trackedProcesses.some(isAssessmentProcess) ||
-			Boolean(application?.assessmentResult) ||
-			Boolean(application?.assessmentStatus && !['', 'not_required', 'not required'].includes(
-				normalizeStatusValue(application.assessmentStatus)
-			));
-		if (baseStatus === 'rejected' && !hasAnyRejectedTrackedProcess && !hasAssessmentRound) {
-			return 'pending';
-		}
-
-		return baseStatus;
-
+		return baseDisplayStatus;
 	};
 
 	const formatStatusLabel = (status) => getStatusLabel(status);
@@ -2291,18 +2166,7 @@ function CanStatusPage() {
 											) : (
 												paginatedApplications.map((app, index) => {
 													const interviewRounds = getInterviewRounds(app.jobId, app);
-													const preferredTrackedProcesses = getPreferredTrackedProcesses(app);
-													const hasRejectedTrackedProcess = preferredTrackedProcesses.some(isRejectedTrackedProcessForDisplay);
-													const hasNoShowRound = interviewRounds.some((round, roundIndex) => {
-														const roundName = typeof round === 'string' ? round : round.name;
-														const roundDetails = resolveRoundDetails(app, round, roundIndex, interviewRounds);
-														const roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
-														return normalizeStatusValue(roundStatus?.text) === 'no show';
-													});
-													const applicationDisplayStatus =
-														hasNoShowRound && (preferredTrackedProcesses.length === 0 || hasRejectedTrackedProcess)
-															? 'rejected'
-															: getApplicationDisplayStatus(app);
+													const applicationDisplayStatus = getApplicationDisplayStatus(app, interviewRounds);
 													const isShortlisted = applicationDisplayStatus === 'shortlisted';
 													const shouldHighlightRow = highlightShortlisted && isShortlisted;
 													return (

@@ -315,7 +315,8 @@
 }
 
 .can-dashboard .dashboard-secondary-row {
-  margin-top: 0.85rem;
+  margin-top: 1.35rem;
+  padding-top: 0.15rem;
 }
 
 /* Remove background panel for stats cards */
@@ -444,7 +445,8 @@
   }
 
   .can-dashboard .dashboard-secondary-row {
-    margin-top: 0.65rem;
+    margin-top: 0 !important;
+    padding-top: 1.1rem;
   }
 
   .can-dashboard .dashboard-cards-container {
@@ -562,7 +564,8 @@
 
 @media (max-width: 576px) {
   .can-dashboard .dashboard-secondary-row {
-    margin-top: 0.55rem;
+    margin-top: 0 !important;
+    padding-top: 1rem;
   }
 
   .can-dashboard .dashboard-cards-container {
