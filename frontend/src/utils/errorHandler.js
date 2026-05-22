@@ -276,6 +276,7 @@ const fieldLabels = {
   logo: 'Company Logo',
   coverImage: 'Background Banner',
   description: 'Company Description',
+  whyJoinUs: 'Why Join Us',
   location: 'Headquarters Location',
   corporateAddress: 'Corporate Address',
   pincode: 'Pincode',

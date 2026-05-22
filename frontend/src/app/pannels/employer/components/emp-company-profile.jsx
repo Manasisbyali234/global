@@ -108,6 +108,7 @@ function EmpCompanyProfilePage() {
         gallery: []
     });
 
+    const [fieldErrors, setFieldErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [savingHiringCompanies, setSavingHiringCompanies] = useState(false);
     const [authSections, setAuthSections] = useState([{ id: 1, companyName: '', documentId: null }]);
@@ -128,6 +129,7 @@ function EmpCompanyProfilePage() {
         establishedSince: { year: true },
         teamSize: { required: true },
         description: { required: true, minLength: 10 },
+        whyJoinUs: { required: true, minLength: 10 },
         location: { required: true, minLength: 2 },
         googleMapsEmbed: { required: true, minLength: 10 },
         corporateAddress: { required: true, minLength: 10 },
@@ -640,7 +642,12 @@ function EmpCompanyProfilePage() {
     };
 
     const validateFormData = () => {
-        const formErrors = validateForm(formData, validationRules);
+        // Strip HTML for rich text fields before validation
+        const dataToValidate = {
+            ...formData,
+            whyJoinUs: (formData.whyJoinUs || '').replace(/<[^>]*>/g, '').trim()
+        };
+        const formErrors = validateForm(dataToValidate, validationRules);
         const profileEmails = [
             normalizeEmailValue(formData.email),
             normalizeEmailValue(formData.officialEmail),
@@ -680,6 +687,9 @@ function EmpCompanyProfilePage() {
             }
         }
         
+        // Update inline field errors
+        setFieldErrors(formErrors);
+
         const errorCount = Object.keys(formErrors).length;
         if (errorCount > 0) {
             const errorMessages = [];
@@ -1965,10 +1975,20 @@ function EmpCompanyProfilePage() {
                                     <label className="required-field"><Briefcase size={16} className="me-2" /> Why join us</label>
                                     <RichTextEditor
                                         value={formData.whyJoinUs}
-                                        onChange={(value) => handleInputChange('whyJoinUs', value)}
+                                        onChange={(value) => {
+                                            handleInputChange('whyJoinUs', value);
+                                            if (fieldErrors.whyJoinUs) {
+                                                setFieldErrors(prev => ({ ...prev, whyJoinUs: null }));
+                                            }
+                                        }}
                                         placeholder="Highlight the benefits of working with your company..."
-                                        className="form-control-editor"
+                                        className={`form-control-editor${fieldErrors.whyJoinUs ? ' is-invalid' : ''}`}
                                     />
+                                    {fieldErrors.whyJoinUs && (
+                                        <div className="invalid-feedback d-block" style={{marginTop: '4px'}}>
+                                            {Array.isArray(fieldErrors.whyJoinUs) ? fieldErrors.whyJoinUs[0] : fieldErrors.whyJoinUs}
+                                        </div>
+                                    )}
                                     <small className="text-muted mt-1" style={{color: '#000000 !important'}}>Use the toolbar above to format your text with bold, italic, lists, and alignment options.</small>
                                 </div>
                             </div>

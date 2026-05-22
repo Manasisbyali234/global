@@ -55,7 +55,7 @@ function SectionCanResumeHeadline({ profile }) {
         <>
             <div className="panel-heading wt-panel-heading p-a20 panel-heading-with-btn">
                 <h4 className="panel-tittle m-a0">
-                    Resume Headline
+                    Resume Headline <span style={{color: 'red'}}>*</span>
                 </h4>
             </div>
 

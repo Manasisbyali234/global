@@ -63,7 +63,7 @@ function SectionCanProfileSummary({ profile }) {
         <>
             <div className="panel-heading wt-panel-heading p-a20">
                 <h4 className="panel-tittle m-a0">
-                    Profile Summary
+                    Profile Summary <span style={{color: 'red'}}>*</span>
                 </h4>
             </div>
             <div className="panel-body wt-panel-body p-a20">
