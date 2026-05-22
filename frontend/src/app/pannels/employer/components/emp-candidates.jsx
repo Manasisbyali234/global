@@ -469,7 +469,7 @@ function EmpCandidatesPage() {
     () =>
       applications.map((application) => ({
         ...application,
-        displayStatus: getApplicationDisplayStatus(application, statusClock)
+        displayStatus: getApplicationStatusKey(application)
       })),
     [applications, statusClock]
   );
