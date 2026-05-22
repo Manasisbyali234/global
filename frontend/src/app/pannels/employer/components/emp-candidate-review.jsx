@@ -15,7 +15,7 @@ import {
     getAssessmentOutcomeLabel,
     getAssessmentProcessStatus
 } from '../../../../utils/assessmentOutcome';
-import { getStatusLabel } from '../../../../utils/statusDisplay';
+import { getApplicationStatusKey, getStatusLabel } from '../../../../utils/statusDisplay';
 import TermsModal from "../../../../components/TermsModal";
 
 function EmpCandidateReviewPage() {
@@ -850,9 +850,13 @@ function EmpCandidateReviewPage() {
         }
 
         const normalizedProcesses = Array.isArray(processes) ? processes : [];
-        const hasRejectedNonAssessmentStage = normalizedProcesses.some((process) =>
-            !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
-        );
+        const normalizedAssessmentStatus = normalizeStatusValue(applicationData?.assessmentStatus);
+        const hasAssessmentRound =
+            Boolean(applicationData?.jobId?.assessmentId) ||
+            normalizedProcesses.some((process) => isAssessmentProcess(process)) ||
+            Boolean(applicationData?.assessmentResult) ||
+            (normalizedAssessmentStatus && normalizedAssessmentStatus !== 'not required');
+
         const hasRejectedAssessmentStage = normalizedProcesses.some((process) =>
             isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
         );
@@ -861,16 +865,15 @@ function EmpCandidateReviewPage() {
         const assessmentIsFailed = ['fail', 'failed'].includes(
             normalizeStatusValue(applicationData?.assessmentResult)
         );
+
+        // For non-assessment stages, only treat as rejected if explicitly set to 'rejected'
+        const hasRejectedNonAssessmentStage = normalizedProcesses.some((process) =>
+            !isAssessmentProcess(process) && normalizeStatusValue(process?.status) === 'rejected'
+        );
+
         if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage || assessmentIsSuspended || assessmentIsFailed) {
             return 'rejected';
         }
-
-        const normalizedAssessmentStatus = normalizeStatusValue(applicationData?.assessmentStatus);
-        const hasAssessmentRound =
-            Boolean(applicationData?.jobId?.assessmentId) ||
-            normalizedProcesses.some((process) => isAssessmentProcess(process)) ||
-            Boolean(applicationData?.assessmentResult) ||
-            (normalizedAssessmentStatus && normalizedAssessmentStatus !== 'not required');
 
         // Only apply session-expired rejection logic when there is an assessment round
         if (hasAssessmentRound && isApplicationSessionExpired(applicationData, normalizedProcesses)) {
@@ -1616,7 +1619,7 @@ function EmpCandidateReviewPage() {
         );
     }
 
-    const applicationDisplayStatus = getApplicationDisplayStatus(application, interviewProcesses);
+    const applicationDisplayStatus = getApplicationStatusKey(application);
     const isAssessmentNoShowApplication = isApplicationSessionExpired(application, interviewProcesses);
     const applicationStatusForActions = applicationDisplayStatus;
 

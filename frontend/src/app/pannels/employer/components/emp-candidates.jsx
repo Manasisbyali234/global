@@ -5,7 +5,7 @@ import { loadScript } from "../../../../globals/constants";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
 import { getAssessmentOutcome, isAssessmentOutcomeRejected } from "../../../../utils/assessmentOutcome";
-import { getStatusLabel } from "../../../../utils/statusDisplay";
+import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import './emp-candidates.css';
 
 function SearchableFilterDropdown({
@@ -400,9 +400,16 @@ function EmpCandidatesPage() {
       getAssessmentRoundOrderKeys(application?.jobId).length > 0 ||
       processes.some((process) => isAssessmentProcess(process));
 
-    // Only treat as rejected if a stage was explicitly marked rejected
-    const hasAnyRejectedStage = processes.some((process) => isRejectedLikeStatus(process?.status));
-    if (hasAnyRejectedStage) {
+    // For assessment stages, treat any rejected-like status as rejected
+    const hasRejectedAssessmentStage = processes.some(
+      (process) => isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
+    );
+    // For non-assessment stages, only treat as rejected if explicitly set to 'rejected'
+    const hasRejectedNonAssessmentStage = processes.some(
+      (process) => !isAssessmentProcess(process) && normalizeStatusValue(process?.status) === "rejected"
+    );
+
+    if (hasRejectedAssessmentStage || hasRejectedNonAssessmentStage) {
       return "rejected";
     }
 
@@ -462,7 +469,7 @@ function EmpCandidatesPage() {
     () =>
       applications.map((application) => ({
         ...application,
-        displayStatus: getApplicationDisplayStatus(application, statusClock)
+        displayStatus: getApplicationStatusKey(application)
       })),
     [applications, statusClock]
   );
