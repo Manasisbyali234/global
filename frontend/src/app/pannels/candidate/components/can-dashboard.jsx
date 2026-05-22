@@ -212,7 +212,7 @@ function CanDashboardPage() {
           <SectionCandidateOverview />
 
           {/* Profile Completion and Notifications */}
-          <div className="row">
+          <div className="row dashboard-secondary-row">
             <div className="col-xl-8 col-lg-8 col-md-12 mb-4" style={{ position: 'relative', zIndex: 1 }}>
               <CompleteProfileCard />
             </div>

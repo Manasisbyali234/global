@@ -258,6 +258,43 @@ const isAutoRejectedFromInterviewStageStatus = (application = {}) => {
     && normalizeApplicationStatusValue(latestStatusEntry?.notes).includes('auto updated from interview stage status');
 };
 
+const getManualAutoRejectedStageFallbackStatus = (application = {}, options = {}) => {
+  if (!options?.respectManualStageStatusForAutoReject) {
+    return '';
+  }
+
+  if (!isAutoRejectedFromInterviewStageStatus(application)) {
+    return '';
+  }
+
+  const manualTrackedProcesses = Array.isArray(application?.interviewProcesses)
+    ? application.interviewProcesses.filter(Boolean)
+    : [];
+  if (manualTrackedProcesses.length === 0) {
+    return '';
+  }
+
+  const hasRejectedManualProcess = manualTrackedProcesses.some((process) =>
+    isRejectedInterviewProcessStatus(process?.status)
+  );
+  if (hasRejectedManualProcess) {
+    return '';
+  }
+
+  const rejectedAssessmentStatuses = new Set([
+    'no show',
+    'suspended',
+    'session expired',
+    'failed',
+    'fail'
+  ]);
+  if (rejectedAssessmentStatuses.has(normalizeApplicationStatusValue(application?.assessmentStatus))) {
+    return '';
+  }
+
+  return 'pending';
+};
+
 const getPreferredTrackedProcesses = (application = {}, interviewProcess = null) => {
   const manualProcesses = Array.isArray(application?.interviewProcesses)
     ? application.interviewProcesses.filter(Boolean)
@@ -634,6 +671,11 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     return 'rejected';
   }
 
+  const manualAutoRejectedStageFallbackStatus = getManualAutoRejectedStageFallbackStatus(application, options);
+  if (manualAutoRejectedStageFallbackStatus) {
+    return manualAutoRejectedStageFallbackStatus;
+  }
+
   const trackedProcesses = getResolvedTrackedProcesses(application, options);
   const hasRejectedProcess = trackedProcesses.some((process) =>
     isRejectedInterviewProcessStatus(process?.status)
@@ -754,6 +796,11 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
   const rejectedInviteDisplayStatus = getRejectedInterviewInviteDisplayStatus(application, baseStatus);
   if (rejectedInviteDisplayStatus) {
     return rejectedInviteDisplayStatus;
+  }
+
+  const manualAutoRejectedStageFallbackStatus = getManualAutoRejectedStageFallbackStatus(application, options);
+  if (manualAutoRejectedStageFallbackStatus) {
+    return manualAutoRejectedStageFallbackStatus;
   }
 
   if (hasExpiredAssessmentWindowWithoutActivity(application, options)) {

@@ -17,11 +17,17 @@
   border-radius: 12px !important;
   border: none !important;
   box-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  transition: transform 0.18s ease !important;
+  transform-origin: center center;
 }
 
 .can-dashboard .dashboard-card-2:hover {
-  transform: none;
-  transition: none;
+  opacity: 1 !important;
+  filter: none !important;
+  box-shadow: none !important;
+  transform: translateY(-3px) scale(1.015);
 }
 
 .can-dashboard .candidate-stat-card__body {
@@ -303,6 +309,14 @@
   border: 1px solid #e5e7eb;
 }
 
+.can-dashboard .dashboard-overview-copy {
+  padding-left: 1rem;
+}
+
+.can-dashboard .dashboard-secondary-row {
+  margin-top: 0.85rem;
+}
+
 /* Remove background panel for stats cards */
 .can-dashboard .col-xl-4 .panel,
 .can-dashboard .col-lg-4 .panel {
@@ -328,6 +342,44 @@
   position: relative !important;
   z-index: 10 !important;
   background: white !important;
+}
+
+.can-dashboard .dashboard-cards-container .panel.panel-default {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  transition: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+.can-dashboard .dashboard-cards-container .panel.panel-default:hover {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+.can-dashboard .dashboard-cards-container .dashboard-card-2 {
+  background: var(--stat-card-bg) !important;
+  background-color: var(--stat-card-bg) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  opacity: 1 !important;
+}
+
+.can-dashboard .dashboard-cards-container .dashboard-card-2:hover,
+.can-dashboard .dashboard-cards-container .panel:hover > .dashboard-card-2,
+.can-dashboard .dashboard-cards-container .panel:hover > .panel-body.dashboard-card-2 {
+  background: var(--stat-card-bg) !important;
+  background-color: var(--stat-card-bg) !important;
+  opacity: 1 !important;
+  filter: none !important;
+  box-shadow: none !important;
+  transform: translateY(-3px) scale(1.015) !important;
+  transition: transform 0.18s ease !important;
 }
 
 .can-dashboard .panel-body {
@@ -390,9 +442,28 @@
     padding-bottom: 20px; 
   }
 
+  .can-dashboard .dashboard-secondary-row {
+    margin-top: 0.65rem;
+  }
+
+  .can-dashboard .dashboard-cards-container {
+    row-gap: 0.5rem !important;
+  }
+
+  .can-dashboard .dashboard-cards-container > [class*="col-"] {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+    width: 50% !important;
+    margin-bottom: 0 !important;
+  }
+
   .can-dashboard .welcome-card-container > div,
   .can-dashboard .bg-white.p-4.rounded.shadow-sm {
     padding: 0.875rem !important;
+  }
+
+  .can-dashboard .dashboard-overview-copy {
+    padding-left: 0.75rem;
   }
 
   .can-dashboard .dashboard-card-2 *,
@@ -423,12 +494,54 @@
   }
   
   .can-dashboard .dashboard-card-2 {
-    padding: 0.75rem !important;
-    min-height: 100px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.65rem !important;
+    min-height: 92px !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .panel {
+    height: 100%;
+    margin-bottom: 0 !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__body {
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    min-height: auto !important;
+    justify-content: center !important;
+    gap: 0.4rem !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__top {
+    gap: 0.45rem !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__icon {
+    min-width: 40px !important;
+    min-height: 40px !important;
+    padding: 0.32rem !important;
+    border-radius: 13px !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__icon i {
+    font-size: 1.7rem !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__value {
+    font-size: 1.42rem !important;
+    line-height: 1 !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__label {
+    margin-top: 0 !important;
+    font-size: 0.78rem !important;
+    line-height: 1.15 !important;
   }
   
   .can-dashboard .counter {
-    font-size: 24px !important;
+    font-size: 23px !important;
   }
   
   .can-dashboard h5 {
@@ -447,8 +560,26 @@
 }
 
 @media (max-width: 576px) {
+  .can-dashboard .dashboard-secondary-row {
+    margin-top: 0.55rem;
+  }
+
+  .can-dashboard .dashboard-cards-container {
+    row-gap: 0.4rem !important;
+  }
+
+  .can-dashboard .dashboard-cards-container > [class*="col-"] {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+    width: 50% !important;
+  }
+
   .can-dashboard .welcome-card-container > div {
     padding: 0.75rem !important;
+  }
+
+  .can-dashboard .dashboard-overview-copy {
+    padding-left: 0.6rem;
   }
 
   .can-dashboard .bg-white.p-4.rounded.shadow-sm {
@@ -493,12 +624,46 @@
   }
   
   .can-dashboard .dashboard-card-2 {
-    padding: 0.65rem !important;
-    min-height: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.55rem !important;
+    min-height: 84px !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__body {
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    justify-content: center !important;
+    gap: 0.32rem !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__top {
+    gap: 0.35rem !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__icon {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    padding: 0.26rem !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__icon i {
+    font-size: 1.5rem !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__value {
+    font-size: 1.22rem !important;
+    line-height: 1 !important;
+  }
+
+  .can-dashboard .dashboard-cards-container .candidate-stat-card__label {
+    font-size: 0.7rem !important;
+    line-height: 1.1 !important;
   }
   
   .can-dashboard .counter {
-    font-size: 22px !important;
+    font-size: 20px !important;
   }
   
   .can-dashboard h5 {

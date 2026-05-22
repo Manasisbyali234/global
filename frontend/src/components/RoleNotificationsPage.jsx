@@ -325,11 +325,13 @@ function RoleNotificationsPage({
         <div className="role-notifications-stats">
           {stats.map((stat) => (
             <div key={stat.label} className={`role-notifications-stat-card tone-${stat.tone}`}>
-              <div className="role-notifications-stat-icon">
-                <i className={stat.icon}></i>
-              </div>
-              <div>
-                <div className="role-notifications-stat-value">{stat.value}</div>
+              <div className="role-notifications-stat-card__body">
+                <div className="role-notifications-stat-card__top">
+                  <div className="role-notifications-stat-icon">
+                    <i className={stat.icon}></i>
+                  </div>
+                  <div className="role-notifications-stat-value">{stat.value}</div>
+                </div>
                 <div className="role-notifications-stat-label">{stat.label}</div>
               </div>
             </div>
