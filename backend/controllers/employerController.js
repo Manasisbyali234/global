@@ -295,7 +295,11 @@ const decorateEmployerApplicationStatusFields = (application = null, options = {
 
   return {
     ...application,
-    ...buildSharedApplicationStatusSnapshot(application, options)
+    ...buildSharedApplicationStatusSnapshot(application, {
+      ...options,
+      respectExpiredSessionAutoRejectDisplay: true,
+      respectManualStageStatusForAutoReject: true
+    })
   };
 };
 

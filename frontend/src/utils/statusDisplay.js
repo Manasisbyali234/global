@@ -134,8 +134,8 @@ export const isPositiveInterviewStatusKey = (value = '') => {
   ].includes(statusKey);
 };
 
-export const getApplicationStatusKey = (application = {}, fallback = 'pending') =>
-  normalizeApplicationDisplayStatusKey(
+export const getApplicationStatusKey = (application = {}, fallback = 'pending') => {
+  const applicationStatusKey = normalizeApplicationDisplayStatusKey(
     getCanonicalStatusKey(
       application?.applicationStatus ||
         application?.applicationDisplayStatus ||
@@ -145,6 +145,18 @@ export const getApplicationStatusKey = (application = {}, fallback = 'pending') 
       fallback
     )
   );
+
+  if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(applicationStatusKey)) {
+    return applicationStatusKey;
+  }
+
+  const interviewStatusKey = getInterviewCurrentStatusKey(application, '');
+  if (isRejectedStatusKey(interviewStatusKey)) {
+    return 'rejected';
+  }
+
+  return applicationStatusKey;
+};
 
 export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pending') =>
   getCanonicalStatusKey(

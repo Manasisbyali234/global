@@ -199,6 +199,7 @@ import CountUp from "react-countup";
 import { useWebSocket } from '../../../../../contexts/WebSocketContext';
 import { loadScript } from '../../../../../globals/constants';
 import { showSuccess, showError } from '../../../../../utils/popupNotification';
+import '../../../../../dashboard-mobile-responsive.css';
 
 function SectionCandidateOverview() {
 	const navigate = useNavigate();
@@ -414,7 +415,7 @@ function SectionCandidateOverview() {
 
 	const baseCards = [
 		{
-			bg: "#e0f7fa",
+			bg: "#ffffff",
 			icon: "flaticon-resume",
 			color: "text-info",
 			count: stats.applied,
@@ -427,7 +428,7 @@ function SectionCandidateOverview() {
 			}
 		},
 		{
-			bg: "#fff3e0",
+			bg: "#ffffff",
 			icon: "flaticon-envelope",
 			color: "text-warning",
 			count: stats.inProgress,
@@ -436,7 +437,7 @@ function SectionCandidateOverview() {
 			onClick: () => navigate('/candidate/status')
 		},
 		{
-			bg: "#fff3e0",
+			bg: "#ffffff",
 			icon: "flaticon-bell",
 			color: "text-warning",
 			count: stats.shortlisted,
@@ -449,7 +450,7 @@ function SectionCandidateOverview() {
 			}
 		},
 		{
-			bg: "#e8f5e9",
+			bg: "#ffffff",
 			icon: "fa fa-briefcase",
 			color: "text-warning",
 			count: stats.hired,
@@ -460,7 +461,7 @@ function SectionCandidateOverview() {
 	];
 
 	const creditsCard = {
-		bg: "#f0f4ff",
+		bg: "#ffffff",
 		icon: "flaticon-job",
 		color: "text-primary",
 		count: candidate.credits || 0,
@@ -485,19 +486,20 @@ function SectionCandidateOverview() {
 	return (
 		<>
 			<div className="d-flex justify-content-between align-items-center mb-4">
-				<div>
+				<div className="dashboard-overview-copy">
 					<h5 className="mb-1" style={{ color: '#111827', fontWeight: '700' }}>Dashboard Overview</h5>
 					<p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>Track your job applications and profile activity</p>
 				</div>
 			</div>
-			<div className="row" style={{ marginBottom: '2rem' }}>
+			<div className="row dashboard-cards-container" style={{ marginBottom: '0.5rem' }}>
 				{cards.map((card, index) => (
-					<div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3" key={index}>
+					<div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6 mb-3" key={index}>
 						<div className="panel panel-default">
 							<div 
 								className="panel-body wt-panel-body dashboard-card-2" 
 								style={{ 
-									backgroundColor: card.bg,
+									'--stat-card-bg': card.bg,
+									backgroundColor: 'var(--stat-card-bg)',
 									cursor: card.clickable ? 'pointer' : 'default',
 									padding: '1.25rem 1rem',
 									minHeight: '100px'

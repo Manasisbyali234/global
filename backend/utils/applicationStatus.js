@@ -1,5 +1,7 @@
 const { buildUtcDateTimeFromIst } = require('./dateTime');
 
+const AUTO_REJECT_EXPIRED_SESSION_NOTE = 'Auto-rejected after application session expired';
+
 const normalizeApplicationStatusValue = (value = '') =>
   String(value || '')
     .trim()
@@ -160,6 +162,51 @@ const getLatestApplicationStatusHistoryEntry = (application = {}) => {
   return null;
 };
 
+const isAutoRejectedAfterExpiredSession = (application = {}) => {
+  if (normalizeApplicationStatusValue(application?.status) !== 'rejected') {
+    return false;
+  }
+
+  const latestStatusEntry = getLatestApplicationStatusHistoryEntry(application);
+  return normalizeApplicationStatusValue(latestStatusEntry?.status) === 'rejected'
+    && String(latestStatusEntry?.notes || '').trim() === AUTO_REJECT_EXPIRED_SESSION_NOTE;
+};
+
+const getStatusBeforeExpiredSessionAutoReject = (application = {}) => {
+  const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
+
+  for (let index = statusHistory.length - 1; index >= 0; index -= 1) {
+    const entry = statusHistory[index];
+    const isAutoRejectedEntry = normalizeApplicationStatusValue(entry?.status) === 'rejected'
+      && String(entry?.notes || '').trim() === AUTO_REJECT_EXPIRED_SESSION_NOTE;
+
+    if (!isAutoRejectedEntry) {
+      continue;
+    }
+
+    for (let previousIndex = index - 1; previousIndex >= 0; previousIndex -= 1) {
+      const previousStatus = String(statusHistory[previousIndex]?.status || '').trim();
+      if (previousStatus) {
+        return previousStatus;
+      }
+    }
+
+    return 'pending';
+  }
+
+  return application?.status || 'pending';
+};
+
+const getDisplayBaseStatus = (application = {}, options = {}, fallback = 'pending') => {
+  const rawBaseStatus = (
+    options?.respectExpiredSessionAutoRejectDisplay && isAutoRejectedAfterExpiredSession(application)
+      ? getStatusBeforeExpiredSessionAutoReject(application)
+      : application?.status
+  );
+
+  return getCanonicalStatusKey(rawBaseStatus || '', fallback);
+};
+
 const getInterviewInviteStatusKey = (application = {}) =>
   getCanonicalStatusKey(application?.interviewInvite?.status || '', '');
 
@@ -256,6 +303,43 @@ const isAutoRejectedFromInterviewStageStatus = (application = {}) => {
   const latestStatusEntry = getLatestApplicationStatusHistoryEntry(application);
   return normalizeApplicationStatusValue(latestStatusEntry?.status) === 'rejected'
     && normalizeApplicationStatusValue(latestStatusEntry?.notes).includes('auto updated from interview stage status');
+};
+
+const getManualAutoRejectedStageFallbackStatus = (application = {}, options = {}) => {
+  if (!options?.respectManualStageStatusForAutoReject) {
+    return '';
+  }
+
+  if (!isAutoRejectedFromInterviewStageStatus(application)) {
+    return '';
+  }
+
+  const manualTrackedProcesses = Array.isArray(application?.interviewProcesses)
+    ? application.interviewProcesses.filter(Boolean)
+    : [];
+  if (manualTrackedProcesses.length === 0) {
+    return '';
+  }
+
+  const hasRejectedManualProcess = manualTrackedProcesses.some((process) =>
+    isRejectedInterviewProcessStatus(process?.status)
+  );
+  if (hasRejectedManualProcess) {
+    return '';
+  }
+
+  const rejectedAssessmentStatuses = new Set([
+    'no show',
+    'suspended',
+    'session expired',
+    'failed',
+    'fail'
+  ]);
+  if (rejectedAssessmentStatuses.has(normalizeApplicationStatusValue(application?.assessmentStatus))) {
+    return '';
+  }
+
+  return 'pending';
 };
 
 const getPreferredTrackedProcesses = (application = {}, interviewProcess = null) => {
@@ -619,7 +703,7 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     return getCanonicalStatusKey(explicitDisplayStatus);
   }
 
-  const baseStatus = getCanonicalStatusKey(application?.status || '', 'pending');
+  const baseStatus = getDisplayBaseStatus(application, options, 'pending');
   const fallbackBaseStatus = baseStatus === 'under_review' ? 'pending' : baseStatus;
   if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
     return baseStatus;
@@ -632,6 +716,11 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
 
   if (getRejectedInterviewInviteDisplayStatus(application, baseStatus)) {
     return 'rejected';
+  }
+
+  const manualAutoRejectedStageFallbackStatus = getManualAutoRejectedStageFallbackStatus(application, options);
+  if (manualAutoRejectedStageFallbackStatus) {
+    return manualAutoRejectedStageFallbackStatus;
   }
 
   const trackedProcesses = getResolvedTrackedProcesses(application, options);
@@ -746,7 +835,7 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
     return getCanonicalStatusKey(explicitInterviewStatus);
   }
 
-  const baseStatus = getCanonicalStatusKey(application?.status || '', 'pending');
+  const baseStatus = getDisplayBaseStatus(application, options, 'pending');
   if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
     return baseStatus;
   }
@@ -754,6 +843,11 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
   const rejectedInviteDisplayStatus = getRejectedInterviewInviteDisplayStatus(application, baseStatus);
   if (rejectedInviteDisplayStatus) {
     return rejectedInviteDisplayStatus;
+  }
+
+  const manualAutoRejectedStageFallbackStatus = getManualAutoRejectedStageFallbackStatus(application, options);
+  if (manualAutoRejectedStageFallbackStatus) {
+    return manualAutoRejectedStageFallbackStatus;
   }
 
   if (hasExpiredAssessmentWindowWithoutActivity(application, options)) {
