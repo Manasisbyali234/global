@@ -156,7 +156,14 @@ export default function AssessmentDashboard() {
 		const normalizedCompanySearch = String(companySearch || '').trim().toLowerCase();
 		const filtered = assessments.filter((assessment) => {
 			const matchesAssessment = !selectedAssessmentId || assessment._id === selectedAssessmentId;
-			const matchesStatus = selectedStatus === "all" || getAssessmentStatus(assessment) === selectedStatus;
+			let matchesStatus;
+			if (selectedStatus === "all") {
+				matchesStatus = true;
+			} else if (selectedStatus === "draft") {
+				matchesStatus = getAssessmentStatus(assessment) === "draft" || !assessment.isAssigned;
+			} else {
+				matchesStatus = getAssessmentStatus(assessment) === selectedStatus;
+			}
 			const matchesCompany =
 				!isConsultantEmployer ||
 				!normalizedCompanySearch ||
@@ -239,7 +246,7 @@ export default function AssessmentDashboard() {
 	};
 
 	const handleEditAssessment = (assessment) => {
-		if (assessment?.isAssigned) {
+		if (assessment?.isAssigned && getAssessmentStatus(assessment) !== 'draft') {
 			showWarning('Assigned assessments cannot be edited.');
 			return;
 		}
@@ -249,7 +256,7 @@ export default function AssessmentDashboard() {
 	};
 
 	const handleDeleteAssessment = async (assessment) => {
-		if (assessment?.isAssigned) {
+		if (assessment?.isAssigned && getAssessmentStatus(assessment) !== 'draft') {
 			showWarning('Assigned assessments cannot be deleted.');
 			return;
 		}

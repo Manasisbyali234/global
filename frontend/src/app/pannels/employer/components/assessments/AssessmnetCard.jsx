@@ -125,7 +125,7 @@ export default function AssessmentCard({ data, onDelete, onEdit, onView, index }
 					>
 						<i className="fa fa-eye"></i>
 					</button>
-					{!isAssigned && (
+					{(!isAssigned || String(data.status || '').toLowerCase() === 'draft') && (
 						<>
 							<button
 								className="btn btn-sm btn-outline-secondary"
