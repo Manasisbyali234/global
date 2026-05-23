@@ -1092,11 +1092,11 @@ function EmpCandidateReviewPage() {
                         oneOnOne: 'One-to-One',
                         oneOnOnePanel: 'One-on-One / Panel',
                         panel: 'Panel',
-                        group: 'Group',
-                        technical: 'Technical',
+                        group: 'Group Discussion',
+                        technical: 'Technical Round',
                         managerial: 'Managerial Round',
                         hr: 'HR Round',
-                        situational: 'Situational / Behavioral',
+                        situational: 'Situational / Behavioral Round',
                         others: 'Others – Specify.',
                         assessment: 'Assessment'
                     };
@@ -1839,6 +1839,11 @@ function EmpCandidateReviewPage() {
                                                                                     </option>
                                                                                 ))}
                                                                             </select>
+                                                                            {process.type === 'assessment' && process.result === 'Pending Review' && (
+                                                                                <p style={{ color: '#dc3545', fontSize: '11px', margin: '4px 0 0 0', fontWeight: '500' }}>
+                                                                                    Please award marks for manual questions before selecting a status.
+                                                                                </p>
+                                                                            )}
                                                                         </div>
                                                                         <div className="control-remarks-wrapper">
                                                                             <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'block' }}>Stage Feedback</label>

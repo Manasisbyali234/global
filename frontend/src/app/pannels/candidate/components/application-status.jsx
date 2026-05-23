@@ -1310,7 +1310,7 @@ function CanStatusPage() {
 		// Helper function to extract proper round name from uniqueKey
 		const getRoundNameFromKey = (key) => {
 			const roundNames = {
-				technical: 'Technical',
+				technical: 'Technical Round',
 				oneOnOne: 'One-to-One',
 				oneonone: 'One-to-One',
 				"one-on-one": 'One-to-One',
@@ -1320,8 +1320,8 @@ function CanStatusPage() {
 				"one-on-one-panel": 'One-on-One / Panel',
 				one_on_one_panel: 'One-on-One / Panel',
 				panel: 'Panel',
-				group: 'Group',
-				situational: 'Situational / Behavioral',
+				group: 'Group Discussion',
+				situational: 'Situational / Behavioral Round',
 				others: 'Others – Specify.',
 				assessment: 'Assessment'
 			};
@@ -1334,7 +1334,7 @@ function CanStatusPage() {
 		// Helper function to get round name from stage type or stage name
 		const getProperRoundName = (stageType, stageName) => {
 			const roundNames = {
-				technical: 'Technical',
+				technical: 'Technical Round',
 				oneOnOne: 'One-to-One',
 				oneonone: 'One-to-One',
 				"one-on-one": 'One-to-One',
@@ -1344,8 +1344,8 @@ function CanStatusPage() {
 				"one-on-one-panel": 'One-on-One / Panel',
 				one_on_one_panel: 'One-on-One / Panel',
 				panel: 'Panel',
-				group: 'Group',
-				situational: 'Situational / Behavioral',
+				group: 'Group Discussion',
+				situational: 'Situational / Behavioral Round',
 				others: 'Others – Specify.',
 				assessment: 'Assessment',
 				nonTechnical: 'Non-Technical',
@@ -1396,11 +1396,11 @@ function CanStatusPage() {
 				if (name && (name.includes('_') || /^\d+$/.test(name))) {
 					const stageNames = {
 						assessment: 'Assessment',
-						technical: 'Technical',
+						technical: 'Technical Round',
 						oneOnOne: 'One-to-One',
 						panel: 'Panel',
-						group: 'Group',
-						situational: 'Situational / Behavioral',
+						group: 'Group Discussion',
+						situational: 'Situational / Behavioral Round',
 						others: 'Others – Specify.',
 						nonTechnical: 'Non-Technical',
 						managerial: 'Managerial',
@@ -1441,7 +1441,7 @@ function CanStatusPage() {
 		if (job?.interviewRoundOrder && job.interviewRoundOrder.length > 0) {
 			const rounds = [];
 			const stageNames = {
-				technical: 'Technical',
+				technical: 'Technical Round',
 				oneOnOne: 'One-to-One',
 				oneonone: 'One-to-One',
 				"one-on-one": 'One-to-One',
@@ -1451,8 +1451,8 @@ function CanStatusPage() {
 				"one-on-one-panel": 'One-on-One / Panel',
 				one_on_one_panel: 'One-on-One / Panel',
 				panel: 'Panel',
-				group: 'Group',
-				situational: 'Situational / Behavioral',
+				group: 'Group Discussion',
+				situational: 'Situational / Behavioral Round',
 				others: 'Others – Specify.',
 				assessment: 'Assessment',
 				nonTechnical: 'Non-Technical',
@@ -1514,9 +1514,9 @@ function CanStatusPage() {
 			if (job.assessmentId) rounds.push({ name: 'Assessment', uniqueKey: 'assessment', roundType: 'assessment', assessmentId: job.assessmentId });
 			if (roundTypes.oneOnOne) rounds.push({ name: 'One-to-One', uniqueKey: 'oneOnOne', roundType: 'oneOnOne' });
 			if (roundTypes.panel) rounds.push({ name: 'Panel', uniqueKey: 'panel', roundType: 'panel' });
-			if (roundTypes.group) rounds.push({ name: 'Group', uniqueKey: 'group', roundType: 'group' });
-			if (roundTypes.technical) rounds.push({ name: 'Technical', uniqueKey: 'technical', roundType: 'technical' });
-			if (roundTypes.situational) rounds.push({ name: 'Situational / Behavioral', uniqueKey: 'situational', roundType: 'situational' });
+			if (roundTypes.group) rounds.push({ name: 'Group Discussion', uniqueKey: 'group', roundType: 'group' });
+			if (roundTypes.technical) rounds.push({ name: 'Technical Round', uniqueKey: 'technical', roundType: 'technical' });
+			if (roundTypes.situational) rounds.push({ name: 'Situational / Behavioral Round', uniqueKey: 'situational', roundType: 'situational' });
 			if (roundTypes.others) rounds.push({ name: 'Others – Specify.', uniqueKey: 'others', roundType: 'others' });
 
 			if (rounds.length > 0) return rounds;
@@ -1528,7 +1528,7 @@ function CanStatusPage() {
 		}
 
 		// Default rounds for testing
-		return [{ name: 'Technical', uniqueKey: 'technical', roundType: 'technical' }, { name: 'HR', uniqueKey: 'hr', roundType: 'hr' }, { name: 'Final', uniqueKey: 'final', roundType: 'final' }];
+		return [{ name: 'Technical Round', uniqueKey: 'technical', roundType: 'technical' }, { name: 'HR', uniqueKey: 'hr', roundType: 'hr' }, { name: 'Final', uniqueKey: 'final', roundType: 'final' }];
 	};
 
 	const formatAssessmentScheduleMessage = (startDate) => {
@@ -2282,11 +2282,11 @@ function CanStatusPage() {
 																				
 																				if (isUniqueKey) {
 																					const stageNameMap = {
-																						technical: 'Technical',
+																						technical: 'Technical Round',
 																						oneOnOne: 'One-to-One',
 																						panel: 'Panel',
-																						group: 'Group',
-																						situational: 'Situational / Behavioral',
+																						group: 'Group Discussion',
+																						situational: 'Situational / Behavioral Round',
 																						others: 'Others – Specify.',
 																						assessment: 'Assessment',
 																						nonTechnical: 'Non-Technical',
@@ -2350,7 +2350,11 @@ function CanStatusPage() {
 																		const assessmentRoundInfo = roundName === 'Assessment'
 																			? getAssessmentRoundInfo(app, roundName, roundDetails)
 																			: null;
-																			const roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
+																			let roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
+																			// If overall app is rejected and this round still shows Pending, show Rejected (same as interview-details page)
+																			if (applicationDisplayStatus === 'rejected' && normalizeStatusValue(roundStatus?.text) === 'pending') {
+																				roundStatus = { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+																			}
 																			const assessmentSchedule = roundName === 'Assessment'
 																				? getAssessmentScheduleSource(app.jobId, roundDetails)
 																				: null;
@@ -2681,11 +2685,11 @@ function CanStatusPage() {
 										// Safety check: ensure roundName is not a unique key
 										if (roundName && (roundName.includes('_') || roundName.match(/^[0-9a-f]{24}$/i) || /^\d+$/.test(roundName))) {
 											const stageNameMap = {
-												technical: 'Technical',
+												technical: 'Technical Round',
 												oneOnOne: 'One-to-One',
 												panel: 'Panel',
-												group: 'Group',
-												situational: 'Situational / Behavioral',
+												group: 'Group Discussion',
+												situational: 'Situational / Behavioral Round',
 												others: 'Others – Specify.',
 												assessment: 'Assessment',
 												nonTechnical: 'Non-Technical',
