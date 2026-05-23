@@ -24,7 +24,7 @@
     min-width: 0 !important;
   }
 
-  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main *:not(.btn):not(.btn *):not(button):not(button *):not(.site-button):not(.site-button *):not(.badge):not(.badge *):not([class*="badge"]):not([class*="badge"] *):not(.form-control):not(.form-select):not(select):not(option):not(input):not(textarea):not(img):not(svg):not(i):not(video):not(canvas):not(table):not(thead):not(tbody):not(tr):not(th):not(td):not(.nav-link):not(.nav-link *):not(.dropdown-item):not(.dropdown-item *):not(.page-link):not(.page-link *):not(.pagination):not(.pagination *):not(.breadcrumb):not(.breadcrumb *):not(.swiper-wrapper):not(.swiper-slide) {
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main *:not(.btn):not(.btn *):not(button):not(button *):not(.site-button):not(.site-button *):not(.badge):not(.badge *):not([class*="badge"]):not([class*="badge"] *):not(.form-control):not(.form-select):not(select):not(option):not(input):not(textarea):not(img):not(svg):not(i):not(video):not(canvas):not(.table-responsive):not(.table-responsive *):not(.education-table-wrapper):not(.education-table-wrapper *):not(.candidates-table-responsive):not(.candidates-table-responsive *):not(table):not(table *):not(thead):not(thead *):not(tbody):not(tbody *):not(tr):not(tr *):not(th):not(th *):not(td):not(td *):not(.nav-link):not(.nav-link *):not(.dropdown-item):not(.dropdown-item *):not(.page-link):not(.page-link *):not(.pagination):not(.pagination *):not(.breadcrumb):not(.breadcrumb *):not(.swiper-wrapper):not(.swiper-slide) {
     max-width: 100% !important;
     min-width: 0 !important;
     white-space: normal !important;

@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo, useCallback, memo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Row, Col } from "react-bootstrap";
-import { NavLink, useNavigate } from "react-router-dom";
-import JobZImage from "../../../../common/jobz-img";
+import { useNavigate } from "react-router-dom";
+import { FiFilter, FiX } from "react-icons/fi";
 import SectionEmployerSidebar from "../../sections/employers/section-employer-sidebar";
 import SectionRecordsFilter from "../../sections/common/section-records-filter";
 import SectionPagination from "../../sections/common/section-pagination";
@@ -59,6 +60,8 @@ const EmployersGridPage = memo(() => {
     const navigate = useNavigate();
     const abortControllerRef = useRef(null);
     const debounceTimerRef = useRef(null);
+    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+    const lastMobileFilterInteractionRef = useRef(null);
 
     const _filterConfig = useMemo(() => {
         const startItem = (currentPage - 1) * itemsPerPage + 1;
@@ -90,6 +93,60 @@ const EmployersGridPage = memo(() => {
     useEffect(() => {
         loadScript("js/custom.js");
     }, []);
+
+    const openMobileFilters = useCallback(() => {
+        lastMobileFilterInteractionRef.current = null;
+        setIsMobileFilterOpen(true);
+    }, []);
+
+    const closeMobileFilters = useCallback(() => {
+        lastMobileFilterInteractionRef.current = null;
+        setIsMobileFilterOpen(false);
+    }, []);
+
+    useEffect(() => {
+        if (!isMobileFilterOpen) {
+            return undefined;
+        }
+
+        const previousBodyOverflow = document.body.style.overflow;
+        const handleEscapePress = (event) => {
+            if (event.key === "Escape") {
+                closeMobileFilters();
+            }
+        };
+
+        document.body.style.overflow = "hidden";
+        window.addEventListener("keydown", handleEscapePress);
+
+        return () => {
+            document.body.style.overflow = previousBodyOverflow;
+            window.removeEventListener("keydown", handleEscapePress);
+        };
+    }, [closeMobileFilters, isMobileFilterOpen]);
+
+    const recordMobileFilterInteraction = useCallback((event) => {
+        const target = event.target;
+
+        if (!(target instanceof HTMLElement)) {
+            return;
+        }
+
+        lastMobileFilterInteractionRef.current = {
+            isTextEntry: Boolean(target.closest('input[type="text"], input[type="search"], textarea'))
+        };
+    }, []);
+
+    const handleFilterChange = useCallback((nextFilters) => {
+        setFilters(nextFilters);
+
+        const lastInteraction = lastMobileFilterInteractionRef.current;
+        const isMobileViewport = typeof window !== "undefined" && window.innerWidth < 992;
+
+        if (isMobileFilterOpen && isMobileViewport && lastInteraction && !lastInteraction.isTextEntry) {
+            closeMobileFilters();
+        }
+    }, [closeMobileFilters, isMobileFilterOpen]);
 
     const fetchEmployers = useCallback(async () => {
         // Cancel previous request
@@ -242,14 +299,70 @@ const EmployersGridPage = memo(() => {
         )), []
     );
 
+    const mobileFilterDrawer = typeof document !== "undefined"
+        ? createPortal(
+            <div className={`d-lg-none mobile-employers-filter-sidebar-shell${isMobileFilterOpen ? " is-open" : ""}`}>
+                <button
+                    type="button"
+                    className="mobile-employers-filter-overlay"
+                    aria-label="Close filters"
+                    onClick={closeMobileFilters}
+                />
+                <div
+                    id="mobile-employer-filters-drawer"
+                    className="mobile-employers-filter-sidebar"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Employer filters"
+                    onPointerDownCapture={recordMobileFilterInteraction}
+                    onChangeCapture={recordMobileFilterInteraction}
+                    onClickCapture={recordMobileFilterInteraction}
+                >
+                    <div className="mobile-employers-filter-sidebar__header">
+                        <div className="mobile-employers-filter-sidebar__title">
+                            <FiFilter aria-hidden="true" />
+                            <span>Filters</span>
+                        </div>
+                        <button
+                            type="button"
+                            className="mobile-employers-filter-sidebar__close"
+                            aria-label="Close filters"
+                            onClick={closeMobileFilters}
+                        >
+                            <FiX aria-hidden="true" />
+                        </button>
+                    </div>
+                    <div className="mobile-employers-filter-sidebar__body">
+                        <SectionEmployerSidebar onFilterChange={handleFilterChange} />
+                    </div>
+                </div>
+            </div>,
+            document.body
+        )
+        : null;
+
     return (
         <div className="section-full py-3 site-bg-white emp-grid-page" style={{paddingLeft: '20px', paddingRight: '20px'}}>
+            {mobileFilterDrawer}
             <Row className="mb-4">
-                    <Col lg={3} md={12} className="rightSidebar">
-                        <SectionEmployerSidebar onFilterChange={setFilters} />
+                    <Col lg={3} md={12} className="rightSidebar d-none d-lg-block">
+                        <SectionEmployerSidebar onFilterChange={handleFilterChange} />
                     </Col>
 
                     <Col lg={9} md={12}>
+                        <div className="d-lg-none emp-grid-mobile-controls">
+                            <button
+                                type="button"
+                                className="emp-grid-mobile-filter-trigger"
+                                aria-controls="mobile-employer-filters-drawer"
+                                aria-expanded={isMobileFilterOpen}
+                                onClick={openMobileFilters}
+                            >
+                                <FiFilter aria-hidden="true" />
+                                <span>Filters</span>
+                            </button>
+                        </div>
+
                         <div className="mb-4 emp-grid-records-filter">
                             <SectionRecordsFilter
                                 _config={_filterConfig}

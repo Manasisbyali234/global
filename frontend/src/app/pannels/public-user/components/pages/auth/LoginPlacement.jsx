@@ -58,9 +58,9 @@ function LoginPlacement() {
     };
 
     return (
-        <div className="auth-page-wrapper">
-            <div className="container">
-                <div className="main-card">
+        <div className="auth-page-wrapper public-auth-page">
+            <div className="container auth-page-container">
+                <div className="main-card public-auth-card">
                     <div className="left-section">
                         <div className="image-wrapper">
                             <img src="assets/images/background/image.png" alt="Placement Login" />

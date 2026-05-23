@@ -1,47 +1,107 @@
-/* Mobile Section Spacing Fixes */
+/* Home16 mobile section spacing fixes */
 @media (max-width: 767px) {
-    /* Reduce section padding on mobile */
-    .section-full {
-        padding-top: 15px !important;
-        padding-bottom: 15px !important;
+    .home-page-alignment .redesign-section {
+        padding-top: 24px !important;
+        padding-bottom: 24px !important;
     }
-    
-    /* Reduce container padding */
-    .container {
-        padding-top: 10px !important;
-        padding-bottom: 10px !important;
+
+    .home-page-alignment .redesign-section > .container {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
     }
-    
-    /* Reduce section head margin */
-    .section-head {
+
+    .home-page-alignment .section-head {
         margin-bottom: 15px !important;
     }
-    
-    /* Reduce category cards container spacing */
-    .category-cards-container {
-        margin-top: 10px !important;
-        gap: 10px !important;
+
+    .home-page-alignment .section-head.mb-5,
+    .home-page-alignment .workflow-section .row.align-items-center.mb-5 {
+        margin-bottom: 1.5rem !important;
     }
-    
-    .category-cards-second-row {
+
+    .home-page-alignment .category-cards-container {
         margin-top: 10px !important;
+        gap: 8px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .home-page-alignment .category-cards-second-row {
+        margin-top: 8px !important;
         padding-left: 10px !important;
     }
-    
-    /* Reduce hero body margin */
-    .mt-2 {
-        margin-top: 0 !important;
+
+    .home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] .row {
+        --bs-gutter-x: 10px !important;
+        --bs-gutter-y: 8px !important;
     }
-    
-    /* Reduce job categories area padding */
-    .twm-job-categories-hpage-6-area {
+
+    .home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] .row > [class*="col-"] {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+
+    .home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] [class*="col-"].mb-2 {
+        margin-bottom: 0.4rem !important;
+    }
+
+    .home-page-alignment .twm-job-categories-hpage-6-area {
         padding-top: 10px !important;
         padding-bottom: 10px !important;
     }
-    
-    /* Reduce any extra spacing between sections */
-    .animate-on-scroll {
+
+    .home-page-alignment .redesign-section .row.g-4,
+    .home-page-alignment .workflow-section .row.g-5 {
+        --bs-gutter-x: 12px !important;
+        --bs-gutter-y: 12px !important;
+    }
+
+    .home-page-alignment .cta-container-box {
+        padding: 24px 18px !important;
+    }
+
+    .home-page-alignment .animate-on-scroll {
         margin-top: 0 !important;
         margin-bottom: 0 !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .home-page-alignment .redesign-section {
+        padding-top: 20px !important;
+        padding-bottom: 20px !important;
+    }
+
+    .home-page-alignment .category-cards-container {
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .home-page-alignment .category-cards-second-row {
+        margin-top: 6px !important;
+    }
+
+    .home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] .row {
+        --bs-gutter-x: 8px !important;
+        --bs-gutter-y: 6px !important;
+    }
+
+    .home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] .row > [class*="col-"] {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+
+    .home-page-alignment .redesign-section .row.g-4,
+    .home-page-alignment .workflow-section .row.g-5 {
+        --bs-gutter-x: 10px !important;
+        --bs-gutter-y: 10px !important;
+    }
+
+    .home-page-alignment .section-head.mb-5,
+    .home-page-alignment .workflow-section .row.align-items-center.mb-5 {
+        margin-bottom: 1.25rem !important;
+    }
+
+    .home-page-alignment .cta-container-box {
+        padding: 20px 16px !important;
     }
 }

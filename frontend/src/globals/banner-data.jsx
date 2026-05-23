@@ -146,11 +146,18 @@ export function showBanner(currentpath) {
         currentpath === publicUser.pages.MAINTENANCE ||
         currentpath === publicUser.pages.COMING ||
         currentpath === publicUser.pages.LOGIN ||
+        currentpath === publicUser.pages.LOGIN_CANDIDATE ||
+        currentpath === publicUser.pages.LOGIN_EMPLOYER ||
+        currentpath === publicUser.pages.LOGIN_PLACEMENT ||
+        currentpath === publicUser.pages.SIGNUP_CANDIDATE ||
+        currentpath === publicUser.pages.SIGNUP_EMPLOYER ||
+        currentpath === publicUser.pages.SIGNUP_PLACEMENT ||
         currentpath === publicUser.pages.ADMIN_LOGIN ||
         currentpath === publicUser.pages.SUB_ADMIN_LOGIN ||
         currentpath === publicUser.pages.AFTER_LOGIN ||
         currentpath === '/create-password' ||
-        currentpath === '/forgot-password') {
+        currentpath === '/forgot-password' ||
+        currentpath.startsWith('/reset-password/')) {
         return false;
     }
     return true;

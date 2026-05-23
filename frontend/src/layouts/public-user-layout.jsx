@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import PublicUserRoutes from "../routing/public-user-routes";
 import InnerPageBanner from "../app/common/inner-page-banner";
 import { showBanner, setBanner } from "../globals/banner-data";
+import { publicUser } from "../globals/route-names";
 import { showHeader, showFooter, setFooterType, setHeaderType } from "../globals/layout-config";
 import "../public-pages-mobile-responsive.css";
 
@@ -15,6 +16,14 @@ function PublicUserLayout() {
     const isPrivacyPage = currentpath === '/privacy-policy';
     const isJobGridPage = currentpath.startsWith('/job-grid');
     const isCreatePasswordPage = currentpath === '/create-password';
+    const isPublicAuthPage = [
+        publicUser.pages.LOGIN_CANDIDATE,
+        publicUser.pages.LOGIN_EMPLOYER,
+        publicUser.pages.LOGIN_PLACEMENT,
+        publicUser.pages.SIGNUP_CANDIDATE,
+        publicUser.pages.SIGNUP_EMPLOYER,
+        publicUser.pages.SIGNUP_PLACEMENT
+    ].includes(currentpath);
     const pageClass = isContactPage
         ? 'contact-page-active'
         : isAboutPage
@@ -30,10 +39,13 @@ function PublicUserLayout() {
             : isEmpGrid
                 ? 'employer-grid-active'
                 : '';
+    const layoutClassName = ['page-wraper', 'public-page-layout', pageClass, isPublicAuthPage ? 'public-auth-layout' : '']
+        .filter(Boolean)
+        .join(' ');
 
     return (
         <>
-            <div className={`page-wraper public-page-layout ${pageClass}`}>
+            <div className={layoutClassName}>
                 {/* Header */}
                 {
                     showHeader(currentpath) &&

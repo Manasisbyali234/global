@@ -85,6 +85,19 @@ export function setFooterType(currentpath) {
 export function getHeaderConfig(currentpath) {
 
     switch (currentpath) {
+        case publicUser.pages.LOGIN_CANDIDATE:
+        case publicUser.pages.LOGIN_EMPLOYER:
+        case publicUser.pages.LOGIN_PLACEMENT:
+        case publicUser.pages.SIGNUP_CANDIDATE:
+        case publicUser.pages.SIGNUP_EMPLOYER:
+        case publicUser.pages.SIGNUP_PLACEMENT:
+            return {
+                style: 'header-style-3 public-auth-header',
+                nav_button_style: '',
+                withLightLogo: false,
+                withBlackLogo: false,
+                withWhiteLogo: false
+            }
         case publicUser.jobs.GRID_MAP:
         case publicUser.jobs.DETAIL2:
         case publicUser.employer.DETAIL2:

@@ -59,4 +59,31 @@
   .panel::after {
     pointer-events: none !important;
   }
+
+  /* Mobile Safari can keep stale tap regions on animated AOS wrappers. */
+  [data-aos].aos-animate,
+  .aos-init.aos-animate {
+    transform: none !important;
+    -webkit-transform: none !important;
+    will-change: auto !important;
+  }
+
+  /* Job grid containment optimizations can desync visual and tappable areas. */
+  .job-grid-page {
+    contain: none !important;
+  }
+
+  .job-grid-page .apply-now-btn,
+  .job-grid-page .mobile-jobs-filter-sidebar button,
+  .job-grid-page .mobile-jobs-filter-sidebar label,
+  .job-grid-page .mobile-jobs-filter-sidebar input,
+  .mobile-jobs-filter-sidebar button,
+  .mobile-jobs-filter-sidebar label,
+  .mobile-jobs-filter-sidebar input,
+  .job-grid-page .job-grid-records-filter button,
+  .job-grid-page .job-grid-records-filter select {
+    position: relative;
+    z-index: 3;
+    pointer-events: auto !important;
+  }
 }

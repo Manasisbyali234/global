@@ -246,9 +246,9 @@ function SignupPlacement() {
     };
 
     return (
-        <div className="auth-page-wrapper">
-            <div className="container">
-                <div className="main-card">
+        <div className="auth-page-wrapper public-auth-page">
+            <div className="container auth-page-container">
+                <div className="main-card public-auth-card">
                 {/* Left Side (Image Section) */}
                 <div className="left-section">
                     <div className="image-wrapper">
