@@ -485,6 +485,7 @@ export default function AssessmentDashboard() {
 										onEdit={handleEditAssessment}
 										onView={setPreviewAssessment}
 										index={index}
+										isPublishedFilter={selectedStatus === 'published'}
 									/>
 								</div>
 							))}

@@ -18,6 +18,7 @@ export default function AssessmentResults() {
   const [companyFilter, setCompanyFilter] = useState('all');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [emailSearch, setEmailSearch] = useState('');
   const [employerCategory, setEmployerCategory] = useState('');
 
   const getResultCompanyName = (result) =>
@@ -118,6 +119,7 @@ export default function AssessmentResults() {
     const outcome = getResultOutcome(result);
     const rawDate = result.endTime || result.suspendedAt || result.updatedAt;
     const resultDateStr = rawDate ? new Date(rawDate).toISOString().slice(0, 10) : '';
+    if (emailSearch && !(result.candidateId?.email || '').toLowerCase().includes(emailSearch.toLowerCase())) return false;
     if (fromDate && resultDateStr && resultDateStr < fromDate) return false;
     if (toDate && resultDateStr && resultDateStr > toDate) return false;
     if (companyFilter !== 'all' && getResultCompanyName(result) !== companyFilter) return false;
@@ -229,6 +231,25 @@ export default function AssessmentResults() {
 
           {/* Filters row */}
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>Email:</label>
+              <input
+                type="text"
+                placeholder="Search by email"
+                value={emailSearch}
+                onChange={(e) => setEmailSearch(e.target.value)}
+                style={{
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem 0.75rem',
+                  fontSize: '0.875rem',
+                  color: '#374151',
+                  background: 'white',
+                  outline: 'none',
+                  minWidth: '180px'
+                }}
+              />
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>Filter by:</label>
               <select

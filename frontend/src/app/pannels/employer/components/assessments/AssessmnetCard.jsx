@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { formatAssessmentContent } from "../../../../../utils/assessmentContent";
 import "./create-assessment.css";
 
-export default function AssessmentCard({ data, onDelete, onEdit, onView, index }) {
+export default function AssessmentCard({ data, onDelete, onEdit, onView, index, isPublishedFilter }) {
 	const navigate = useNavigate();
 	const isAssigned = Boolean(data?.isAssigned);
 	const assignmentCount = Number(data?.assignedJobsCount) || 0;
@@ -125,7 +125,7 @@ export default function AssessmentCard({ data, onDelete, onEdit, onView, index }
 					>
 						<i className="fa fa-eye"></i>
 					</button>
-					{(!isAssigned || String(data.status || '').toLowerCase() === 'draft') && (
+					{!isPublishedFilter && (!isAssigned || String(data.status || '').toLowerCase() === 'draft') && (
 						<>
 							<button
 								className="btn btn-sm btn-outline-secondary"

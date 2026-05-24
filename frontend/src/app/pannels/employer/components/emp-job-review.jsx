@@ -465,6 +465,7 @@ function EmpJobReviewPage() {
                                                     others: 'Others – Specify.',
                                                     assessment: 'MCQ/Assessment Schedule',
                                                     oneOnOnePanel: 'One-on-One / Panel',
+                                                    managerial: 'Managerial Round',
                                                     hr: 'HR Round'
                                                 };
                                                 return <div key={key}>{index + 1}. {roundNames[roundType] || roundType}</div>;
