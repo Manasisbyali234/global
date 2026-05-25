@@ -68,6 +68,19 @@
   margin-bottom: 0;
 }
 
+/* Responsibilities: render each <p> as a bullet list item */
+.emp-job-review-page .responsibilities-rich-text p {
+  margin: 0;
+  padding: 0.1rem 0;
+  display: list-item;
+  list-style-type: disc;
+  margin-left: 1.2rem;
+}
+
+.emp-job-review-page .responsibilities-rich-text p:empty {
+  display: none;
+}
+
 .emp-job-review-page .job-review-rich-text ul,
 .emp-job-review-page .job-review-rich-text ol {
   margin: 0.5rem 0 0;

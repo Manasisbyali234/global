@@ -561,7 +561,7 @@ function EmpCandidatesPage() {
                   : "Applicants Details"}
               </h2>
               {jobId && currentJob && (
-                <span className="employer-page-subtitle text-muted mt-2 d-block">{currentJob.location}</span>
+                <span className="employer-page-subtitle text-muted mt-2 d-block">{Array.isArray(currentJob.location) ? currentJob.location.join(", ") : currentJob.location}</span>
               )}
             </div>
             {jobId && currentJob && (

@@ -492,7 +492,7 @@ function EmpJobReviewPage() {
 
                                 <div className="mt-4">
                                     <h5 className="mb-1">Roles and Responsibilities</h5>
-                                    <div className="mb-0 text-muted job-review-rich-text">
+                                    <div className="mb-0 text-muted job-review-rich-text responsibilities-rich-text">
                                         {jobDetails.responsibilities ? (
                                             typeof jobDetails.responsibilities === 'string' ? (
                                                 <div dangerouslySetInnerHTML={{ __html: jobDetails.responsibilities }} />
