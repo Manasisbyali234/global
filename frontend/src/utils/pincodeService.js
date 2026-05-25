@@ -1,3 +1,27 @@
+// `api.postalpincode.in` is currently failing browser TLS validation,
+// so this client-side lookup uses a browser-safe source instead.
+const GENERIC_PLACE_NAME_PATTERN = /^(extension|extn|road|main road|layout|phase|stage)$/i;
+
+const normalizePlaceName = (value = '') => String(value).replace(/\s+/g, ' ').trim();
+
+const getPlaceScore = (place = {}) => {
+  const placeName = normalizePlaceName(place['place name']);
+  if (!placeName) return Number.NEGATIVE_INFINITY;
+
+  let score = placeName.length;
+
+  if (/\s/.test(placeName)) score += 5;
+  if (!GENERIC_PLACE_NAME_PATTERN.test(placeName)) score += 25;
+  if (/\d/.test(placeName)) score -= 5;
+
+  return score;
+};
+
+const pickBestPlace = (places = []) => {
+  const sortedPlaces = [...places].sort((left, right) => getPlaceScore(right) - getPlaceScore(left));
+  return sortedPlaces[0] || null;
+};
+
 // Pincode service to fetch location data from pincode
 export const fetchLocationFromPincode = async (pincode) => {
   try {
@@ -8,68 +32,32 @@ export const fetchLocationFromPincode = async (pincode) => {
 
     console.log('Fetching location for pincode:', pincode);
 
-    // Try primary API first
+    // Use the browser-safe API first to avoid certificate errors in production.
     try {
-      const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
-      const data = await response.json();
-      console.log('Primary API response:', data);
+      const response = await fetch(`https://api.zippopotam.us/in/${pincode}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Pincode API response:', data);
 
-      if (data && data.length > 0 && data[0].Status === 'Success') {
-        const postOffices = data[0].PostOffice;
-        const mainPostOffice = postOffices[0];
-        
-        const village = mainPostOffice.Name;
-        const taluka = mainPostOffice.Block || mainPostOffice.Taluk || mainPostOffice.SubDistrict || '';
-        const district = mainPostOffice.District;
-        const state = mainPostOffice.State;
-        
-        // Format: Village, Taluka, District
-        let locationName = village;
-        if (taluka && taluka !== district) {
-          locationName += `, ${taluka}`;
-        }
-        locationName += `, ${district}`;
-        
-        const result = {
-          success: true,
-          location: locationName,
-          village: village,
-          taluka: taluka,
-          district: district,
-          state: state,
-          stateCode: getStateCode(state),
-          country: mainPostOffice.Country
-        };
-        console.log('Primary API success:', result);
-        return result;
-      }
-    } catch (primaryError) {
-      console.warn('Primary API failed:', primaryError);
-    }
+        if (data?.places?.length > 0) {
+          const place = pickBestPlace(data.places);
+          const placeName = normalizePlaceName(place?.['place name']);
+          const state = normalizePlaceName(place?.state);
 
-    // Try backup API
-    try {
-      const backupResponse = await fetch(`https://api.zippopotam.us/in/${pincode}`);
-      if (backupResponse.ok) {
-        const backupData = await backupResponse.json();
-        console.log('Backup API response:', backupData);
-        
-        if (backupData && backupData.places && backupData.places.length > 0) {
-          const place = backupData.places[0];
           const result = {
             success: true,
-            location: place['place name'],
-            district: place['place name'],
-            state: place.state,
-            stateCode: getStateCode(place.state),
-            country: backupData.country
+            location: placeName,
+            district: placeName,
+            state,
+            stateCode: getStateCode(state),
+            country: data.country
           };
-          console.log('Backup API success:', result);
+          console.log('Pincode API success:', result);
           return result;
         }
       }
-    } catch (backupError) {
-      console.warn('Backup API failed:', backupError);
+    } catch (lookupError) {
+      console.warn('Pincode API failed:', lookupError);
     }
 
     return {

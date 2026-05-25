@@ -8,6 +8,7 @@ import TermsModal from '../../../../components/TermsModal';
 import ImageResizer from '../../../../components/ImageResizer';
 import ImagePreviewModal from '../../../../components/ImagePreviewModal';
 import { useImageResizer } from '../../../../hooks/useImageResizer';
+import { fetchLocationFromPincode } from '../../../../utils/pincodeService';
 
 import './emp-company-profile.css';
 import '../../../../remove-profile-hover-effects.css';
@@ -615,13 +616,12 @@ function EmpCompanyProfilePage() {
         
         setFetchingCity(true);
         try {
-            const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
-            const data = await response.json();
-            
-            if (data && data[0]?.Status === 'Success' && data[0]?.PostOffice?.length > 0) {
-                const city = data[0].PostOffice[0].District;
-                const state = data[0].PostOffice[0].State;
-                
+            const locationData = await fetchLocationFromPincode(pincode);
+
+            if (locationData.success) {
+                const city = locationData.district || locationData.location || '';
+                const state = locationData.state || '';
+
                 // Clear validation errors for city and state since they're now populated
                 setFormData(prev => ({ 
                     ...prev, 
@@ -631,7 +631,7 @@ function EmpCompanyProfilePage() {
                 }));
             } else {
                 setFormData(prev => ({ ...prev, city: '' }));
-                showWarning('Pincode: Invalid pincode or city not found');
+                showWarning(locationData.message || 'Pincode: Invalid pincode or city not found');
             }
         } catch (error) {
             console.error('Error fetching city:', error);

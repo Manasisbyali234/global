@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { api } from "../../../../../utils/api";
+import { api, BACKEND_URL } from "../../../../../utils/api";
 import TermsModal from "../../../../../components/TermsModal";
 import PageLoader from "../../../../../components/PageLoader";
 import ImageResizer from "../../../../../components/ImageResizer";
@@ -124,9 +124,12 @@ function SectionCandicateBasicInfo() {
                 return;
             }
             
-            // Check if backend server is running
+            // Check if the configured backend is reachable in the current environment.
             try {
-                await fetch('http://localhost:5000/health');
+                const healthResponse = await fetch(`${BACKEND_URL}/health`, { cache: 'no-store' });
+                if (!healthResponse.ok) {
+                    throw new Error(`Health check failed with status ${healthResponse.status}`);
+                }
             } catch (serverError) {
                 setNotification({ type: 'error', message: 'Backend server is not running. Please start the server.' });
                 return;
@@ -626,6 +629,14 @@ function SectionCandicateBasicInfo() {
     return (
         <>
         <form onSubmit={handleSubmit}>
+            {notification && (
+                <div
+                    className={`alert ${notification.type === 'error' ? 'alert-danger' : 'alert-info'} mb-3`}
+                    role="alert"
+                >
+                    {notification.message}
+                </div>
+            )}
             <div className="panel panel-default">
                 <div className="panel-heading wt-panel-heading p-a20">
                     <h4 className="panel-tittle m-a0" style={{color: '#232323'}}>
