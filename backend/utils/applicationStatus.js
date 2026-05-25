@@ -540,6 +540,24 @@ const getLatestAssessmentAttempt = (application = {}, options = {}) => {
   return attempts[0] || null;
 };
 
+const hasPendingAssessmentEvaluationAttempt = (application = {}, options = {}) => {
+  const attempts = Object.values(getAssessmentAttemptLookup(application, options)).filter(Boolean);
+  if (attempts.length === 0) {
+    return false;
+  }
+
+  return attempts.some((attempt) => {
+    const resolvedStatus = resolveAssessmentOutcomeStatus(
+      resolveAssessmentAttemptStageStatus(attempt),
+      attempt?.result,
+      'pending'
+    );
+
+    return normalizeApplicationStatusValue(attempt?.result) === 'pending'
+      && resolvedStatus === 'completed';
+  });
+};
+
 const resolveAssessmentOutcomeStatus = (status = '', result = '', fallback = 'pending') => {
   const normalizedStatus = normalizeApplicationStatusValue(status);
   const normalizedResult = normalizeApplicationStatusValue(result);
@@ -669,6 +687,28 @@ const getResolvedTrackedProcesses = (application = {}, options = {}) => {
   }));
 };
 
+const getPendingEvaluationRecoveryStatus = (application = {}, options = {}) => {
+  if (!hasPendingAssessmentEvaluationAttempt(application, options)) {
+    return '';
+  }
+
+  const trackedProcesses = getResolvedTrackedProcesses(application, options);
+  const hasRejectedTrackedProcess = trackedProcesses.some((process) =>
+    isRejectedInterviewProcessStatus(process?.status)
+  );
+  if (hasRejectedTrackedProcess) {
+    return '';
+  }
+
+  const hasFailedRound = Array.isArray(application?.interviewRounds)
+    && application.interviewRounds.some((round) => String(round?.status || '').toLowerCase() === 'failed');
+  if (hasFailedRound) {
+    return '';
+  }
+
+  return application?.isSelectedForProcess ? 'shortlisted' : 'pending';
+};
+
 const getLatestMeaningfulTrackedStatus = (application = {}, options = {}) => {
   const trackedProcesses = getResolvedTrackedProcesses(application, options);
 
@@ -722,6 +762,11 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
   const manualAutoRejectedStageFallbackStatus = getManualAutoRejectedStageFallbackStatus(application, options);
   if (manualAutoRejectedStageFallbackStatus) {
     return manualAutoRejectedStageFallbackStatus;
+  }
+
+  const pendingEvaluationRecoveryStatus = getPendingEvaluationRecoveryStatus(application, options);
+  if (pendingEvaluationRecoveryStatus) {
+    return pendingEvaluationRecoveryStatus;
   }
 
   const trackedProcesses = getResolvedTrackedProcesses(application, options);
@@ -849,6 +894,11 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
   const manualAutoRejectedStageFallbackStatus = getManualAutoRejectedStageFallbackStatus(application, options);
   if (manualAutoRejectedStageFallbackStatus) {
     return manualAutoRejectedStageFallbackStatus;
+  }
+
+  const pendingEvaluationRecoveryStatus = getPendingEvaluationRecoveryStatus(application, options);
+  if (pendingEvaluationRecoveryStatus) {
+    return pendingEvaluationRecoveryStatus === 'shortlisted' ? 'pending' : pendingEvaluationRecoveryStatus;
   }
 
   if (hasExpiredAssessmentWindowWithoutActivity(application, options)) {
