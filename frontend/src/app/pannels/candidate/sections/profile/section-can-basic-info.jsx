@@ -18,6 +18,8 @@ const indianCities = [
     'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli-Dharwad'
 ];
 
+const LOCATION_PATTERN = /^[a-zA-Z0-9\s,.'&()/-]*$/;
+
 
 function SectionCandicateBasicInfo() {
     const getImagePreviewSrc = (imageValue) => {
@@ -218,101 +220,109 @@ function SectionCandicateBasicInfo() {
         }
     };
 
-    const validateField = (name, value) => {
-        const newErrors = { ...errors };
-        
+    const getFieldError = (name, value) => {
+        const normalizedValue = typeof value === 'string' ? value.trim() : value;
+
         switch (name) {
             case 'firstName':
-                if (!value || !value.trim()) {
-                    newErrors.firstName = 'First name is required';
-                } else if (value.length < 2 || value.length > 30) {
-                    newErrors.firstName = 'First name must be between 2 and 30 characters';
-                } else if (!/^[a-zA-Z\s]+$/.test(value)) {
-                    newErrors.firstName = 'First name can only contain letters and spaces';
-                } else {
-                    delete newErrors.firstName;
+                if (!normalizedValue) {
+                    return 'First name is required';
                 }
-                break;
-            
+                if (normalizedValue.length < 2 || normalizedValue.length > 30) {
+                    return 'First name must be between 2 and 30 characters';
+                }
+                if (!/^[a-zA-Z\s]+$/.test(normalizedValue)) {
+                    return 'First name can only contain letters and spaces';
+                }
+                return '';
+             
             case 'middleName':
-                if (value && value.trim()) {
-                    if (value.length > 30) {
-                        newErrors.middleName = 'Middle name cannot exceed 30 characters';
-                    } else if (!/^[a-zA-Z\s]*$/.test(value)) {
-                        newErrors.middleName = 'Middle name can only contain letters and spaces';
-                    } else {
-                        delete newErrors.middleName;
+                if (normalizedValue) {
+                    if (normalizedValue.length > 30) {
+                        return 'Middle name cannot exceed 30 characters';
                     }
-                } else {
-                    delete newErrors.middleName;
+                    if (!/^[a-zA-Z\s]*$/.test(normalizedValue)) {
+                        return 'Middle name can only contain letters and spaces';
+                    }
                 }
-                break;
-            
+                return '';
+             
             case 'lastName':
-                if (!value || !value.trim()) {
-                    newErrors.lastName = 'Last name is required';
-                } else if (value.length > 30) {
-                    newErrors.lastName = 'Last name cannot exceed 30 characters';
-                } else if (!/^[a-zA-Z\s]*$/.test(value)) {
-                    newErrors.lastName = 'Last name can only contain letters and spaces';
-                } else {
-                    delete newErrors.lastName;
+                if (!normalizedValue) {
+                    return 'Last name is required';
                 }
-                break;
-            
+                if (normalizedValue.length > 30) {
+                    return 'Last name cannot exceed 30 characters';
+                }
+                if (!/^[a-zA-Z\s]*$/.test(normalizedValue)) {
+                    return 'Last name can only contain letters and spaces';
+                }
+                return '';
+             
             case 'phone':
-                if (!value || !value.trim()) {
-                    newErrors.phone = 'Mobile number is required';
-                } else if (!/^\d{10,15}$/.test(value.replace(/\s/g, ''))) {
-                    newErrors.phone = 'Mobile number must be at least 10 digits';
-                } else {
-                    delete newErrors.phone;
+                if (!normalizedValue) {
+                    return 'Mobile number is required';
                 }
-                break;
-            
+                if (!/^\d{10,15}$/.test(normalizedValue.replace(/\s/g, ''))) {
+                    return 'Mobile number must be at least 10 digits';
+                }
+                return '';
+             
             case 'email':
-                if (!value || !value.trim()) {
-                    newErrors.email = 'This field is required';
-                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                    newErrors.email = 'Please provide a valid email address';
-                } else {
-                    delete newErrors.email;
+                if (!normalizedValue) {
+                    return 'This field is required';
                 }
-                break;
-            
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedValue)) {
+                    return 'Please provide a valid email address';
+                }
+                return '';
+             
             case 'location':
-                if (!value || !value.trim()) {
-                    newErrors.location = 'Location is required';
-                } else if (value.length > 100) {
-                    newErrors.location = 'Location cannot exceed 100 characters';
-                } else if (!/^[a-zA-Z0-9\s,.-]*$/.test(value)) {
-                    newErrors.location = 'Location contains invalid characters';
-                } else {
-                    delete newErrors.location;
+                if (!normalizedValue) {
+                    return 'Location is required';
                 }
-                break;
-            
+                if (normalizedValue.length > 100) {
+                    return 'Location cannot exceed 100 characters';
+                }
+                if (!LOCATION_PATTERN.test(normalizedValue)) {
+                    return 'Location contains invalid characters';
+                }
+                return '';
+             
             case 'pincode':
-                if (!value || !value.trim()) {
-                    newErrors.pincode = 'Pincode is required';
-                } else if (!/^\d{6}$/.test(value)) {
-                    newErrors.pincode = 'Pincode must be 6 digits';
-                } else {
-                    delete newErrors.pincode;
+                if (!normalizedValue) {
+                    return 'Pincode is required';
                 }
-                break;
-            
+                if (!/^\d{6}$/.test(normalizedValue)) {
+                    return 'Pincode must be 6 digits';
+                }
+                return '';
+             
             case 'stateCode':
-                if (!value || !value.trim()) {
-                    newErrors.stateCode = 'State code is required';
-                } else {
-                    delete newErrors.stateCode;
+                if (!normalizedValue) {
+                    return 'State code is required';
                 }
-                break;
+                return '';
+
+            default:
+                return '';
         }
-        
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+    };
+
+    const validateField = (name, value) => {
+        const fieldError = getFieldError(name, value);
+
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            if (fieldError) {
+                newErrors[name] = fieldError;
+            } else {
+                delete newErrors[name];
+            }
+            return newErrors;
+        });
+
+        return !fieldError;
     };
 
     const handleInputChange = async (e) => {
@@ -369,10 +379,18 @@ function SectionCandicateBasicInfo() {
                 setErrors(prev => {
                     const newErrors = { ...prev };
                     delete newErrors.location;
+                    delete newErrors.pincode;
+                    if (locationData.stateCode) {
+                        delete newErrors.stateCode;
+                    }
                     return newErrors;
                 });
                 
-                showSuccess(`Location found: ${locationName}, ${locationData.state}`);
+                if (locationData.stateCode) {
+                    showSuccess(`Location found: ${locationName}, ${locationData.state}`);
+                } else {
+                    showInfo(`Location found: ${locationName}, ${locationData.state}. Please select your state code.`);
+                }
             } else {
                 console.error('Location fetch failed:', locationData.message);
                 showError(locationData.message || 'Could not fetch location for this pincode');
@@ -493,18 +511,30 @@ function SectionCandicateBasicInfo() {
 
     const validateForm = () => {
         const fieldsToValidate = ['firstName', 'email', 'lastName', 'phone', 'location', 'pincode', 'stateCode'];
-        let isValid = true;
-        
+        const formValidationErrors = {};
+        const preservedErrors = Object.fromEntries(
+            Object.entries(errors).filter(([field]) => !fieldsToValidate.includes(field) && field !== 'middleName')
+        );
+
         fieldsToValidate.forEach(field => {
-            const fieldValid = validateField(field, formData[field]);
-            if (!fieldValid) isValid = false;
+            const fieldError = getFieldError(field, formData[field]);
+            if (fieldError) {
+                formValidationErrors[field] = fieldError;
+            }
         });
         
         // Validate middle name only if it has a value
         if (formData.middleName && formData.middleName.trim()) {
-            const middleNameValid = validateField('middleName', formData.middleName);
-            if (!middleNameValid) isValid = false;
+            const middleNameError = getFieldError('middleName', formData.middleName);
+            if (middleNameError) {
+                formValidationErrors.middleName = middleNameError;
+            }
         }
+
+        setErrors({
+            ...preservedErrors,
+            ...formValidationErrors
+        });
         
         // Mark all fields as touched
         const allTouched = {};
@@ -516,7 +546,7 @@ function SectionCandicateBasicInfo() {
         }
         setTouched(allTouched);
         
-        return isValid;
+        return Object.keys(formValidationErrors).length === 0 && Object.keys(preservedErrors).length === 0;
     };
 
     const handleSubmit = async (e) => {

@@ -3,6 +3,12 @@
 const GENERIC_PLACE_NAME_PATTERN = /^(extension|extn|road|main road|layout|phase|stage)$/i;
 
 const normalizePlaceName = (value = '') => String(value).replace(/\s+/g, ' ').trim();
+const normalizeStateKey = (value = '') => String(value)
+  .toLowerCase()
+  .replace(/&/g, ' and ')
+  .replace(/[().,-]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
 
 const getPlaceScore = (place = {}) => {
   const placeName = normalizePlaceName(place['place name']);
@@ -76,43 +82,52 @@ export const fetchLocationFromPincode = async (pincode) => {
 // Helper function to get state code from state name
 const getStateCode = (stateName) => {
   const stateCodeMap = {
-    'Andhra Pradesh': 'AP',
-    'Arunachal Pradesh': 'AR',
-    'Assam': 'AS',
-    'Bihar': 'BR',
-    'Chhattisgarh': 'CG',
-    'Goa': 'GA',
-    'Gujarat': 'GJ',
-    'Haryana': 'HR',
-    'Himachal Pradesh': 'HP',
-    'Jharkhand': 'JH',
-    'Karnataka': 'KA',
-    'Kerala': 'KL',
-    'Madhya Pradesh': 'MP',
-    'Maharashtra': 'MH',
-    'Manipur': 'MN',
-    'Meghalaya': 'ML',
-    'Mizoram': 'MZ',
-    'Nagaland': 'NL',
-    'Odisha': 'OD',
-    'Punjab': 'PB',
-    'Rajasthan': 'RJ',
-    'Sikkim': 'SK',
-    'Tamil Nadu': 'TN',
-    'Telangana': 'TS',
-    'Tripura': 'TR',
-    'Uttar Pradesh': 'UP',
-    'Uttarakhand': 'UK',
-    'West Bengal': 'WB',
-    'Andaman and Nicobar Islands': 'AN',
-    'Chandigarh': 'CH',
-    'Dadra and Nagar Haveli and Daman and Diu': 'DH',
-    'Delhi': 'DL',
-    'Jammu and Kashmir': 'JK',
-    'Ladakh': 'LA',
-    'Lakshadweep': 'LD',
-    'Puducherry': 'PY'
+    'andhra pradesh': 'AP',
+    'arunachal pradesh': 'AR',
+    'assam': 'AS',
+    'bihar': 'BR',
+    'chhattisgarh': 'CG',
+    'goa': 'GA',
+    'gujarat': 'GJ',
+    'haryana': 'HR',
+    'himachal pradesh': 'HP',
+    'jharkhand': 'JH',
+    'karnataka': 'KA',
+    'kerala': 'KL',
+    'madhya pradesh': 'MP',
+    'maharashtra': 'MH',
+    'manipur': 'MN',
+    'meghalaya': 'ML',
+    'mizoram': 'MZ',
+    'nagaland': 'NL',
+    'odisha': 'OD',
+    'orissa': 'OD',
+    'punjab': 'PB',
+    'rajasthan': 'RJ',
+    'sikkim': 'SK',
+    'tamil nadu': 'TN',
+    'telangana': 'TS',
+    'tripura': 'TR',
+    'uttar pradesh': 'UP',
+    'uttarakhand': 'UK',
+    'uttaranchal': 'UK',
+    'west bengal': 'WB',
+    'andaman and nicobar islands': 'AN',
+    'andaman and nicobar': 'AN',
+    'chandigarh': 'CH',
+    'dadra and nagar haveli and daman and diu': 'DH',
+    'dadra and nagar haveli': 'DH',
+    'daman and diu': 'DH',
+    'delhi': 'DL',
+    'nct of delhi': 'DL',
+    'national capital territory of delhi': 'DL',
+    'jammu and kashmir': 'JK',
+    'jammu kashmir': 'JK',
+    'ladakh': 'LA',
+    'lakshadweep': 'LD',
+    'puducherry': 'PY',
+    'pondicherry': 'PY'
   };
 
-  return stateCodeMap[stateName] || '';
+  return stateCodeMap[normalizeStateKey(stateName)] || '';
 };
