@@ -153,7 +153,9 @@ function CanStatusPage() {
 	};
 
 	const isRejectedTrackedProcessForDisplay = (process = {}) =>
-		isRejectedInterviewProcessStatus(process?.status);
+		isAssessmentProcess(process)
+			? isRejectedInterviewDisplayStatus(process?.status)
+			: isRejectedInterviewProcessStatus(process?.status);
 
 	const isAssessmentAttemptDerivedStatus = (value) => {
 		const normalized = normalizeStatusValue(value);

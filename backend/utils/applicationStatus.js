@@ -117,6 +117,7 @@ const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
   // Result takes priority over session expiry — a passing score on auto-submit is a pass
   if (normalizedResult === 'pass' || normalizedStatus === 'passed') return 'passed';
   if (normalizedResult === 'fail' || normalizedStatus === 'failed') return 'failed';
+  if (normalizedResult === 'pending' && ['completed', 'expired'].includes(normalizedStatus)) return 'completed';
   if (normalizedStatus === 'expired') return 'expired';
   if (normalizedStatus === 'completed') return 'completed';
   return attempt?.status || 'pending';
@@ -550,8 +551,8 @@ const resolveAssessmentOutcomeStatus = (status = '', result = '', fallback = 'pe
   if (normalizedResult === 'fail' || normalizedStatus === 'failed') return 'failed';
   if (normalizedStatus === 'completed') return 'completed';
   if (normalizedStatus === 'expired' || normalizedStatus === 'session expired') {
-    // Only treat as no_show when there is no evaluated result (candidate never submitted)
-    return normalizedResult === 'pending' || !normalizedResult ? 'no_show' : 'completed';
+    // Pending means the candidate submitted answers and is waiting on manual evaluation.
+    return normalizedResult ? 'completed' : 'no_show';
   }
   if (normalizedStatus === 'no show') return 'no_show';
   if (!normalizedStatus || ['available', 'not required', 'not started', 'pending', 'scheduled'].includes(normalizedStatus)) {

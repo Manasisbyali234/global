@@ -46,6 +46,7 @@ const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
   if (normalizedStatus === 'not started') return 'pending';
   if (normalizedResult === 'pass' || normalizedStatus === 'passed') return 'passed';
   if (normalizedResult === 'fail' || normalizedStatus === 'failed') return 'failed';
+  if (normalizedResult === 'pending' && ['completed', 'expired'].includes(normalizedStatus)) return 'completed';
   if (normalizedStatus === 'expired') return 'expired';
   if (normalizedStatus === 'completed') return 'completed';
   return attempt?.status || 'pending';

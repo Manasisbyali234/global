@@ -38,6 +38,7 @@
     inset: 0;
     z-index: 2000;
     pointer-events: none;
+    visibility: hidden;
   }
 
   .mobile-jobs-filter-overlay {
@@ -58,7 +59,9 @@
     background: rgba(15, 23, 42, 0.42) !important;
     color: transparent !important;
     opacity: 0;
-    transition: opacity 0.24s ease;
+    visibility: hidden;
+    pointer-events: none !important;
+    transition: opacity 0.24s ease, visibility 0.24s ease;
     z-index: 0;
   }
 
@@ -73,20 +76,26 @@
     transition: transform 0.24s ease;
     display: flex;
     flex-direction: column;
-    pointer-events: auto;
+    pointer-events: none;
+    visibility: hidden;
     z-index: 1;
   }
 
   .mobile-jobs-filter-sidebar-shell.is-open {
     pointer-events: auto;
+    visibility: visible;
   }
 
   .mobile-jobs-filter-sidebar-shell.is-open .mobile-jobs-filter-overlay {
     opacity: 1;
+    visibility: visible;
+    pointer-events: auto !important;
   }
 
   .mobile-jobs-filter-sidebar-shell.is-open .mobile-jobs-filter-sidebar {
     transform: translateX(0);
+    pointer-events: auto;
+    visibility: visible;
   }
 
   .mobile-jobs-filter-sidebar__header {

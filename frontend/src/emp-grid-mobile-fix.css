@@ -1,26 +1,28 @@
 /* Employer Grid Mobile Height Fix */
 @media (max-width: 991px) {
-  .wt-bnr-inr {
-    min-height: 80px !important;
-    height: 10vh !important;
-    padding: 2px 0 !important;
+  .employer-grid-active .wt-bnr-inr {
+    min-height: 52px !important;
+    height: 52px !important;
+    padding: 0 !important;
     position: relative !important;
   }
   
-  .wt-bnr-inr-entry {
-    padding: 5px 0 !important;
+  .employer-grid-active .wt-bnr-inr-entry {
+    height: 52px !important;
+    padding: 0 !important;
   }
   
-  .banner-title-name .wt-title {
-    font-size: 18px !important;
-    margin: 0 0 2px 0 !important;
+  .employer-grid-active .banner-title-name .wt-title {
+    font-size: 16px !important;
+    line-height: 1.1 !important;
+    margin: 0 !important;
   }
   
-  .overlay-wraper .overlay-main,
-  .overlay-main {
-    height: 10vh !important;
-    min-height: 80px !important;
-    max-height: 120px !important;
+  .employer-grid-active .overlay-wraper .overlay-main,
+  .employer-grid-active .overlay-main {
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
     position: absolute !important;
   }
   
@@ -34,7 +36,7 @@
   
   .emp-grid-page {
     margin-top: 0 !important;
-    padding-top: 10px !important;
+    padding-top: 2px !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
@@ -42,7 +44,7 @@
   .emp-grid-page .emp-grid-mobile-controls {
     display: flex;
     justify-content: flex-start;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
 
   .emp-grid-page .emp-grid-mobile-filter-trigger {
