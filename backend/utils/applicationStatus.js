@@ -856,6 +856,18 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
   }
 
   const trackedProcessesForStatus = getResolvedTrackedProcesses(application, options);
+  const hasRejectedTrackedProcess = trackedProcessesForStatus.some((process) =>
+    isRejectedInterviewProcessStatus(process?.status)
+  );
+  if (
+    baseStatus === 'rejected' &&
+    isAutoRejectedFromInterviewStageStatus(application) &&
+    trackedProcessesForStatus.length > 0 &&
+    !hasRejectedTrackedProcess
+  ) {
+    return application?.isSelectedForProcess ? 'shortlisted' : 'pending';
+  }
+
   const latestTrackedStatus = getLatestMeaningfulTrackedStatus(application, options);
   if (latestTrackedStatus) {
     const lastRoundWithMeaningfulStatus = (() => {
