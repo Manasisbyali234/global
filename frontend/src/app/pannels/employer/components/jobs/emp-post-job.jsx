@@ -1341,12 +1341,25 @@ export default function EmpPostJob({ onNext }) {
 							job.interviewRounds.forEach(round => {
 								if (round.key) {
 									details[round.key] = {
+										_id: round.id || round._id || '',
 										description: round.description || '',
 										fromDate: round.fromdate ? new Date(round.fromdate).toISOString().split('T')[0] : '',
 										startTime: round.startTime || '',
 										endTime: round.endTime || '',
 										customType: round.name,
-										assessmentId: round.assessmentId?._id || round.assessmentId || ''
+										assessmentId: round.assessmentId?._id || round.assessmentId || '',
+										schedule: round.schedule || null,
+										scheduleObject: round.scheduleObject || round.schedule || null,
+										schedulesArray: round.schedulesArray || round.schedule?.schedules || [],
+										daySchedulesArray: round.daySchedulesArray || round.schedule?.daySchedules || [],
+										date: round.date || round.schedule?.date || '',
+										roomsArray: round.roomsArray || round.schedule?.rooms || [],
+										numStudents: round.numStudents ?? round.schedule?.numStudents ?? null,
+										numHRs: round.numHRs ?? round.schedule?.numHRs ?? null,
+										remainingStudents: round.remainingStudents ?? round.schedule?.remainingStudents ?? null,
+										maxPossibleInterviews: round.maxPossibleInterviews ?? round.schedule?.maxPossibleInterviews ?? null,
+										formDataObject: round.formDataObject || round.schedule?.formData || null,
+										savedAt: round.savedAt || round.schedule?.savedAt || null
 									};
 								}
 							});

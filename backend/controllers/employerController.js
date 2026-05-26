@@ -1794,9 +1794,18 @@ exports.createJob = async (req, res) => {
             applicationLimit: parseInt(jobData.applicationLimit) || 50,
             subStages: value.subStages || value.subStagesArray || value.days || value.daysArray || [],
             // Preserve scheduler fields if they exist in the incoming data
+            schedule: value.schedule,
             scheduleObject: value.scheduleObject,
+            schedulesArray: value.schedulesArray,
+            daySchedulesArray: value.daySchedulesArray,
+            date: value.date,
+            roomsArray: value.roomsArray,
+            numStudents: value.numStudents,
+            numHRs: value.numHRs,
+            remainingStudents: value.remainingStudents,
+            maxPossibleInterviews: value.maxPossibleInterviews,
             formDataObject: value.formDataObject,
-            savedAt: value.savedAt
+            savedAt: value.savedAt || value.schedule?.savedAt
           });
         }
       });
@@ -2171,9 +2180,18 @@ exports.updateJob = async (req, res) => {
             subStages: value.subStages || value.subStagesArray || value.days || value.daysArray || [],
             _id: value._id || value.id, // Preserve existing ID if present
             // Preserve scheduler fields if they exist in the incoming data
+            schedule: value.schedule,
             scheduleObject: value.scheduleObject,
+            schedulesArray: value.schedulesArray,
+            daySchedulesArray: value.daySchedulesArray,
+            date: value.date,
+            roomsArray: value.roomsArray,
+            numStudents: value.numStudents,
+            numHRs: value.numHRs,
+            remainingStudents: value.remainingStudents,
+            maxPossibleInterviews: value.maxPossibleInterviews,
             formDataObject: value.formDataObject,
-            savedAt: value.savedAt
+            savedAt: value.savedAt || value.schedule?.savedAt
           });
         }
       });
@@ -2282,6 +2300,27 @@ exports.updateJob = async (req, res) => {
                 existingRound.scheduleObject = round.scheduleObject;
                 existingRound.markModified('scheduleObject');
               }
+              if (hasContent(round.schedule)) {
+                existingRound.schedule = round.schedule;
+                existingRound.markModified('schedule');
+              }
+              if (hasContent(round.schedulesArray)) {
+                existingRound.schedulesArray = round.schedulesArray;
+                existingRound.markModified('schedulesArray');
+              }
+              if (hasContent(round.daySchedulesArray)) {
+                existingRound.daySchedulesArray = round.daySchedulesArray;
+                existingRound.markModified('daySchedulesArray');
+              }
+              if (round.date !== undefined) existingRound.date = round.date;
+              if (hasContent(round.roomsArray)) {
+                existingRound.roomsArray = round.roomsArray;
+                existingRound.markModified('roomsArray');
+              }
+              if (round.numStudents !== undefined) existingRound.numStudents = round.numStudents;
+              if (round.numHRs !== undefined) existingRound.numHRs = round.numHRs;
+              if (round.remainingStudents !== undefined) existingRound.remainingStudents = round.remainingStudents;
+              if (round.maxPossibleInterviews !== undefined) existingRound.maxPossibleInterviews = round.maxPossibleInterviews;
               if (hasContent(round.formDataObject)) {
                 existingRound.formDataObject = round.formDataObject;
                 existingRound.markModified('formDataObject');
@@ -2316,7 +2355,16 @@ exports.updateJob = async (req, res) => {
                   breakTime: sub.breakTime || 0
                 })),
                 // Include scheduler fields
+                schedule: round.schedule,
                 scheduleObject: round.scheduleObject,
+                schedulesArray: round.schedulesArray,
+                daySchedulesArray: round.daySchedulesArray,
+                date: round.date,
+                roomsArray: round.roomsArray,
+                numStudents: round.numStudents,
+                numHRs: round.numHRs,
+                remainingStudents: round.remainingStudents,
+                maxPossibleInterviews: round.maxPossibleInterviews,
                 formDataObject: round.formDataObject,
                 savedAt: round.savedAt
               });
@@ -2590,17 +2638,18 @@ exports.getEmployerJobs = async (req, res) => {
           days: round.subStages || [],
           daysArray: round.subStages || [],
           // Scheduler fields
-          scheduleObject: round.scheduleObject,
-          schedulesArray: round.schedulesArray,
-          daySchedulesArray: round.daySchedulesArray,
-          date: round.date,
-          roomsArray: round.roomsArray,
+          schedule: round.schedule,
+          scheduleObject: round.scheduleObject || round.schedule || null,
+          schedulesArray: round.schedulesArray || round.schedule?.schedules || [],
+          daySchedulesArray: round.daySchedulesArray || round.schedule?.daySchedules || [],
+          date: round.date || round.schedule?.date || null,
+          roomsArray: round.roomsArray || round.schedule?.rooms || [],
           numStudents: round.numStudents,
           numHRs: round.numHRs,
           remainingStudents: round.remainingStudents,
           maxPossibleInterviews: round.maxPossibleInterviews,
-          formDataObject: round.formDataObject,
-          savedAt: round.savedAt
+          formDataObject: round.formDataObject || round.schedule?.formData || null,
+          savedAt: round.savedAt || round.schedule?.savedAt || null
         }));
       }
       
@@ -2696,17 +2745,18 @@ exports.getJob = async (req, res) => {
         days: round.subStages || [],
         daysArray: round.subStages || [],
         // Scheduler fields
-        scheduleObject: round.scheduleObject,
-        schedulesArray: round.schedulesArray,
-        daySchedulesArray: round.daySchedulesArray,
-        date: round.date,
-        roomsArray: round.roomsArray,
+        schedule: round.schedule,
+        scheduleObject: round.scheduleObject || round.schedule || null,
+        schedulesArray: round.schedulesArray || round.schedule?.schedules || [],
+        daySchedulesArray: round.daySchedulesArray || round.schedule?.daySchedules || [],
+        date: round.date || round.schedule?.date || null,
+        roomsArray: round.roomsArray || round.schedule?.rooms || [],
         numStudents: round.numStudents,
         numHRs: round.numHRs,
         remainingStudents: round.remainingStudents,
         maxPossibleInterviews: round.maxPossibleInterviews,
-        formDataObject: round.formDataObject,
-        savedAt: round.savedAt
+        formDataObject: round.formDataObject || round.schedule?.formData || null,
+        savedAt: round.savedAt || round.schedule?.savedAt || null
       }));
     }
     
@@ -3664,6 +3714,10 @@ exports.scheduleInterviewRound = async (req, res) => {
       }
 
       // Preserve or update scheduler fields
+      if (req.body.schedule !== undefined) {
+        interviewRound.schedule = req.body.schedule;
+        interviewRound.markModified('schedule');
+      }
       if (req.body.scheduleObject !== undefined) {
         interviewRound.scheduleObject = req.body.scheduleObject;
         interviewRound.markModified('scheduleObject');
@@ -3709,6 +3763,7 @@ exports.scheduleInterviewRound = async (req, res) => {
           endTime: normalizeTimeFormat(sub.endTime)
         })),
         // Include scheduler fields
+        schedule: req.body.schedule,
         scheduleObject: req.body.scheduleObject,
         schedulesArray: req.body.schedulesArray,
         daySchedulesArray: req.body.daySchedulesArray,
@@ -4879,17 +4934,18 @@ exports.createInterviewRounds = async (req, res) => {
           breakTime: sub.breakTime || 0
         })),
         // Include scheduler fields
-        scheduleObject: round.scheduleObject,
-        schedulesArray: round.schedulesArray,
-        daySchedulesArray: round.daySchedulesArray,
-        date: round.date,
-        roomsArray: round.roomsArray,
+        schedule: round.schedule,
+        scheduleObject: round.scheduleObject || round.schedule || null,
+        schedulesArray: round.schedulesArray || round.schedule?.schedules || [],
+        daySchedulesArray: round.daySchedulesArray || round.schedule?.daySchedules || [],
+        date: round.date || round.schedule?.date || null,
+        roomsArray: round.roomsArray || round.schedule?.rooms || [],
         numStudents: round.numStudents,
         numHRs: round.numHRs,
         remainingStudents: round.remainingStudents,
         maxPossibleInterviews: round.maxPossibleInterviews,
-        formDataObject: round.formDataObject,
-        savedAt: round.savedAt
+        formDataObject: round.formDataObject || round.schedule?.formData || null,
+        savedAt: round.savedAt || round.schedule?.savedAt || null
       });
       createdRounds.push(interviewRound);
     }

@@ -100,6 +100,7 @@ const interviewRoundSchema = new mongoose.Schema({
   numHRs: { type: Number },
   remainingStudents: { type: Number },
   maxPossibleInterviews: { type: Number },
+  schedule: { type: mongoose.Schema.Types.Mixed },
   scheduleObject: { type: Object },
   formDataObject: { type: Object },
   savedAt: { type: Date }
