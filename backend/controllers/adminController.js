@@ -332,6 +332,11 @@ const decorateAdminApplicationStatusFields = (application = null, options = {}) 
 };
 
 const getAdminOverviewApplicantTableStatus = (applicationStatus = 'pending', interviewCurrentStatus = '') => {
+  const normalizedApplicationStatus = getCanonicalStatusKey(applicationStatus || 'pending');
+  if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(normalizedApplicationStatus)) {
+    return normalizedApplicationStatus;
+  }
+
   const normalizedInterviewStatus = getCanonicalStatusKey(interviewCurrentStatus, '');
   if (['no_show', 'session_expired', 'expired'].includes(normalizedInterviewStatus)) {
     return 'no_show';
@@ -340,7 +345,7 @@ const getAdminOverviewApplicantTableStatus = (applicationStatus = 'pending', int
     return normalizedInterviewStatus;
   }
 
-  return getCanonicalStatusKey(applicationStatus || 'pending');
+  return normalizedApplicationStatus;
 };
 
 const resolveAssessmentAttemptStageStatus = (attempt = {}) => {

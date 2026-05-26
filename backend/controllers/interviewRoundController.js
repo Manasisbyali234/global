@@ -25,7 +25,32 @@ const withDayAliases = (roundDocOrObj) => {
 // Create interview round
 exports.createInterviewRound = async (req, res) => {
   try {
-    const { jobId, name, roundType, date, startTime, endTime, applicationLimit, description, subStages, subStagesArray, days, daysArray, scheduleObject, formDataObject, savedAt } = req.body;
+    const {
+      jobId,
+      key,
+      name,
+      roundType,
+      date,
+      startTime,
+      endTime,
+      applicationLimit,
+      description,
+      subStages,
+      subStagesArray,
+      days,
+      daysArray,
+      schedule,
+      scheduleObject,
+      schedulesArray,
+      daySchedulesArray,
+      roomsArray,
+      formDataObject,
+      savedAt,
+      numStudents,
+      numHRs,
+      remainingStudents,
+      maxPossibleInterviews
+    } = req.body;
 
     // Verify job exists
     const job = await Job.findById(jobId);
@@ -35,6 +60,7 @@ exports.createInterviewRound = async (req, res) => {
 
     const interviewRound = new InterviewRound({
       jobId,
+      key,
       name,
       roundType,
       fromdate: buildUtcDateTimeFromIst(req.body.fromdate || req.body.fromDate || date, '', 'start'),
@@ -48,7 +74,16 @@ exports.createInterviewRound = async (req, res) => {
       description,
       applicationLimit,
       subStages: mapDayStages(days || daysArray || subStages || subStagesArray || []),
+      schedule,
       scheduleObject,
+      schedulesArray,
+      daySchedulesArray,
+      date: req.body.date || date,
+      roomsArray,
+      numStudents,
+      numHRs,
+      remainingStudents,
+      maxPossibleInterviews,
       formDataObject,
       savedAt
     });

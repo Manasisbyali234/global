@@ -137,6 +137,68 @@ const AUTO_REJECT_EXPIRED_SESSION_NOTE = 'Auto-rejected after application sessio
 
 const normalizeDateOnlyField = (value) => buildUtcDateTimeFromIst(value, '', 'start');
 
+const normalizeInterviewRoundType = (roundType) => String(roundType || '').trim().toLowerCase();
+
+const getRequiredSchedulerRoundKeys = (interviewRoundOrder = [], interviewRoundTypes = {}) => (
+  (Array.isArray(interviewRoundOrder) ? interviewRoundOrder : []).filter((roundKey) =>
+    InterviewRound.requiresSchedulerCompletion(interviewRoundTypes?.[roundKey])
+  )
+);
+
+const getMatchingRoundsForSchedulerValidation = ({
+  roundKey,
+  interviewRoundTypes = {},
+  requiredSchedulerRoundKeys = [],
+  rounds = []
+}) => {
+  const exactMatches = rounds.filter((round) => round?.key && String(round.key) === String(roundKey));
+  if (exactMatches.some((round) => InterviewRound.hasUsableScheduleData(round))) {
+    return exactMatches;
+  }
+
+  const expectedRoundType = normalizeInterviewRoundType(interviewRoundTypes?.[roundKey]);
+  const sameTypeRequiredKeys = requiredSchedulerRoundKeys.filter((key) =>
+    normalizeInterviewRoundType(interviewRoundTypes?.[key]) === expectedRoundType
+  );
+
+  if (sameTypeRequiredKeys.length !== 1) {
+    return [];
+  }
+
+  const legacyMatches = rounds.filter((round) =>
+    !round?.key && normalizeInterviewRoundType(round?.roundType) === expectedRoundType
+  );
+
+  if (legacyMatches.length === 1) {
+    return [...exactMatches, ...legacyMatches];
+  }
+
+  return exactMatches;
+};
+
+const getMissingSchedulerRoundKeys = ({
+  interviewRoundOrder = [],
+  interviewRoundTypes = {},
+  rounds = []
+}) => {
+  const requiredSchedulerRoundKeys = getRequiredSchedulerRoundKeys(interviewRoundOrder, interviewRoundTypes);
+
+  if (requiredSchedulerRoundKeys.length === 0) {
+    return [];
+  }
+
+  return requiredSchedulerRoundKeys.filter((roundKey) => {
+    const matchingRounds = getMatchingRoundsForSchedulerValidation({
+      roundKey,
+      interviewRoundTypes,
+      requiredSchedulerRoundKeys,
+      rounds
+    });
+
+    return !matchingRounds.some((round) => InterviewRound.hasUsableScheduleData(round));
+  });
+};
+
 const getApplicationDeadline = (jobData = {}) => {
   if (!jobData?.lastDateOfApplication) return null;
   return buildUtcDateTimeFromIst(
@@ -1824,6 +1886,23 @@ exports.createJob = async (req, res) => {
     if (!jobData.interviewRoundOrder) {
       jobData.interviewRoundOrder = [];
     }
+
+    const shouldActivateJobOnCreate = String(jobData.status || '').toLowerCase() === 'active';
+    if (shouldActivateJobOnCreate) {
+      const missingSchedulerRounds = getMissingSchedulerRoundKeys({
+        interviewRoundOrder: jobData.interviewRoundOrder,
+        interviewRoundTypes: jobData.interviewRoundTypes || {},
+        rounds: jobData.interviewRounds || []
+      });
+
+      if (missingSchedulerRounds.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Kindly complete the interview scheduling process for all selected One-on-One / Panel and Group rounds before posting the job.',
+          missingSchedulerRounds
+        });
+      }
+    }
     
     // Parse CTC from string format to proper structure
     if (jobData.ctc && typeof jobData.ctc === 'string') {
@@ -1906,7 +1985,16 @@ exports.createJob = async (req, res) => {
               breakTime: sub.breakTime || 0
             })),
             // Include scheduler fields
+            schedule: round.schedule,
             scheduleObject: round.scheduleObject,
+            schedulesArray: round.schedulesArray,
+            daySchedulesArray: round.daySchedulesArray,
+            date: round.date,
+            roomsArray: round.roomsArray,
+            numStudents: round.numStudents,
+            numHRs: round.numHRs,
+            remainingStudents: round.remainingStudents,
+            maxPossibleInterviews: round.maxPossibleInterviews,
             formDataObject: round.formDataObject,
             savedAt: round.savedAt
           });
@@ -2201,6 +2289,23 @@ exports.updateJob = async (req, res) => {
       // Get existing rounds to update instead of deleting
       const existingRounds = await InterviewRound.find({ jobId: oldJob._id });
       console.log('[updateJob] Existing rounds from DB:', existingRounds.map(r => ({ id: r._id, key: r.key, name: r.name })));
+
+      const shouldActivateJob = String(req.body.status || '').toLowerCase() === 'active';
+      if (shouldActivateJob) {
+        const missingSchedulerRounds = getMissingSchedulerRoundKeys({
+          interviewRoundOrder: req.body.interviewRoundOrder || oldJob.interviewRoundOrder || [],
+          interviewRoundTypes: req.body.interviewRoundTypes || oldJob.interviewRoundTypes || {},
+          rounds: [...interviewRounds, ...existingRounds]
+        });
+
+        if (missingSchedulerRounds.length > 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'Kindly complete the interview scheduling process for all selected One-on-One / Panel and Group rounds before posting the job.',
+            missingSchedulerRounds
+          });
+        }
+      }
       
       const existingRoundsByKey = {};
       existingRounds.forEach(round => {
@@ -2271,6 +2376,9 @@ exports.updateJob = async (req, res) => {
               updatedIds.add(existingRound._id.toString());
               console.log(`[updateJob] UPDATING existing round with _id: ${existingRound._id}, key: ${round.key}`);
               // Update existing round to preserve _id
+              if (round.key) {
+                existingRound.key = round.key;
+              }
               existingRound.name = round.name;
               existingRound.roundType = round.roundType || existingRound.roundType;
               existingRound.fromdate = round.fromdate;
@@ -2397,35 +2505,21 @@ exports.updateJob = async (req, res) => {
 
     const shouldActivateJob = String(req.body.status || '').toLowerCase() === 'active';
     if (shouldActivateJob) {
-      const interviewRoundOrderForValidation = Array.isArray(req.body.interviewRoundOrder)
-        ? req.body.interviewRoundOrder
-        : (oldJob.interviewRoundOrder || []);
-      const interviewRoundTypesForValidation = req.body.interviewRoundTypes || oldJob.interviewRoundTypes || {};
-      const requiredSchedulerRoundKeys = interviewRoundOrderForValidation.filter((roundKey) =>
-        InterviewRound.requiresSchedulerCompletion(interviewRoundTypesForValidation[roundKey])
-      );
+      const dbRoundsForValidation = await InterviewRound.find({ jobId: oldJob._id }).lean();
+      const missingSchedulerRounds = getMissingSchedulerRoundKeys({
+        interviewRoundOrder: Array.isArray(req.body.interviewRoundOrder)
+          ? req.body.interviewRoundOrder
+          : (oldJob.interviewRoundOrder || []),
+        interviewRoundTypes: req.body.interviewRoundTypes || oldJob.interviewRoundTypes || {},
+        rounds: dbRoundsForValidation
+      });
 
-      if (requiredSchedulerRoundKeys.length > 0) {
-        const dbRoundsForValidation = await InterviewRound.find({ jobId: oldJob._id }).lean();
-        const normalizeRoundType = (roundType) => String(roundType || '').trim().toLowerCase();
-        const missingSchedulerRounds = requiredSchedulerRoundKeys.filter((roundKey) => {
-          const expectedRoundType = normalizeRoundType(interviewRoundTypesForValidation[roundKey]);
-          const matchingRounds = dbRoundsForValidation.filter((round) => {
-            if (round?.key) {
-              return String(round.key) === String(roundKey);
-            }
-            return normalizeRoundType(round?.roundType) === expectedRoundType;
-          });
-
-          return !matchingRounds.some((round) => InterviewRound.hasUsableScheduleData(round));
+      if (missingSchedulerRounds.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Kindly complete the interview scheduling process for all selected One-on-One / Panel and Group rounds before posting the job.',
+          missingSchedulerRounds
         });
-
-        if (missingSchedulerRounds.length > 0) {
-          return res.status(400).json({
-            success: false,
-            message: 'Kindly complete the interview scheduling process from the "Schedule Interview" section before posting the job.'
-          });
-        }
       }
     }
     

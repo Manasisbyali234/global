@@ -2184,6 +2184,31 @@ export default function EmpPostJob({ onNext }) {
 		const normalizedRoundType = normalizeRoundType(roundType);
 		return normalizedRoundType === 'oneononepanel' || normalizedRoundType.includes('group');
 	};
+	const getMatchingDbRoundsForValidation = (roundKey, requiredSchedulerRoundKeys, dbRounds = []) => {
+		const exactMatches = dbRounds.filter((round) => round?.key && String(round.key) === String(roundKey));
+		if (exactMatches.some((round) => hasDbScheduleData(round))) {
+			return exactMatches;
+		}
+
+		const expectedRoundType = normalizeRoundType(formData.interviewRoundTypes?.[roundKey]);
+		const sameTypeRequiredKeys = requiredSchedulerRoundKeys.filter((key) =>
+			normalizeRoundType(formData.interviewRoundTypes?.[key]) === expectedRoundType
+		);
+
+		if (sameTypeRequiredKeys.length !== 1) {
+			return [];
+		}
+
+		const legacyMatches = dbRounds.filter((round) =>
+			!round?.key && normalizeRoundType(round?.roundType) === expectedRoundType
+		);
+
+		if (legacyMatches.length === 1) {
+			return [...exactMatches, ...legacyMatches];
+		}
+
+		return exactMatches;
+	};
 	const hasPersistedSchedulerPayload = (round = {}) => {
 		const scheduleObject = round.scheduleObject || round.schedule || round.Schedule || {};
 		const nestedSchedule = scheduleObject.schedule || scheduleObject.Schedule || {};
@@ -2262,14 +2287,7 @@ export default function EmpPostJob({ onNext }) {
 
 		const dbRounds = data?.job?.interviewRounds || [];
 		return requiredSchedulerRoundKeys.every((roundKey) => {
-			const expectedRoundType = normalizeRoundType(formData.interviewRoundTypes?.[roundKey]);
-			const matchingRounds = dbRounds.filter((round) => {
-				if (round?.key) {
-					return String(round.key) === String(roundKey);
-				}
-				return normalizeRoundType(round?.roundType) === expectedRoundType;
-			});
-
+			const matchingRounds = getMatchingDbRoundsForValidation(roundKey, requiredSchedulerRoundKeys, dbRounds);
 			return matchingRounds.some((round) => hasDbScheduleData(round));
 		});
 	};
@@ -6008,6 +6026,7 @@ export default function EmpPostJob({ onNext }) {
 																},
 																body: JSON.stringify({
 																	jobId: activeJobId,
+																	key: uniqueKey,
 																	name: displayName,
 																	roundType,
 																	fromdate: subStageDateRange.fromDate || details.fromDate,

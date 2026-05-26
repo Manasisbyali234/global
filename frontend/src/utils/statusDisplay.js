@@ -172,6 +172,19 @@ export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pendi
   );
 
 export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pending') => {
+  const applicationStatusKey = getCanonicalStatusKey(
+    application?.applicationStatus ||
+      application?.applicationDisplayStatus ||
+      application?.displayStatus ||
+      application?.status ||
+      fallback,
+    fallback
+  );
+
+  if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(applicationStatusKey)) {
+    return applicationStatusKey;
+  }
+
   const interviewStatusKey = getInterviewCurrentStatusKey(application, '');
   if (['no_show', 'session_expired', 'expired'].includes(interviewStatusKey)) {
     return 'no_show';
@@ -180,12 +193,5 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
     return interviewStatusKey;
   }
 
-  return getCanonicalStatusKey(
-    application?.status ||
-      application?.applicationStatus ||
-      application?.applicationDisplayStatus ||
-      application?.displayStatus ||
-      fallback,
-    fallback
-  );
+  return applicationStatusKey;
 };
