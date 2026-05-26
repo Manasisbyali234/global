@@ -2142,20 +2142,73 @@ export default function EmpPostJob({ onNext }) {
 	};
 
 	const isNonEmptyArray = (value) => Array.isArray(value) && value.length > 0;
+	const isNonEmptyObject = (value) => Boolean(
+		value &&
+		typeof value === 'object' &&
+		!Array.isArray(value) &&
+		Object.keys(value).length > 0
+	);
+	const normalizeRoundType = (roundType) => String(roundType || '').trim().toLowerCase();
+	const requiresSchedulerCompletion = (roundType) => {
+		const normalizedRoundType = normalizeRoundType(roundType);
+		return normalizedRoundType === 'oneononepanel' || normalizedRoundType.includes('group');
+	};
+	const hasPersistedSchedulerPayload = (round = {}) => {
+		const scheduleObject = round.scheduleObject || round.schedule || round.Schedule || {};
+		const nestedSchedule = scheduleObject.schedule || scheduleObject.Schedule || {};
+
+		const schedules =
+			round.schedulesArray ||
+			round.schedules ||
+			round.Schedules ||
+			round.Schedule ||
+			scheduleObject.schedulesArray ||
+			scheduleObject.schedules ||
+			scheduleObject.Schedules ||
+			scheduleObject.Schedule ||
+			nestedSchedule.schedules ||
+			nestedSchedule.Schedules ||
+			nestedSchedule.Schedule;
+
+		const daySchedules =
+			round.daySchedulesArray ||
+			round.daySchedules ||
+			scheduleObject.daySchedulesArray ||
+			scheduleObject.daySchedules ||
+			nestedSchedule.daySchedules;
+
+		const rooms =
+			round.roomsArray ||
+			round.rooms ||
+			scheduleObject.roomsArray ||
+			scheduleObject.rooms ||
+			nestedSchedule.rooms;
+
+		return Boolean(round.savedAt) ||
+			isNonEmptyArray(schedules) ||
+			isNonEmptyArray(daySchedules) ||
+			isNonEmptyArray(rooms) ||
+			isNonEmptyObject(scheduleObject) ||
+			isNonEmptyObject(round.formDataObject);
+	};
 
 	const hasDbScheduleData = (round = {}) => {
-		const scheduleObject = round.scheduleObject || round.schedule || {};
-		const nestedSchedule = scheduleObject.schedule || {};
-
-		const schedules = round.schedulesArray || round.schedules || scheduleObject.schedulesArray || scheduleObject.schedules || nestedSchedule.schedules;
-		const daySchedules = round.daySchedulesArray || round.daySchedules || scheduleObject.daySchedulesArray || scheduleObject.daySchedules || nestedSchedule.daySchedules;
-		const rooms = round.roomsArray || round.rooms || scheduleObject.roomsArray || scheduleObject.rooms || nestedSchedule.rooms;
 		const subStages = round.subStages || round.subStagesArray || [];
 		const hasTimedSubStages = Array.isArray(subStages) && subStages.some((sub) =>
 			(sub?.fromDate || sub?.fromdate || sub?.date) && sub?.startTime && sub?.endTime
 		);
+		const hasBasicTiming = Boolean(
+			round?.fromdate ||
+			round?.todate ||
+			(typeof round?.startTime === 'string' && round.startTime.trim()) ||
+			(typeof round?.endTime === 'string' && round.endTime.trim())
+		);
 
-		return isNonEmptyArray(schedules) || isNonEmptyArray(daySchedules) || isNonEmptyArray(rooms) || hasTimedSubStages;
+		if (requiresSchedulerCompletion(round?.roundType)) {
+			return hasPersistedSchedulerPayload(round);
+		}
+
+		return hasBasicTiming || hasTimedSubStages;
 	};
 
 	const verifyDbInterviewScheduling = async () => {
@@ -2169,19 +2222,25 @@ export default function EmpPostJob({ onNext }) {
 			headers: { 'Authorization': `Bearer ${token}` }
 		});
 
-		const requiredNonAssessmentCount = (formData.interviewRoundOrder || []).filter(
-			(key) => String(formData.interviewRoundTypes?.[key] || '').toLowerCase() !== 'assessment'
-		).length;
-		if (requiredNonAssessmentCount === 0) {
+		const requiredSchedulerRoundKeys = (formData.interviewRoundOrder || []).filter((key) =>
+			requiresSchedulerCompletion(formData.interviewRoundTypes?.[key])
+		);
+		if (requiredSchedulerRoundKeys.length === 0) {
 			return true;
 		}
 
 		const dbRounds = data?.job?.interviewRounds || [];
-		const scheduledNonAssessmentCount = dbRounds.filter((round) =>
-			String(round?.roundType || '').toLowerCase() !== 'assessment' && hasDbScheduleData(round)
-		).length;
+		return requiredSchedulerRoundKeys.every((roundKey) => {
+			const expectedRoundType = normalizeRoundType(formData.interviewRoundTypes?.[roundKey]);
+			const matchingRounds = dbRounds.filter((round) => {
+				if (round?.key) {
+					return String(round.key) === String(roundKey);
+				}
+				return normalizeRoundType(round?.roundType) === expectedRoundType;
+			});
 
-		return scheduledNonAssessmentCount >= requiredNonAssessmentCount;
+			return matchingRounds.some((round) => hasDbScheduleData(round));
+		});
 	};
 
 
@@ -2226,7 +2285,7 @@ export default function EmpPostJob({ onNext }) {
 		try {
 			const hasScheduledDataInDb = await verifyDbInterviewScheduling();
 			if (!hasScheduledDataInDb) {
-				showWarning('Kindly complete the interview scheduling process before posting the job.');
+				showWarning('Please complete the "Schedule Interview" step for the selected One-on-One / Panel or Group round before posting the job.');
 				return;
 			}
 		} catch (error) {

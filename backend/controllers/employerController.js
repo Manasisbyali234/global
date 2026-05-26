@@ -2353,34 +2353,29 @@ exports.updateJob = async (req, res) => {
         ? req.body.interviewRoundOrder
         : (oldJob.interviewRoundOrder || []);
       const interviewRoundTypesForValidation = req.body.interviewRoundTypes || oldJob.interviewRoundTypes || {};
-      const requiredNonAssessmentRounds = interviewRoundOrderForValidation.filter((roundKey) =>
-        String(interviewRoundTypesForValidation[roundKey] || '').toLowerCase() !== 'assessment'
+      const requiredSchedulerRoundKeys = interviewRoundOrderForValidation.filter((roundKey) =>
+        InterviewRound.requiresSchedulerCompletion(interviewRoundTypesForValidation[roundKey])
       );
 
-      if (requiredNonAssessmentRounds.length > 0) {
+      if (requiredSchedulerRoundKeys.length > 0) {
         const dbRoundsForValidation = await InterviewRound.find({ jobId: oldJob._id }).lean();
-        const hasSchedulePayload = (round) => {
-          const hasItems = (val) => Array.isArray(val) && val.length > 0;
-          const scheduleObject = round?.scheduleObject || round?.schedule || {};
-          const nestedSchedule = scheduleObject?.schedule || {};
-          const schedules = round?.schedulesArray || round?.schedules || scheduleObject?.schedulesArray || scheduleObject?.schedules || nestedSchedule?.schedules;
-          const daySchedules = round?.daySchedulesArray || round?.daySchedules || scheduleObject?.daySchedulesArray || scheduleObject?.daySchedules || nestedSchedule?.daySchedules;
-          const rooms = round?.roomsArray || round?.rooms || scheduleObject?.roomsArray || scheduleObject?.rooms || nestedSchedule?.rooms;
-          const subStages = round?.subStages || round?.subStagesArray || [];
-          const hasTimedSubStages = Array.isArray(subStages) && subStages.some((sub) =>
-            (sub?.fromDate || sub?.fromdate || sub?.date) && sub?.startTime && sub?.endTime
-          );
-          return hasItems(schedules) || hasItems(daySchedules) || hasItems(rooms) || hasTimedSubStages;
-        };
+        const normalizeRoundType = (roundType) => String(roundType || '').trim().toLowerCase();
+        const missingSchedulerRounds = requiredSchedulerRoundKeys.filter((roundKey) => {
+          const expectedRoundType = normalizeRoundType(interviewRoundTypesForValidation[roundKey]);
+          const matchingRounds = dbRoundsForValidation.filter((round) => {
+            if (round?.key) {
+              return String(round.key) === String(roundKey);
+            }
+            return normalizeRoundType(round?.roundType) === expectedRoundType;
+          });
 
-        const scheduledNonAssessmentCount = dbRoundsForValidation.filter((round) =>
-          String(round?.roundType || '').toLowerCase() !== 'assessment' && hasSchedulePayload(round)
-        ).length;
+          return !matchingRounds.some((round) => InterviewRound.hasUsableScheduleData(round));
+        });
 
-        if (scheduledNonAssessmentCount < requiredNonAssessmentRounds.length) {
+        if (missingSchedulerRounds.length > 0) {
           return res.status(400).json({
             success: false,
-            message: 'Kindly complete the interview scheduling process before posting the job.'
+            message: 'Kindly complete the interview scheduling process from the "Schedule Interview" section before posting the job.'
           });
         }
       }

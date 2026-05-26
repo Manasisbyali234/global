@@ -1,5 +1,36 @@
 const Notification = require('../models/Notification');
+const Candidate = require('../models/Candidate');
+const PlacementCandidate = require('../models/PlacementCandidate');
 const mongoose = require('mongoose');
+
+const resolveCandidateNotificationStartAt = async (candidateId) => {
+  const candidate = await Candidate.findById(candidateId)
+    .select('createdAt notificationVisibilityStartAt placementId fileId')
+    .lean();
+
+  if (!candidate) {
+    return null;
+  }
+
+  let notificationStartAt = candidate.notificationVisibilityStartAt || candidate.createdAt || new Date(0);
+
+  if (!candidate.notificationVisibilityStartAt && (candidate.placementId || candidate.fileId)) {
+    const placementCandidate = await PlacementCandidate.findOne({ candidateId })
+      .select('passwordCreatedAt welcomeEmailSentAt createdAt')
+      .lean();
+
+    notificationStartAt = placementCandidate?.passwordCreatedAt
+      || placementCandidate?.welcomeEmailSentAt
+      || placementCandidate?.createdAt
+      || notificationStartAt;
+
+    await Candidate.findByIdAndUpdate(candidateId, {
+      $set: { notificationVisibilityStartAt: notificationStartAt }
+    });
+  }
+
+  return notificationStartAt;
+};
 
 // Create notification
 exports.createNotification = async (data) => {
@@ -35,10 +66,17 @@ exports.getNotificationsByRole = async (req, res) => {
     let query;
     
     if (role === 'candidate') {
+      const notificationStartAt = await resolveCandidateNotificationStartAt(userId);
+      if (!notificationStartAt) {
+        return res.status(404).json({ success: false, message: 'Candidate account not found' });
+      }
+
       query = {
+        role,
+        createdAt: { $gte: notificationStartAt },
         $or: [
-          { role, candidateId: { $exists: false } }, // General notifications for all candidates
-          { role, candidateId: userId } // Specific notifications for this candidate
+          { candidateId: { $exists: false } }, // General notifications for all candidates
+          { candidateId: userId } // Specific notifications for this candidate
         ]
       };
     } else if (role === 'admin') {
@@ -121,10 +159,17 @@ exports.markAllAsRead = async (req, res) => {
     let query;
     
     if (role === 'candidate') {
+      const notificationStartAt = await resolveCandidateNotificationStartAt(userId);
+      if (!notificationStartAt) {
+        return res.status(404).json({ success: false, message: 'Candidate account not found' });
+      }
+
       query = {
+        role,
+        createdAt: { $gte: notificationStartAt },
         $or: [
-          { role, candidateId: { $exists: false }, isRead: false },
-          { role, candidateId: userId, isRead: false }
+          { candidateId: { $exists: false }, isRead: false },
+          { candidateId: userId, isRead: false }
         ]
       };
     } else if (role === 'admin') {

@@ -20,6 +20,12 @@ const candidateSchema = new mongoose.Schema({
   course: { type: String }, // Course/Branch from Excel data
   credits: { type: Number, default: 0 },
   registrationMethod: { type: String, enum: ['signup', 'admin', 'placement', 'email_signup'], default: 'signup' },
+  notificationVisibilityStartAt: {
+    type: Date,
+    default: function() {
+      return ['signup', 'email_signup'].includes(this.registrationMethod || 'signup') ? new Date() : null;
+    }
+  },
   placementId: { type: mongoose.Schema.Types.ObjectId, ref: 'Placement' },
   fileId: { type: mongoose.Schema.Types.ObjectId }, // Reference to specific file in placement's fileHistory
   isVerified: { type: Boolean, default: false },

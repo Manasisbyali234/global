@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 const Candidate = require('../models/Candidate');
 const CandidateProfile = require('../models/CandidateProfile');
+const PlacementCandidate = require('../models/PlacementCandidate');
 const Job = require('../models/Job');
 const Application = require('../models/Application');
 const Message = require('../models/Message');
@@ -29,6 +30,38 @@ const generateToken = (id, role) => {
 };
 
 const AUTO_REJECT_EXPIRED_SESSION_NOTE = 'Auto-rejected after application session expired';
+
+const shouldStampNotificationVisibilityStart = (candidate = {}) => (
+  !candidate.notificationVisibilityStartAt
+  && (
+    candidate.registrationMethod === 'placement'
+    || candidate.registrationMethod === 'admin'
+    || Boolean(candidate.placementId)
+    || Boolean(candidate.fileId)
+  )
+);
+
+const stampNotificationVisibilityStart = async (candidate, startAt = new Date()) => {
+  if (!candidate || !shouldStampNotificationVisibilityStart(candidate)) {
+    return candidate?.notificationVisibilityStartAt || null;
+  }
+
+  candidate.notificationVisibilityStartAt = startAt;
+
+  if (candidate.placementId || candidate.fileId || candidate.registrationMethod === 'placement') {
+    await PlacementCandidate.findOneAndUpdate(
+      { candidateId: candidate._id },
+      {
+        $set: {
+          passwordCreated: true,
+          passwordCreatedAt: startAt
+        }
+      }
+    );
+  }
+
+  return startAt;
+};
 
 const normalizeApplicationStatusValue = (value = '') =>
   String(value || '')
@@ -1131,10 +1164,12 @@ exports.createPassword = async (req, res) => {
 
     // For placement candidates, allow password reset instead of creation
     if (candidate.registrationMethod === 'placement') {
+      const activationAt = new Date();
       // Update password for placement candidates (they already have one from Excel)
       candidate.password = password;
       candidate.registrationMethod = 'signup'; // Change to signup so password gets hashed
       candidate.status = 'active';
+      await stampNotificationVisibilityStart(candidate, activationAt);
       await candidate.save();
       
       return res.json({ success: true, message: 'Password updated successfully. You can now log in with your new password.' });
@@ -1144,11 +1179,13 @@ exports.createPassword = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Password already set' });
     }
 
+    const activationAt = new Date();
     candidate.password = password;
     candidate.status = 'active';
     if (candidate.registrationMethod !== 'admin') {
       candidate.registrationMethod = 'signup';
     }
+    await stampNotificationVisibilityStart(candidate, activationAt);
     await candidate.save();
 
     res.json({ success: true, message: 'Password created successfully' });
@@ -1219,6 +1256,7 @@ exports.changePassword = async (req, res) => {
     if (candidate.registrationMethod === 'placement') {
       // Removed console debug line for security;
       candidate.registrationMethod = 'signup';
+      await stampNotificationVisibilityStart(candidate, new Date());
     }
     
     candidate.password = newPassword;
@@ -1248,6 +1286,7 @@ exports.updatePasswordReset = async (req, res) => {
       candidate.registrationMethod = 'signup';
     }
     
+    await stampNotificationVisibilityStart(candidate, new Date());
     candidate.password = newPassword;
     candidate.markModified('password');
     await candidate.save();
@@ -1302,6 +1341,7 @@ exports.verifyOTPAndResetPassword = async (req, res) => {
       candidate.registrationMethod = 'signup';
     }
 
+    await stampNotificationVisibilityStart(candidate, new Date());
     candidate.password = newPassword;
     candidate.resetPasswordOTP = undefined;
     candidate.resetPasswordOTPExpires = undefined;
