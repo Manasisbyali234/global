@@ -1302,6 +1302,7 @@ export default function EmpPostJob({ onNext }) {
 			});
 			if (data.success) {
 				const job = data.job;
+				const nextScheduledRounds = {};
 
 				// Populate form with job data
 				update({
@@ -1339,6 +1340,9 @@ export default function EmpPostJob({ onNext }) {
 						// If we have rounds in the new format, use them to populate details
 						if (job.interviewRounds && job.interviewRounds.length > 0) {
 							job.interviewRounds.forEach(round => {
+								if (round.key && hasDbScheduleData({ ...round, roundType: round.roundType || job.interviewRoundTypes?.[round.key] })) {
+									nextScheduledRounds[round.key] = true;
+								}
 								if (round.key) {
 									details[round.key] = {
 										_id: round.id || round._id || '',
@@ -1368,6 +1372,9 @@ export default function EmpPostJob({ onNext }) {
 							const oldDetails = job.interviewRoundDetails;
 							Object.keys(oldDetails).forEach(key => {
 								if (oldDetails[key]) {
+									if (hasDbScheduleData({ ...oldDetails[key], roundType: job.interviewRoundTypes?.[key] })) {
+										nextScheduledRounds[key] = true;
+									}
 									details[key] = {
 										...oldDetails[key],
 										assessmentId: oldDetails[key].assessmentId?._id || oldDetails[key].assessmentId || '',
@@ -1403,6 +1410,7 @@ export default function EmpPostJob({ onNext }) {
 					shift: job.shift || '',
 					workMode: job.workMode || ''
 				});
+				setScheduledRounds(nextScheduledRounds);
 
 				// Keep legacy selectedAssessment only for single-assessment jobs/edit flows
 				if (job.assessmentId) {
@@ -1436,6 +1444,16 @@ export default function EmpPostJob({ onNext }) {
 				return;
 			}
 			displayError(error, { useToast: true });
+		}
+	};
+
+	const closeInterviewModal = async () => {
+		setInterviewModal({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false });
+		if (!(currentJobId || id)) return;
+		try {
+			await fetchJobData();
+		} catch (error) {
+			console.error('Failed to refresh job data after closing interview scheduler:', error);
 		}
 	};
 
@@ -5234,6 +5252,15 @@ export default function EmpPostJob({ onNext }) {
 									const stageNumber = formData.interviewRoundOrder.indexOf(uniqueKey) + 1;
 									const details = formData.interviewRoundDetails[uniqueKey] || {};
 									const subStages = details.subStages || [];
+									const isSchedulerManagedRound = requiresSchedulerCompletion(roundType);
+									const isInterviewScheduled = isSchedulerManagedRound && (
+										Boolean(scheduledRounds[uniqueKey]) ||
+										hasDbScheduleData({
+											...details,
+											roundType,
+											subStages
+										})
+									);
 									const isAssessmentRound = roundType === 'assessment';
 									const selectedAssessmentForRound = details.assessmentId || '';
 									const assessmentIndex = formData.interviewRoundOrder
@@ -5919,7 +5946,9 @@ export default function EmpPostJob({ onNext }) {
 												<button
 													disabled={roundType === 'assessment' || !subStages || subStages.length === 0}
 													style={{
-														background: (roundType !== 'assessment' && subStages && subStages.length > 0) ? '#ff6b35' : '#d1d5db',
+														background: (roundType !== 'assessment' && subStages && subStages.length > 0)
+															? (isInterviewScheduled ? '#16a34a' : '#ff6b35')
+															: '#d1d5db',
 														color: 'white',
 														borderRadius: '8px',
 														padding: '10px 18px',
@@ -6010,8 +6039,8 @@ export default function EmpPostJob({ onNext }) {
 														}
 													}}
 												>
-													<i className="fa fa-calendar-check"></i>
-													Schedule Interview
+													<i className={`fa ${isInterviewScheduled ? 'fa-check-circle' : 'fa-calendar-check'}`}></i>
+													{isInterviewScheduled ? 'Interview Scheduled' : 'Schedule Interview'}
 												</button>
 											</div>
 											</div>
@@ -6629,7 +6658,7 @@ export default function EmpPostJob({ onNext }) {
 
 			{/* Interview Scheduling Modal */}
 			{interviewModal.isOpen && (
-				<div className={`document-modal-overlay ${interviewModal.isMinimized ? 'minimized-overlay' : ''}`} onClick={() => setInterviewModal({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false })}>
+				<div className={`document-modal-overlay ${interviewModal.isMinimized ? 'minimized-overlay' : ''}`} onClick={() => { closeInterviewModal(); }}>
 					<div className={`document-modal-container ${interviewModal.isMaximized ? 'maximized' : ''} ${interviewModal.isMinimized ? 'minimized' : ''}`} onClick={e => e.stopPropagation()}>
 						<div className="document-modal-header" onClick={() => interviewModal.isMinimized && setInterviewModal(prev => ({ ...prev, isMinimized: false }))}>
 							<h3>{interviewModal.title}</h3>
@@ -6640,7 +6669,7 @@ export default function EmpPostJob({ onNext }) {
 								<button className="modal-btn" onClick={(e) => { e.stopPropagation(); setInterviewModal(prev => ({ ...prev, isMaximized: !prev.isMaximized, isMinimized: false })); }}>
 									<i className={`fas ${interviewModal.isMaximized ? 'fa-compress' : 'fa-expand'}`}></i>
 								</button>
-								<button className="modal-btn close" onClick={() => setInterviewModal({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false })}>
+								<button className="modal-btn close" onClick={() => { closeInterviewModal(); }}>
 									<i className="fas fa-times"></i>
 								</button>
 							</div>
