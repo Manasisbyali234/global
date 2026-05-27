@@ -151,12 +151,15 @@ const getMatchingRoundsForSchedulerValidation = ({
   requiredSchedulerRoundKeys = [],
   rounds = []
 }) => {
+  const expectedRoundType = normalizeInterviewRoundType(interviewRoundTypes?.[roundKey]);
   const exactMatches = rounds.filter((round) => round?.key && String(round.key) === String(roundKey));
-  if (exactMatches.some((round) => InterviewRound.hasUsableScheduleData(round))) {
+  if (exactMatches.some((round) => InterviewRound.hasUsableScheduleData({
+    ...round,
+    roundType: round?.roundType || expectedRoundType
+  }))) {
     return exactMatches;
   }
 
-  const expectedRoundType = normalizeInterviewRoundType(interviewRoundTypes?.[roundKey]);
   const sameTypeRequiredKeys = requiredSchedulerRoundKeys.filter((key) =>
     normalizeInterviewRoundType(interviewRoundTypes?.[key]) === expectedRoundType
   );
@@ -188,6 +191,7 @@ const getMissingSchedulerRoundKeys = ({
   }
 
   return requiredSchedulerRoundKeys.filter((roundKey) => {
+    const expectedRoundType = normalizeInterviewRoundType(interviewRoundTypes?.[roundKey]);
     const matchingRounds = getMatchingRoundsForSchedulerValidation({
       roundKey,
       interviewRoundTypes,
@@ -195,7 +199,10 @@ const getMissingSchedulerRoundKeys = ({
       rounds
     });
 
-    return !matchingRounds.some((round) => InterviewRound.hasUsableScheduleData(round));
+    return !matchingRounds.some((round) => InterviewRound.hasUsableScheduleData({
+      ...round,
+      roundType: round?.roundType || expectedRoundType
+    }));
   });
 };
 

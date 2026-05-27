@@ -12,7 +12,7 @@ const normalizeRoundType = (roundType) => String(roundType || '').trim().toLower
 
 const requiresSchedulerCompletion = (roundType) => {
   const normalizedRoundType = normalizeRoundType(roundType);
-  return normalizedRoundType === 'oneononepanel' || normalizedRoundType.includes('group');
+  return Boolean(normalizedRoundType) && normalizedRoundType !== 'assessment';
 };
 
 const hasPersistedSchedulerPayload = (round = {}) => {

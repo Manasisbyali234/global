@@ -2235,15 +2235,18 @@ export default function EmpPostJob({ onNext }) {
 	const normalizeRoundType = (roundType) => String(roundType || '').trim().toLowerCase();
 	const requiresSchedulerCompletion = (roundType) => {
 		const normalizedRoundType = normalizeRoundType(roundType);
-		return normalizedRoundType === 'oneononepanel' || normalizedRoundType.includes('group');
+		return Boolean(normalizedRoundType) && normalizedRoundType !== 'assessment';
 	};
 	const getMatchingDbRoundsForValidation = (roundKey, requiredSchedulerRoundKeys, dbRounds = []) => {
+		const expectedRoundType = normalizeRoundType(formData.interviewRoundTypes?.[roundKey]);
 		const exactMatches = dbRounds.filter((round) => round?.key && String(round.key) === String(roundKey));
-		if (exactMatches.some((round) => hasDbScheduleData(round))) {
+		if (exactMatches.some((round) => hasDbScheduleData({
+			...round,
+			roundType: round?.roundType || expectedRoundType
+		}))) {
 			return exactMatches;
 		}
 
-		const expectedRoundType = normalizeRoundType(formData.interviewRoundTypes?.[roundKey]);
 		const sameTypeRequiredKeys = requiredSchedulerRoundKeys.filter((key) =>
 			normalizeRoundType(formData.interviewRoundTypes?.[key]) === expectedRoundType
 		);
@@ -2340,8 +2343,12 @@ export default function EmpPostJob({ onNext }) {
 
 		const dbRounds = data?.job?.interviewRounds || [];
 		return requiredSchedulerRoundKeys.every((roundKey) => {
+			const expectedRoundType = normalizeRoundType(formData.interviewRoundTypes?.[roundKey]);
 			const matchingRounds = getMatchingDbRoundsForValidation(roundKey, requiredSchedulerRoundKeys, dbRounds);
-			return matchingRounds.some((round) => hasDbScheduleData(round));
+			return matchingRounds.some((round) => hasDbScheduleData({
+				...round,
+				roundType: round?.roundType || expectedRoundType
+			}));
 		});
 	};
 
@@ -2408,6 +2415,40 @@ export default function EmpPostJob({ onNext }) {
 
 		return mergedFormData;
 	}, []);
+
+	useEffect(() => {
+		const activeJobId = currentJobId || id;
+		if (!activeJobId || typeof window === 'undefined') return undefined;
+
+		const saveTimer = window.setTimeout(() => {
+			try {
+				window.sessionStorage.setItem(
+					getPostJobDraftStorageKey(activeJobId),
+					JSON.stringify({
+						formData,
+						selectedDayCount,
+						scheduledRounds,
+						interviewRoundIds,
+						selectedAssessment,
+						savedAt: Date.now()
+					})
+				);
+			} catch (error) {
+				console.error('Failed to save post job draft:', error);
+			}
+		}, 250);
+
+		return () => window.clearTimeout(saveTimer);
+	}, [
+		formData,
+		selectedDayCount,
+		scheduledRounds,
+		interviewRoundIds,
+		selectedAssessment,
+		currentJobId,
+		id,
+		getPostJobDraftStorageKey
+	]);
 
 
 	const handleSubmitClick = async () => {
