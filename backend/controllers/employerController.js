@@ -3297,7 +3297,7 @@ exports.getApplicationDetails = async (req, res) => {
         applicationId: application._id
       })
         .sort({ updatedAt: -1, createdAt: -1 })
-        .populate('assessmentId', 'title timer totalQuestions passingPercentage');
+        .populate('assessmentId', 'title timer totalQuestions passingPercentage questions.type');
 
       assessmentAttempt = assessmentAttempts[0] || null;
       assessmentAttemptsByAssessmentId = assessmentAttempts.reduce((acc, attempt) => {
@@ -4382,10 +4382,12 @@ exports.saveInterviewReview = async (req, res) => {
     try {
       const assessmentAttempts = await AssessmentAttempt.find({
         applicationId: application._id
-      }).sort({ updatedAt: -1, createdAt: -1 });
+      })
+        .sort({ updatedAt: -1, createdAt: -1 })
+        .populate('assessmentId', 'questions.type');
 
       assessmentAttemptsByAssessmentId = assessmentAttempts.reduce((acc, attempt) => {
-        const attemptAssessmentId = String(attempt?.assessmentId || '').trim();
+        const attemptAssessmentId = String(attempt?.assessmentId?._id || attempt?.assessmentId || '').trim();
         if (attemptAssessmentId && !acc[attemptAssessmentId]) {
           acc[attemptAssessmentId] = attempt;
         }

@@ -15,7 +15,7 @@ import {
     getAssessmentOutcomeLabel,
     getAssessmentProcessStatus
 } from '../../../../utils/assessmentOutcome';
-import { getApplicationStatusKey, getStatusLabel } from '../../../../utils/statusDisplay';
+import { getApplicationStatusKey, getInterviewCurrentStatusKey, getStatusLabel } from '../../../../utils/statusDisplay';
 import TermsModal from "../../../../components/TermsModal";
 
 function EmpCandidateReviewPage() {
@@ -1622,7 +1622,7 @@ function EmpCandidateReviewPage() {
     }
 
     const applicationDisplayStatus = getApplicationStatusKey(application);
-    const isAssessmentNoShowApplication = isApplicationSessionExpired(application, interviewProcesses);
+    const isAssessmentNoShowApplication = getInterviewCurrentStatusKey(application) === 'no_show';
     const applicationStatusForActions = applicationDisplayStatus;
 
     return (

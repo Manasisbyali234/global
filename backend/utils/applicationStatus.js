@@ -52,6 +52,12 @@ const PENDING_LIKE_INTERVIEW_STATUSES = new Set([
   'pending'
 ]);
 
+const MANUAL_EVALUATION_QUESTION_TYPES = new Set([
+  'subjective',
+  'image',
+  'upload'
+]);
+
 const getAssessmentRoundOrderKeys = (jobData = {}) => (
   (Array.isArray(jobData?.interviewRoundOrder) ? jobData.interviewRoundOrder : []).filter(
     (roundKey) => String(jobData?.interviewRoundTypes?.[roundKey] || '').toLowerCase() === 'assessment'
@@ -96,6 +102,45 @@ const getAssessmentScheduleSource = (jobData = {}, assessmentId = '') => {
 
 const buildScheduledDateTime = (dateValue, timeValue = '', boundary = 'start') => {
   return buildUtcDateTimeFromIst(dateValue, timeValue, boundary);
+};
+
+const hasCandidateAssessmentResponse = (answer = {}) => Boolean(
+  (typeof answer?.textAnswer === 'string' && answer.textAnswer.trim()) ||
+  answer?.uploadedFile?.path ||
+  answer?.uploadedFile?.originalName ||
+  answer?.uploadedFile?.filename ||
+  answer?.selectedAnswer === 0 ||
+  answer?.selectedAnswer
+);
+
+const attemptHasSavedAnswerActivity = (attempt = {}) => (
+  Array.isArray(attempt?.answers) && attempt.answers.some((answer) => hasCandidateAssessmentResponse(answer))
+);
+
+const assessmentHasManualEvaluationQuestions = (assessment = {}) => (
+  Array.isArray(assessment?.questions) && assessment.questions.some((question) =>
+    MANUAL_EVALUATION_QUESTION_TYPES.has(normalizeApplicationStatusValue(question?.type))
+  )
+);
+
+const attemptContainsManualEvaluationQuestions = (attempt = {}) => {
+  if (typeof attempt?.containsManualEvaluationQuestions === 'boolean') {
+    return attempt.containsManualEvaluationQuestions;
+  }
+
+  if (
+    Number(attempt?.manualEvaluationRequiredCount || 0) > 0 ||
+    Number(attempt?.manualEvaluationPendingCount || 0) > 0 ||
+    Number(attempt?.manualEvaluationCompletedCount || 0) > 0
+  ) {
+    return true;
+  }
+
+  return Boolean(
+    attempt?.assessmentId &&
+    typeof attempt.assessmentId === 'object' &&
+    assessmentHasManualEvaluationQuestions(attempt.assessmentId)
+  );
 };
 
 const getCanonicalStatusKey = (value = '', fallback = 'pending') => {
@@ -580,6 +625,61 @@ const resolveAssessmentOutcomeStatus = (status = '', result = '', fallback = 'pe
   return getCanonicalStatusKey(status, fallback);
 };
 
+const isAssessmentWindowClosed = (application = {}, assessmentId = '') => {
+  const jobData = application?.jobId;
+  if (!jobData || typeof jobData !== 'object') {
+    return false;
+  }
+
+  const scheduleSource = getAssessmentScheduleSource(jobData, assessmentId);
+  const assessmentEndAt = buildScheduledDateTime(scheduleSource.endDate, scheduleSource.endTime, 'end');
+  if (assessmentEndAt) {
+    return Date.now() > assessmentEndAt.getTime();
+  }
+
+  const assessmentStartAt = buildScheduledDateTime(scheduleSource.startDate, scheduleSource.startTime, 'start');
+  if (assessmentStartAt) {
+    return Date.now() > assessmentStartAt.getTime();
+  }
+
+  return false;
+};
+
+const hasManualAssessmentAttemptActivityRequiringReview = (application = {}, options = {}, assessmentId = '') => {
+  const matchedAttempt = getAssessmentAttemptForWindow(application, options, assessmentId);
+  if (!matchedAttempt) {
+    return false;
+  }
+
+  if (!attemptHasSavedAnswerActivity(matchedAttempt) || !attemptContainsManualEvaluationQuestions(matchedAttempt)) {
+    return false;
+  }
+
+  const resolvedOutcome = resolveAssessmentOutcomeStatus(
+    resolveAssessmentAttemptStageStatus(matchedAttempt),
+    matchedAttempt?.result,
+    'pending'
+  );
+  const normalizedResult = normalizeApplicationStatusValue(matchedAttempt?.result);
+
+  return !['passed', 'failed', 'suspended'].includes(getCanonicalStatusKey(resolvedOutcome, 'pending'))
+    && !['pass', 'fail'].includes(normalizedResult);
+};
+
+const hasExpiredManualAssessmentAttemptActivityRequiringReview = (application = {}, options = {}, assessmentId = '') => {
+  if (!hasManualAssessmentAttemptActivityRequiringReview(application, options, assessmentId)) {
+    return false;
+  }
+
+  const matchedAttempt = getAssessmentAttemptForWindow(application, options, assessmentId);
+  const normalizedAttemptStatus = normalizeApplicationStatusValue(matchedAttempt?.status);
+  if (['expired', 'completed'].includes(normalizedAttemptStatus)) {
+    return true;
+  }
+
+  return isAssessmentWindowClosed(application, assessmentId);
+};
+
 const hasExpiredAssessmentWindowWithoutActivity = (application = {}, options = {}, assessmentId = '') => {
   const jobData = application?.jobId;
   if (!jobData || typeof jobData !== 'object') {
@@ -616,18 +716,11 @@ const hasExpiredAssessmentWindowWithoutActivity = (application = {}, options = {
     return false;
   }
 
-  const scheduleSource = getAssessmentScheduleSource(jobData, assessmentId);
-  const assessmentEndAt = buildScheduledDateTime(scheduleSource.endDate, scheduleSource.endTime, 'end');
-  if (assessmentEndAt) {
-    return Date.now() > assessmentEndAt.getTime();
+  if (hasExpiredManualAssessmentAttemptActivityRequiringReview(application, options, assessmentId)) {
+    return false;
   }
 
-  const assessmentStartAt = buildScheduledDateTime(scheduleSource.startDate, scheduleSource.startTime, 'start');
-  if (assessmentStartAt) {
-    return Date.now() > assessmentStartAt.getTime();
-  }
-
-  return false;
+  return isAssessmentWindowClosed(application, assessmentId);
 };
 
 const resolveTrackedProcessStatus = (process = {}, application = {}, options = {}) => {
@@ -651,6 +744,10 @@ const resolveTrackedProcessStatus = (process = {}, application = {}, options = {
   );
 
   if (matchedAttempt) {
+    if (hasExpiredManualAssessmentAttemptActivityRequiringReview(application, options, processAssessmentId)) {
+      return 'completed';
+    }
+
     return resolveAssessmentOutcomeStatus(
       resolveAssessmentAttemptStageStatus(matchedAttempt),
       matchedAttempt?.result,
@@ -688,7 +785,10 @@ const getResolvedTrackedProcesses = (application = {}, options = {}) => {
 };
 
 const getPendingEvaluationRecoveryStatus = (application = {}, options = {}) => {
-  if (!hasPendingAssessmentEvaluationAttempt(application, options)) {
+  if (
+    !hasPendingAssessmentEvaluationAttempt(application, options) &&
+    !hasExpiredManualAssessmentAttemptActivityRequiringReview(application, options)
+  ) {
     return '';
   }
 

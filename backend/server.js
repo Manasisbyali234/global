@@ -11,6 +11,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const { initializeWebSocket } = require('./utils/websocket');
 const { hasExpiredAssessmentWindowWithoutActivity } = require('./utils/applicationStatus');
 const Application = require('./models/Application');
+const AssessmentAttempt = require('./models/AssessmentAttempt');
 const Job = require('./models/Job');
 const { sendAssessmentNotificationEmail } = require('./utils/emailService');
 const { applyNoShowRejection, isNoShowCandidate } = require('./utils/noShowHandler');
@@ -182,7 +183,54 @@ const startNoShowScheduler = () => {
         .select('_id status interviewInvite assessmentStatus assessmentResult assessmentScore assessmentPercentage jobId')
         .lean();
 
+      const candidateIds = candidates.map((candidate) => candidate._id);
+      const assessmentAttempts = candidateIds.length > 0
+        ? await AssessmentAttempt.find({ applicationId: { $in: candidateIds } })
+            .sort({ updatedAt: -1, createdAt: -1 })
+            .select('applicationId assessmentId status result score percentage answers manualEvaluationRequiredCount manualEvaluationCompletedCount manualEvaluationPendingCount startTime endTime suspendedAt')
+            .populate('assessmentId', 'questions.type')
+            .lean()
+        : [];
+
+      const normalizeAssessmentId = (value = '') => {
+        if (!value) return '';
+        if (typeof value === 'object') {
+          return String(value?._id || value?.id || '').trim();
+        }
+
+        return String(value).trim();
+      };
+
+      const assessmentAttemptMap = new Map();
+      assessmentAttempts.forEach((attempt) => {
+        const applicationKey = String(attempt?.applicationId || '').trim();
+        if (!applicationKey) {
+          return;
+        }
+
+        const existingEntry = assessmentAttemptMap.get(applicationKey) || {
+          latestAttempt: null,
+          byAssessmentId: {}
+        };
+
+        if (!existingEntry.latestAttempt) {
+          existingEntry.latestAttempt = attempt;
+        }
+
+        const assessmentKey = normalizeAssessmentId(attempt?.assessmentId);
+        if (assessmentKey && !existingEntry.byAssessmentId[assessmentKey]) {
+          existingEntry.byAssessmentId[assessmentKey] = attempt;
+        }
+
+        assessmentAttemptMap.set(applicationKey, existingEntry);
+      });
+
       for (const app of candidates) {
+        const attemptBundle = assessmentAttemptMap.get(String(app._id)) || {
+          latestAttempt: null,
+          byAssessmentId: {}
+        };
+
         if (isNoShowCandidate(app)) {
           const updated = await applyNoShowRejection(app._id);
           if (updated) {
@@ -191,7 +239,10 @@ const startNoShowScheduler = () => {
           continue;
         }
 
-        if (hasExpiredAssessmentWindowWithoutActivity(app)) {
+        if (hasExpiredAssessmentWindowWithoutActivity(app, {
+          assessmentAttempt: attemptBundle.latestAttempt,
+          assessmentAttemptsByAssessmentId: attemptBundle.byAssessmentId
+        })) {
           const updated = await applyNoShowRejection(app._id, {
             expireInterviewInvite: false,
             notes: 'Candidate no-show / assessment window expired'
