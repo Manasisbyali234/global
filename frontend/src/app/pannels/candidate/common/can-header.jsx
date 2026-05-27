@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import JobZImage from "../../../common/jobz-img";
 import { NavLink } from "react-router-dom";
 import { canRoute, candidate } from "../../../../globals/route-names";
-import { api } from "../../../../utils/api";
+import { api, BACKEND_URL } from "../../../../utils/api";
 import NotificationBell from "../../../../components/NotificationBell";
 import "../../../../notification-bell-visibility-fix.css";
 import "./can-header-mobile-fix.css";
@@ -12,13 +12,12 @@ import "./can-header-mobile-fix.css";
 function CanHeaderSection(props) {
     const [profileData, setProfileData] = useState(null);
     const getProfileImageSrc = (imageValue) => {
-        const backendBaseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
         if (!imageValue || typeof imageValue !== 'string') return '';
         if (imageValue.startsWith('data:')) return imageValue;
         if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) return imageValue;
         if (imageValue.startsWith('/uploads') || imageValue.startsWith('uploads/')) {
             const normalizedPath = imageValue.startsWith('/') ? imageValue : `/${imageValue}`;
-            return `${backendBaseUrl}${normalizedPath}`;
+            return `${BACKEND_URL}${normalizedPath}`;
         }
         return imageValue;
     };
@@ -47,7 +46,7 @@ function CanHeaderSection(props) {
             } else {
                 // Fallback to dashboard stats if profile doesn't exist
                 try {
-                    const statsResponse = await fetch('http://localhost:5000/api/candidate/dashboard/stats', {
+                    const statsResponse = await fetch(`${BACKEND_URL}/api/candidate/dashboard/stats`, {
                         headers: { 
                             'Authorization': `Bearer ${localStorage.getItem('candidateToken')}`,
                             'Content-Type': 'application/json'

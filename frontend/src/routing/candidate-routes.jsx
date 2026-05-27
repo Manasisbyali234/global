@@ -16,6 +16,7 @@ import CanChangePasswordPage from "../app/pannels/candidate/components/can-chang
 import CanChatPage from "../app/pannels/candidate/components/can-chat";
 import Error404Page from "../app/pannels/public-user/components/pages/error404";
 import TakeAssessment from "../app/pannels/candidate/components/take-assesment";
+import { BACKEND_URL } from "../utils/api";
 
 import Stepper from "../app/pannels/candidate/components/step-by-step";
 import StartAssessment from "../app/pannels/candidate/pages/start-tech-assessment";
@@ -36,7 +37,7 @@ function ProtectedTransactions() {
 					return;
 				}
 
-				const response = await fetch('http://localhost:5000/api/candidate/dashboard/stats', {
+				const response = await fetch(`${BACKEND_URL}/api/candidate/dashboard/stats`, {
 					headers: { 'Authorization': `Bearer ${token}` }
 				});
 

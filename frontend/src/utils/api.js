@@ -1,6 +1,23 @@
 // iOS Safari compatible API configuration
-export const BACKEND_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api', '') : 'http://localhost:5000';
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const resolveBackendOrigin = () => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL.replace(/\/api\/?$/, '');
+  }
+
+  if (typeof window !== 'undefined' && window.location) {
+    const { hostname, origin } = window.location;
+    const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+    if (!isLocalHost) {
+      return origin;
+    }
+  }
+
+  return 'http://localhost:5000';
+};
+
+export const BACKEND_URL = resolveBackendOrigin();
+export const API_BASE_URL = process.env.REACT_APP_API_URL || `${BACKEND_URL}/api`;
 
 // iOS Safari compatible fetch with retry mechanism
 const safeFetch = async (url, options = {}, retries = 3) => {
@@ -97,7 +114,7 @@ const normalizeCandidateRegistrationPayload = (data = {}) => {
 export const api = {
   // Health check with iOS Safari compatibility
   healthCheck: () => {
-    return safeFetch('/health', {
+    return safeFetch(`${BACKEND_URL}/health`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',

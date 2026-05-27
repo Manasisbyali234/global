@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import './NotificationBell.css';
+import { BACKEND_URL } from '../utils/api';
 
 const NotificationBell = ({ userRole }) => {
   const [notifications, setNotifications] = useState([]);
@@ -58,8 +59,8 @@ const NotificationBell = ({ userRole }) => {
       
       // Use different endpoint for placement users
       const endpoint = userRole === 'placement' 
-        ? `http://localhost:5000/api/placement/notifications`
-        : `http://localhost:5000/api/notifications/${userRole}`;
+        ? `${BACKEND_URL}/api/placement/notifications`
+        : `${BACKEND_URL}/api/notifications/${userRole}`;
       
       const response = await fetch(endpoint, {
         headers: {
@@ -104,8 +105,8 @@ const NotificationBell = ({ userRole }) => {
       if (!token) return;
       
       const endpoint = userRole === 'placement'
-        ? `http://localhost:5000/api/placement/notifications/${notificationId}/read`
-        : `http://localhost:5000/api/notifications/${notificationId}/read`;
+        ? `${BACKEND_URL}/api/placement/notifications/${notificationId}/read`
+        : `${BACKEND_URL}/api/notifications/${notificationId}/read`;
       
       await fetch(endpoint, {
         method: 'PATCH',
@@ -126,8 +127,8 @@ const NotificationBell = ({ userRole }) => {
       if (!token) return;
       
       const endpoint = userRole === 'placement'
-        ? `http://localhost:5000/api/placement/notifications/read-all`
-        : `http://localhost:5000/api/notifications/${userRole}/read-all`;
+        ? `${BACKEND_URL}/api/placement/notifications/read-all`
+        : `${BACKEND_URL}/api/notifications/${userRole}/read-all`;
       
       await fetch(endpoint, {
         method: 'PATCH',
@@ -149,8 +150,8 @@ const NotificationBell = ({ userRole }) => {
       if (!token) return;
       
       const endpoint = userRole === 'placement'
-        ? `http://localhost:5000/api/placement/notifications/${notificationId}/dismiss`
-        : `http://localhost:5000/api/notifications/${notificationId}/dismiss`;
+        ? `${BACKEND_URL}/api/placement/notifications/${notificationId}/dismiss`
+        : `${BACKEND_URL}/api/notifications/${notificationId}/dismiss`;
       
       await fetch(endpoint, {
         method: 'PUT',
@@ -328,7 +329,6 @@ const NotificationBell = ({ userRole }) => {
                         cursor: 'pointer',
                         borderRadius: '2px',
                         padding: '2px 6px',
-                        height: 'fit-content',
                         flexShrink: 0,
                         width: '20px',
                         height: '20px',

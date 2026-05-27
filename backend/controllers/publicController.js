@@ -13,6 +13,7 @@ const { cache } = require('../utils/cache');
 const { isDBConnected } = require('../config/database');
 const { createTransport, sendMailWithGreeting } = require('../utils/emailService');
 const { buildUtcDateTimeFromIst, getStartOfCurrentIstDayUtc } = require('../utils/dateTime');
+const { lookupIndianPincode } = require('../utils/pincodeLookup');
 
 const resolveEmployerPostingType = (employer, profile) => {
   const employerType = employer?.employerType?.toString().trim().toLowerCase();
@@ -827,6 +828,27 @@ exports.getTopRecruiters = async (req, res) => {
   } catch (error) {
     console.error('Error in getTopRecruiters:', error);
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getPincodeDetails = async (req, res) => {
+  try {
+    const result = await lookupIndianPincode(req.params.pincode);
+
+    if (!result.success) {
+      return res.status(result.statusCode || 500).json({
+        success: false,
+        message: result.message
+      });
+    }
+
+    return res.json(result);
+  } catch (error) {
+    console.error('Error fetching pincode details:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch location data'
+    });
   }
 };
 

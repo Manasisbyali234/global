@@ -5,6 +5,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { loadScript, setMenuActive } from "../../../../globals/constants";
 import { candidate, canRoute, publicUser } from "../../../../globals/route-names";
 import { useEffect, useState } from "react";
+import { BACKEND_URL } from "../../../../utils/api";
 import "./can-sidebar.css";
 
 function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
@@ -22,10 +23,10 @@ function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
         }
 
         const [statsResponse, notificationResponse] = await Promise.all([
-          fetch('http://localhost:5000/api/candidate/dashboard/stats', {
+          fetch(`${BACKEND_URL}/api/candidate/dashboard/stats`, {
             headers: { 'Authorization': `Bearer ${token}` }
           }),
-          fetch('http://localhost:5000/api/notifications/candidate?page=1&limit=1', {
+          fetch(`${BACKEND_URL}/api/notifications/candidate?page=1&limit=1`, {
             headers: { 'Authorization': `Bearer ${token}` }
           })
         ]);

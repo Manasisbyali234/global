@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { loadScript } from "../globals/constants";
 import { formatDateTime } from "../utils/dateFormatter";
+import { BACKEND_URL } from "../utils/api";
 import "./role-notifications-page.css";
 
 const notificationTypeMeta = {
@@ -106,7 +107,7 @@ function RoleNotificationsPage({
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/notifications/${role}?page=1&limit=100`, {
+      const response = await fetch(`${BACKEND_URL}/api/notifications/${role}?page=1&limit=100`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json().catch(() => ({}));
@@ -205,7 +206,7 @@ function RoleNotificationsPage({
   const markAsRead = (notificationId) => {
     applyNotificationAction({
       actionKey: `read:${notificationId}`,
-      endpoint: `http://localhost:5000/api/notifications/${notificationId}/read`,
+      endpoint: `${BACKEND_URL}/api/notifications/${notificationId}/read`,
       method: "PATCH",
       updateNotifications: (currentNotifications) =>
         currentNotifications.map((notification) =>
@@ -218,7 +219,7 @@ function RoleNotificationsPage({
   const markAllAsRead = () => {
     applyNotificationAction({
       actionKey: "read-all",
-      endpoint: `http://localhost:5000/api/notifications/${role}/read-all`,
+      endpoint: `${BACKEND_URL}/api/notifications/${role}/read-all`,
       method: "PATCH",
       updateNotifications: (currentNotifications) =>
         currentNotifications.map((notification) => ({ ...notification, isRead: true })),
@@ -229,7 +230,7 @@ function RoleNotificationsPage({
   const dismissNotification = (notificationId) => {
     applyNotificationAction({
       actionKey: `dismiss:${notificationId}`,
-      endpoint: `http://localhost:5000/api/notifications/${notificationId}/dismiss`,
+      endpoint: `${BACKEND_URL}/api/notifications/${notificationId}/dismiss`,
       method: "PUT",
       updateNotifications: (currentNotifications) =>
         currentNotifications.filter((notification) => notification._id !== notificationId),

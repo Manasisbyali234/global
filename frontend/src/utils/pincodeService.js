@@ -1,5 +1,5 @@
-// `api.postalpincode.in` is currently failing browser TLS validation,
-// so this client-side lookup uses a browser-safe source instead.
+import { API_BASE_URL } from './api';
+
 const GENERIC_PLACE_NAME_PATTERN = /^(extension|extn|road|main road|layout|phase|stage)$/i;
 
 const normalizePlaceName = (value = '') => String(value).replace(/\s+/g, ' ').trim();
@@ -28,6 +28,59 @@ const pickBestPlace = (places = []) => {
   return sortedPlaces[0] || null;
 };
 
+const mapBackendResponse = (data = {}) => ({
+  success: true,
+  location: normalizePlaceName(data.location),
+  village: normalizePlaceName(data.village),
+  taluka: normalizePlaceName(data.taluka),
+  district: normalizePlaceName(data.district || data.location),
+  state: normalizePlaceName(data.state),
+  stateCode: data.stateCode || getStateCode(data.state),
+  country: normalizePlaceName(data.country || 'India') || 'India'
+});
+
+const fetchFromHostedBackend = async (pincode) => {
+  const response = await fetch(`${API_BASE_URL}/public/pincode/${pincode}`, {
+    headers: {
+      Accept: 'application/json'
+    }
+  });
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || `Pincode lookup failed with status ${response.status}`);
+  }
+
+  return mapBackendResponse(data);
+};
+
+const fetchFromZippopotam = async (pincode) => {
+  const response = await fetch(`https://api.zippopotam.us/in/${pincode}`);
+  if (!response.ok) {
+    throw new Error(`Pincode lookup failed with status ${response.status}`);
+  }
+
+  const data = await response.json();
+  console.log('Pincode API response:', data);
+
+  if (!data?.places?.length) {
+    throw new Error('Invalid pincode or location not found');
+  }
+
+  const place = pickBestPlace(data.places);
+  const placeName = normalizePlaceName(place?.['place name']);
+  const state = normalizePlaceName(place?.state);
+
+  return {
+    success: true,
+    location: placeName,
+    district: placeName,
+    state,
+    stateCode: getStateCode(state),
+    country: data.country
+  };
+};
+
 // Pincode service to fetch location data from pincode
 export const fetchLocationFromPincode = async (pincode) => {
   try {
@@ -38,32 +91,20 @@ export const fetchLocationFromPincode = async (pincode) => {
 
     console.log('Fetching location for pincode:', pincode);
 
-    // Use the browser-safe API first to avoid certificate errors in production.
     try {
-      const response = await fetch(`https://api.zippopotam.us/in/${pincode}`);
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Pincode API response:', data);
+      const result = await fetchFromHostedBackend(pincode);
+      console.log('Hosted pincode lookup success:', result);
+      return result;
+    } catch (backendError) {
+      console.warn('Hosted pincode lookup failed:', backendError);
+    }
 
-        if (data?.places?.length > 0) {
-          const place = pickBestPlace(data.places);
-          const placeName = normalizePlaceName(place?.['place name']);
-          const state = normalizePlaceName(place?.state);
-
-          const result = {
-            success: true,
-            location: placeName,
-            district: placeName,
-            state,
-            stateCode: getStateCode(state),
-            country: data.country
-          };
-          console.log('Pincode API success:', result);
-          return result;
-        }
-      }
+    try {
+      const result = await fetchFromZippopotam(pincode);
+      console.log('Direct pincode lookup success:', result);
+      return result;
     } catch (lookupError) {
-      console.warn('Pincode API failed:', lookupError);
+      console.warn('Direct pincode lookup failed:', lookupError);
     }
 
     return {

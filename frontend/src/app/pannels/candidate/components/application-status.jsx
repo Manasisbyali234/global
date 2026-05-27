@@ -3228,7 +3228,11 @@ function CanStatusPage() {
 														);
 													}
 
-													if (roundWindowInfo.isAfterEnd || (bookedSlot && isBookedSlotExpired)) {
+													const shouldShowPendingBadge =
+														(!hasBookedSlot && roundWindowInfo.isAfterEnd) ||
+														(Boolean(bookedSlot) && isBookedSlotExpired);
+
+													if (shouldShowPendingBadge) {
 														return (
 															<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
 																<span

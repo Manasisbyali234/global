@@ -97,6 +97,7 @@ router.get('/faqs', publicController.getFAQs);
 
 // Public Stats
 router.get('/stats', publicController.getPublicStats);
+router.get('/pincode/:pincode', publicController.getPincodeDetails);
 
 // Employer Profile
 router.get('/employers/:id', publicController.getEmployerProfile);

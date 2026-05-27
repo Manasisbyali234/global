@@ -5,6 +5,7 @@ import SectionCandidateOverview from "../sections/dashboard/section-can-overview
 import CompleteProfileCard from "../sections/dashboard/section-can-profile";
 import SectionNotifications from "../sections/dashboard/section-notifications";
 import SectionRecommendedJobs from "../sections/dashboard/section-recommended-jobs";
+import { BACKEND_URL } from "../../../../utils/api";
 import './can-dashboard.css';
 import '../components/can-notifications.css';
 
@@ -12,13 +13,12 @@ function CanDashboardPage() {
   const [candidate, setCandidate] = useState({ name: 'Loading...', location: '', profilePicture: null });
   const [isLoading, setIsLoading] = useState(true);
   const getProfileImageSrc = (imageValue) => {
-    const backendBaseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
     if (!imageValue || typeof imageValue !== 'string') return '';
     if (imageValue.startsWith('data:')) return imageValue;
     if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) return imageValue;
     if (imageValue.startsWith('/uploads') || imageValue.startsWith('uploads/')) {
       const normalizedPath = imageValue.startsWith('/') ? imageValue : `/${imageValue}`;
-      return `${backendBaseUrl}${normalizedPath}`;
+      return `${BACKEND_URL}${normalizedPath}`;
     }
     return imageValue;
   };
@@ -41,7 +41,7 @@ function CanDashboardPage() {
 
       // First try dashboard stats API (most reliable for getting candidate name)
       console.log('Dashboard: Fetching dashboard stats...');
-      const statsResponse = await fetch('http://localhost:5000/api/candidate/dashboard/stats', {
+      const statsResponse = await fetch(`${BACKEND_URL}/api/candidate/dashboard/stats`, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Cache-Control': 'no-cache',
@@ -60,7 +60,7 @@ function CanDashboardPage() {
           
           // Now try to get profile data for location and picture
           try {
-            const profileResponse = await fetch('http://localhost:5000/api/candidate/profile', {
+            const profileResponse = await fetch(`${BACKEND_URL}/api/candidate/profile`, {
               headers: { 
                 'Authorization': `Bearer ${token}`,
                 'Cache-Control': 'no-cache',
@@ -96,8 +96,8 @@ function CanDashboardPage() {
       // If stats API failed, try other endpoints
       console.log('Dashboard: Stats API failed, trying other endpoints...');
       const fallbackEndpoints = [
-        'http://localhost:5000/api/candidate/dashboard',
-        'http://localhost:5000/api/candidate/profile'
+        `${BACKEND_URL}/api/candidate/dashboard`,
+        `${BACKEND_URL}/api/candidate/profile`
       ];
 
       for (const endpoint of fallbackEndpoints) {
