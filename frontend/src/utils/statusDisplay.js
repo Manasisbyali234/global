@@ -172,6 +172,7 @@ export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pendi
   );
 
 export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pending') => {
+  const rowStatusKey = getCanonicalStatusKey(application?.status || '', '');
   const applicationStatusKey = getCanonicalStatusKey(
     application?.applicationStatus ||
       application?.applicationDisplayStatus ||
@@ -193,5 +194,5 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
     return interviewStatusKey;
   }
 
-  return applicationStatusKey;
+  return rowStatusKey || applicationStatusKey;
 };
