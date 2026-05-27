@@ -2323,12 +2323,31 @@ export default function EmpPostJob({ onNext }) {
 		return hasBasicTiming || hasTimedSubStages;
 	};
 
+	const ROUND_DISPLAY_NAMES = {
+		technical: 'Technical Round',
+		managerial: 'Managerial Round',
+		hr: 'HR Round',
+		oneOnOnePanel: 'One-on-One / Panel',
+		group: 'Group Discussion',
+		situational: 'Situational / Behavioral Round',
+		assessment: 'Assessment',
+		others: 'Others'
+	};
+
+	const getRoundDisplayName = (roundKey) => {
+		const roundType = formData.interviewRoundTypes?.[roundKey];
+		const stageNumber = (formData.interviewRoundOrder || []).indexOf(roundKey) + 1;
+		const customType = roundType === 'others' ? formData.interviewRoundDetails?.[roundKey]?.customType : null;
+		const name = (roundType === 'others' && customType?.trim()) ? customType : (ROUND_DISPLAY_NAMES[roundType] || roundType);
+		return `Stage ${stageNumber}: ${name}`;
+	};
+
 	const verifyDbInterviewScheduling = async () => {
 		const activeJobId = currentJobId || id;
-		if (!activeJobId) return false;
+		if (!activeJobId) return { valid: false, unscheduledRoundNames: [] };
 
 		const token = localStorage.getItem('employerToken');
-		if (!token) return false;
+		if (!token) return { valid: false, unscheduledRoundNames: [] };
 
 		const data = await safeApiCall(`http://localhost:5000/api/employer/jobs/${activeJobId}`, {
 			headers: { 'Authorization': `Bearer ${token}` }
@@ -2338,18 +2357,23 @@ export default function EmpPostJob({ onNext }) {
 			requiresSchedulerCompletion(formData.interviewRoundTypes?.[key])
 		);
 		if (requiredSchedulerRoundKeys.length === 0) {
-			return true;
+			return { valid: true, unscheduledRoundNames: [] };
 		}
 
 		const dbRounds = data?.job?.interviewRounds || [];
-		return requiredSchedulerRoundKeys.every((roundKey) => {
+		const unscheduledRoundNames = [];
+		for (const roundKey of requiredSchedulerRoundKeys) {
 			const expectedRoundType = normalizeRoundType(formData.interviewRoundTypes?.[roundKey]);
 			const matchingRounds = getMatchingDbRoundsForValidation(roundKey, requiredSchedulerRoundKeys, dbRounds);
-			return matchingRounds.some((round) => hasDbScheduleData({
+			const isScheduled = matchingRounds.some((round) => hasDbScheduleData({
 				...round,
 				roundType: round?.roundType || expectedRoundType
 			}));
-		});
+			if (!isScheduled) {
+				unscheduledRoundNames.push(getRoundDisplayName(roundKey));
+			}
+		}
+		return { valid: unscheduledRoundNames.length === 0, unscheduledRoundNames };
 	};
 
 	const getPostJobDraftStorageKey = useCallback((jobIdValue = currentJobId || id || 'new') => (
@@ -2490,9 +2514,11 @@ export default function EmpPostJob({ onNext }) {
 		}
 
 		try {
-			const hasScheduledDataInDb = await verifyDbInterviewScheduling();
+			const { valid: hasScheduledDataInDb, unscheduledRoundNames } = await verifyDbInterviewScheduling();
 			if (!hasScheduledDataInDb) {
-				showWarning('Please complete the "Schedule Interview" step for the selected One-on-One / Panel or Group round before posting the job.');
+				const roundList = unscheduledRoundNames.join(', ');
+				const roundLabel = unscheduledRoundNames.length === 1 ? 'round' : 'round(s)';
+				showWarning(`Please complete the "Schedule Interview" step for the following ${roundLabel}: ${roundList}\n\n• Click on "Schedule Interview"\n• Select the available time slots\n• Update the HR name\n• Generate the interview slots\n• Submit the slots to continue`);
 				return;
 			}
 		} catch (error) {
