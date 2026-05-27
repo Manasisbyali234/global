@@ -456,19 +456,8 @@ function EmpJobReviewPage() {
                                         {jobDetails.interviewRoundOrder && jobDetails.interviewRoundOrder.length > 0 ? (
                                             jobDetails.interviewRoundOrder.map((key, index) => {
                                                 const roundType = jobDetails.interviewRoundTypes?.[key];
-                                                const roundNames = {
-                                                    technical: 'Technical Round',
-                                                    oneOnOne: 'One-on-One',
-                                                    panel: 'Panel',
-                                                    group: 'Group Discussion',
-                                                    situational: 'Situational / Behavioral Round',
-                                                    others: 'Others – Specify.',
-                                                    assessment: 'MCQ/Assessment Schedule',
-                                                    oneOnOnePanel: 'One-on-One / Panel',
-                                                    managerial: 'Managerial Round',
-                                                    hr: 'HR Round'
-                                                };
-                                                return <div key={key}>{index + 1}. {roundNames[roundType] || roundType}</div>;
+                                                const customType = jobDetails.interviewRoundDetails?.[key]?.customType;
+                                                return <div key={key}>{index + 1}. {getRoundDisplayName(roundType, customType)}</div>;
                                             })
                                         ) : (normalizeCommaList(jobDetails.roundTypes) || 'N/A')}
                                     </div>

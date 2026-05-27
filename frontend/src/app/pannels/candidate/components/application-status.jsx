@@ -1479,17 +1479,20 @@ function CanStatusPage() {
 				
 				if (roundType && !roundType.includes('_') && !/^\d+$/.test(roundType)) {
 					// roundType is a proper type, use it
-					name = stageNames[roundType] || getRoundNameFromKey(roundType);
 					finalRoundType = roundType;
+					const customType = allDetails?.[uniqueKey]?.customType;
+					name = (roundType === 'others' && customType && customType.trim()) ? customType.trim() : (stageNames[roundType] || getRoundNameFromKey(roundType));
 				} else if (roundType) {
 					// roundType looks like a unique key, extract it
 					const extractedType = roundType.includes('_') ? roundType.split('_')[0] : roundType;
-					name = stageNames[extractedType] || getRoundNameFromKey(extractedType);
 					finalRoundType = extractedType;
+					const customType = allDetails?.[uniqueKey]?.customType;
+					name = (extractedType === 'others' && customType && customType.trim()) ? customType.trim() : (stageNames[extractedType] || getRoundNameFromKey(extractedType));
 				} else {
 					// No roundType, use extracted baseType
-					name = stageNames[baseType] || getRoundNameFromKey(baseType);
 					finalRoundType = baseType;
+					const customType = allDetails?.[uniqueKey]?.customType;
+					name = (baseType === 'others' && customType && customType.trim()) ? customType.trim() : (stageNames[baseType] || getRoundNameFromKey(baseType));
 				}
 				
 				// CRITICAL: Ensure we NEVER display a unique key directly
@@ -2723,7 +2726,10 @@ function CanStatusPage() {
 												extractedType = parts.find(p => stageNameMap[p.toLowerCase()]);
 											}
 											
-											roundName = extractedType && stageNameMap[extractedType] ? stageNameMap[extractedType] : 'Interview Round';
+											const customType = selectedApplication.jobId?.interviewRoundDetails?.[uniqueKey]?.customType;
+											roundName = (extractedType === 'others' && customType && customType.trim())
+												? customType.trim()
+												: (extractedType && stageNameMap[extractedType] ? stageNameMap[extractedType] : 'Interview Round');
 										}
 										
 										const roundType = (typeof round === 'object' ? round.roundType : round.toLowerCase()).replace(/[^a-z]/gi, '');
