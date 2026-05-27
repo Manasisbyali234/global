@@ -46,6 +46,7 @@ function EmpCandidateReviewPage() {
     const [statusUpdateUnlocked, setStatusUpdateUnlocked] = useState(false);
     const [showRejectConfirm, setShowRejectConfirm] = useState(false);
     const [showNotAdvancedWarning, setShowNotAdvancedWarning] = useState(false);
+    const [isFinalRoundRejection, setIsFinalRoundRejection] = useState(false);
     const pendingNotAdvancedRef = useRef(null);
     const stageStatusOptions = [
         { value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
@@ -1816,7 +1817,9 @@ function EmpCandidateReviewPage() {
                                                                                     if (!statusUpdateUnlocked) return;
                                                                                     const newStatus = e.target.value;
                                                                                     if (newStatus === 'rejected') {
+                                                                                        const isFinal = index === interviewProcesses.length - 1;
                                                                                         pendingNotAdvancedRef.current = { processId: process.id, newStatus };
+                                                                                        setIsFinalRoundRejection(isFinal);
                                                                                         setShowNotAdvancedWarning(true);
                                                                                         return;
                                                                                     }
@@ -2477,22 +2480,30 @@ function EmpCandidateReviewPage() {
             )}
 
             {showNotAdvancedWarning && (
-                <div className="document-modal-overlay" onClick={() => setShowNotAdvancedWarning(false)}>
+                <div className="document-modal-overlay" onClick={() => { setIsFinalRoundRejection(false); setShowNotAdvancedWarning(false); }}>
                     <div className="document-modal-container" style={{ height: 'auto', maxWidth: '440px' }} onClick={e => e.stopPropagation()}>
                         <div className="document-modal-header">
                             <h3>Important Notice</h3>
-                            <button className="modal-btn close" onClick={() => setShowNotAdvancedWarning(false)}>
+                            <button className="modal-btn close" onClick={() => { setIsFinalRoundRejection(false); setShowNotAdvancedWarning(false); }}>
                                 <i className="fas fa-times"></i>
                             </button>
                         </div>
                         <div className="document-modal-body" style={{ padding: '24px', textAlign: 'center' }}>
                             <i className="fas fa-exclamation-triangle" style={{ fontSize: '40px', color: '#f59e0b', marginBottom: '16px' }}></i>
-                            <p style={{ fontSize: '15px', color: '#374151', marginBottom: '8px', fontWeight: '600' }}>
-                                Once the status is updated to <span style={{ color: '#ef4444' }}>"Not Advanced to Next Stage"</span>, it cannot be edited or deleted.
-                            </p>
-                            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '24px' }}>
-                                Are you sure you want to proceed?
-                            </p>
+                            {isFinalRoundRejection ? (
+                                <p style={{ fontSize: '15px', color: '#374151', marginBottom: '24px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Once <span style={{ color: '#ef4444' }}>"Rejected"</span> Can't Be Edited or Deleted
+                                </p>
+                            ) : (
+                                <>
+                                    <p style={{ fontSize: '15px', color: '#374151', marginBottom: '8px', fontWeight: '600' }}>
+                                        Once the status is updated to <span style={{ color: '#ef4444' }}>"Not Advanced to Next Stage"</span>, it cannot be edited or deleted.
+                                    </p>
+                                    <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '24px' }}>
+                                        Are you sure you want to proceed?
+                                    </p>
+                                </>
+                            )}
                             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                                 <button
                                     onClick={() => {
@@ -2512,6 +2523,7 @@ function EmpCandidateReviewPage() {
                                             });
                                         }
                                         pendingNotAdvancedRef.current = null;
+                                        setIsFinalRoundRejection(false);
                                         setShowNotAdvancedWarning(false);
                                     }}
                                     style={{ padding: '8px 24px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
@@ -2521,6 +2533,7 @@ function EmpCandidateReviewPage() {
                                 <button
                                     onClick={() => {
                                         pendingNotAdvancedRef.current = null;
+                                        setIsFinalRoundRejection(false);
                                         setShowNotAdvancedWarning(false);
                                     }}
                                     style={{ padding: '8px 24px', background: '#6b7280', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
