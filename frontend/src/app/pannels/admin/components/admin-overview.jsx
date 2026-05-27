@@ -4,6 +4,7 @@ import { api } from "../../../../utils/api";
 import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
 import { getAdminApplicantTableStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
+import { buildUtcDateTimeFromIst } from "../../../../utils/timezoneUtils";
 import SearchBar from "../../../../components/SearchBar";
 import "./admin-search-styles.css";
 import "./admin-overview.css";
@@ -243,6 +244,28 @@ function AdminOverviewPage() {
     "not advanced to next round"
   ]);
 
+  const assessmentPendingStatuses = new Set([
+    "",
+    "pending",
+    "available",
+    "scheduled",
+    "not started"
+  ]);
+
+  const getAssessmentRoundEndDate = (round = {}) => {
+    const endDateValue = round?.toDate || round?.fromDate || round?.scheduledDate || null;
+    if (!endDateValue) {
+      return null;
+    }
+
+    const scheduledTimeParts = String(round?.scheduledTime || "")
+      .split("-")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    const endTimeValue = round?.endTime || scheduledTimeParts[1] || scheduledTimeParts[0] || "";
+    return buildUtcDateTimeFromIst(endDateValue, endTimeValue, "end");
+  };
+
   const getRoundStatusPresentation = (round = {}) => {
     const normalizedStatus = normalizeStatusValue(round?.status);
     const isAssessmentRound =
@@ -274,10 +297,15 @@ function AdminOverviewPage() {
     }
 
     if (isAssessmentRound) {
+      const normalizedResult = normalizeStatusValue(round?.assessmentResult);
       const outcome = getAssessmentOutcome({
         status: round?.status,
         result: round?.assessmentResult
       });
+      const assessmentEndDate = getAssessmentRoundEndDate(round);
+      const isWindowExpired = Boolean(assessmentEndDate && Date.now() > assessmentEndDate.getTime());
+      const hasPendingReviewResult = normalizedResult === "pending";
+      const hasExplicitResult = Boolean(normalizedResult);
 
       if (outcome.isPassed) {
         return { label: "Passed", style: badgeStyles.success };
@@ -288,14 +316,22 @@ function AdminOverviewPage() {
       if (outcome.isSuspended) {
         return { label: "Suspended", style: badgeStyles.danger };
       }
-      if (outcome.isNoShow || ["expired", "session expired"].includes(outcome.normalizedStatus)) {
-        return { label: "No Show", style: badgeStyles.danger };
-      }
       if (outcome.isInProgress) {
         return { label: "In Progress", style: badgeStyles.warning };
       }
       if (outcome.isCompleted || outcome.isPendingReview) {
         return { label: "Completed", style: badgeStyles.success };
+      }
+      if (outcome.isNoShow) {
+        return { label: "No Show", style: badgeStyles.danger };
+      }
+      if (isWindowExpired && assessmentPendingStatuses.has(normalizedStatus)) {
+        if (hasPendingReviewResult) {
+          return { label: "Completed", style: badgeStyles.success };
+        }
+        if (!hasExplicitResult) {
+          return { label: "No Show", style: badgeStyles.danger };
+        }
       }
     }
 
