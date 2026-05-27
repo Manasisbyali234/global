@@ -749,7 +749,7 @@ export default function EmpPostJob({ onNext }) {
 	const getAssessmentMinDate = (lastDateOfApplication = formData.lastDateOfApplication) => {
 		const normalizedLastDate = normalizeToYMD(lastDateOfApplication);
 		if (!normalizedLastDate) return today;
-		return getNextDayDateString(normalizedLastDate) || normalizedLastDate;
+		return normalizedLastDate;
 	};
 
 	const getMinDateForRoundFromState = (state, roundKey) => {
