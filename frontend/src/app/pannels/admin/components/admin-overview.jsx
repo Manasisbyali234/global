@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
+import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
 import { getAdminApplicantTableStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import SearchBar from "../../../../components/SearchBar";
@@ -244,32 +245,58 @@ function AdminOverviewPage() {
 
   const getRoundStatusPresentation = (round = {}) => {
     const normalizedStatus = normalizeStatusValue(round?.status);
+    const isAssessmentRound =
+      normalizeStatusValue(round?.type) === "assessment" ||
+      normalizeStatusValue(round?.name).includes("assessment");
 
-    // Only reflect status if it was manually set by the employer
-    if (!manualTrackingStatuses.has(normalizedStatus)) {
-      return { label: "Pending", style: badgeStyles.neutral };
+    if (manualTrackingStatuses.has(normalizedStatus)) {
+      if (["shortlisted", "shortlisted for next round"].includes(normalizedStatus)) {
+        return { label: "Shortlisted for next Round", style: badgeStyles.info };
+      }
+      if (normalizedStatus === "selected") {
+        return { label: "Selected", style: badgeStyles.success };
+      }
+      if (normalizedStatus === "under review") {
+        return { label: "Under Review", style: badgeStyles.warning };
+      }
+      if (normalizedStatus === "pending decision") {
+        return { label: "Pending Decision", style: badgeStyles.warning };
+      }
+      if (normalizedStatus === "on hold") {
+        return { label: "On Hold", style: badgeStyles.secondary };
+      }
+      if (normalizedStatus === "no show") {
+        return { label: "No Show", style: badgeStyles.danger };
+      }
+      if (["rejected", "not advanced to next stage", "not advanced to next round"].includes(normalizedStatus)) {
+        return { label: "Not Advanced to Next Stage", style: badgeStyles.danger };
+      }
     }
 
-    if (["shortlisted", "shortlisted for next round"].includes(normalizedStatus)) {
-      return { label: "Shortlisted for next Round", style: badgeStyles.info };
-    }
-    if (normalizedStatus === "selected") {
-      return { label: "Selected", style: badgeStyles.success };
-    }
-    if (normalizedStatus === "under review") {
-      return { label: "Under Review", style: badgeStyles.warning };
-    }
-    if (normalizedStatus === "pending decision") {
-      return { label: "Pending Decision", style: badgeStyles.warning };
-    }
-    if (normalizedStatus === "on hold") {
-      return { label: "On Hold", style: badgeStyles.secondary };
-    }
-    if (normalizedStatus === "no show") {
-      return { label: "No Show", style: badgeStyles.danger };
-    }
-    if (["rejected", "not advanced to next stage", "not advanced to next round"].includes(normalizedStatus)) {
-      return { label: "Not Advanced to Next Stage", style: badgeStyles.danger };
+    if (isAssessmentRound) {
+      const outcome = getAssessmentOutcome({
+        status: round?.status,
+        result: round?.assessmentResult
+      });
+
+      if (outcome.isPassed) {
+        return { label: "Passed", style: badgeStyles.success };
+      }
+      if (outcome.isFailed) {
+        return { label: "Failed", style: badgeStyles.danger };
+      }
+      if (outcome.isSuspended) {
+        return { label: "Suspended", style: badgeStyles.danger };
+      }
+      if (outcome.isNoShow || ["expired", "session expired"].includes(outcome.normalizedStatus)) {
+        return { label: "No Show", style: badgeStyles.danger };
+      }
+      if (outcome.isInProgress) {
+        return { label: "In Progress", style: badgeStyles.warning };
+      }
+      if (outcome.isCompleted || outcome.isPendingReview) {
+        return { label: "Completed", style: badgeStyles.success };
+      }
     }
 
     return { label: "Pending", style: badgeStyles.neutral };

@@ -743,6 +743,7 @@ export default function EmpPostJob({ onNext }) {
 		// Work Mode
 		workMode: ""
 	});
+	const formDataRef = useRef(formData);
 	const minInterviewDate = formData.lastDateOfApplication ? formData.lastDateOfApplication : today;
 
 	const getAssessmentMinDate = (lastDateOfApplication = formData.lastDateOfApplication) => {
@@ -865,6 +866,10 @@ export default function EmpPostJob({ onNext }) {
 		element.style.height = 'auto';
 		element.style.height = `${element.scrollHeight}px`;
 	}, []);
+
+	useEffect(() => {
+		formDataRef.current = formData;
+	}, [formData]);
 
 	useEffect(() => {
 		const elements = document.querySelectorAll('[data-interview-round-description="true"]');
@@ -1294,7 +1299,77 @@ export default function EmpPostJob({ onNext }) {
 		}
 	};
 
-	const fetchJobData = async () => {
+	const buildInterviewRoundStateFromJob = (job, existingDetails = {}, preserveCurrentValues = false) => {
+		const details = { ...existingDetails };
+		const nextScheduledRounds = {};
+		const nextInterviewRoundIds = {};
+
+		if (job.interviewRounds && job.interviewRounds.length > 0) {
+			job.interviewRounds.forEach((round) => {
+				const roundKey = round.key;
+				const roundId = round.id || round._id || '';
+
+				if (roundKey && hasDbScheduleData({ ...round, roundType: round.roundType || job.interviewRoundTypes?.[roundKey] })) {
+					nextScheduledRounds[roundKey] = true;
+				}
+
+				if (!roundKey) {
+					return;
+				}
+
+				if (roundId) {
+					nextInterviewRoundIds[roundKey] = roundId;
+				}
+
+				const existingRoundDetails = details[roundKey] || {};
+				const nextRoundDetails = {
+					...existingRoundDetails,
+					_id: roundId || existingRoundDetails._id || '',
+					schedule: round.schedule || null,
+					scheduleObject: round.scheduleObject || round.schedule || null,
+					schedulesArray: round.schedulesArray || round.schedule?.schedules || [],
+					daySchedulesArray: round.daySchedulesArray || round.schedule?.daySchedules || [],
+					date: round.date || round.schedule?.date || '',
+					roomsArray: round.roomsArray || round.schedule?.rooms || [],
+					numStudents: round.numStudents ?? round.schedule?.numStudents ?? null,
+					numHRs: round.numHRs ?? round.schedule?.numHRs ?? null,
+					remainingStudents: round.remainingStudents ?? round.schedule?.remainingStudents ?? null,
+					maxPossibleInterviews: round.maxPossibleInterviews ?? round.schedule?.maxPossibleInterviews ?? null,
+					formDataObject: round.formDataObject || round.schedule?.formData || null,
+					savedAt: round.savedAt || round.schedule?.savedAt || null
+				};
+
+				if (!preserveCurrentValues) {
+					nextRoundDetails.description = round.description || '';
+					nextRoundDetails.fromDate = round.fromdate ? new Date(round.fromdate).toISOString().split('T')[0] : '';
+					nextRoundDetails.startTime = round.startTime || '';
+					nextRoundDetails.endTime = round.endTime || '';
+					nextRoundDetails.customType = round.name;
+					nextRoundDetails.assessmentId = round.assessmentId?._id || round.assessmentId || '';
+				}
+
+				details[roundKey] = nextRoundDetails;
+			});
+		} else if (!preserveCurrentValues && job.interviewRoundDetails) {
+			const oldDetails = job.interviewRoundDetails;
+			Object.keys(oldDetails).forEach((key) => {
+				if (oldDetails[key]) {
+					if (hasDbScheduleData({ ...oldDetails[key], roundType: job.interviewRoundTypes?.[key] })) {
+						nextScheduledRounds[key] = true;
+					}
+					details[key] = {
+						...oldDetails[key],
+						assessmentId: oldDetails[key].assessmentId?._id || oldDetails[key].assessmentId || '',
+						fromDate: oldDetails[key].fromDate ? new Date(oldDetails[key].fromDate).toISOString().split('T')[0] : ''
+					};
+				}
+			});
+		}
+
+		return { details, nextScheduledRounds, nextInterviewRoundIds };
+	};
+
+	const fetchJobData = async ({ preserveCurrentFormData = false } = {}) => {
 		try {
 			const token = localStorage.getItem('employerToken');
 			const data = await safeApiCall(`http://localhost:5000/api/employer/jobs/${id}`, {
@@ -1302,7 +1377,22 @@ export default function EmpPostJob({ onNext }) {
 			});
 			if (data.success) {
 				const job = data.job;
-				const nextScheduledRounds = {};
+				const currentDetails = formDataRef.current?.interviewRoundDetails || {};
+				const {
+					details: nextInterviewRoundDetails,
+					nextScheduledRounds,
+					nextInterviewRoundIds
+				} = buildInterviewRoundStateFromJob(job, currentDetails, preserveCurrentFormData);
+
+				if (preserveCurrentFormData) {
+					setFormData((prev) => ({
+						...prev,
+						interviewRoundDetails: nextInterviewRoundDetails
+					}));
+					setScheduledRounds(nextScheduledRounds);
+					setInterviewRoundIds(nextInterviewRoundIds);
+					return;
+				}
 
 				// Populate form with job data
 				update({
@@ -1334,57 +1424,7 @@ export default function EmpPostJob({ onNext }) {
 						final: false,
 						hr: false,
 					},
-					interviewRoundDetails: (() => {
-						const details = { ...formData.interviewRoundDetails };
-						
-						// If we have rounds in the new format, use them to populate details
-						if (job.interviewRounds && job.interviewRounds.length > 0) {
-							job.interviewRounds.forEach(round => {
-								if (round.key && hasDbScheduleData({ ...round, roundType: round.roundType || job.interviewRoundTypes?.[round.key] })) {
-									nextScheduledRounds[round.key] = true;
-								}
-								if (round.key) {
-									details[round.key] = {
-										_id: round.id || round._id || '',
-										description: round.description || '',
-										fromDate: round.fromdate ? new Date(round.fromdate).toISOString().split('T')[0] : '',
-										startTime: round.startTime || '',
-										endTime: round.endTime || '',
-										customType: round.name,
-										assessmentId: round.assessmentId?._id || round.assessmentId || '',
-										schedule: round.schedule || null,
-										scheduleObject: round.scheduleObject || round.schedule || null,
-										schedulesArray: round.schedulesArray || round.schedule?.schedules || [],
-										daySchedulesArray: round.daySchedulesArray || round.schedule?.daySchedules || [],
-										date: round.date || round.schedule?.date || '',
-										roomsArray: round.roomsArray || round.schedule?.rooms || [],
-										numStudents: round.numStudents ?? round.schedule?.numStudents ?? null,
-										numHRs: round.numHRs ?? round.schedule?.numHRs ?? null,
-										remainingStudents: round.remainingStudents ?? round.schedule?.remainingStudents ?? null,
-										maxPossibleInterviews: round.maxPossibleInterviews ?? round.schedule?.maxPossibleInterviews ?? null,
-										formDataObject: round.formDataObject || round.schedule?.formData || null,
-										savedAt: round.savedAt || round.schedule?.savedAt || null
-									};
-								}
-							});
-						} else if (job.interviewRoundDetails) {
-							// Fallback to old format
-							const oldDetails = job.interviewRoundDetails;
-							Object.keys(oldDetails).forEach(key => {
-								if (oldDetails[key]) {
-									if (hasDbScheduleData({ ...oldDetails[key], roundType: job.interviewRoundTypes?.[key] })) {
-										nextScheduledRounds[key] = true;
-									}
-									details[key] = {
-										...oldDetails[key],
-										assessmentId: oldDetails[key].assessmentId?._id || oldDetails[key].assessmentId || '',
-										fromDate: oldDetails[key].fromDate ? new Date(oldDetails[key].fromDate).toISOString().split('T')[0] : ''
-									};
-								}
-							});
-						}
-						return details;
-					})(),
+					interviewRoundDetails: nextInterviewRoundDetails,
 					interviewRoundOrder: job.interviewRoundOrder || [],
 					offerLetterDate: job.offerLetterDate ? job.offerLetterDate.split('T')[0] : '',
 					joiningDate: job.joiningDate ? job.joiningDate.split('T')[0] : '',
@@ -1411,6 +1451,7 @@ export default function EmpPostJob({ onNext }) {
 					workMode: job.workMode || ''
 				});
 				setScheduledRounds(nextScheduledRounds);
+				setInterviewRoundIds(nextInterviewRoundIds);
 
 				// Keep legacy selectedAssessment only for single-assessment jobs/edit flows
 				if (job.assessmentId) {
@@ -1451,7 +1492,7 @@ export default function EmpPostJob({ onNext }) {
 		setInterviewModal({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false });
 		if (!(currentJobId || id)) return;
 		try {
-			await fetchJobData();
+			await fetchJobData({ preserveCurrentFormData: true });
 		} catch (error) {
 			console.error('Failed to refresh job data after closing interview scheduler:', error);
 		}
