@@ -2883,8 +2883,10 @@ function CanStatusPage() {
 														<div className="mt-3 pt-2 border-top d-flex gap-2 flex-wrap">
 															{(() => {
 																const assessmentInfo = assessmentRoundInfo?.completionInfo || getAssessmentCompletionInfo(selectedApplication);
-																const hasFinalAssessmentResult = assessmentInfo.isCompleted;
-																const assessmentWindowClosed = assessmentWindowInfo?.isAfterEnd;
+																const attemptResult = String(assessmentRoundInfo?.attempt?.result || '').toLowerCase();
+																const isSubjectiveAutoSubmitted = assessmentInfo.isExpired && attemptResult === 'pending';
+																const hasFinalAssessmentResult = assessmentInfo.isCompleted || isSubjectiveAutoSubmitted;
+																const assessmentWindowClosed = assessmentWindowInfo?.isAfterEnd && !isSubjectiveAutoSubmitted;
 																const isAssessmentLockedByPreviousRound = roundIndex > 0 && !activationState.canStart && !assessmentInfo.isInProgress;
 
 																if (hasFinalAssessmentResult) {
