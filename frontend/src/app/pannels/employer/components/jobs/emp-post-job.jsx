@@ -1394,8 +1394,7 @@ export default function EmpPostJob({ onNext }) {
 					return;
 				}
 
-				// Populate form with job data
-				update({
+				const nextFormData = {
 					jobTitle: job.title || '',
 					jobLocation: Array.isArray(job.location) ? job.location : (job.location ? [job.location] : []),
 					jobType: job.jobType || '',
@@ -1449,12 +1448,25 @@ export default function EmpPostJob({ onNext }) {
 					category: job.category || '',
 					shift: job.shift || '',
 					workMode: job.workMode || ''
-				});
-				setScheduledRounds(nextScheduledRounds);
-				setInterviewRoundIds(nextInterviewRoundIds);
+				};
+
+				const savedDraft = readPostJobDraft(job._id || currentJobId || id);
+				const mergedFormData = savedDraft?.formData
+					? mergeDraftIntoFormData(nextFormData, savedDraft.formData)
+					: nextFormData;
+
+				update(mergedFormData);
+				setScheduledRounds(savedDraft?.scheduledRounds ? { ...nextScheduledRounds, ...savedDraft.scheduledRounds } : nextScheduledRounds);
+				setInterviewRoundIds(savedDraft?.interviewRoundIds ? { ...nextInterviewRoundIds, ...savedDraft.interviewRoundIds } : nextInterviewRoundIds);
+				if (savedDraft?.selectedDayCount) {
+					setSelectedDayCount(savedDraft.selectedDayCount);
+				}
+				if (savedDraft?.selectedAssessment !== undefined) {
+					setSelectedAssessment(savedDraft.selectedAssessment);
+				}
 
 				// Keep legacy selectedAssessment only for single-assessment jobs/edit flows
-				if (job.assessmentId) {
+				if (job.assessmentId && savedDraft?.selectedAssessment === undefined) {
 					setSelectedAssessment(job.assessmentId._id || job.assessmentId);
 				}
 				
@@ -2333,6 +2345,70 @@ export default function EmpPostJob({ onNext }) {
 		});
 	};
 
+	const getPostJobDraftStorageKey = useCallback((jobIdValue = currentJobId || id || 'new') => (
+		`employer-post-job-draft:${jobIdValue || 'new'}`
+	), [currentJobId, id]);
+
+	const readPostJobDraft = useCallback((jobIdValue = currentJobId || id || 'new') => {
+		if (typeof window === 'undefined') return null;
+		try {
+			const savedDraft = window.sessionStorage.getItem(getPostJobDraftStorageKey(jobIdValue));
+			return savedDraft ? JSON.parse(savedDraft) : null;
+		} catch (error) {
+			console.error('Failed to read post job draft:', error);
+			return null;
+		}
+	}, [currentJobId, id, getPostJobDraftStorageKey]);
+
+	const clearPostJobDraft = useCallback((jobIdValue = currentJobId || id || 'new') => {
+		if (typeof window === 'undefined') return;
+		try {
+			window.sessionStorage.removeItem(getPostJobDraftStorageKey(jobIdValue));
+		} catch (error) {
+			console.error('Failed to clear post job draft:', error);
+		}
+	}, [currentJobId, id, getPostJobDraftStorageKey]);
+
+	const mergeDraftIntoFormData = useCallback((baseFormData = {}, draftFormData = {}) => {
+		const mergedFormData = {
+			...baseFormData,
+			...draftFormData,
+			interviewRoundDetails: {
+				...(baseFormData.interviewRoundDetails || {})
+			}
+		};
+
+		Object.entries(draftFormData.interviewRoundDetails || {}).forEach(([roundKey, draftRoundDetails]) => {
+			const existingRoundDetails = mergedFormData.interviewRoundDetails?.[roundKey] || {};
+			const mergedRoundDetails = {
+				...existingRoundDetails
+			};
+
+			[
+				'_id',
+				'description',
+				'fromDate',
+				'toDate',
+				'startTime',
+				'endTime',
+				'customType',
+				'assessmentId'
+			].forEach((field) => {
+				if (draftRoundDetails?.[field] !== undefined) {
+					mergedRoundDetails[field] = draftRoundDetails[field];
+				}
+			});
+
+			if (Array.isArray(draftRoundDetails?.subStages)) {
+				mergedRoundDetails.subStages = draftRoundDetails.subStages;
+			}
+
+			mergedFormData.interviewRoundDetails[roundKey] = mergedRoundDetails;
+		});
+
+		return mergedFormData;
+	}, []);
+
 
 	const handleSubmitClick = async () => {
 		if (isSubmitting) return;
@@ -2608,6 +2684,7 @@ export default function EmpPostJob({ onNext }) {
 				// Clear saved CTC from localStorage after successful submission
 				localStorage.removeItem('draft_ctc');
 				const jobId = data.job?._id || data.jobId || id;
+				clearPostJobDraft(jobId);
 
 				const successMsg = isEditMode ? 'Job updated successfully!' : 'Job posted successfully!';
 				showSuccess(successMsg);
@@ -6003,6 +6080,7 @@ export default function EmpPostJob({ onNext }) {
 											</div>
 											<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
 												<button
+													type="button"
 													disabled={roundType === 'assessment' || !subStages || subStages.length === 0}
 													style={{
 														background: (roundType !== 'assessment' && subStages && subStages.length > 0)
@@ -6460,6 +6538,7 @@ export default function EmpPostJob({ onNext }) {
 			}}>
 				{currentStep === 2 && (
 					<button
+						type="button"
 						onClick={handlePrevious}
 						style={{
 							background: "transparent",
@@ -6490,6 +6569,7 @@ export default function EmpPostJob({ onNext }) {
 				)}
 
 				<button
+					type="button"
 					onClick={currentStep === 1 ? handleNext : handleSubmitClick}
 					style={{
 						background: currentStep === 1 ? "#3b82f6" : "transparent",
@@ -6582,6 +6662,7 @@ export default function EmpPostJob({ onNext }) {
 						</p>
 						<div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
 							<button
+								type="button"
 								onClick={() => setShowConfirmModal(false)}
 								style={{
 									background: '#e5e7eb',
@@ -6600,6 +6681,7 @@ export default function EmpPostJob({ onNext }) {
 								Cancel
 							</button>
 							<button
+								type="button"
 								onClick={submitNext}
 								style={{
 									background: '#ff6b35',
@@ -6671,6 +6753,7 @@ export default function EmpPostJob({ onNext }) {
 						</div>
 						<div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
 							<button
+								type="button"
 								onClick={() => {
 									const { uniqueKey, subStage, subIndex, selectedDate } = showSubStageConfirm;
 									applySubStageDateChange(uniqueKey, subStage.id, selectedDate);
@@ -6694,6 +6777,7 @@ export default function EmpPostJob({ onNext }) {
 								Yes
 							</button>
 							<button
+								type="button"
 								onClick={() => setShowSubStageConfirm(null)}
 								style={{
 									background: '#e5e7eb',
@@ -6723,13 +6807,13 @@ export default function EmpPostJob({ onNext }) {
 						<div className="document-modal-header" onClick={() => interviewModal.isMinimized && setInterviewModal(prev => ({ ...prev, isMinimized: false }))}>
 							<h3>{interviewModal.title}</h3>
 							<div className="modal-controls">
-								<button className="modal-btn" onClick={(e) => { e.stopPropagation(); setInterviewModal(prev => ({ ...prev, isMinimized: !prev.isMinimized })); }}>
+								<button type="button" className="modal-btn" onClick={(e) => { e.stopPropagation(); setInterviewModal(prev => ({ ...prev, isMinimized: !prev.isMinimized })); }}>
 									<i className={`fas ${interviewModal.isMinimized ? 'fa-window-restore' : 'fa-minus'}`}></i>
 								</button>
-								<button className="modal-btn" onClick={(e) => { e.stopPropagation(); setInterviewModal(prev => ({ ...prev, isMaximized: !prev.isMaximized, isMinimized: false })); }}>
+								<button type="button" className="modal-btn" onClick={(e) => { e.stopPropagation(); setInterviewModal(prev => ({ ...prev, isMaximized: !prev.isMaximized, isMinimized: false })); }}>
 									<i className={`fas ${interviewModal.isMaximized ? 'fa-compress' : 'fa-expand'}`}></i>
 								</button>
-								<button className="modal-btn close" onClick={() => { closeInterviewModal(); }}>
+								<button type="button" className="modal-btn close" onClick={() => { closeInterviewModal(); }}>
 									<i className="fas fa-times"></i>
 								</button>
 							</div>
