@@ -369,6 +369,14 @@ a.site-text-primary:hover {
     color: #ff8c00 !important;
 }
 
+/* Prevent left column from overflowing its flex/grid boundary */
+.job-detail-page .col-lg-8,
+.job-detail-page .col-md-12 {
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .section-full .container {
@@ -1007,4 +1015,27 @@ img[loading="lazy"].loaded {
 
 .job-content-section > *:last-child {
   margin-bottom: 0 !important;
+}
+
+/* Fix text overflow in Job Description and all rich-text sections */
+.cabdidate-de-info {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  word-wrap: break-word;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.cabdidate-de-info > div > div,
+.cabdidate-de-info [dangerouslysetinnerhtml],
+.cabdidate-de-info p,
+.cabdidate-de-info span,
+.cabdidate-de-info li,
+.cabdidate-de-info td,
+.cabdidate-de-info th {
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  word-wrap: break-word !important;
+  white-space: normal !important;
+  max-width: 100% !important;
 }

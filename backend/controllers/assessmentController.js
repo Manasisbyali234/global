@@ -345,16 +345,20 @@ const persistAssessmentOutcome = async ({ attempt, assessment }) => {
     in_progress: 'in_progress',
     completed: 'completed',
     expired: 'expired',
-    suspended: 'suspended'
+    suspended: 'suspended',
+    no_show: 'no_show'
   };
 
-  await Application.findByIdAndUpdate(attempt.applicationId, {
-    assessmentStatus: statusMap[attempt.status] || 'pending',
-    assessmentScore: evaluation.score,
-    assessmentPercentage: evaluation.percentage,
-    assessmentResult: evaluation.result,
-    assessmentAttemptId: attempt._id
-  });
+  await Application.findOneAndUpdate(
+    { _id: attempt.applicationId, assessmentStatus: { $ne: 'no_show' } },
+    {
+      assessmentStatus: statusMap[attempt.status] || 'pending',
+      assessmentScore: evaluation.score,
+      assessmentPercentage: evaluation.percentage,
+      assessmentResult: evaluation.result,
+      assessmentAttemptId: attempt._id
+    }
+  );
 
   await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
     status: resolveAssessmentStageStatus(attempt.status, evaluation.result),
@@ -610,11 +614,13 @@ const expireAttemptAndPersist = async (attempt, endedAt = new Date()) => {
     const stageStatus = evaluation.result === 'pass' ? 'passed' : 'expired';
 
     await Application.findByIdAndUpdate(attempt.applicationId, {
-      assessmentStatus: 'expired',
-      assessmentScore: evaluation.score,
-      assessmentPercentage: evaluation.percentage,
-      assessmentResult: evaluation.result,
-      assessmentAttemptId: attempt._id
+      $set: {
+        assessmentStatus: 'expired',
+        assessmentScore: evaluation.score,
+        assessmentPercentage: evaluation.percentage,
+        assessmentResult: evaluation.result,
+        assessmentAttemptId: attempt._id
+      }
     });
 
     await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
@@ -633,10 +639,10 @@ const expireAttemptAndPersist = async (attempt, endedAt = new Date()) => {
       );
     }
   } else {
-    await Application.findByIdAndUpdate(attempt.applicationId, {
-      assessmentStatus: 'expired',
-      assessmentAttemptId: attempt._id
-    });
+    await Application.findOneAndUpdate(
+      { _id: attempt.applicationId, assessmentStatus: { $ne: 'no_show' } },
+      { assessmentStatus: 'expired', assessmentAttemptId: attempt._id }
+    );
 
     await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
       status: 'expired',
