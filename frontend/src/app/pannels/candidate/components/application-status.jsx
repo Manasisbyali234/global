@@ -1,4 +1,4 @@
-import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
+﻿import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { formatInterviewTime } from '../../../../utils/timeUtils';
 import { formatTimeToAMPM } from '../../../../utils/dateFormatter';
@@ -989,7 +989,8 @@ function CanStatusPage() {
 				['candidateName', 'name', 'applicantName', 'bookedName', 'candidate_name']
 					.some((key) => isNameMatch(value[key]));
 
-			if (hasBookedMarker && candidateMatched) {
+			const hasSlotShape = Boolean((value.startTime || value.start || value.fromTime) && (value.endTime || value.end || value.toTime));
+			if (candidateMatched && (hasBookedMarker || hasSlotShape)) {
 				return true;
 			}
 
