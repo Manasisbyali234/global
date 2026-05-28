@@ -13,7 +13,7 @@ function SectionJobCategories() {
         { name: 'Content Writer', icon: 'flaticon-note' },
         { name: 'Sales & Marketing', icon: 'flaticon-bars' },
         { name: 'Healthcare', icon: 'flaticon-customer-support' },
-        { name: 'Human Resources', icon: 'flaticon-user' }
+        { name: 'Human Resources', icon: 'flaticon-user', hideOnMobile: true }
     ];
 
     useEffect(() => {
@@ -66,7 +66,7 @@ function SectionJobCategories() {
                         <div className="job-categories-style1 m-b30">
                             <div className="row">
                                 {categories.map((category, index) => (
-                                    <div key={index} className="col-lg-3 col-md-6">
+                                    <div key={index} className={`col-lg-3 col-md-6${category.hideOnMobile ? ' d-none d-md-block' : ''}`}>
                                         <div className="job-categories-block-2 m-b30" 
                                              style={{cursor: 'pointer'}} 
                                              onClick={() => handleCategoryClick(category.name)}>

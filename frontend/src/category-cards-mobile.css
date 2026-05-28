@@ -30,6 +30,15 @@
   .category-cards-second-row {
     padding-left: 0 !important;
   }
+
+  .category-cards-container > a:nth-child(5) {
+    display: none !important;
+  }
+
+  a.hide-on-mobile,
+  .hide-on-mobile {
+    display: none !important;
+  }
 }
 
 @media (max-width: 576px) {

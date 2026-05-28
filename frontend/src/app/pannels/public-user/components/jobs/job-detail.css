@@ -193,6 +193,8 @@
 .twm-job-self-wrap .twm-job-self-info .job-detail-apply-wrap {
     right: 20px !important;
     padding-right: 0;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .site-button {
@@ -402,6 +404,20 @@ a.site-text-primary:hover {
 
     .description-list-2 li strong {
         min-width: 100px;
+    }
+
+    .job-detail-apply-wrap {
+        text-align: center !important;
+        right: auto !important;
+        padding: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .job-detail-apply-wrap .btn {
+        width: 100% !important;
+        display: block !important;
+        box-sizing: border-box !important;
     }
 }
 

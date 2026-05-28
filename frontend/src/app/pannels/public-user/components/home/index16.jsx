@@ -568,7 +568,6 @@ function Home16Page() {
                             }}>
                                 <div>
                                     <div className="category-text-title" style={{
-                                        fontSize: '17px',
                                         fontWeight: '600',
                                         color: '#333'
                                     }}>Programming</div>
@@ -611,7 +610,6 @@ function Home16Page() {
                             }}>
                                 <div>
                                     <div className="category-text-title" style={{
-                                        fontSize: '17px',
                                         fontWeight: '600',
                                         color: '#333'
                                     }}>Content Writer</div>
@@ -654,7 +652,6 @@ function Home16Page() {
                             }}>
                                 <div>
                                     <div className="category-text-title" style={{
-                                        fontSize: '17px',
                                         fontWeight: '600',
                                         color: '#333'
                                     }}>Sales & Marketing</div>
@@ -697,7 +694,6 @@ function Home16Page() {
                             }}>
                                 <div>
                                     <div className="category-text-title" style={{
-                                        fontSize: '17px',
                                         fontWeight: '600',
                                         color: '#333'
                                     }}>Healthcare</div>
@@ -720,7 +716,7 @@ function Home16Page() {
                                 }}>+</div>
                             </div>
                         </NavLink>
-                        <NavLink to="/job-grid?category=HR" style={{textDecoration: 'none'}}>
+                        <NavLink to="/job-grid?category=HR" style={{textDecoration: 'none'}} className="hide-on-mobile">
                             <div className="category-card" style={{
                                 background: '#ffffff',
                                 borderRadius: '18px',
@@ -740,7 +736,6 @@ function Home16Page() {
                             }}>
                                 <div>
                                     <div className="category-text-title" style={{
-                                        fontSize: '17px',
                                         fontWeight: '600',
                                         color: '#333'
                                     }}>Human Resources</div>
@@ -788,7 +783,6 @@ function Home16Page() {
                             }}>
                                 <div>
                                     <div className="category-text-title" style={{
-                                        fontSize: '17px',
                                         fontWeight: '600',
                                         color: '#333'
                                     }}>Finance</div>
@@ -831,7 +825,6 @@ function Home16Page() {
                             }}>
                                 <div>
                                     <div className="category-text-title" style={{
-                                        fontSize: '17px',
                                         fontWeight: '600',
                                         color: '#333'
                                     }}>Education</div>
@@ -874,7 +867,6 @@ function Home16Page() {
                             }}>
                                 <div>
                                     <div className="category-text-title" style={{
-                                        fontSize: '17px',
                                         fontWeight: '600',
                                         color: '#333'
                                     }}>Design</div>
@@ -917,7 +909,6 @@ function Home16Page() {
                             }}>
                                 <div>
                                     <div className="category-text-title" style={{
-                                        fontSize: '17px',
                                         fontWeight: '600',
                                         color: '#333'
                                     }}>Operations</div>
@@ -1731,6 +1722,26 @@ navbarStyle.textContent = `
     .btn-outline-pill:hover {
         background: #F9FAFB !important;
         color: #0B1220 !important;
+    }
+    @media (max-width: 767px) {
+        .home-page-alignment .category-cards-container > a.hide-on-mobile {
+            display: none !important;
+            width: 0 !important;
+        }
+        .home-page-alignment .category-cards-container > a:not(.hide-on-mobile) {
+            display: block !important;
+        }
+        .home-page-alignment .category-cards-container .category-card {
+            height: 75px !important;
+            min-height: unset !important;
+            max-height: 75px !important;
+        }
+        .home-page-alignment .category-cards-container .category-text-title {
+            font-size: 12px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
     }
 `;
 document.head.appendChild(navbarStyle);

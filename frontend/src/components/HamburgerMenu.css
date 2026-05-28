@@ -140,21 +140,28 @@
   border-top: 1px solid #e0e0e0 !important;
   background: #ffffff !important;
   margin-top: 10px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .auth-group-accordion {
   margin-bottom: 10px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .auth-accordion-trigger {
   width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
   background: #fff5eb !important;
   border: 1px solid #ffd8b3 !important;
   border-radius: 8px !important;
-  padding: 12px 20px !important;
+  padding: 12px 16px !important;
   cursor: pointer !important;
   font-size: 13px !important;
   font-weight: 700 !important;
