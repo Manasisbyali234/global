@@ -20,11 +20,11 @@ test('admin overview still shows no show when the application is not terminally 
   ).toBe('no_show');
 });
 
-test('admin overview preserves a backend no-show row status when application status is still pending', () => {
+test('admin overview keeps the explicit application status over a backend no-show row status', () => {
   expect(
     getAdminApplicantTableStatusKey({
       status: 'no_show',
       applicationStatus: 'pending'
     })
-  ).toBe('no_show');
+  ).toBe('pending');
 });

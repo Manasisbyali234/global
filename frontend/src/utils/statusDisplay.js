@@ -66,6 +66,20 @@ const STATUS_LABELS = {
   under_review: 'Under Review'
 };
 
+const ADMIN_PENDING_LIKE_STATUS_KEYS = new Set([
+  'pending',
+  'pending_decision',
+  'scheduled',
+  'under_review',
+  'on_hold'
+]);
+
+const ADMIN_NO_SHOW_LIKE_STATUS_KEYS = new Set([
+  'expired',
+  'no_show',
+  'session_expired'
+]);
+
 export const normalizeStatusValue = (value = '') =>
   String(value || '')
     .trim()
@@ -172,6 +186,35 @@ export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pendi
   );
 
 export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pending') => {
+  const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
+  for (let index = statusHistory.length - 1; index >= 0; index -= 1) {
+    const historyStatusKey = getCanonicalStatusKey(statusHistory[index]?.status, '');
+    if (!historyStatusKey) {
+      continue;
+    }
+
+    if (ADMIN_PENDING_LIKE_STATUS_KEYS.has(historyStatusKey)) {
+      continue;
+    }
+
+    if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(historyStatusKey)) {
+      return 'no_show';
+    }
+
+    break;
+  }
+
+  const interviewRounds = Array.isArray(application?.interviewRounds) ? application.interviewRounds : [];
+  for (let index = interviewRounds.length - 1; index >= 0; index -= 1) {
+    const round = interviewRounds[index] || {};
+    const roundStatusKey = getCanonicalStatusKey(round?.status, '');
+    const roundResultKey = getCanonicalStatusKey(round?.assessmentResult, '');
+
+    if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundStatusKey) || ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundResultKey)) {
+      return 'no_show';
+    }
+  }
+
   const applicationStatusKey = getCanonicalStatusKey(
     application?.applicationStatus ||
       application?.applicationDisplayStatus ||

@@ -327,24 +327,16 @@ const decorateAdminApplicationStatusFields = (application = null, options = {}) 
 
   return {
     ...application,
-    ...buildSharedApplicationStatusSnapshot(application, options)
+    ...buildSharedApplicationStatusSnapshot(application, {
+      ...options,
+      respectExpiredSessionAutoRejectDisplay: true,
+      respectManualStageStatusForAutoReject: true
+    })
   };
 };
 
-const getAdminOverviewApplicantTableStatus = (applicationStatus = 'pending', interviewCurrentStatus = '') => {
+const getAdminOverviewApplicantTableStatus = (applicationStatus = 'pending') => {
   const normalizedApplicationStatus = getCanonicalStatusKey(applicationStatus || 'pending');
-  if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(normalizedApplicationStatus)) {
-    return normalizedApplicationStatus;
-  }
-
-  const normalizedInterviewStatus = getCanonicalStatusKey(interviewCurrentStatus, '');
-  if (['no_show', 'session_expired', 'expired'].includes(normalizedInterviewStatus)) {
-    return 'no_show';
-  }
-  if (['failed', 'suspended'].includes(normalizedInterviewStatus)) {
-    return normalizedInterviewStatus;
-  }
-
   return normalizedApplicationStatus;
 };
 
@@ -800,7 +792,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     const applications = await Application.find({ jobId })
       .populate('candidateId', 'name email')
       .populate('jobId', 'interviewRoundOrder interviewRoundTypes interviewRoundDetails assessmentId')
-      .select('candidateId applicantName applicantEmail status statusHistory appliedAt isGuestApplication interviewProcesses interviewProcessId processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency assessmentStatus assessmentResult assessmentAttemptsByAssessmentId interviewRounds')
+      .select('candidateId applicantName applicantEmail status statusHistory appliedAt isGuestApplication isSelectedForProcess interviewProcesses interviewProcessId processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency assessmentStatus assessmentResult assessmentAttemptsByAssessmentId interviewRounds')
       .sort({ appliedAt: -1 })
       .lean();
 
@@ -1400,10 +1392,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       const effectiveStatus = isOfferNotAccepted(decoratedApplication)
         ? 'rejected'
         : decoratedApplication.applicationStatus;
-      const tableStatus = getAdminOverviewApplicantTableStatus(
-        effectiveStatus,
-        decoratedApplication.interviewCurrentStatus
-      );
+      const tableStatus = getAdminOverviewApplicantTableStatus(effectiveStatus);
       return {
         applicationId: application._id,
         applicantName:
@@ -1416,6 +1405,8 @@ exports.getJobApplicantsForOverview = async (req, res) => {
             'N/A',
         status: tableStatus,
         applicationStatus: effectiveStatus,
+        applicationDisplayStatus: effectiveStatus,
+        displayStatus: effectiveStatus,
         interviewCurrentStatus: decoratedApplication.interviewCurrentStatus,
         appliedAt: application.appliedAt,
         isGuestApplication: !!application.isGuestApplication,
