@@ -961,6 +961,11 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     ) {
       return latestTrackedStatus;
     }
+    // Candidate passed a non-final round and next round not started yet.
+    // Prevent the raw rejected base status from bleeding through.
+    if (!isFinalRound && (latestTrackedStatus === 'passed' || latestTrackedStatus === 'shortlisted' || latestTrackedStatus === 'shortlisted_for_next_round')) {
+      return 'pending';
+    }
   }
 
   if (baseStatus === 'pending' && application?.isSelectedForProcess) {
@@ -1004,6 +1009,31 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
   if (hasExpiredAssessmentWindowWithoutActivity(application, options)) {
     return 'no_show';
   }
+
+  // Guard: if assessment-level fields directly indicate a terminal rejection outcome,
+  // return it immediately so a stale/missing attempt lookup cannot flip it to pending.
+  const _ics_assessmentStatus = String(application?.assessmentStatus || '').toLowerCase();
+  const _ics_assessmentResult = String(application?.assessmentResult || '').toLowerCase();
+  const _ics_rejectedStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
+  const _ics_failedStatuses = ['failed', 'fail'];
+  const _ics_isExpiredWithPass = _ics_assessmentStatus === 'expired' && _ics_assessmentResult === 'pass';
+  const _ics_isExpiredPending = _ics_assessmentStatus === 'expired' && _ics_assessmentResult === 'pending';
+  if (!_ics_isExpiredWithPass && !_ics_isExpiredPending && (
+    _ics_rejectedStatuses.includes(_ics_assessmentStatus) ||
+    _ics_failedStatuses.includes(_ics_assessmentStatus) ||
+    _ics_failedStatuses.includes(_ics_assessmentResult)
+  )) {
+    return _ics_rejectedStatuses.includes(_ics_assessmentStatus) ? 'no_show' : 'failed';
+  }
+  const _ics_attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
+  const _ics_hasRejectedAttempt = Object.values(_ics_attemptsByAssessmentId).some((attempt) => {
+    const s = String(attempt?.status || '').toLowerCase();
+    const r = String(attempt?.result || '').toLowerCase();
+    if (s === 'expired' && r === 'pass') return false;
+    if (s === 'expired' && r === 'pending') return false;
+    return _ics_rejectedStatuses.includes(s) || _ics_failedStatuses.includes(s) || _ics_failedStatuses.includes(r);
+  });
+  if (_ics_hasRejectedAttempt) return 'no_show';
 
   const trackedProcessesForStatus = getResolvedTrackedProcesses(application, options);
   const hasRejectedTrackedProcess = trackedProcessesForStatus.some((process) =>
