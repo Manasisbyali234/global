@@ -1899,12 +1899,7 @@ function EmpCandidateReviewPage() {
                                                                         </div>
                                                                     )}
 
-                                                                    {isAssessmentNoShowApplication && (
-                                                                        <div className="stage-locked-info">
-                                                                            <i className="fas fa-clock"></i>
-                                                                            <span>No Show</span>
-                                                                        </div>
-                                                                    )}
+
                                                                 </div>
 
                                                                 {index === interviewProcesses.length - 1 && process.status === 'selected' && (
