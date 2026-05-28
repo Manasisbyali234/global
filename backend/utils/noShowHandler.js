@@ -25,7 +25,7 @@ const applyNoShowRejection = async (applicationId, options = {}) => {
   const result = await Application.findOneAndUpdate(
     {
       _id: applicationId,
-      $and: [
+      $or: [
         { status: { $ne: 'rejected' } },
         { assessmentStatus: { $ne: 'no_show' } }
       ]

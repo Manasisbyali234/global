@@ -349,16 +349,13 @@ const persistAssessmentOutcome = async ({ attempt, assessment }) => {
     no_show: 'no_show'
   };
 
-  await Application.findOneAndUpdate(
-    { _id: attempt.applicationId, assessmentStatus: { $ne: 'no_show' } },
-    {
-      assessmentStatus: statusMap[attempt.status] || 'pending',
-      assessmentScore: evaluation.score,
-      assessmentPercentage: evaluation.percentage,
-      assessmentResult: evaluation.result,
-      assessmentAttemptId: attempt._id
-    }
-  );
+  await Application.findByIdAndUpdate(attempt.applicationId, {
+    assessmentStatus: statusMap[attempt.status] || 'pending',
+    assessmentScore: evaluation.score,
+    assessmentPercentage: evaluation.percentage,
+    assessmentResult: evaluation.result,
+    assessmentAttemptId: attempt._id
+  });
 
   await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
     status: resolveAssessmentStageStatus(attempt.status, evaluation.result),
