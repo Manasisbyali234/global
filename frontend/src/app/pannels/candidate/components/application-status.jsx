@@ -1,4 +1,4 @@
-Ôªøimport { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
+import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { formatInterviewTime } from '../../../../utils/timeUtils';
 import { formatTimeToAMPM } from '../../../../utils/dateFormatter';
@@ -1371,7 +1371,7 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others ‚Äì Specify.',
+				others: 'Others ñ Specify.',
 				assessment: 'Assessment'
 			};
 			
@@ -1395,12 +1395,12 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others ‚Äì Specify.',
+				others: 'Others ñ Specify.',
 				assessment: 'Assessment',
 				nonTechnical: 'Non-Technical',
-				managerial: 'Managerial',
+				managerial: 'Managerial Round',
 				final: 'Final',
-				hr: 'HR',
+				hr: 'HR Round',
 				aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
 				coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 			};
@@ -1450,11 +1450,11 @@ function CanStatusPage() {
 						panel: 'Panel',
 						group: 'Group Discussion',
 						situational: 'Situational / Behavioral Round',
-						others: 'Others ‚Äì Specify.',
+						others: 'Others ñ Specify.',
 						nonTechnical: 'Non-Technical',
-						managerial: 'Managerial',
+						managerial: 'Managerial Round',
 						final: 'Final',
-						hr: 'HR'
+						hr: 'HR Round'
 					};
 					
 					const lowerName = name.toLowerCase();
@@ -1502,12 +1502,12 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others ‚Äì Specify.',
+				others: 'Others ñ Specify.',
 				assessment: 'Assessment',
 				nonTechnical: 'Non-Technical',
-				managerial: 'Managerial',
+				managerial: 'Managerial Round',
 				final: 'Final',
-				hr: 'HR',
+				hr: 'HR Round',
 				aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
 				coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 			};
@@ -1569,7 +1569,7 @@ function CanStatusPage() {
 			if (roundTypes.group) rounds.push({ name: 'Group Discussion', uniqueKey: 'group', roundType: 'group' });
 			if (roundTypes.technical) rounds.push({ name: 'Technical Round', uniqueKey: 'technical', roundType: 'technical' });
 			if (roundTypes.situational) rounds.push({ name: 'Situational / Behavioral Round', uniqueKey: 'situational', roundType: 'situational' });
-			if (roundTypes.others) rounds.push({ name: 'Others ‚Äì Specify.', uniqueKey: 'others', roundType: 'others' });
+			if (roundTypes.others) rounds.push({ name: 'Others ñ Specify.', uniqueKey: 'others', roundType: 'others' });
 
 			if (rounds.length > 0) return rounds;
 		}
@@ -1580,7 +1580,7 @@ function CanStatusPage() {
 		}
 
 		// Default rounds for testing
-		return [{ name: 'Technical Round', uniqueKey: 'technical', roundType: 'technical' }, { name: 'HR', uniqueKey: 'hr', roundType: 'hr' }, { name: 'Final', uniqueKey: 'final', roundType: 'final' }];
+		return [{ name: 'Technical Round', uniqueKey: 'technical', roundType: 'technical' }, { name: 'HR Round', uniqueKey: 'hr', roundType: 'hr' }, { name: 'Final', uniqueKey: 'final', roundType: 'final' }];
 	};
 
 	const formatAssessmentScheduleMessage = (startDate) => {
@@ -1973,7 +1973,7 @@ function CanStatusPage() {
 				return;
 			}
 		}
-		showInfo('üöÄ ALL THE BEST ...', 3000);
+		showInfo('?? ALL THE BEST ...', 3000);
 		console.log('=== HANDLE START ASSESSMENT CALLED ===');
 		const job = application.jobId;
 		const windowInfo = getAssessmentWindowInfo(job, roundDetails);
@@ -1984,7 +1984,7 @@ function CanStatusPage() {
 					dateStyle: 'medium',
 					timeStyle: 'short'
 				}) : null;
-				showWarning(startLabel ? `‚è∞ Assessment Not Yet Available\n\nThe assessment will open on ${startLabel}. Please log in 5 minutes before the scheduled time.` : '‚è∞ Assessment is not yet available. Please wait for the scheduled time.');
+				showWarning(startLabel ? `? Assessment Not Yet Available\n\nThe assessment will open on ${startLabel}. Please log in 5 minutes before the scheduled time.` : '? Assessment is not yet available. Please wait for the scheduled time.');
 				return;
 			}
 			const endLabel = windowInfo.endDate ? windowInfo.endDate.toLocaleString('en-IN', {
@@ -1992,7 +1992,7 @@ function CanStatusPage() {
 				dateStyle: 'medium',
 				timeStyle: 'short'
 			}) : null;
-			showError(endLabel ? `‚õî Assessment Window Closed\n\nThe assessment window ended on ${endLabel}.` : '‚õî Assessment window has ended.');
+			showError(endLabel ? `? Assessment Window Closed\n\nThe assessment window ended on ${endLabel}.` : '? Assessment window has ended.');
 			return;
 		}
 		const assessmentId = getAssessmentRoundInfo(application, 'Assessment', roundDetails).assessmentId || job?.assessmentId;
@@ -2378,12 +2378,12 @@ function CanStatusPage() {
 																						panel: 'Panel',
 																						group: 'Group Discussion',
 																						situational: 'Situational / Behavioral Round',
-																						others: 'Others ‚Äì Specify.',
+																						others: 'Others ñ Specify.',
 																						assessment: 'Assessment',
 																						nonTechnical: 'Non-Technical',
-																						managerial: 'Managerial',
+																						managerial: 'Managerial Round',
 																						final: 'Final',
-																						hr: 'HR',
+																						hr: 'HR Round',
 																						aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
 																						coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 																					};
@@ -2603,7 +2603,7 @@ function CanStatusPage() {
 						</div>
 						<div className="status-page-pagination-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "row" }}>
 							<div style={{ color: "#6c757d", fontSize: "13px" }}>
-								Showing {filteredApplications.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}‚Äì{Math.min(currentPage * PAGE_SIZE, filteredApplications.length)} of {filteredApplications.length} record{filteredApplications.length !== 1 ? "s" : ""}
+								Showing {filteredApplications.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}ñ{Math.min(currentPage * PAGE_SIZE, filteredApplications.length)} of {filteredApplications.length} record{filteredApplications.length !== 1 ? "s" : ""}
 							</div>
 							{Math.ceil(filteredApplications.length / PAGE_SIZE) > 1 && (
 								<div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
@@ -2781,12 +2781,12 @@ function CanStatusPage() {
 												panel: 'Panel',
 												group: 'Group Discussion',
 												situational: 'Situational / Behavioral Round',
-												others: 'Others ‚Äì Specify.',
+												others: 'Others ñ Specify.',
 												assessment: 'Assessment',
 												nonTechnical: 'Non-Technical',
-												managerial: 'Managerial',
+												managerial: 'Managerial Round',
 												final: 'Final',
-												hr: 'HR',
+												hr: 'HR Round',
 												aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
 												coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 											};
