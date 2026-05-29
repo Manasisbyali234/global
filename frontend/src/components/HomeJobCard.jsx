@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 import { publicUser } from "../globals/route-names";
 import { formatCompanyName, getJobDisplayLogo } from "../utils/jobBranding";
+import { formatJobTitle } from "../utils/jobTitleFormatter";
 import "../custom-tags.css";
 
 const formatCtcText = (job) => {
@@ -78,13 +79,7 @@ const sanitizeJobTypeClass = (jobType) => {
 };
 
 const HomeJobCard = ({ job }) => {
-    const formatTitle = (value) => {
-        if (!value || typeof value !== "string") return "Job title";
-        const trimmed = value.trim();
-        if (!trimmed) return "Job title";
-        return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
-    };
-    const title = formatTitle(job?.title);
+    const title = formatJobTitle(job?.title);
     const rawLocation = job?.location || job?.city || "Location not specified";
     const jobType = job?.jobType || job?.type || "Full-time";
     const jobTypeClass = sanitizeJobTypeClass(jobType);

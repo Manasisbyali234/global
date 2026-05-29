@@ -12,6 +12,7 @@ import { pendingPaymentManager } from '../../../../../utils/pendingPaymentManage
 import { checkResumeReadyToApply } from '../../../../../utils/profileCompletion';
 import { formatJobEducationDisplay } from '../../../../../utils/jobEducationOptions';
 import { formatCompanyName, getJobDisplayBanner, getJobDisplayLogo, isConsultantJobPost } from "../../../../../utils/jobBranding";
+import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
 import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
@@ -19,17 +20,6 @@ import "../../../../../job-detail-section-spacing.css";
 import "../../../../../job-detail-typography-fix.css";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
-
-const formatJobTitle = (value, fallback = "Job title") => {
-    if (typeof value !== "string") return fallback;
-
-    const normalized = value.trim().replace(/\s+/g, " ");
-    if (!normalized) return fallback;
-
-    return normalized
-        .toLowerCase()
-        .replace(/(^|[\s\-/])([a-z])/g, (_, separator, letter) => `${separator}${letter.toUpperCase()}`);
-};
 
 function JobDetail1Page() {
     const { id, param1 } = useParams();
