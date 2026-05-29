@@ -751,7 +751,7 @@ export default function EmpPostJob({ onNext }) {
 	const getAssessmentMinDate = (lastDateOfApplication = formData.lastDateOfApplication) => {
 		const normalizedLastDate = normalizeToYMD(lastDateOfApplication);
 		if (!normalizedLastDate) return today;
-		return normalizedLastDate;
+		return getNextDayDateString(normalizedLastDate) || normalizedLastDate;
 	};
 
 	const getMinDateForRoundFromState = (state) => {
@@ -1644,7 +1644,7 @@ export default function EmpPostJob({ onNext }) {
 
 			if (minAllowedInterviewDate && value < minAllowedInterviewDate) {
 				if (applicationMinDate === minAllowedInterviewDate) {
-					showError(`${isAssessment ? 'Assessment' : 'Interview'} date must be on or after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
+					showError(`${isAssessment ? 'Assessment' : 'Interview'} date must be after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
 				} else {
 					showError(`Interview date must be on or after ${formatDate(minAllowedInterviewDate)}.`);
 				}
@@ -1696,7 +1696,7 @@ export default function EmpPostJob({ onNext }) {
 
 				if (minAllowedInterviewDate && value < minAllowedInterviewDate) {
 					if (applicationMinDate === minAllowedInterviewDate) {
-						showWarning(`${isAssessmentRound ? 'Assessment' : 'Interview'} date must be on or after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
+						showWarning(`${isAssessmentRound ? 'Assessment' : 'Interview'} date must be after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
 					} else {
 						showWarning(`Interview date must be on or after ${formatDate(minAllowedInterviewDate)}.`);
 					}
@@ -2131,7 +2131,7 @@ export default function EmpPostJob({ onNext }) {
 				const applicationMinDate = getAssessmentMinDate(formData.lastDateOfApplication);
 				if (minAllowedInterviewDate && dateStr < minAllowedInterviewDate) {
 					if (applicationMinDate === minAllowedInterviewDate) {
-						errorMessages.push(`${roundName} must be scheduled on or after the Last Date of Application. Select ${formatDate(minAllowedInterviewDate)} or later.`);
+						errorMessages.push(`${roundName} must be scheduled after the Last Date of Application. Select ${formatDate(minAllowedInterviewDate)} or later.`);
 					} else {
 						errorMessages.push(`${roundName} date must be on or after ${formatDate(minAllowedInterviewDate)}.`);
 					}
@@ -2158,7 +2158,7 @@ export default function EmpPostJob({ onNext }) {
 						if (subStage.fromDate < minAllowedInterviewDate) {
 							const applicationMinDate = getAssessmentMinDate(formData.lastDateOfApplication);
 							if (index === 0 && minAllowedInterviewDate === applicationMinDate) {
-								errorMessages.push(`${roundName} - Day ${index + 1} must be scheduled on or after the Last Date of Application. Select ${formatDate(minAllowedInterviewDate)} or later.`);
+								errorMessages.push(`${roundName} - Day ${index + 1} must be scheduled after the Last Date of Application. Select ${formatDate(minAllowedInterviewDate)} or later.`);
 							} else {
 								errorMessages.push(`${roundName} - Day ${index + 1} date must be on or after ${formatDate(minAllowedInterviewDate)}.`);
 							}
