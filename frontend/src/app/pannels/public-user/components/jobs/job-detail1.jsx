@@ -20,6 +20,17 @@ import "../../../../../job-detail-typography-fix.css";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 
+const formatJobTitle = (value, fallback = "Job title") => {
+    if (typeof value !== "string") return fallback;
+
+    const normalized = value.trim().replace(/\s+/g, " ");
+    if (!normalized) return fallback;
+
+    return normalized
+        .toLowerCase()
+        .replace(/(^|[\s\-/])([a-z])/g, (_, separator, letter) => `${separator}${letter.toUpperCase()}`);
+};
+
 function JobDetail1Page() {
     const { id, param1 } = useParams();
     const jobId = id || param1;
@@ -211,6 +222,7 @@ function JobDetail1Page() {
         job.employerId?.brandName || job.employerId?.companyName || job.companyName,
         'Consultancy'
     );
+    const displayJobTitle = formatJobTitle(job.title);
 
     const submitJobApplication = async () => {
         try {
@@ -336,7 +348,7 @@ function JobDetail1Page() {
                 amount: orderData.order.amount,
                 currency: orderData.order.currency,
                 name: 'TaleGlobal',
-                description: `Job Application fee for ${job.title}`,
+                description: `Job Application fee for ${displayJobTitle}`,
                 order_id: orderData.order.id,
                 handler: async (response) => {
                     // 3. Verify Payment
@@ -404,7 +416,7 @@ function JobDetail1Page() {
                 amount: pendingPayment.orderData.amount,
                 currency: pendingPayment.orderData.currency,
                 name: 'TaleGlobal',
-                description: `Job Application fee for ${job.title}`,
+                description: `Job Application fee for ${displayJobTitle}`,
                 order_id: pendingPayment.orderId,
                 handler: async (response) => {
                     try {
@@ -623,7 +635,7 @@ function JobDetail1Page() {
                                                     </div>
 
                                                     <h4 className="twm-job-title" style={{fontSize: '1.5rem', fontWeight: '700'}}>
-                                                        {job.title}
+                                                        {displayJobTitle}
                                                     </h4>
                                                     <p className="twm-job-company">
                                                         <i className="feather-briefcase" style={{marginRight: '8px', color: '#ff9c00'}}></i>
