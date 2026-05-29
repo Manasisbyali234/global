@@ -3408,8 +3408,19 @@ exports.getApplicationDetails = async (req, res) => {
       dateOfBirth: candidateProfileObj.dateOfBirth || null
     };
 
+    const applicationObj = application.toObject();
+    const processRemarksObj = {};
+    if (applicationObj.processRemarks instanceof Map) {
+      for (const [key, value] of applicationObj.processRemarks.entries()) {
+        processRemarksObj[key] = value;
+      }
+    } else if (applicationObj.processRemarks && typeof applicationObj.processRemarks === 'object') {
+      Object.assign(processRemarksObj, applicationObj.processRemarks);
+    }
+
     const responseApplication = await ensureExpiredApplicationRejected({
-      ...application.toObject(),
+      ...applicationObj,
+      processRemarks: processRemarksObj,
       candidateId: candidateData,
       assessmentAttempt: assessmentAttempt,
       assessmentAttempts,

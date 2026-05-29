@@ -2109,7 +2109,7 @@ export default function EmpPostJob({ onNext }) {
 				oneOnOnePanel: 'One-on-One / Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				assessment: 'Assessment',
+				assessment: 'MCQ/Assessment',
 				others: 'Others – Specify.'
 			};
 			const customType = roundType === 'others' ? details?.customType : null;
@@ -2316,7 +2316,7 @@ export default function EmpPostJob({ onNext }) {
 		oneOnOnePanel: 'One-on-One / Panel',
 		group: 'Group Discussion',
 		situational: 'Situational / Behavioral Round',
-		assessment: 'Assessment',
+		assessment: 'MCQ/Assessment',
 		others: 'Others'
 	};
 
@@ -5441,7 +5441,7 @@ export default function EmpPostJob({ onNext }) {
 										oneOnOnePanel: 'One-on-One / Panel',
 										group: 'Group Discussion',
 										situational: 'Situational / Behavioral Round',
-										assessment: 'Assessment',
+										assessment: 'MCQ/Assessment',
 										others: 'Others – Specify.'
 									};
 									const customType = roundType === 'others' ? formData.interviewRoundDetails[uniqueKey]?.customType : null;
@@ -5790,7 +5790,7 @@ export default function EmpPostJob({ onNext }) {
 															padding: '8px'
 														}}
 														rows={1}
-														placeholder="Describe the interview round..."
+														placeholder="Enter interview round details..."
 														value={details.description || ''}
 														onChange={(e) => {
 															autoResizeTextarea(e.target);
@@ -6517,7 +6517,7 @@ export default function EmpPostJob({ onNext }) {
 											oneOnOnePanel: 'One-on-One / Panel',
 											group: 'Group Discussion',
 											situational: 'Situational / Behavioral Round',
-											assessment: 'Assessment',
+											assessment: 'MCQ/Assessment',
 											others: 'Others – Specify.'
 										};
 										
