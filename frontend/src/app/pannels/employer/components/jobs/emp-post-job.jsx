@@ -27,6 +27,8 @@ import {
 import "../../../../../components/ErrorDisplay.css";
 import "./emp-post-job-mobile-fix.css";
 
+const OTHER_EDUCATION_SPECIALIZATION_OPTION = 'Other';
+
 // Location options array
 const LOCATION_OPTIONS = [
 	"Bangalore", "Bangalore - Yeshwantpur", "Bangalore - Whitefield", "Bangalore - Koramangala", "Bangalore - Indiranagar", "Bangalore - Electronic City", "Bangalore - Marathahalli", "Bangalore - BTM Layout", "Bangalore - Jayanagar", "Bangalore - HSR Layout", "Bangalore - Hebbal", "Bangalore - Yelahanka", "Bangalore - Banashankari", "Bangalore - JP Nagar", "Bangalore - Rajajinagar", "Bangalore - Malleshwaram",
@@ -1047,6 +1049,42 @@ export default function EmpPostJob({ onNext }) {
 			|| '';
 	};
 
+	const getStoredEducationSpecialization = (qualification) => {
+		const entry = formData.educationSpecializations.find((item) => item?.qualification === qualification);
+		return typeof entry?.specialization === 'string' ? entry.specialization : '';
+	};
+
+	const getCurrentEducationSpecialization = (qualification) =>
+		getStoredEducationSpecialization(qualification) || getSelectedEducationSpecialization(qualification);
+
+	const isCustomEducationSpecialization = (qualification, specialization) => {
+		const normalizedSpecialization = String(specialization || '').trim();
+		if (!normalizedSpecialization) {
+			return false;
+		}
+
+		return !getJobEducationSpecializationOptions(qualification).includes(normalizedSpecialization);
+	};
+
+	const getEducationSpecializationSelectValue = (qualification) => {
+		const selectedSpecialization = getCurrentEducationSpecialization(qualification);
+
+		return isCustomEducationSpecialization(qualification, selectedSpecialization)
+			? OTHER_EDUCATION_SPECIALIZATION_OPTION
+			: String(selectedSpecialization || '').trim();
+	};
+
+	const getCustomEducationSpecializationValue = (qualification) => {
+		const selectedSpecialization = getCurrentEducationSpecialization(qualification);
+		if (!isCustomEducationSpecialization(qualification, selectedSpecialization)) {
+			return '';
+		}
+
+		return selectedSpecialization === OTHER_EDUCATION_SPECIALIZATION_OPTION
+			? ''
+			: selectedSpecialization;
+	};
+
 	const handleEducationSpecializationChange = (qualification, specialization) => {
 		const nextEntries = [
 			...formData.educationSpecializations.filter((entry) => entry?.qualification !== qualification),
@@ -1059,6 +1097,29 @@ export default function EmpPostJob({ onNext }) {
 				formData.education
 			)
 		});
+	};
+
+	const handleOtherEducationSpecializationChange = (qualification, specialization) => {
+		const nextEntries = [
+			...formData.educationSpecializations.filter((entry) => entry?.qualification !== qualification),
+			{ qualification, specialization: specialization || OTHER_EDUCATION_SPECIALIZATION_OPTION }
+		];
+
+		update({
+			educationSpecializations: nextEntries
+		});
+	};
+
+	const handleEducationSpecializationSelectChange = (qualification, specialization) => {
+		if (specialization === OTHER_EDUCATION_SPECIALIZATION_OPTION) {
+			handleOtherEducationSpecializationChange(
+				qualification,
+				getCustomEducationSpecializationValue(qualification)
+			);
+			return;
+		}
+
+		handleEducationSpecializationChange(qualification, specialization);
 	};
 
 	const sanitizeNonNegativeIntegerInput = (value) => value.replace(/\D/g, '');
@@ -4174,6 +4235,8 @@ export default function EmpPostJob({ onNext }) {
 									.filter(level => level !== 'Any')
 									.map((qualification) => {
 										const specializationOptions = getJobEducationSpecializationOptions(qualification);
+										const selectedSpecialization = getEducationSpecializationSelectValue(qualification);
+										const showOtherSpecializationInput = selectedSpecialization === OTHER_EDUCATION_SPECIALIZATION_OPTION;
 										return (
 											<div key={`specialization-${qualification}`}>
 												<label style={label}>
@@ -4182,15 +4245,27 @@ export default function EmpPostJob({ onNext }) {
 												</label>
 												<select
 													style={{ ...input, cursor: 'pointer' }}
-													value={getSelectedEducationSpecialization(qualification)}
-													onChange={(event) => handleEducationSpecializationChange(qualification, event.target.value)}
+													value={selectedSpecialization}
+													onChange={(event) => handleEducationSpecializationSelectChange(qualification, event.target.value)}
 												>
 													{specializationOptions.map((option) => (
 														<option key={`${qualification}-${option}`} value={option}>
 															{option}
 														</option>
 													))}
+													<option value={OTHER_EDUCATION_SPECIALIZATION_OPTION}>Other Specialization</option>
 												</select>
+												{showOtherSpecializationInput && (
+													<input
+														style={{ ...input, marginTop: '8px' }}
+														type="text"
+														placeholder="Enter specialization / stream"
+														value={getCustomEducationSpecializationValue(qualification)}
+														onChange={(event) => handleOtherEducationSpecializationChange(qualification, event.target.value)}
+														maxLength={80}
+														aria-label={`${qualification} other specialization`}
+													/>
+												)}
 											</div>
 										);
 									})}

@@ -247,14 +247,11 @@ export const normalizeJobEducationSpecializations = (specializations = [], educa
       return;
     }
 
-    const specializationOptions = getJobEducationSpecializationOptions(qualification);
     const specialization = normalizeValue(entry?.specialization || entry?.stream || entry?.courseName);
 
     specializationByQualification.set(
       qualification,
-      specializationOptions.includes(specialization)
-        ? specialization
-        : DEFAULT_JOB_EDUCATION_SPECIALIZATION
+      specialization || DEFAULT_JOB_EDUCATION_SPECIALIZATION
     );
   });
 
