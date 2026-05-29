@@ -1371,8 +1371,8 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others – Specify.',
-				assessment: 'Assessment'
+				others: 'Others ï¿½ Specify.',
+				assessment: 'MCQ/Assessment'
 			};
 			
 			// Extract type from keys like "assessment_1770487959181"
@@ -1395,8 +1395,8 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others – Specify.',
-				assessment: 'Assessment',
+				others: 'Others ï¿½ Specify.',
+				assessment: 'MCQ/Assessment',
 				nonTechnical: 'Non-Technical',
 				managerial: 'Managerial Round',
 				final: 'Final',
@@ -1444,13 +1444,13 @@ function CanStatusPage() {
 				// Sanitize name: if it looks like a unique key, extract the actual type
 				if (name && (name.includes('_') || /^\d+$/.test(name))) {
 					const stageNames = {
-						assessment: 'Assessment',
+						assessment: 'MCQ/Assessment',
 						technical: 'Technical Round',
 						oneOnOne: 'One-to-One',
 						panel: 'Panel',
 						group: 'Group Discussion',
 						situational: 'Situational / Behavioral Round',
-						others: 'Others – Specify.',
+						others: 'Others ï¿½ Specify.',
 						nonTechnical: 'Non-Technical',
 						managerial: 'Managerial Round',
 						final: 'Final',
@@ -1502,8 +1502,8 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others – Specify.',
-				assessment: 'Assessment',
+				others: 'Others ï¿½ Specify.',
+				assessment: 'MCQ/Assessment',
 				nonTechnical: 'Non-Technical',
 				managerial: 'Managerial Round',
 				final: 'Final',
@@ -1569,7 +1569,7 @@ function CanStatusPage() {
 			if (roundTypes.group) rounds.push({ name: 'Group Discussion', uniqueKey: 'group', roundType: 'group' });
 			if (roundTypes.technical) rounds.push({ name: 'Technical Round', uniqueKey: 'technical', roundType: 'technical' });
 			if (roundTypes.situational) rounds.push({ name: 'Situational / Behavioral Round', uniqueKey: 'situational', roundType: 'situational' });
-			if (roundTypes.others) rounds.push({ name: 'Others – Specify.', uniqueKey: 'others', roundType: 'others' });
+			if (roundTypes.others) rounds.push({ name: 'Others ï¿½ Specify.', uniqueKey: 'others', roundType: 'others' });
 
 			if (rounds.length > 0) return rounds;
 		}
@@ -1984,7 +1984,7 @@ function CanStatusPage() {
 					dateStyle: 'medium',
 					timeStyle: 'short'
 				}) : null;
-				showWarning(startLabel ? `? Assessment Not Yet Available\n\nThe assessment will open on ${startLabel}. Please log in 5 minutes before the scheduled time.` : '? Assessment is not yet available. Please wait for the scheduled time.');
+				showWarning(startLabel ? `Assessment Not Yet Available\n\nThe assessment will open on ${startLabel}. Please log in 5 minutes before the scheduled time.` : ' Assessment is not yet available. Please wait for the scheduled time.');
 				return;
 			}
 			const endLabel = windowInfo.endDate ? windowInfo.endDate.toLocaleString('en-IN', {
@@ -1992,7 +1992,7 @@ function CanStatusPage() {
 				dateStyle: 'medium',
 				timeStyle: 'short'
 			}) : null;
-			showError(endLabel ? `? Assessment Window Closed\n\nThe assessment window ended on ${endLabel}.` : '? Assessment window has ended.');
+			showError(endLabel ? ` Assessment Window Closed\n\nThe assessment window ended on ${endLabel}.` : ' Assessment window has ended.');
 			return;
 		}
 		const assessmentId = getAssessmentRoundInfo(application, 'Assessment', roundDetails).assessmentId || job?.assessmentId;
@@ -2378,8 +2378,8 @@ function CanStatusPage() {
 																						panel: 'Panel',
 																						group: 'Group Discussion',
 																						situational: 'Situational / Behavioral Round',
-																						others: 'Others – Specify.',
-																						assessment: 'Assessment',
+																						others: 'Others ï¿½ Specify.',
+																						assessment: 'MCQ/Assessment',
 																						nonTechnical: 'Non-Technical',
 																						managerial: 'Managerial Round',
 																						final: 'Final',
@@ -2603,7 +2603,7 @@ function CanStatusPage() {
 						</div>
 						<div className="status-page-pagination-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "row" }}>
 							<div style={{ color: "#6c757d", fontSize: "13px" }}>
-								Showing {filteredApplications.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredApplications.length)} of {filteredApplications.length} record{filteredApplications.length !== 1 ? "s" : ""}
+								Showing {filteredApplications.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}ï¿½{Math.min(currentPage * PAGE_SIZE, filteredApplications.length)} of {filteredApplications.length} record{filteredApplications.length !== 1 ? "s" : ""}
 							</div>
 							{Math.ceil(filteredApplications.length / PAGE_SIZE) > 1 && (
 								<div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
@@ -2781,8 +2781,8 @@ function CanStatusPage() {
 												panel: 'Panel',
 												group: 'Group Discussion',
 												situational: 'Situational / Behavioral Round',
-												others: 'Others – Specify.',
-												assessment: 'Assessment',
+												others: 'Others ï¿½ Specify.',
+												assessment: 'MCQ/Assessment',
 												nonTechnical: 'Non-Technical',
 												managerial: 'Managerial Round',
 												final: 'Final',
