@@ -128,9 +128,6 @@ function Home16Page() {
     };
 
     useEffect(() => {
-        document.documentElement.classList.add('home-scrollbar-hidden');
-        document.body.classList.add('home-scrollbar-hidden');
-
         updateSkinStyle("8", false, false)
         loadScript("js/custom.js")
         fetchHomeData();
@@ -144,8 +141,6 @@ function Home16Page() {
                 navbar.style.cssText = 'background: transparent !important; background-color: transparent !important; box-shadow: none !important; position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; z-index: 10000 !important; transition: all 0.3s ease !important;';
             });
         }, 100);
-
-        document.documentElement.style.scrollBehavior = 'auto';
 
         // Add intersection observer for animations
         const observer = new IntersectionObserver((entries) => {
@@ -161,9 +156,6 @@ function Home16Page() {
         sections.forEach(section => observer.observe(section));
 
         return () => {
-            document.documentElement.classList.remove('home-scrollbar-hidden');
-            document.body.classList.remove('home-scrollbar-hidden');
-            document.documentElement.style.scrollBehavior = 'auto';
             sections.forEach(section => observer.unobserve(section));
         };
     }, [])

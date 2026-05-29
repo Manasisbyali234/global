@@ -1910,32 +1910,74 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             app.jobId.interviewRoundDetails[String(round._id)] = targetDetails;
 
             // Always trust InterviewRound collection for schedule/timing metadata.
-            const scheduleObject = round?.scheduleObject || round?.schedule || round?.Schedule || {};
-            const nestedSchedule = scheduleObject?.schedule || scheduleObject?.Schedule || {};
+            const hasScheduleContent = (value) => {
+              if (Array.isArray(value)) return value.length > 0;
+              if (!value) return false;
+              if (typeof value === 'object') return Object.keys(value).length > 0;
+              return true;
+            };
+            const firstWithScheduleContent = (...values) => values.find(hasScheduleContent);
+            const scheduleObject = round?.scheduleObject || {};
+            const schedule = round?.schedule || {};
+            const legacySchedule = round?.Schedule || {};
+            const nestedScheduleObject = scheduleObject?.schedule || scheduleObject?.Schedule || {};
+            const nestedSchedule = schedule?.schedule || schedule?.Schedule || {};
+            const nestedLegacySchedule = legacySchedule?.schedule || legacySchedule?.Schedule || {};
             const schedules =
-              round?.schedulesArray ||
-              round?.schedules ||
-              round?.Schedules ||
-              round?.Schedule ||
-              scheduleObject?.schedulesArray ||
-              scheduleObject?.schedules ||
-              scheduleObject?.Schedules ||
-              scheduleObject?.Schedule ||
-              nestedSchedule?.schedules ||
-              nestedSchedule?.Schedules ||
-              nestedSchedule?.Schedule;
+              firstWithScheduleContent(
+                round?.schedulesArray,
+                round?.schedules,
+                round?.Schedules,
+                round?.Schedule,
+                scheduleObject?.schedulesArray,
+                scheduleObject?.schedules,
+                scheduleObject?.Schedules,
+                scheduleObject?.Schedule,
+                nestedScheduleObject?.schedules,
+                nestedScheduleObject?.Schedules,
+                nestedScheduleObject?.Schedule,
+                schedule?.schedulesArray,
+                schedule?.schedules,
+                schedule?.Schedules,
+                schedule?.Schedule,
+                nestedSchedule?.schedules,
+                nestedSchedule?.Schedules,
+                nestedSchedule?.Schedule,
+                legacySchedule?.schedulesArray,
+                legacySchedule?.schedules,
+                legacySchedule?.Schedules,
+                nestedLegacySchedule?.schedules,
+                nestedLegacySchedule?.Schedules,
+                nestedLegacySchedule?.Schedule
+              );
             const daySchedules =
-              round?.daySchedulesArray ||
-              round?.daySchedules ||
-              scheduleObject?.daySchedulesArray ||
-              scheduleObject?.daySchedules ||
-              nestedSchedule?.daySchedules;
+              firstWithScheduleContent(
+                round?.daySchedulesArray,
+                round?.daySchedules,
+                scheduleObject?.daySchedulesArray,
+                scheduleObject?.daySchedules,
+                nestedScheduleObject?.daySchedules,
+                schedule?.daySchedulesArray,
+                schedule?.daySchedules,
+                nestedSchedule?.daySchedules,
+                legacySchedule?.daySchedulesArray,
+                legacySchedule?.daySchedules,
+                nestedLegacySchedule?.daySchedules
+              );
             const rooms =
-              round?.roomsArray ||
-              round?.rooms ||
-              scheduleObject?.roomsArray ||
-              scheduleObject?.rooms ||
-              nestedSchedule?.rooms;
+              firstWithScheduleContent(
+                round?.roomsArray,
+                round?.rooms,
+                scheduleObject?.roomsArray,
+                scheduleObject?.rooms,
+                nestedScheduleObject?.rooms,
+                schedule?.roomsArray,
+                schedule?.rooms,
+                nestedSchedule?.rooms,
+                legacySchedule?.roomsArray,
+                legacySchedule?.rooms,
+                nestedLegacySchedule?.rooms
+              );
 
             targetDetails.interviewRoundId = round._id;
             targetDetails.roundType = round.roundType || targetDetails.roundType;
@@ -1958,7 +2000,8 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             if (daySchedules) targetDetails.daySchedulesArray = daySchedules;
             if (rooms) targetDetails.roomsArray = rooms;
             if (round?.Schedule) targetDetails.Schedule = round.Schedule;
-            if (scheduleObject && Object.keys(scheduleObject).length > 0) targetDetails.scheduleObject = scheduleObject;
+            if (hasScheduleContent(scheduleObject)) targetDetails.scheduleObject = scheduleObject;
+            if (hasScheduleContent(schedule)) targetDetails.schedule = schedule;
             if (round.formDataObject) targetDetails.formDataObject = round.formDataObject;
 
             const bookedSlotDetails = extractBookedSlotForCandidate({
@@ -1969,6 +2012,7 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
               daySchedulesArray: targetDetails.daySchedulesArray,
               roomsArray: targetDetails.roomsArray,
               scheduleObject: targetDetails.scheduleObject,
+              schedule: targetDetails.schedule,
               formDataObject: targetDetails.formDataObject
             }, candidateSlotIdentity, targetDetails.fromDate || targetDetails.date || round.fromdate || null);
 
@@ -1980,6 +2024,7 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
               daySchedulesArray: targetDetails.daySchedulesArray,
               roomsArray: targetDetails.roomsArray,
               scheduleObject: targetDetails.scheduleObject,
+              schedule: targetDetails.schedule,
               formDataObject: targetDetails.formDataObject
             }, candidateSlotIdentity);
 

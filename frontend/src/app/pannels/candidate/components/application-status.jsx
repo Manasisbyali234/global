@@ -851,8 +851,12 @@ function CanStatusPage() {
 			return null;
 		};
 
-		const scheduleObject = roundDetails.scheduleObject || roundDetails.schedule || roundDetails.Schedule || {};
-		const nestedSchedule = scheduleObject.schedule || scheduleObject.Schedule || {};
+		const scheduleObject = roundDetails.scheduleObject || {};
+		const schedule = roundDetails.schedule || {};
+		const legacySchedule = roundDetails.Schedule || {};
+		const nestedScheduleObject = scheduleObject.schedule || scheduleObject.Schedule || {};
+		const nestedSchedule = schedule.schedule || schedule.Schedule || {};
+		const nestedLegacySchedule = legacySchedule.schedule || legacySchedule.Schedule || {};
 		const sources = [
 			roundDetails,
 			roundDetails.Schedule,
@@ -870,8 +874,27 @@ function CanStatusPage() {
 			scheduleObject.daySchedules,
 			scheduleObject.roomsArray,
 			scheduleObject.rooms,
+			nestedScheduleObject,
+			nestedScheduleObject.Schedule,
+			schedule,
+			schedule.Schedule,
+			schedule.schedulesArray,
+			schedule.schedules,
+			schedule.daySchedulesArray,
+			schedule.daySchedules,
+			schedule.roomsArray,
+			schedule.rooms,
 			nestedSchedule,
 			nestedSchedule.Schedule,
+			legacySchedule,
+			legacySchedule.schedulesArray,
+			legacySchedule.schedules,
+			legacySchedule.daySchedulesArray,
+			legacySchedule.daySchedules,
+			legacySchedule.roomsArray,
+			legacySchedule.rooms,
+			nestedLegacySchedule,
+			nestedLegacySchedule.Schedule,
 			bookedSlots
 		];
 
@@ -1002,8 +1025,12 @@ function CanStatusPage() {
 			return nestedKeys.some((key) => value[key] && scanValue(value[key]));
 		};
 
-		const scheduleObject = roundDetails.scheduleObject || roundDetails.schedule || roundDetails.Schedule || {};
-		const nestedSchedule = scheduleObject.schedule || scheduleObject.Schedule || {};
+		const scheduleObject = roundDetails.scheduleObject || {};
+		const schedule = roundDetails.schedule || {};
+		const legacySchedule = roundDetails.Schedule || {};
+		const nestedScheduleObject = scheduleObject.schedule || scheduleObject.Schedule || {};
+		const nestedSchedule = schedule.schedule || schedule.Schedule || {};
+		const nestedLegacySchedule = legacySchedule.schedule || legacySchedule.Schedule || {};
 		const sources = [
 			roundDetails,
 			roundDetails.Schedule,
@@ -1021,8 +1048,27 @@ function CanStatusPage() {
 			scheduleObject.daySchedules,
 			scheduleObject.roomsArray,
 			scheduleObject.rooms,
+			nestedScheduleObject,
+			nestedScheduleObject.Schedule,
+			schedule,
+			schedule.Schedule,
+			schedule.schedulesArray,
+			schedule.schedules,
+			schedule.daySchedulesArray,
+			schedule.daySchedules,
+			schedule.roomsArray,
+			schedule.rooms,
 			nestedSchedule,
 			nestedSchedule.Schedule,
+			legacySchedule,
+			legacySchedule.schedulesArray,
+			legacySchedule.schedules,
+			legacySchedule.daySchedulesArray,
+			legacySchedule.daySchedules,
+			legacySchedule.roomsArray,
+			legacySchedule.rooms,
+			nestedLegacySchedule,
+			nestedLegacySchedule.Schedule,
 			bookedSlots
 		];
 
@@ -3182,6 +3228,7 @@ function CanStatusPage() {
 														activeRoundDetails?.bookingConfirmed ||
 														hasBookedReferenceForCandidate(activeRoundDetails, candidateSlotIdentity, selectedApplication?.bookedSlots) ||
 														hasCandidateRef(activeRoundDetails?.scheduleObject) ||
+														hasCandidateRef(activeRoundDetails?.schedule) ||
 														hasCandidateRef(activeRoundDetails?.formDataObject) ||
 														hasCandidateRef(activeRoundDetails?.schedulesArray) ||
 														hasCandidateRef(activeRoundDetails?.daySchedulesArray) ||

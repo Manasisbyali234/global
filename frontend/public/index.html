@@ -164,24 +164,6 @@
         };
       }
       
-      // Force light color scheme - with null check
-      if (document.documentElement) {
-        document.documentElement.style.setProperty('color-scheme', 'light only', 'important');
-      }
-      
-      // Wait for body to be available
-      if (document.body) {
-        document.body.style.setProperty('background-color', '#ffffff', 'important');
-        document.body.style.setProperty('color', '#000000', 'important');
-      } else {
-        document.addEventListener('DOMContentLoaded', function() {
-          if (document.body) {
-            document.body.style.setProperty('background-color', '#ffffff', 'important');
-            document.body.style.setProperty('color', '#000000', 'important');
-          }
-        });
-      }
-      
       // Add class to enable transitions after forcing light mode
       setTimeout(() => {
         if (document.documentElement) {
