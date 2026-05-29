@@ -754,28 +754,8 @@ export default function EmpPostJob({ onNext }) {
 		return normalizedLastDate;
 	};
 
-	const getMinDateForRoundFromState = (state, roundKey) => {
-		const baseMinDate = getAssessmentMinDate(state.lastDateOfApplication);
-		const roundIndex = state.interviewRoundOrder.indexOf(roundKey);
-
-		if (roundIndex <= 0) {
-			return baseMinDate;
-		}
-
-		const prevRoundKey = state.interviewRoundOrder[roundIndex - 1];
-		const prevRoundDetails = state.interviewRoundDetails?.[prevRoundKey];
-		const prevEndDate = prevRoundDetails?.toDate || prevRoundDetails?.fromDate;
-
-		if (!prevEndDate) {
-			return baseMinDate;
-		}
-
-		const nextAllowedDate = getNextDayDateString(prevEndDate);
-		if (!nextAllowedDate) {
-			return baseMinDate;
-		}
-
-		return nextAllowedDate < baseMinDate ? baseMinDate : nextAllowedDate;
+	const getMinDateForRoundFromState = (state) => {
+		return getAssessmentMinDate(state.lastDateOfApplication);
 	};
 
 	const getMinDateForRound = (roundKey) => {
@@ -1659,27 +1639,16 @@ export default function EmpPostJob({ onNext }) {
 		// Validate interview date rules for start date
 		if (field === 'fromDate' && value) {
 			const isAssessment = formData.interviewRoundTypes[roundType] === 'assessment';
-			const currentRoundIndex = formData.interviewRoundOrder.indexOf(roundType);
 			const minAllowedInterviewDate = getMinDateForRoundFromState(formData, roundType);
 			const applicationMinDate = getAssessmentMinDate(formData.lastDateOfApplication);
 
 			if (minAllowedInterviewDate && value < minAllowedInterviewDate) {
-				if (currentRoundIndex <= 0 && applicationMinDate === minAllowedInterviewDate) {
+				if (applicationMinDate === minAllowedInterviewDate) {
 					showError(`${isAssessment ? 'Assessment' : 'Interview'} date must be on or after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
 				} else {
 					showError(`Interview date must be on or after ${formatDate(minAllowedInterviewDate)}.`);
 				}
 				return;
-			}
-
-			for (let i = 0; i < formData.interviewRoundOrder.length; i++) {
-				if (i === currentRoundIndex) continue;
-				const otherRoundKey = formData.interviewRoundOrder[i];
-				const otherRoundDetails = formData.interviewRoundDetails[otherRoundKey];
-				if (otherRoundDetails?.fromDate === value) {
-					showWarning(`The selected interview date conflicts with the 2nd and 3rd interview rounds. Please choose a different date to continue.`);
-					return;
-				}
 			}
 
 		}
@@ -1722,12 +1691,11 @@ export default function EmpPostJob({ onNext }) {
 			// Validate date constraints when fromDate is changed
 			if (field === 'fromDate' && value) {
 				const isAssessmentRound = s.interviewRoundTypes[roundType] === 'assessment';
-				const currentRoundIndex = s.interviewRoundOrder.indexOf(roundType);
 				const minAllowedInterviewDate = getMinDateForRoundFromState(s, roundType);
 				const applicationMinDate = getAssessmentMinDate(s.lastDateOfApplication);
 
 				if (minAllowedInterviewDate && value < minAllowedInterviewDate) {
-					if (currentRoundIndex <= 0 && applicationMinDate === minAllowedInterviewDate) {
+					if (applicationMinDate === minAllowedInterviewDate) {
 						showWarning(`${isAssessmentRound ? 'Assessment' : 'Interview'} date must be on or after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
 					} else {
 						showWarning(`Interview date must be on or after ${formatDate(minAllowedInterviewDate)}.`);
@@ -1735,16 +1703,6 @@ export default function EmpPostJob({ onNext }) {
 					return s;
 				}
 
-				// Check for overlapping dates with other rounds (sanity check)
-				for (let i = 0; i < s.interviewRoundOrder.length; i++) {
-					if (i === currentRoundIndex) continue;
-					const otherRoundKey = s.interviewRoundOrder[i];
-					const otherRoundDetails = s.interviewRoundDetails[otherRoundKey];
-					if (otherRoundDetails?.fromDate === value) {
-						showWarning(`The selected interview date conflicts with the 2nd and 3rd interview rounds. Please choose a different date to continue.`);
-						return s;
-					}
-				}
 			}
 
 
@@ -1788,31 +1746,6 @@ export default function EmpPostJob({ onNext }) {
 				}
 			};
 
-			// Propagate dates to subsequent rounds if fromDate or toDate changed
-			if (field === 'fromDate' || field === 'toDate' || additionalUpdates.toDate) {
-				const roundIndex = s.interviewRoundOrder.indexOf(roundType);
-				if (roundIndex !== -1) {
-					for (let i = roundIndex + 1; i < s.interviewRoundOrder.length; i++) {
-						const prevKey = s.interviewRoundOrder[i - 1];
-						const currentKey = s.interviewRoundOrder[i];
-						const prevEndDate = updatedDetails[prevKey].toDate || updatedDetails[prevKey].fromDate;
-						
-						if (prevEndDate) {
-							const nextDate = getNextDayDateString(prevEndDate);
-							// Always set to next day to ensure consecutive scheduling
-							updatedDetails[currentKey] = {
-								...updatedDetails[currentKey],
-								fromDate: nextDate,
-								toDate: nextDate // Reset to 1 day by default
-							};
-							
-							// Note: We don't automatically regenerate subStages here as that might be disruptive
-							// But the main dates will be correctly set for the "next day only" rule
-						}
-					}
-				}
-			}
-			
 			// Log the update for debugging
 			console.log(`Updated ${roundType} ${field}:`, value);
 			console.log('Updated interview round details:', updatedDetails);
@@ -2127,7 +2060,6 @@ export default function EmpPostJob({ onNext }) {
 
 	const validateStep2 = () => {
 		const errorMessages = [];
-		const isSchedulingMeeting = hasSchedulableInterviewType();
 		const newErrors = { ...errors };
 
 		// Validate Interview Rounds Count using basic rules
@@ -2163,7 +2095,6 @@ export default function EmpPostJob({ onNext }) {
 		// Logical date validation for Step 2
 		const lastAppDate = formData.lastDateOfApplication ? new Date(formData.lastDateOfApplication) : null;
 		const allRoundDates = [];
-		const roundDatesMap = {}; // Track dates for each round
 
 		// Validate all selected interview rounds (including assessment rounds)
 		const selectedRounds = formData.interviewRoundOrder;
@@ -2195,23 +2126,15 @@ export default function EmpPostJob({ onNext }) {
 			} else {
 				const roundDate = new Date(details.fromDate);
 				const dateStr = details.fromDate;
-				const currentRoundIndex = selectedRounds.indexOf(uniqueKey);
 				allRoundDates.push(roundDate);
 				const minAllowedInterviewDate = getMinDateForRoundFromState(formData, uniqueKey);
 				const applicationMinDate = getAssessmentMinDate(formData.lastDateOfApplication);
 				if (minAllowedInterviewDate && dateStr < minAllowedInterviewDate) {
-					if (currentRoundIndex <= 0 && applicationMinDate === minAllowedInterviewDate) {
+					if (applicationMinDate === minAllowedInterviewDate) {
 						errorMessages.push(`${roundName} must be scheduled on or after the Last Date of Application. Select ${formatDate(minAllowedInterviewDate)} or later.`);
 					} else {
 						errorMessages.push(`${roundName} date must be on or after ${formatDate(minAllowedInterviewDate)}.`);
 					}
-				}
-				
-				// Check for duplicate dates with previous rounds (skip for scheduling meeting types)
-				if (!isSchedulingMeeting && roundDatesMap[dateStr]) {
-					errorMessages.push(`${roundName} cannot be scheduled on ${formatDate(dateStr)} as it conflicts with ${roundDatesMap[dateStr]}`);
-				} else {
-					roundDatesMap[dateStr] = roundName;
 				}
 			}
 			
