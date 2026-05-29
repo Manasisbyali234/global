@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { MapPin, Clock, Users, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../../../../utils/api';
+import { formatCompanyName } from '../../../../../utils/jobBranding';
 import './recommended-jobs.css';
 
 function SectionRecommendedJobs() {
@@ -172,7 +173,7 @@ function SectionRecommendedJobs() {
                                     fontSize: '0.875rem',
                                     fontWeight: '500'
                                 }}>
-                                    {job.employerId?.companyName || job.employerId?.brandName || 'Company Name'}
+                                    {formatCompanyName(job.employerId?.companyName || job.employerId?.brandName, 'Company Name')}
                                 </p>
                                 
                                 <div className="d-flex flex-wrap gap-2 mb-2">

@@ -6,7 +6,7 @@ import JobZImage from "../../../../common/jobz-img";
 import SectionPagination from "../common/section-pagination";
 import { requestCache } from "../../../../../utils/requestCache";
 import { performanceMonitor } from "../../../../../utils/performanceMonitor";
-import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
+import { formatCompanyName, getJobDisplayLogo } from "../../../../../utils/jobBranding";
 import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
 import "../../../../../new-job-card.css";
 
@@ -247,6 +247,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
             return 'Not specified';
         }, [job.ctc]);
         const logoSrc = getJobDisplayLogo(job);
+        const companyName = formatCompanyName(job.companyName || job.employerId?.companyName, "Company");
 
         return (
             <Col key={job._id} lg={6} md={12} className="mb-2">
@@ -262,7 +263,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                                     />
                                 ) : (
                                     <div className="logo-placeholder">
-                                        {(job.companyName || job.employerId?.companyName || "C").charAt(0).toUpperCase()}
+                                        {companyName.charAt(0).toUpperCase()}
                                     </div>
                                 )}
                             </div>
@@ -335,7 +336,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                                 <div className="company-name">
                                     {job.postedBy === "Consultant"
                                         ? "Consultant"
-                                        : (job.companyName || job.employerId?.companyName || "Company")}
+                                        : companyName}
                                 </div>
                             </div>
                         {appliedJobs.has(job._id) ? (

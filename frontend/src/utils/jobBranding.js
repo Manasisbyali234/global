@@ -10,6 +10,17 @@ const pickFirstNonEmptyString = (...values) => {
   return "";
 };
 
+export const formatCompanyName = (value, fallback = "Company") => {
+  if (typeof value !== "string") return fallback;
+
+  const normalized = value.trim().replace(/\s+/g, " ");
+  if (!normalized) return fallback;
+
+  return normalized
+    .toLowerCase()
+    .replace(/(^|[\s\-('/&.])([a-z])/g, (_, separator, letter) => `${separator}${letter.toUpperCase()}`);
+};
+
 export const resolveJobMediaSrc = (mediaValue) => {
   if (!mediaValue || typeof mediaValue !== "string") return "";
 

@@ -11,7 +11,7 @@ import PageLoader from "../../../../../components/PageLoader";
 import { pendingPaymentManager } from '../../../../../utils/pendingPaymentManager';
 import { checkResumeReadyToApply } from '../../../../../utils/profileCompletion';
 import { formatJobEducationDisplay } from '../../../../../utils/jobEducationOptions';
-import { getJobDisplayBanner, getJobDisplayLogo, isConsultantJobPost } from "../../../../../utils/jobBranding";
+import { formatCompanyName, getJobDisplayBanner, getJobDisplayLogo, isConsultantJobPost } from "../../../../../utils/jobBranding";
 import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
 import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
@@ -206,6 +206,11 @@ function JobDetail1Page() {
     const isConsultantPostedJob = isConsultantJobPost(job);
     const bannerSrc = getJobDisplayBanner(job);
     const logoSrc = getJobDisplayLogo(job);
+    const displayCompanyName = formatCompanyName(job.companyName || job.employerId?.companyName, 'Not specified');
+    const displayConsultancyName = formatCompanyName(
+        job.employerId?.brandName || job.employerId?.companyName || job.companyName,
+        'Consultancy'
+    );
 
     const submitJobApplication = async () => {
         try {
@@ -628,11 +633,11 @@ function JobDetail1Page() {
                                                                 style={{color: '#007bff', cursor: 'pointer'}}
                                                                 onClick={() => navigate(`/emp-detail/${job.employerId._id}`)}
                                                             >
-                                                                {job.companyName || job.employerId?.companyName || 'Not specified'}
+                                                                {displayCompanyName}
                                                             </span>
                                                         ) : (
                                                             <span style={isConsultantPostedJob ? { color: '#495057', cursor: 'default' } : undefined}>
-                                                                {job.companyName || job.employerId?.companyName || 'Not specified'}
+                                                                {displayCompanyName}
                                                             </span>
                                                         )}
                                                     </p>
@@ -664,7 +669,7 @@ function JobDetail1Page() {
                                                                 onClick={() => navigate(`/emp-detail/${job.employerId._id}`)}
                                                             >
                                                                 <i className="feather-users" style={{marginRight: '6px'}}></i>
-                                                                {`Hiring through Consultancy - ${job.employerId?.brandName || job.employerId?.companyName || job.companyName || ''}`}
+                                                                {`Hiring through Consultancy - ${displayConsultancyName}`}
                                                             </span>
                                                         ) : (
                                                             <span className="badge badge-success" style={{fontSize: '14px', padding: '8px 16px', fontWeight: '600'}}>

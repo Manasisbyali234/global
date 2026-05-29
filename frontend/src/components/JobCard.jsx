@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { isAuthenticated, redirectToLogin } from '../utils/auth';
 import { formatCategory } from '../utils/formatCategory';
+import { formatCompanyName } from '../utils/jobBranding';
 import '../job-card-buttons.css';
 
 const JobCard = ({ job }) => {
@@ -31,6 +32,7 @@ const JobCard = ({ job }) => {
     const handleViewDetails = () => {
         navigate(`/job-detail/${job._id}`);
     };
+    const companyName = formatCompanyName(job.companyName || job.employerId?.companyName || job.company, 'Company');
 
     return (
         <div className="job-card">
@@ -40,7 +42,7 @@ const JobCard = ({ job }) => {
                     {job.companyLogo && (
                         <img src={job.companyLogo} alt="Company Logo" style={{width: '24px', height: '24px', objectFit: 'cover', borderRadius: '4px'}} />
                     )}
-                    <p style={{margin: 0}}>{job.companyName || job.employerId?.companyName || job.company}</p>
+                    <p style={{margin: 0}}>{companyName}</p>
                 </div>
                 <span>{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}</span>
                 <div className="posted-by-info" style={{fontSize: '12px', color: '#666', marginTop: '4px'}}>

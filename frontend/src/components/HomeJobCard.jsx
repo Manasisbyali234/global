@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 import { publicUser } from "../globals/route-names";
-import { getJobDisplayLogo } from "../utils/jobBranding";
+import { formatCompanyName, getJobDisplayLogo } from "../utils/jobBranding";
 import "../custom-tags.css";
 
 const formatCtcText = (job) => {
@@ -91,7 +91,7 @@ const HomeJobCard = ({ job }) => {
     const ctcText = formatCtcText(job);
     const vacancies = deriveVacancies(job);
     const postedBy = normalizePostedBy(job);
-    const companyName = job?.companyName || job?.employerProfile?.companyName || "Company";
+    const companyName = formatCompanyName(job?.companyName || job?.employerProfile?.companyName, "Company");
     const logo = getJobDisplayLogo(job);
     const placeholderInitial = companyName?.charAt(0)?.toUpperCase() || "?";
 
