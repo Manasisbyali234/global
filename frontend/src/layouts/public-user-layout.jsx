@@ -15,6 +15,7 @@ function PublicUserLayout() {
     const isTermsPage = currentpath === '/terms-conditions';
     const isPrivacyPage = currentpath === '/privacy-policy';
     const isJobGridPage = currentpath.startsWith('/job-grid');
+    const isJobDetailPage = currentpath.startsWith('/job-detail/');
     const isCreatePasswordPage = currentpath === '/create-password';
     const isPublicAuthPage = [
         publicUser.pages.LOGIN_CANDIDATE,
@@ -34,6 +35,8 @@ function PublicUserLayout() {
                 ? 'privacy-page-active'
             : isJobGridPage
                 ? 'job-grid-banner-active'
+            : isJobDetailPage
+                ? 'job-detail-banner-active'
             : isCreatePasswordPage
                 ? 'create-password-banner-active'
             : isEmpGrid

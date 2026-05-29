@@ -1,0 +1,114 @@
+/* Final mobile drawer guard: keep the hamburger panel inside the viewport. */
+@media (max-width: 1199px) {
+  :root {
+    --tg-hamburger-safe-left: env(safe-area-inset-left, 0px);
+    --tg-hamburger-safe-right: env(safe-area-inset-right, 0px);
+    --tg-hamburger-gutter: 12px;
+  }
+
+  html,
+  body {
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+  }
+
+  html body.hamburger-open {
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+  }
+
+  html body nav.hamburger-menu {
+    position: fixed !important;
+    top: 0 !important;
+    left: auto !important;
+    right: 0 !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    width: min(
+      280px,
+      calc(100vw - var(--tg-hamburger-safe-left) - var(--tg-hamburger-safe-right) - var(--tg-hamburger-gutter))
+    ) !important;
+    max-width: calc(100vw - var(--tg-hamburger-safe-left) - var(--tg-hamburger-safe-right) - var(--tg-hamburger-gutter)) !important;
+    min-width: 0 !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+    transform: translate3d(110%, 0, 0) !important;
+    -webkit-transform: translate3d(110%, 0, 0) !important;
+  }
+
+  @supports (width: 100svw) {
+    html body nav.hamburger-menu {
+      width: min(
+        280px,
+        calc(100svw - var(--tg-hamburger-safe-left) - var(--tg-hamburger-safe-right) - var(--tg-hamburger-gutter))
+      ) !important;
+      max-width: calc(100svw - var(--tg-hamburger-safe-left) - var(--tg-hamburger-safe-right) - var(--tg-hamburger-gutter)) !important;
+    }
+  }
+
+  @supports (height: 100dvh) {
+    html body nav.hamburger-menu {
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+    }
+  }
+
+  html body nav.hamburger-menu.open {
+    left: auto !important;
+    right: 0 !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: 0 !important;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+  }
+
+  html body nav.hamburger-menu,
+  html body nav.hamburger-menu *,
+  html body nav.hamburger-menu *::before,
+  html body nav.hamburger-menu *::after {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html body nav.hamburger-menu .hamburger-header,
+  html body nav.hamburger-menu .hamburger-content,
+  html body nav.hamburger-menu .auth-section,
+  html body nav.hamburger-menu .menu-list,
+  html body nav.hamburger-menu .menu-list li,
+  html body nav.hamburger-menu .menu-link,
+  html body nav.hamburger-menu .auth-group-accordion,
+  html body nav.hamburger-menu .auth-accordion-trigger,
+  html body nav.hamburger-menu .auth-links,
+  html body nav.hamburger-menu .auth-link {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html body nav.hamburger-menu .hamburger-content {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --tg-hamburger-gutter: 8px;
+  }
+
+  html body nav.hamburger-menu {
+    width: calc(100vw - var(--tg-hamburger-safe-left) - var(--tg-hamburger-safe-right) - var(--tg-hamburger-gutter)) !important;
+    max-width: calc(100vw - var(--tg-hamburger-safe-left) - var(--tg-hamburger-safe-right) - var(--tg-hamburger-gutter)) !important;
+  }
+
+  @supports (width: 100svw) {
+    html body nav.hamburger-menu {
+      width: calc(100svw - var(--tg-hamburger-safe-left) - var(--tg-hamburger-safe-right) - var(--tg-hamburger-gutter)) !important;
+      max-width: calc(100svw - var(--tg-hamburger-safe-left) - var(--tg-hamburger-safe-right) - var(--tg-hamburger-gutter)) !important;
+    }
+  }
+}

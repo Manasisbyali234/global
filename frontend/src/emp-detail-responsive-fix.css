@@ -65,6 +65,33 @@
 
 /* 5. Header Content Scaling */
 @media (max-width: 768px) {
+    .section-full.emp-detail.p-t120 {
+        padding-top: 24px !important;
+        padding-bottom: 24px !important;
+    }
+
+    .emp-detail .section-content,
+    .emp-detail .row,
+    .emp-detail .col-lg-8,
+    .emp-detail .col-md-12,
+    .emp-detail .cabdidate-de-info {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .emp-detail .twm-job-self-wrap {
+        margin-bottom: 10px !important;
+    }
+
+    .emp-detail .twm-media-bg img {
+        max-height: 190px !important;
+        object-fit: cover !important;
+    }
+
+    .emp-detail .twm-mid-content {
+        padding: 12px 14px 14px !important;
+    }
+
     .twm-job-title {
         font-size: 22px !important;
     }
@@ -77,6 +104,19 @@
 }
 
 @media (max-width: 480px) {
+    .section-full.emp-detail.p-t120 {
+        padding-top: 18px !important;
+    }
+
+    .emp-detail .container {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .emp-detail .twm-media-bg img {
+        max-height: 160px !important;
+    }
+
     .twm-job-title {
         font-size: 18px !important;
     }

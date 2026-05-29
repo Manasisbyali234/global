@@ -1671,6 +1671,36 @@ function CanStatusPage() {
 			return '';
 		};
 
+		const getBookedSlotStatus = () => {
+			if (roundName === 'Assessment') return null;
+			const roundTypeRaw = roundDetails?.__roundType || getRoundTypeFromName(roundName);
+			const uniqueKey = roundDetails?.__uniqueKey || roundTypeRaw;
+			const baseRoundType = String(roundTypeRaw || '').split('_')[0];
+			const roundId =
+				application?.interviewRoundIds?.[roundTypeRaw] ||
+				application?.interviewRoundIds?.[baseRoundType] ||
+				roundDetails?.interviewRoundId ||
+				uniqueKey;
+			const candidateId = application?.candidateId?._id || application?.candidateId;
+			const candidateSlotIdentity = application?.candidateId || {
+				_id: candidateId,
+				candidateEmail: application?.candidateEmail || application?.applicantEmail,
+				candidateName: application?.candidateName || application?.applicantName
+			};
+			const bookedRoundContext = resolveBookedRoundContext(
+				application,
+				roundDetails,
+				uniqueKey,
+				roundTypeRaw,
+				roundId,
+				candidateSlotIdentity
+			);
+
+			return bookedRoundContext?.hasBookedSlot
+				? { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' }
+				: null;
+		};
+
 		// Check assessment status for Assessment rounds
 		if (roundName === 'Assessment') {
 			const assessmentRoundInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
@@ -1793,6 +1823,7 @@ function CanStatusPage() {
 		}
 
 		// Use current tracked stage status when available
+		const bookedSlotStatus = getBookedSlotStatus();
 		if (
 			(Array.isArray(application.interviewProcesses) && application.interviewProcesses.length > 0) ||
 			(Array.isArray(application.interviewProcess?.stages) && application.interviewProcess.stages.length > 0)
@@ -1842,6 +1873,10 @@ function CanStatusPage() {
 				return { ...mapped, feedback: '' };
 			}
 
+			if (bookedSlotStatus) {
+				return bookedSlotStatus;
+			}
+
 			if (roundIndex > 0 && getRoundActivationState(application, roundIndex).canStart) {
 				return {
 					text: 'Scheduled',
@@ -1857,6 +1892,10 @@ function CanStatusPage() {
 				});
 				return { ...mapped, feedback: '' };
 			}
+		}
+
+		if (bookedSlotStatus) {
+			return bookedSlotStatus;
 		}
 		
 		// Enhanced status logic based on application status

@@ -6,7 +6,8 @@
   /* Hamburger button - ALWAYS visible and clickable */
   .mobile-menu-toggle,
   .hamburger-btn,
-  [class*="hamburger"],
+  button.hamburger-btn,
+  button[class*="hamburger-btn"],
   [class*="menu-toggle"],
   button[aria-label*="menu"],
   button[aria-label*="Menu"] {

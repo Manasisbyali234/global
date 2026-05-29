@@ -379,12 +379,68 @@ a.site-text-primary:hover {
 
 /* Responsive design */
 @media (max-width: 768px) {
+    .section-full.job-detail-page.p-t120 {
+        padding-top: 24px !important;
+    }
+
+    .section-full.job-detail-page.p-b90 {
+        padding-bottom: 24px !important;
+    }
+
     .section-full .container {
         padding-left: 15px;
     }
 
+    .job-detail-page .section-content,
+    .job-detail-page .row,
+    .job-detail-page .col-lg-8,
+    .job-detail-page .col-md-12,
+    .job-detail-page .cabdidate-de-info {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .job-detail-page .twm-job-self-wrap {
+        margin-bottom: 10px !important;
+    }
+
+    .job-detail-page .twm-media-bg img {
+        max-height: 190px !important;
+        object-fit: cover !important;
+    }
+
     .twm-job-title {
         font-size: 24px;
+    }
+
+    .job-detail-page .twm-mid-content {
+        padding: 12px 14px 14px !important;
+    }
+
+    .job-detail-page .twm-media {
+        margin-bottom: 8px !important;
+    }
+
+    .job-detail-page .twm-job-title {
+        margin: 0 0 4px !important;
+        line-height: 1.22 !important;
+    }
+
+    .job-detail-page .twm-job-company,
+    .job-detail-page .twm-job-shift,
+    .job-detail-page .hiring-type-badge,
+    .job-detail-page .salary-info {
+        margin-top: 6px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .job-detail-page .cabdidate-de-info > .twm-job-self-wrap + div {
+        margin-top: 8px !important;
+    }
+
+    .job-detail-page .cabdidate-de-info h4.twm-s-title {
+        margin-top: 10px !important;
+        margin-bottom: 8px !important;
     }
     
     .twm-s-title {
@@ -422,7 +478,7 @@ a.site-text-primary:hover {
         align-items: stretch !important;
         width: 100% !important;
         max-width: 100% !important;
-        margin: 24px 0 0 !important;
+        margin: 12px 0 0 !important;
         padding: 0 !important;
         text-align: center !important;
         box-sizing: border-box !important;
@@ -438,6 +494,21 @@ a.site-text-primary:hover {
         box-sizing: border-box !important;
         white-space: normal !important;
         overflow-wrap: anywhere !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-full.job-detail-page.p-t120 {
+        padding-top: 18px !important;
+    }
+
+    .job-detail-page .container {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .job-detail-page .twm-media-bg img {
+        max-height: 160px !important;
     }
 }
 

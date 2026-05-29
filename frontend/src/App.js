@@ -66,6 +66,8 @@ import "./create-password-banner-fix.css";
 import "./mobile-clickability-fix.css";
 // PANEL MOBILE OVERFLOW GUARD - final mobile text wrapping protection for candidate/employer panel pages
 import "./panel-mobile-overflow-guard.css";
+// HAMBURGER NO OVERFLOW - final drawer viewport containment guard
+import "./hamburger-no-overflow-fix.css";
 
 
 function App() {
