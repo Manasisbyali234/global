@@ -289,7 +289,7 @@ function AdminOverviewPage() {
         return { label: "On Hold", style: badgeStyles.secondary };
       }
       if (normalizedStatus === "no show") {
-        return { label: "No Show", style: badgeStyles.danger };
+        return { label: "Rejected", style: badgeStyles.danger };
       }
       if (["rejected", "not advanced to next stage", "not advanced to next round"].includes(normalizedStatus)) {
         return { label: "Not Advanced to Next Stage", style: badgeStyles.danger };
@@ -380,7 +380,7 @@ function AdminOverviewPage() {
       ["no show", "session expired", "expired"].includes(normalizedResult) ||
       ["no show", "expired", "session expired"].includes(normalizedStatus)
     ) {
-      return { label: "Pending", style: badgeStyles.neutral };
+      return { label: "No Show", style: badgeStyles.danger };
     }
     if (normalizedStatus === "completed" || normalizedResult === "completed") {
       return { label: "Completed", style: badgeStyles.success };
@@ -946,7 +946,7 @@ function AdminOverviewPage() {
                                   ['shortlisted', 'offer_sent'].includes(applicantStatusKey) ? { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' } :
                                   { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' })
                               }}>
-                                {getStatusLabel(applicantStatusKey)}
+                                {applicantStatusKey === 'no_show' ? 'Rejected' : getStatusLabel(applicantStatusKey)}
                               </span>
                             </td>
                           </tr>

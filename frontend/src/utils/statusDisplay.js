@@ -213,6 +213,12 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
     if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundStatusKey) || ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundResultKey)) {
       return 'no_show';
     }
+
+    // If the latest meaningful round status is a pass/progression, the candidate is still
+    // in progress — the overall status must not resolve to rejected.
+    if (['passed', 'shortlisted', 'shortlisted_for_next_round'].includes(roundStatusKey)) {
+      return 'pending';
+    }
   }
 
   const applicationStatusKey = getCanonicalStatusKey(
@@ -225,6 +231,14 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
   );
 
   if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(applicationStatusKey)) {
+    // Guard: if any round shows a pass/progression, the candidate is still active.
+    const hasPassedRound = interviewRounds.some((round) => {
+      const key = getCanonicalStatusKey(round?.status, '');
+      return ['passed', 'shortlisted', 'shortlisted_for_next_round'].includes(key);
+    });
+    if (applicationStatusKey === 'rejected' && hasPassedRound) {
+      return 'pending';
+    }
     return applicationStatusKey;
   }
 

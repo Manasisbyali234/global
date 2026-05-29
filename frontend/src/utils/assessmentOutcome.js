@@ -53,7 +53,8 @@ export const getAssessmentOutcome = ({
     !isPendingReview &&
     // expired is only a no-show when there is no evaluated result (candidate never submitted answers)
     (['session expired', 'no show'].includes(normalizedStatus) ||
-      (normalizedStatus === 'expired' && !normalizedResult));
+      (normalizedStatus === 'expired' && !normalizedResult) ||
+      normalizedResult === 'no show');
 
   let outcomeKey = 'pending';
   if (isSuspended) {

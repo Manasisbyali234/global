@@ -751,7 +751,7 @@ export default function EmpPostJob({ onNext }) {
 	const getAssessmentMinDate = (lastDateOfApplication = formData.lastDateOfApplication) => {
 		const normalizedLastDate = normalizeToYMD(lastDateOfApplication);
 		if (!normalizedLastDate) return today;
-		return getNextDayDateString(normalizedLastDate) || normalizedLastDate;
+		return normalizedLastDate;
 	};
 
 	const getMinDateForRoundFromState = (state, roundKey) => {
@@ -2085,10 +2085,12 @@ export default function EmpPostJob({ onNext }) {
 			if (!formData.companyName || formData.companyName.trim().length < 2) {
 				newErrors.companyName = ['Please enter a valid company name (minimum 2 characters)'];
 			}
-			if (!formData.aboutCompany || formData.aboutCompany.trim().length < 10) {
+			const aboutCompanyPlainText = extractPlainText(formData.aboutCompany).trim();
+			if (!aboutCompanyPlainText || aboutCompanyPlainText.length < 10) {
 				newErrors.aboutCompany = ['Please enter about company information (minimum 10 characters)'];
 			}
-			if (!formData.companyDescription || formData.companyDescription.trim().length < 10) {
+			const companyDescPlainText = extractPlainText(formData.companyDescription).trim();
+			if (!companyDescPlainText || companyDescPlainText.length < 10) {
 				newErrors.companyDescription = ['Please enter why join us information (minimum 10 characters)'];
 			}
 		}
@@ -3189,7 +3191,7 @@ export default function EmpPostJob({ onNext }) {
 									<div style={{ flex: 1, minWidth: 200 }}>
 										<label style={label}>
 											<i className="fa fa-image" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-											Company Logo
+											Hiring Company Logo
 										</label>
 										<input
 											style={{...input, padding: '10px'}}
@@ -3255,7 +3257,7 @@ export default function EmpPostJob({ onNext }) {
 									<div style={{ flex: 1, minWidth: 200 }}>
 										<label style={label}>
 											<i className="fa fa-picture-o" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-											Company Banner(1128x191px)
+											Hiring Company Banner(1128x191px)
 										</label>
 										<input
 											style={{...input, padding: '10px'}}
@@ -3385,17 +3387,11 @@ export default function EmpPostJob({ onNext }) {
 									About Company <span style={redAsterisk}>*</span>
 									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}></span>
 								</label>
-								<textarea
-									style={{
-										...input, 
-										minHeight: '100px',
-										borderColor: formData.aboutCompany ? '#10b981' : '#dc2626',
-										borderWidth: 2,
-									}}
+								<RichTextEditor
+									value={formData.aboutCompany || ''}
+									onChange={(value) => update({ aboutCompany: value })}
 									placeholder="Brief description about the company, its history, mission, and what it does..."
-									value={formData.aboutCompany}
-									onChange={(e) => update({ aboutCompany: e.target.value })}
-									required
+									className="form-control-editor"
 								/>
 								{!formData.aboutCompany && (
 									<p style={{color: '#dc2626', fontSize: 12, margin: '6px 0 0 0', display: 'flex', alignItems: 'center', gap: 4}}>
@@ -3403,6 +3399,9 @@ export default function EmpPostJob({ onNext }) {
 										Please enter about company information
 									</p>
 								)}
+								<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
+									Use the toolbar to format with bold, italic, lists, and alignment options.
+								</small>
 							</div>
 							<div style={fullRow}>
 								<label style={{...label, color: '#dc2626'}}>
@@ -3410,17 +3409,11 @@ export default function EmpPostJob({ onNext }) {
 									Why Join Us <span style={redAsterisk}>*</span>
 									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}></span>
 								</label>
-								<textarea
-									style={{
-										...input, 
-										minHeight: '100px',
-										borderColor: formData.companyDescription ? '#10b981' : '#dc2626',
-										borderWidth: 2,
-									}}
+								<RichTextEditor
+									value={formData.companyDescription || ''}
+									onChange={(value) => update({ companyDescription: value })}
 									placeholder="Describe the company culture, benefits, growth opportunities, and what makes it unique..."
-									value={formData.companyDescription}
-									onChange={(e) => update({ companyDescription: e.target.value })}
-									required
+									className="form-control-editor"
 								/>
 								{!formData.companyDescription && (
 									<p style={{color: '#dc2626', fontSize: 12, margin: '6px 0 0 0', display: 'flex', alignItems: 'center', gap: 4}}>
@@ -3428,6 +3421,9 @@ export default function EmpPostJob({ onNext }) {
 										Please enter why join us information
 									</p>
 								)}
+								<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
+									Use the toolbar to format with bold, italic, lists, and alignment options.
+								</small>
 							</div>
 						</>
 					)}
@@ -6634,7 +6630,7 @@ export default function EmpPostJob({ onNext }) {
 														{index + 1}
 													</span>
 													<span style={{fontSize: 14, fontWeight: 600, color: '#1e293b'}}>
-														{displayName} Round
+														{displayName}
 													</span>
 												</div>
 												{details?.fromDate ? (
