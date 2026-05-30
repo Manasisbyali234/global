@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate } from "react-router-dom";
 import JobZImage from "../../../common/jobz-img";
+import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
 
 function CanPostedJobs() {
     const [jobs, setJobs] = useState([]);
@@ -136,7 +137,7 @@ function CanPostedJobs() {
                                             
                                             <div className="twm-mid-content">
                                                 <h4 className="twm-job-title">
-                                                    {job.title}
+                                                    {formatJobTitle(job.title)}
                                                     <span className={`twm-job-post-duration ${job.status === 'active' ? 'text-success' : 'text-muted'}`}>
                                                         / {job.status}
                                                     </span>

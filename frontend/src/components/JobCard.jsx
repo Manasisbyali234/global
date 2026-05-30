@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { isAuthenticated, redirectToLogin } from '../utils/auth';
 import { formatCategory } from '../utils/formatCategory';
 import { formatCompanyName } from '../utils/jobBranding';
+import { formatJobTitle } from '../utils/jobTitleFormatter';
 import '../job-card-buttons.css';
 
 const JobCard = ({ job }) => {
@@ -37,7 +38,7 @@ const JobCard = ({ job }) => {
     return (
         <div className="job-card">
             <div className="job-header">
-                <h3>{job.title}</h3>
+                <h3>{formatJobTitle(job.title)}</h3>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px'}}>
                     {job.companyLogo && (
                         <img src={job.companyLogo} alt="Company Logo" style={{width: '24px', height: '24px', objectFit: 'cover', borderRadius: '4px'}} />

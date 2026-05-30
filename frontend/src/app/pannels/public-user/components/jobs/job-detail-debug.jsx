@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 
 function JobDetailDebug() {
     const { id } = useParams();
@@ -31,7 +32,7 @@ function JobDetailDebug() {
         <div style={{padding: '20px'}}>
             <h2>Debug Job Images</h2>
             <p><strong>Job ID:</strong> {job._id}</p>
-            <p><strong>Job Title:</strong> {job.title}</p>
+            <p><strong>Job Title:</strong> {formatJobTitle(job.title)}</p>
             <p><strong>Company:</strong> {job.employerId?.companyName}</p>
             
             <h3>Employer Profile Data:</h3>

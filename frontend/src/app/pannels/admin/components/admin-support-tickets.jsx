@@ -5,6 +5,7 @@ import './admin-support-tickets.css';
 import './admin-emp-manage-styles.css';
 import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
 import PageLoader from '../../../../components/PageLoader';
+import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
 function AdminSupportTickets() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -725,8 +726,8 @@ function AdminSupportTickets() {
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.userType === 'placement' ? (getCompanyName(ticket) || '-') : '-'}>
                                                             <span className="category-badge">{ticket.userType === 'placement' ? (getCompanyName(ticket) || '-') : '-'}</span>
                                                         </td>
-                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getJobTitle(ticket) || (ticket.userType === 'candidate' ? 'No job selected' : '-')}>
-                                                            <span className="category-badge">{getJobTitle(ticket) || (ticket.userType === 'candidate' ? 'N/A' : '-')}</span>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={formatJobTitle(getJobTitle(ticket), ticket.userType === 'candidate' ? 'No job selected' : '-')}>
+                                                            <span className="category-badge">{formatJobTitle(getJobTitle(ticket), ticket.userType === 'candidate' ? 'N/A' : '-')}</span>
                                                         </td>
                                                         <td style={{minWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.category || 'General'}>
                                                             <span className="category-badge">{ticket.category || 'General'}</span>
@@ -863,7 +864,7 @@ function AdminSupportTickets() {
                                         {getJobTitle(selectedTicket) && (
                                             <div className="ticket-detail-card">
                                                 <div className="detail-label">Job</div>
-                                                <div className="detail-value">{getJobTitle(selectedTicket)}</div>
+                                                <div className="detail-value">{formatJobTitle(getJobTitle(selectedTicket))}</div>
                                             </div>
                                         )}
                                         <div className="ticket-detail-card">

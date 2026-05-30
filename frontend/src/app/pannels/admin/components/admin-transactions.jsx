@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { loadScript, publicUrlFor } from "../../../../globals/constants";
 import { Search, IndianRupee, Download, Eye } from "lucide-react";
 import { api } from "../../../../utils/api";
+import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import "../../../../styles/print-receipt.css";
 
 function AdminTransactionsPage() {
@@ -155,7 +156,7 @@ function AdminTransactionsPage() {
             t.candidateId?.email || 'N/A',
             t.employerId?.companyName || 'N/A',
             t.employerId?.email || 'N/A',
-            t.jobId?.title || 'N/A',
+            formatJobTitle(t.jobId?.title, 'N/A'),
             t.paymentId || 'N/A',
             t.paymentAmount || 129
         ]);
@@ -321,7 +322,7 @@ function AdminTransactionsPage() {
                                                     <div className="fw-bold">{t.employerId?.companyName || 'N/A'}</div>
                                                     <small className="text-muted">{t.employerId?.email}</small>
                                                 </td>
-                                                <td>{t.jobId?.title || 'N/A'}</td>
+                                                <td>{formatJobTitle(t.jobId?.title, 'N/A')}</td>
                                                 <td><code className="text-primary">{t.paymentId}</code></td>
                                                 <td>
                                                     <span className="fw-bold">{currencySymbol}{t.paymentAmount || 129}</span>
@@ -482,7 +483,7 @@ function AdminTransactionsPage() {
                                                         <td>
                                                             <div className="fw-bold text-dark">Job Application Fee</div>
                                                             <div className="text-muted small mt-1">
-                                                                <strong>Position:</strong> {selectedTransaction?.jobId?.title}<br />
+                                                                <strong>Position:</strong> {formatJobTitle(selectedTransaction?.jobId?.title, 'N/A')}<br />
                                                                 <strong>Employer:</strong> {selectedTransaction?.employerId?.companyName}<br />
                                                                 {selectedTransaction?.jobId?.jobCategory && (
                                                                     <span><strong>Category:</strong> {selectedTransaction?.jobId?.jobCategory}</span>

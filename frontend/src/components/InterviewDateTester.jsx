@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatJobTitle } from '../utils/jobTitleFormatter';
 
 const InterviewDateTester = ({ jobId }) => {
   const [testResult, setTestResult] = useState(null);
@@ -91,7 +92,7 @@ const InterviewDateTester = ({ jobId }) => {
           
           {testResult.success ? (
             <div>
-              <p><strong>Job:</strong> {testResult.jobTitle}</p>
+              <p><strong>Job:</strong> {formatJobTitle(testResult.jobTitle)}</p>
               <p><strong>Job ID:</strong> {testResult.jobId}</p>
               
               {testResult.dateInfo && Object.keys(testResult.dateInfo).length > 0 ? (

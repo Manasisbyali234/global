@@ -6,6 +6,7 @@ import PageLoader from '../../../../components/PageLoader';
 import './admin-candidate-review.css';
 import { BACKEND_URL } from '../../../../utils/api';
 import { getStatusLabel } from '../../../../utils/statusDisplay';
+import { formatDesignation, formatJobTitle } from '../../../../utils/jobTitleFormatter';
 
 function AdminCandidateReviewPage() {
     const navigate = useNavigate();
@@ -865,7 +866,7 @@ function AdminCandidateReviewPage() {
                                                 </td>
                                                 <td>
                                                     <span className="job-category">
-                                                        {application.jobTitle || 'N/A'}
+                                                        {formatJobTitle(application.jobTitle, 'N/A')}
                                                     </span>
                                                 </td>
                                                 <td>
@@ -938,7 +939,7 @@ function AdminCandidateReviewPage() {
                                                     <div className="font-weight-bold text-primary">
                                                         {emp.organizationName || emp.organization || 'N/A'}
                                                     </div>
-                                                    <div className="small text-muted">{emp.designation || 'N/A'}</div>
+                                                    <div className="small text-muted">{formatDesignation(emp.designation)}</div>
                                                     {emp.isCurrentCompany && <span className="badge-current mt-1" style={{fontSize: '10px'}}>Current</span>}
                                                 </td>
                                                 <td style={{fontSize: '13px'}}>

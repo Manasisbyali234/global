@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { loadScript, updateSkinStyle } from "../../../../../globals/constants";
 import api from "../../../../../utils/api";
+import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 import "./naukri-preview.css";
 
 // Naukri-style preview homepage using existing theme classes/colors
@@ -242,7 +243,7 @@ function HomeNaukriPreview() {
                         to={job?._id ? `/job-detail/${job._id}` : "/job-grid"}
                         className="nk-job-title"
                       >
-                        {job?.title || "Job Title"}
+                        {formatJobTitle(job?.title)}
                       </NavLink>
                       <div className="nk-job-sub">
                         {job?.companyName || job?.company || "Company"} • {job?.location || "Location"}

@@ -11,6 +11,7 @@ import { api } from "../../../../utils/api";
 import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import { buildUtcDateTimeFromIst } from "../../../../utils/timezoneUtils";
+import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import { pubRoute, publicUser, canRoute, candidate } from "../../../../globals/route-names";
 import CanPostedJobs from "./can-posted-jobs";
 import PopupInterviewRoundDetails from "../../../common/popups/popup-interview-round-details";
@@ -1701,6 +1702,15 @@ function CanStatusPage() {
 				: null;
 		};
 
+		const getReadyToBookStatus = () => ({
+			text: 'Schedule',
+			class: 'bg-info bg-opacity-10 text-info border border-info',
+			feedback: ''
+		});
+
+		const isUnbookedScheduleStatus = (status) =>
+			['scheduled', 'interview scheduled'].includes(normalizeStatusValue(status));
+
 		// Check assessment status for Assessment rounds
 		if (roundName === 'Assessment') {
 			const assessmentRoundInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
@@ -1794,6 +1804,8 @@ function CanStatusPage() {
 			return result;
 		}
 
+		const bookedSlotStatus = getBookedSlotStatus();
+
 		// Check if there are actual interview rounds data from employer review
 		if (application.interviewRounds && application.interviewRounds.length > 0) {
 			const round = application.interviewRounds.find(r => r.round === roundIndex + 1);
@@ -1813,9 +1825,8 @@ function CanStatusPage() {
 						};
 					case 'pending':
 					default:
-						return { 
-							text: 'Scheduled', 
-							class: 'bg-info bg-opacity-10 text-info border border-info',
+						return bookedSlotStatus || {
+							...getReadyToBookStatus(),
 							feedback: round.feedback || ''
 						};
 				}
@@ -1823,7 +1834,6 @@ function CanStatusPage() {
 		}
 
 		// Use current tracked stage status when available
-		const bookedSlotStatus = getBookedSlotStatus();
 		if (
 			(Array.isArray(application.interviewProcesses) && application.interviewProcesses.length > 0) ||
 			(Array.isArray(application.interviewProcess?.stages) && application.interviewProcess.stages.length > 0)
@@ -1866,6 +1876,9 @@ function CanStatusPage() {
 						: false;
 
 			if (trackedStatus && normalizedTrackedStatus !== 'pending') {
+				if (isUnbookedScheduleStatus(normalizedTrackedStatus)) {
+					return bookedSlotStatus || getReadyToBookStatus();
+				}
 				const mapped = mapProcessStatusToBadge(trackedStatus, {
 					isFinalStage: isFinalTrackedStage,
 					treatDeferredAttendanceStatusAsPending: false
@@ -1878,11 +1891,7 @@ function CanStatusPage() {
 			}
 
 			if (roundIndex > 0 && getRoundActivationState(application, roundIndex).canStart) {
-				return {
-					text: 'Scheduled',
-					class: 'bg-info bg-opacity-10 text-info border border-info',
-					feedback: ''
-				};
+				return getReadyToBookStatus();
 			}
 
 			if (trackedStatus) {
@@ -1903,11 +1912,11 @@ function CanStatusPage() {
 		
 		// For pending status, check if candidate is selected for process
 		if (status === 'pending' && application.isSelectedForProcess) {
-			return { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' };
+			return getReadyToBookStatus();
 		}
 		
 		if (status === 'shortlisted') {
-			return { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' };
+			return getReadyToBookStatus();
 		} else if (status === 'interviewed') {
 			return { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
 		} else if (status === 'hired') {
@@ -2032,7 +2041,7 @@ function CanStatusPage() {
 		if (['rejected', 'failed', 'fail', 'expired', 'suspended', 'no show', 'not advanced to next stage'].includes(status)) {
 			return { backgroundColor: '#fdeaea', color: '#c82333', border: '1px solid #c82333' };
 		}
-		if (['scheduled', 'started', 'interview scheduled'].includes(status)) {
+		if (['schedule', 'scheduled', 'started', 'interview scheduled'].includes(status)) {
 			return { backgroundColor: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' };
 		}
 		if (['in progress', 'under review', 'shortlisted', 'shortlisted for next round', 'pending decision'].includes(status)) {
@@ -2353,7 +2362,7 @@ function CanStatusPage() {
 															</td>
 															<td className={`px-4 py-3 ${highlightCompanyPosition ? 'highlight-company-position' : ''}`} style={{transition: 'all 0.3s ease'}}>
 																<span className="fw-medium text-dark">
-																	{app.jobId?.title || 'Position Not Available'}
+																	{formatJobTitle(app.jobId?.title, 'Position Not Available')}
 																</span>
 															</td>
 															<td className="px-4 py-3">
@@ -2694,7 +2703,7 @@ function CanStatusPage() {
 											<strong>Company:</strong> {getEmployerDisplayCompanyName(selectedApplication)}
 										</div>
 										<div className="col-md-6 mb-2">
-											<strong>Position:</strong> {selectedApplication.jobId?.title || 'N/A'}
+											<strong>Position:</strong> {formatJobTitle(selectedApplication.jobId?.title, 'N/A')}
 										</div>
 										<div className="col-md-6 mb-2">
 											<strong>Location:</strong> {(() => {

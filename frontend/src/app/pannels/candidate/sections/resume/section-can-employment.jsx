@@ -2,6 +2,7 @@ import React, { useEffect, useState, memo, useRef } from "react";
 import ReactDOM from "react-dom";
 import { api } from "../../../../../utils/api";
 import { showSuccess, showError } from '../../../../../utils/popupNotification';
+import { formatDesignation } from "../../../../../utils/jobTitleFormatter";
 import "./employment-card-styles.css";
 
 const NOTICE_PERIOD_OPTIONS = [
@@ -103,7 +104,7 @@ const EmploymentCard = ({
                 <div className="d-flex align-items-center">
                     <h4 className="employment-card-title m-0">
                         {index + 1}. {emp.organizationName || emp.organization || "Enter Company Name"}
-                        {emp.designation ? ` - ${emp.designation}` : ""}
+                        {emp.designation ? ` - ${formatDesignation(emp.designation)}` : ""}
                         {emp.isCurrentCompany ? " (Current)" : ""}
                     </h4>
                 </div>
@@ -512,7 +513,7 @@ function SectionCanEmployment({ profile, onUpdate }) {
                                                 <div className="font-weight-bold text-primary">
                                                     {emp.organizationName || emp.organization || 'N/A'}
                                                 </div>
-                                                <div className="small text-muted">{emp.designation || 'N/A'}</div>
+                                                <div className="small text-muted">{formatDesignation(emp.designation)}</div>
                                                 {emp.isCurrentCompany && <span className="badge-current mt-1">Current</span>}
                                             </td>
                                             <td style={{fontSize: '13px'}}>
@@ -645,7 +646,7 @@ function SectionCanEmployment({ profile, onUpdate }) {
                         >
                             <div className="employment-details-header">
                                 <h5 className="employment-details-title">
-                                    {selectedEmployment.organizationName || selectedEmployment.organization} - {selectedEmployment.designation}
+                                    {selectedEmployment.organizationName || selectedEmployment.organization} - {formatDesignation(selectedEmployment.designation)}
                                 </h5>
                                 <div className="employment-details-window-controls">
                                     <button

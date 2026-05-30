@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { formatDate } from '../../../../utils/dateFormatter';
+import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
 
 const RecentJobPosts = () => {
   const [jobPosts, setJobPosts] = useState([]);
@@ -47,7 +48,7 @@ const RecentJobPosts = () => {
               className="d-flex justify-content-between align-items-center border rounded p-3 mb-3"
             >
               <div>
-                <h5 className="mb-1">{job.title}</h5>
+                <h5 className="mb-1">{formatJobTitle(job.title)}</h5>
                 <p className="mb-0 text-muted">
                   {job.applicationCount || 0} applications &bull; Posted {formatDate(job.createdAt)}
                 </p>

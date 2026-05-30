@@ -5,6 +5,7 @@ import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
 import { getAdminApplicantTableStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import { buildUtcDateTimeFromIst } from "../../../../utils/timezoneUtils";
+import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import SearchBar from "../../../../components/SearchBar";
 import "./admin-search-styles.css";
 import "./admin-overview.css";
@@ -731,7 +732,7 @@ function AdminOverviewPage() {
                           <tr key={job.jobId}>
                             <td>{job.createdAt ? formatDate(job.createdAt) : "N/A"}</td>
                             {showJobCompanyColumn && <td>{job.companyName || selectedEmployer?.employerName || "N/A"}</td>}
-                            <td>{job.title}</td>
+                            <td>{formatJobTitle(job.title)}</td>
                             <td>{job.applicationsCount}</td>
                             <td>{job.paidApplicationsCount ?? 0}</td>
                             <td>{job.creditApplicationsCount ?? 0}</td>
@@ -746,8 +747,8 @@ function AdminOverviewPage() {
                                 type="button"
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => handleViewApplicants(job)}
-                                aria-label={`View applicants for ${job.title}`}
-                                title={`View applicants for ${job.title}`}
+                                aria-label={`View applicants for ${formatJobTitle(job.title)}`}
+                                title={`View applicants for ${formatJobTitle(job.title)}`}
                               >
                                 <i className="fa fa-eye" />
                               </button>

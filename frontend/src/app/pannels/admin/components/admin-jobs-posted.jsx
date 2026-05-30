@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../../../utils/api";
 import { formatDate } from "../../../../utils/dateFormatter";
+import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 
 function AdminJobsPostedPage() {
   const [jobs, setJobs] = useState([]);
@@ -184,7 +185,7 @@ function AdminJobsPostedPage() {
                       <tr key={job.jobId}>
                         <td>{(currentPage - 1) * PAGE_SIZE + index + 1}</td>
                         <td>{job.postedDate ? formatDate(job.postedDate) : "N/A"}</td>
-                        <td>{job.title}</td>
+                        <td>{formatJobTitle(job.title)}</td>
                         <td>{job.companyName}</td>
                         <td>{formatEmployerType(job.employerType)}</td>
                         <td>{job.lastDateOfApplication ? formatDate(job.lastDateOfApplication) : "N/A"}</td>

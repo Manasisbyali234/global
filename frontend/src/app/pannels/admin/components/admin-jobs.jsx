@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../../../../utils/api';
 import { formatDate } from '../../../../utils/dateFormatter';
 import PageLoader from '../../../../components/PageLoader';
+import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
 
 function AdminJobs() {
     const [jobs, setJobs] = useState([]);
@@ -107,7 +108,7 @@ function AdminJobs() {
                                     jobs.map((job) => (
                                         <tr key={job._id}>
                                             <td>
-                                                <strong>{job.title}</strong>
+                                                <strong>{formatJobTitle(job.title)}</strong>
                                                 <br />
                                                 <small className="text-muted">{job.description?.substring(0, 50)}...</small>
                                             </td>

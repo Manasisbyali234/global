@@ -4,6 +4,7 @@ import { AlertCircle, Building2, Calendar, Edit, Eye, MapPin, Pause, Play, Searc
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadScript } from "../../../../../globals/constants";
+import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 import './emp-posted-jobs.css';
 import './emp-posted-jobs-mobile-button-fix.css';
 
@@ -319,7 +320,7 @@ export default function EmpPostedJobs() {
                                 <option value="all">All Designation</option>
                                 {designationOptions.map((designation) => (
                                     <option key={designation} value={designation.toLowerCase()}>
-                                        {designation}
+                                        {formatJobTitle(designation)}
                                     </option>
                                 ))}
                             </select>
@@ -420,7 +421,7 @@ export default function EmpPostedJobs() {
 										<div className="manage-jobs-card p-4 border rounded-3 mb-4 shadow-sm bg-white position-relative" style={{cursor: 'pointer', transition: 'all 0.3s ease'}} onClick={() => handleJobClick(job._id)}>
 											{/* Top Section: Title and Status */}
 											<div className="d-flex justify-content-between align-items-start mb-3 manage-jobs-card__header">
-												<h5 className="mb-0 fw-bold text-dark manage-jobs-card__title" style={{fontSize: '1.2rem'}}>{job.title}</h5>
+												<h5 className="mb-0 fw-bold text-dark manage-jobs-card__title" style={{fontSize: '1.2rem'}}>{formatJobTitle(job.title)}</h5>
 												{displayStatus !== 'closed' && (
 													<span className={`badge ${getStatusBadge(displayStatus)} text-capitalize px-3 py-2 rounded-pill`}>
 														{displayStatus}

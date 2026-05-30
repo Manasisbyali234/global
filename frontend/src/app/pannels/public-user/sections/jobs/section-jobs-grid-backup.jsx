@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { publicUser } from "../../../../../globals/route-names";
 import JobZImage from "../../../../common/jobz-img";
 import SectionPagination from "../common/section-pagination";
+import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 
 function SectionJobsGrid({ filters, onTotalChange }) {
     const [jobs, setJobs] = useState([]);
@@ -125,7 +126,7 @@ function SectionJobsGrid({ filters, onTotalChange }) {
 
                             <div className="twm-mid-content">
                                 <NavLink to={`${publicUser.jobs.DETAIL1}/${job._id}`} className="twm-job-title">
-                                    <h4>{job.title}</h4>
+                                    <h4>{formatJobTitle(job.title)}</h4>
                                 </NavLink>
                                 <div className="twm-job-address">
                                     <i className="feather-map-pin" />

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './HeroBody.css';
 import { Megaphone, Banknote, Users, Settings, Tag, Terminal, TrendingUp } from 'lucide-react';
 import api from '../utils/api';
+import { formatDesignation } from '../utils/jobTitleFormatter';
 
 const DEFAULT_DESIGNATIONS = [
   'Data Entry Operator', 'Computer Operator', 'IT Support Assistant', 'Junior Web Developer', 'Software Developer',
@@ -553,7 +554,7 @@ const HeroBody = ({ onSearch }) => {
                       className="suggestion-item"
                       onMouseDown={(e) => { e.preventDefault(); selectDesignation(designation); }}
                     >
-                      {designation}
+                      {formatDesignation(designation)}
                     </div>
                   ))}
                 </div>

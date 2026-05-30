@@ -7,6 +7,7 @@ import { useAuth } from "../../../../../contexts/AuthContext";
 import { formType, loadScript, publicUrlFor } from "../../../../../globals/constants";
 import CountUp from "react-countup";
 import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
+import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 
 function AfterLoginPage() {
 
@@ -328,7 +329,7 @@ function AfterLoginPage() {
                                             </div>
                                             <div className="twm-mid-content">
                                                 <NavLink to={`${publicUser.jobs.DETAIL1}/${job._id}`} className="twm-job-title">
-                                                    <h4>{job.title}<span className="twm-job-post-duration">/ {formatDate(job.createdAt)}</span></h4>
+                                                    <h4>{formatJobTitle(job.title)}<span className="twm-job-post-duration">/ {formatDate(job.createdAt)}</span></h4>
                                                 </NavLink>
                                                 <p className="twm-job-address">{job.location}</p>
                                                 {job.companyName && (

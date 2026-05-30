@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { api } from '../../../../utils/api';
 import PageLoader from '../../../../components/PageLoader';
+import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
 
 function AdminEmployerJobs() {
     const [jobs, setJobs] = useState([]);
@@ -114,7 +115,7 @@ function AdminEmployerJobs() {
                                                         <div className="twm-bookmark-list">
                                                             <div className="twm-mid-content">
                                                                 <a href="#" className="twm-job-title">
-                                                                    <h4>{job.title}</h4>
+                                                                     <h4>{formatJobTitle(job.title)}</h4>
                                                                 </a>
                                                                 <p className="twm-bookmark-address">
                                                                     <i className="feather-map-pin" />{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'N/A')}

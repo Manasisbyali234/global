@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ResponsiveTable from '../../../../../components/ResponsiveTable';
 import { getAssessmentOutcome, getAssessmentOutcomeLabel } from '../../../../../utils/assessmentOutcome';
+import { formatDesignation } from '../../../../../utils/jobTitleFormatter';
 import '../emp-dashboard.css';
 
 export default function AssessmentResults() {
@@ -185,7 +186,7 @@ export default function AssessmentResults() {
               )}
               {assessment?.designation && (
                 <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0', fontSize: '0.875rem' }}>
-                  <span style={{ fontWeight: '500' }}>Designation:</span> {assessment.designation}
+                  <span style={{ fontWeight: '500' }}>Designation:</span> {formatDesignation(assessment.designation)}
                 </p>
               )}
               {assessment?.title && (
@@ -314,7 +315,7 @@ export default function AssessmentResults() {
               >
                 <option value="all">All Designations</option>
                 {[...new Set(results.map(r => getResultDesignation(r)).filter(d => d && d !== 'N/A'))].map(designation => (
-                  <option key={designation} value={designation}>{designation}</option>
+                  <option key={designation} value={designation}>{formatDesignation(designation)}</option>
                 ))}
               </select>
             </div>
@@ -504,7 +505,7 @@ export default function AssessmentResults() {
                         {getResultCompanyName(result)}
                       </td>
                       <td style={{ padding: '1rem', color: '#6b7280' }}>
-                        {getResultDesignation(result)}
+                        {formatDesignation(getResultDesignation(result))}
                       </td>
                       <td style={{ padding: '1rem', color: '#111827', fontWeight: '600' }}>
                         <div>{result.score}/{result.totalMarks}</div>

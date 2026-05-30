@@ -3,6 +3,7 @@ import axios from 'axios';
 import { usePopupNotification } from '../../../../hooks/usePopupNotification';
 import PopupNotification from '../../../../components/PopupNotification';
 import { decodeAssessmentText, formatAssessmentContent } from '../../../../utils/assessmentContent';
+import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
 
 export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -489,7 +490,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
         <div className="card-header d-flex justify-content-between align-items-center">
           <div>
             <h5 className="mb-0">
-              {decodeAssessmentText(assessment.title)}{assessment.jobTitle && ` - ${decodeAssessmentText(assessment.jobTitle)}`}
+              {decodeAssessmentText(assessment.title)}{assessment.jobTitle && ` - ${formatJobTitle(decodeAssessmentText(assessment.jobTitle))}`}
             </h5>
             <small className="text-muted d-block">Question {currentQuestion + 1} of {assessment.questions.length}</small>
             <small className="text-success fw-semibold">

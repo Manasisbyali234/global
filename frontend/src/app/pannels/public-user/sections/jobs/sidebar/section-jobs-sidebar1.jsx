@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { publicUser } from "../../../../../../globals/route-names";
 import SectionSideAdvert from "./section-side-advert";
 import { useState, useEffect } from "react";
+import { formatJobTitle } from "../../../../../../utils/jobTitleFormatter";
 import "../../../../../../custom-tags.css";
 import "../../../../../../remove-tag-hover.css";
 import "../../../../../../circular-checkbox.css";
@@ -300,7 +301,7 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                                                 onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
                                                 onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
                                             >
-                                                <i className="feather-briefcase me-2"></i>{title}
+                                                <i className="feather-briefcase me-2"></i>{formatJobTitle(title)}
                                             </div>
                                         ))
                                     }

@@ -3,6 +3,7 @@ import { MapPin, Clock, Users, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../../../../utils/api';
 import { formatCompanyName } from '../../../../../utils/jobBranding';
+import { formatJobTitle } from '../../../../../utils/jobTitleFormatter';
 import './recommended-jobs.css';
 
 function SectionRecommendedJobs() {
@@ -149,7 +150,7 @@ function SectionRecommendedJobs() {
                                         fontWeight: '600',
                                         fontSize: '0.95rem'
                                     }}>
-                                        {job.title}
+                                        {formatJobTitle(job.title)}
                                     </h6>
                                 </div>
                                 <div className="d-flex align-items-center gap-2">

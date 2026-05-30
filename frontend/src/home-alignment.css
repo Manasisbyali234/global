@@ -13,7 +13,28 @@
 .home-page-alignment {
     width: 100% !important;
     max-width: 100% !important;
-    overflow-x: hidden !important;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+}
+
+.home-page-alignment .hero-body {
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+}
+
+html.home-page-scrollbar-hidden,
+body.home-page-scrollbar-hidden {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+html.home-page-scrollbar-hidden::-webkit-scrollbar,
+body.home-page-scrollbar-hidden::-webkit-scrollbar,
+.home-page-alignment::-webkit-scrollbar,
+.home-page-alignment .hero-body::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
 }
 
 @media (max-width: 991px) {

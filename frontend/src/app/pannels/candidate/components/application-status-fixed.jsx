@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import { api } from "../../../../utils/api";
+import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import { pubRoute, publicUser } from "../../../../globals/route-names";
 import PopupInterviewRoundDetails from "../../../common/popups/popup-interview-round-details";
 import "./status-styles.css";
@@ -185,7 +186,7 @@ function CanStatusPage() {
 															</td>
 															<td className="px-4 py-3">
 																<span className="fw-medium text-dark">
-																	{app.jobId?.title || 'Position Not Available'}
+																	{formatJobTitle(app.jobId?.title, 'Position Not Available')}
 																</span>
 															</td>
 															<td className="px-4 py-3">
@@ -257,7 +258,7 @@ function CanStatusPage() {
 											<strong>Company:</strong> {selectedApplication.employerId?.brandName || selectedApplication.employerId?.companyName || 'N/A'}
 										</div>
 										<div className="col-md-6 mb-2">
-											<strong>Position:</strong> {selectedApplication.jobId?.title || 'N/A'}
+											<strong>Position:</strong> {formatJobTitle(selectedApplication.jobId?.title, 'N/A')}
 										</div>
 										<div className="col-md-6 mb-2">
 											<strong>Location:</strong> {Array.isArray(selectedApplication.jobId?.location) ? selectedApplication.jobId.location.join(', ') : (selectedApplication.jobId?.location || 'N/A')}

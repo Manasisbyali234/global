@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { formatAssessmentContent } from "../../../../../utils/assessmentContent";
+import { formatDesignation } from "../../../../../utils/jobTitleFormatter";
 import './create-assessment.css';
 
 export default function AssessmentCard({ data, onDelete, onEdit, index }) {
@@ -47,7 +48,7 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 								wordWrap: 'break-word',
 								overflowWrap: 'break-word',
 								whiteSpace: 'normal'
-							}}>{data.designation}</span>
+							}}>{formatDesignation(data.designation)}</span>
 						</h6>
 					</div>
 				)}

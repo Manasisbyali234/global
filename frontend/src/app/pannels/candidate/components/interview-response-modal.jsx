@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar, Clock, MessageSquare, Send } from 'lucide-react';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
 const InterviewResponseModal = ({ isOpen, onClose, application, onSubmit }) => {
   const [responseData, setResponseData] = useState({
     availableDate: '',
@@ -62,7 +63,7 @@ const InterviewResponseModal = ({ isOpen, onClose, application, onSubmit }) => {
             <div className="modal-body p-4">
               <div className="mb-3 p-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
                 <h6 className="mb-2">Interview Invitation for:</h6>
-                <p className="mb-1"><strong>Position:</strong> {application?.jobId?.title}</p>
+                <p className="mb-1"><strong>Position:</strong> {formatJobTitle(application?.jobId?.title, 'N/A')}</p>
                 <p className="mb-0"><strong>Company:</strong> {application?.employerId?.brandName || application?.employerId?.companyName}</p>
               </div>
 

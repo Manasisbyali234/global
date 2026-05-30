@@ -6,6 +6,7 @@ import SectionRecordsFilter from "../../public-user/sections/common/section-reco
 import SectionPagination from "../../public-user/sections/common/section-pagination";
 import { loadScript } from "../../../../globals/constants";
 import { api, BACKEND_URL } from "../../../../utils/api";
+import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 
 function CompanyDetailsModal({ company, isOpen, onClose }) {
   if (!isOpen || !company) return null;
@@ -167,7 +168,7 @@ function CanAppliedJobsPage() {
                       <div className="twm-mid-content">
                         <NavLink to={jobId ? `/job-detail/${jobId}` : "/job-grid"} className="twm-job-title">
                           <h4>
-                            {job.title || "Job Title"}
+                            {formatJobTitle(job.title)}
                             <span className="twm-job-post-duration">/ {formatDate(application.appliedAt)}</span>
                           </h4>
                         </NavLink>

@@ -16,6 +16,7 @@ import {
     getAssessmentProcessStatus
 } from '../../../../utils/assessmentOutcome';
 import { getApplicationStatusKey, getInterviewCurrentStatusKey, getStatusLabel } from '../../../../utils/statusDisplay';
+import { formatDesignation, formatJobTitle } from '../../../../utils/jobTitleFormatter';
 import TermsModal from "../../../../components/TermsModal";
 
 function EmpCandidateReviewPage() {
@@ -1635,7 +1636,7 @@ function EmpCandidateReviewPage() {
                 </button>
                 <div className="header-title">
                     <h2>Candidate Application Review</h2>
-                    <p>Evaluating <strong style={{ color: '#f97316', fontWeight: '700' }}>{candidate.name}</strong> for <strong style={{ color: '#f97316', fontWeight: '700' }}>{application.jobId?.title}</strong></p>
+                    <p>Evaluating <strong style={{ color: '#f97316', fontWeight: '700' }}>{candidate.name}</strong> for <strong style={{ color: '#f97316', fontWeight: '700' }}>{formatJobTitle(application.jobId?.title)}</strong></p>
                 </div>
             </div>
 
@@ -2203,7 +2204,7 @@ function EmpCandidateReviewPage() {
                                                         <div className="font-weight-bold text-primary">
                                                             {emp.organizationName || emp.organization || 'N/A'}
                                                         </div>
-                                                        <div className="small text-muted">{emp.designation || 'N/A'}</div>
+                                                        <div className="small text-muted">{formatDesignation(emp.designation)}</div>
                                                         {emp.isCurrentCompany && <span className="badge-current mt-1">Current</span>}
                                                     </td>
                                                     <td>

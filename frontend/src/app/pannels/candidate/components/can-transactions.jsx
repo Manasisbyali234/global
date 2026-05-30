@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { loadScript, publicUrlFor } from "../../../../globals/constants";
 import { ListChecks, IndianRupee, Download, Eye, X } from "lucide-react";
 import { api } from "../../../../utils/api";
+import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import "../../../../styles/print-receipt.css";
 
 function CanTransactionsPage() {
@@ -193,7 +194,7 @@ function CanTransactionsPage() {
     const exportTransactions = (type) => {
         const rows = filteredTransactions.map((t) => ({
             Date: formatDate(t.createdAt),
-            'Job Role': t.jobId?.title || 'N/A',
+            'Job Role': formatJobTitle(t.jobId?.title, 'N/A'),
             Company: t.employerId?.brandName || t.employerId?.companyName || 'N/A',
             'Payment ID': t.paymentId || '',
             'Amount (INR)': t.paymentAmount ?? 129,
@@ -356,7 +357,7 @@ function CanTransactionsPage() {
                                                     <small className="text-muted d-none d-sm-block">{new Date(t.createdAt).toLocaleTimeString([], {timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit'})}</small>
                                                 </td>
                                                 <td>
-                                                    <div className="fw-bold" style={{ fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>{t.jobId?.title || 'N/A'}</div>
+                                                    <div className="fw-bold" style={{ fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>{formatJobTitle(t.jobId?.title, 'N/A')}</div>
                                                     <small className="text-muted d-md-none">{t.employerId?.brandName || t.employerId?.companyName || 'N/A'}</small>
                                                 </td>
                                                 <td className="d-none d-md-table-cell">{t.employerId?.brandName || t.employerId?.companyName || 'N/A'}</td>
@@ -544,7 +545,7 @@ function CanTransactionsPage() {
                                                             <div className="fw-bold text-dark">Job Application Fee</div>
                                                             <div className="text-muted mt-1" style={{ fontSize: '0.76rem', lineHeight: 1.35 }}>
                                                                 <strong>Description:</strong> Payment for this application was successfully processed..<br />
-                                                                <strong>Position:</strong> {selectedTransaction?.jobId?.title}<br />
+                                                                <strong>Position:</strong> {formatJobTitle(selectedTransaction?.jobId?.title, 'N/A')}<br />
                                                                 <strong>Employer:</strong> {selectedTransaction?.employerId?.brandName || selectedTransaction?.employerId?.companyName}<br />
                                                                 {selectedTransaction?.jobId?.jobCategory && (
                                                                     <span><strong>Category:</strong> {selectedTransaction?.jobId?.jobCategory}</span>

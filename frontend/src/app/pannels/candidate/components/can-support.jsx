@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '../../../../utils/api';
+import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
 
 function CanSupport() {
     const [formData, setFormData] = useState({
@@ -558,7 +559,7 @@ function CanSupport() {
                                                             : 'Choose a job'}
                                                 </option>
                                                 {selectedEmployerJobs.map((job) => (
-                                                    <option key={job.id} value={job.id}>{job.title}</option>
+                                                    <option key={job.id} value={job.id}>{formatJobTitle(job.title)}</option>
                                                 ))}
                                             </select>
                                             {errors.jobId && <div className="invalid-feedback">{errors.jobId}</div>}

@@ -3,6 +3,7 @@ import AssessmentCard from "../assessments/AssessmnetCard";
 import CreateAssessmentModal from "../assessments/CreateassessmentModal";
 import QuestionModal from "../assessments/qusetion-popup";
 import { api } from '../../../../../utils/api';
+import { formatDesignation } from '../../../../../utils/jobTitleFormatter';
 import './assessment-dashboard.css';
 import '../../../../../assessment-modal-fix.css';
 import '../../../../../assessment-title-hide.css';
@@ -65,14 +66,14 @@ export default function AssessmentDashboard() {
 
 	const getAssessmentOptionLabel = (assessment) => {
 		const title = truncateText(assessment.title || 'Untitled Assessment', 32);
-		const designation = truncateText(assessment.designation || 'N/A', 18);
+		const designation = truncateText(formatDesignation(assessment.designation), 18);
 		const duration = assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A';
 		return `${title} | ${designation} | ${duration} min`;
 	};
 
 	const getAssessmentOptionTitle = (assessment) => {
 		const duration = assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A';
-		return `${assessment.title || 'Untitled Assessment'} - ${assessment.designation || 'N/A'} (${duration} min)`;
+		return `${assessment.title || 'Untitled Assessment'} - ${formatDesignation(assessment.designation)} (${duration} min)`;
 	};
 
 	const getSelectedAssessment = () =>
@@ -409,7 +410,7 @@ export default function AssessmentDashboard() {
 													{assessment.title || 'Untitled Assessment'}
 												</span>
 												<span className="assessment-selector-option-meta">
-													{assessment.designation || 'N/A'} | {assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min
+													{formatDesignation(assessment.designation)} | {assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min
 												</span>
 											</button>
 										))}

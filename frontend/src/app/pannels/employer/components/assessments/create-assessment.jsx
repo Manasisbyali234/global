@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import CreateAssessmentModal from './CreateAssessmentModal';
 import { showPopup, showSuccess, showError, showConfirmation } from '../../../../../utils/popupNotification';
 import { formatAssessmentContent } from '../../../../../utils/assessmentContent';
+import { formatDesignation } from '../../../../../utils/jobTitleFormatter';
 import './create-assessment.css';
 import './mobile-text-fix.css';
 import '../../../../../assessment-title-hide.css';
@@ -265,7 +266,7 @@ function CreateAssessmentPage() {
                                                 )}
                                                 {assessment.designation && (
                                                     <h6 className="mb-1" style={{fontSize: '14px', fontWeight: '600', wordWrap: 'break-word', overflowWrap: 'break-word'}}>
-                                                        <span style={{color: '#8B7355'}}>Designation:</span> <span className="text-primary">{assessment.designation}</span>
+                                                        <span style={{color: '#8B7355'}}>Designation:</span> <span className="text-primary">{formatDesignation(assessment.designation)}</span>
                                                     </h6>
                                                 )}
                                                 {assessment.title && (

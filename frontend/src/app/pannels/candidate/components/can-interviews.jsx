@@ -9,6 +9,7 @@ import {
   getStatusLabel,
   isRejectedStatusKey
 } from "../../../../utils/statusDisplay";
+import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import { canRoute, candidate } from "../../../../globals/route-names";
 import TermsModal from "../../../../components/TermsModal";
 import "../../../../emp-grid-optimizations.css";
@@ -485,7 +486,7 @@ function CanInterviewsPage() {
       const title = card.jobTitle || "";
       if (title && title !== "Job Title" && !seen.has(title)) {
         seen.add(title);
-        options.push({ value: title, label: title });
+        options.push({ value: title, label: formatJobTitle(title) });
       }
     });
     return options;
@@ -625,7 +626,7 @@ function CanInterviewsPage() {
 
                     <h4 className="company-card-name">{card.companyName.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())}</h4>
                     <div className="company-card-subtitle">
-                      {card.jobTitle}
+                      {formatJobTitle(card.jobTitle)}
                     </div>
 
                      <div className="company-card-location interview-card-location">

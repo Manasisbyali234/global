@@ -5,6 +5,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { showSuccess, showError } from '../../../../utils/popupNotification';
 import PageLoader from '../../../../components/PageLoader';
+import { formatDesignation } from '../../../../utils/jobTitleFormatter';
 import './employer-details-styles.css';
 
 function EmployerDetails() {
@@ -738,7 +739,7 @@ function EmployerDetails() {
                         </div>
                         <div className="profile-field" data-aos="fade-right" data-aos-delay="375">
                             <h6><i className="fa fa-id-badge"></i>Designation</h6>
-                            <p>{profile.contactDesignation || 'N/A'}</p>
+                            <p>{formatDesignation(profile.contactDesignation, 'N/A')}</p>
                         </div>
                     </div>
                     

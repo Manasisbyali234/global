@@ -10,6 +10,7 @@ import HomeJobCard from "../../../../../components/HomeJobCard";
 import useDebounce from "../../../../../utils/useDebounce";
 import { formatJobEducationDisplay } from "../../../../../utils/jobEducationOptions";
 import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
+import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 import { SkeletonContainer, JobCardSkeleton, StatsSkeleton, RecruiterSkeleton } from "../../../../../components/SkeletonLoader";
 import "../../../../../new-job-card.css";
 import "../../../../../home-responsive.css";
@@ -48,13 +49,6 @@ const ErrorBoundary = ({ children }) => {
     return children;
 };
 function Home16Page() {
-    const formatJobTitle = (value) => {
-        if (!value || typeof value !== "string") return "Job title";
-        const trimmed = value.trim();
-        if (!trimmed) return "Job title";
-        return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
-    };
-
     const getPostedByLabel = (job) => {
         const rawPostedBy = job?.postedBy || job?.employerId?.employerType || job?.employerType;
         if (!rawPostedBy) {
@@ -128,6 +122,9 @@ function Home16Page() {
     };
 
     useEffect(() => {
+        document.documentElement.classList.add('home-page-scrollbar-hidden');
+        document.body.classList.add('home-page-scrollbar-hidden');
+
         updateSkinStyle("8", false, false)
         loadScript("js/custom.js")
         fetchHomeData();
@@ -157,6 +154,8 @@ function Home16Page() {
 
         return () => {
             sections.forEach(section => observer.unobserve(section));
+            document.documentElement.classList.remove('home-page-scrollbar-hidden');
+            document.body.classList.remove('home-page-scrollbar-hidden');
         };
     }, [])
 

@@ -3,6 +3,7 @@ import { formatDate } from '../../../../../utils/dateFormatter';
 import JobZImage from "../../../../common/jobz-img";
 import { api } from '../../../../utils/api';
 import PageLoader from '../../../../../components/PageLoader';
+import { formatJobTitle } from '../../../../../utils/jobTitleFormatter';
 import './emp-manage-jobs.css';
 
 function EmpManageJobsPage() {
@@ -160,7 +161,7 @@ function EmpManageJobsPage() {
                                                         <i className="fa fa-briefcase"></i>
                                                     </div>
                                                     <div className="job-details">
-                                                        <h5 className="job-title">{job.title}</h5>
+                                                        <h5 className="job-title">{formatJobTitle(job.title)}</h5>
                                                         <p className="job-location">
                                                             <i className="fa fa-map-marker-alt"></i>
                                                             {job.location || 'Remote'}

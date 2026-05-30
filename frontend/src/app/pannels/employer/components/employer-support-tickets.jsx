@@ -5,6 +5,7 @@ import '../../admin/components/admin-support-tickets.css';
 import '../../admin/components/admin-emp-manage-styles.css';
 import { showSuccess, showError, showConfirmation } from '../../../../utils/popupNotification';
 import { api } from '../../../../utils/api';
+import { formatDesignation } from '../../../../utils/jobTitleFormatter';
 
 function AutoExpandTextarea({
     value = '',
@@ -590,8 +591,8 @@ function EmployerSupportTickets() {
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getCompanyName(ticket)}>
                                                             <span className="category-badge">{getCompanyName(ticket)}</span>
                                                         </td>
-                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getJobTitle(ticket) || 'No designation selected'}>
-                                                            <span className="category-badge">{getJobTitle(ticket) || 'N/A'}</span>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={formatDesignation(getJobTitle(ticket), 'No designation selected')}>
+                                                            <span className="category-badge">{formatDesignation(getJobTitle(ticket))}</span>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={`${ticket.name || 'N/A'} - ${ticket.email || 'No email'}`}>
                                                             <div className="user-info">
@@ -740,7 +741,7 @@ function EmployerSupportTickets() {
                                         </div>
                                         <div className="ticket-detail-card">
                                             <div className="detail-label">Designation</div>
-                                            <div className="detail-value detail-value--break">{getJobTitle(selectedTicket) || 'N/A'}</div>
+                                            <div className="detail-value detail-value--break">{formatDesignation(getJobTitle(selectedTicket), 'N/A')}</div>
                                         </div>
                                         <div className="ticket-detail-card">
                                             <div className="detail-label">Email</div>

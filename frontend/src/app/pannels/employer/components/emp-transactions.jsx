@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { loadScript, publicUrlFor } from "../../../../globals/constants";
 import { ListChecks, Search, Receipt, Download, Eye, X } from "lucide-react";
 import { api } from "../../../../utils/api";
+import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import "../../../../styles/print-receipt.css";
 
 function EmpTransactionsPage() {
@@ -185,7 +186,7 @@ function EmpTransactionsPage() {
                                                     <div className="fw-bold">{t.candidateId?.name || 'Guest'}</div>
                                                     <small className="text-muted">{t.candidateId?.email}</small>
                                                 </td>
-                                                <td>{t.jobId?.title || 'N/A'}</td>
+                                                <td>{formatJobTitle(t.jobId?.title, 'N/A')}</td>
                                                 <td><code className="text-primary">{t.paymentId}</code></td>
                                                 <td>
                                                     <span className="fw-bold">₹{t.paymentAmount || 129}</span>
@@ -311,7 +312,7 @@ function EmpTransactionsPage() {
                                                         <td>
                                                             <div className="fw-bold text-dark">Job Application Fee</div>
                                                             <div className="text-muted small mt-1">
-                                                                <strong>Job Title:</strong> {selectedTransaction?.jobId?.title}<br />
+                                                                <strong>Job Title:</strong> {formatJobTitle(selectedTransaction?.jobId?.title, 'N/A')}<br />
                                                                 {selectedTransaction?.jobId?.jobCategory && (
                                                                     <span><strong>Category:</strong> {selectedTransaction?.jobId?.jobCategory}</span>
                                                                 )}

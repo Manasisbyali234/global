@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
+import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
 
 function ShortlistedCandidatesPage() {
     const [shortlistedCandidates, setShortlistedCandidates] = useState([]);
@@ -64,7 +65,7 @@ function ShortlistedCandidatesPage() {
                                                             <td>{application.employerId?.companyName || 'N/A'}</td>
                                                             <td>{application.employerId?.email || 'N/A'}</td>
                                                             <td>{application.jobId?.location || 'N/A'}</td>
-                                                            <td>{application.jobId?.title || 'N/A'}</td>
+                                                            <td>{formatJobTitle(application.jobId?.title, 'N/A')}</td>
                                                             <td>{formatDate(application.createdAt)}</td>
                                                         </tr>
                                                     ))

@@ -6,6 +6,7 @@ import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
 import { getAssessmentOutcome, isAssessmentOutcomeRejected } from "../../../../utils/assessmentOutcome";
 import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
+import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import './emp-candidates.css';
 
 function SearchableFilterDropdown({
@@ -525,7 +526,7 @@ function EmpCandidatesPage() {
   const designationOptions = useMemo(
     () => [
       { value: "", label: "All Designation" },
-      ...jobTitleOptions.map((title) => ({ value: title, label: title }))
+      ...jobTitleOptions.map((title) => ({ value: title, label: formatJobTitle(title) }))
     ],
     [jobTitleOptions]
   );
@@ -735,7 +736,7 @@ function EmpCandidatesPage() {
                             {application.candidateId?.email || "No email"}
                           </p>
                           <small className="text-muted">
-                            Applied for {application.jobId?.title || "Unknown Job"}
+                            Applied for {formatJobTitle(application.jobId?.title, "Unknown Job")}
                           </small>{" "}
                           <br />
                           {application.jobId?.companyName && (

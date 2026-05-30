@@ -23,6 +23,7 @@ import {
 	getJobEducationSpecializationOptions,
 	normalizeJobEducationSpecializations
 } from "../../../../../utils/jobEducationOptions";
+import { formatDesignation } from "../../../../../utils/jobTitleFormatter";
 
 import "../../../../../components/ErrorDisplay.css";
 import "./emp-post-job-mobile-fix.css";
@@ -97,7 +98,7 @@ const formatCountLabel = (count, singular, plural = `${singular}s`) =>
 const formatAssessmentOptionLabel = (assessment = {}, employerType = 'company') => {
 	const companyName = String(assessment?.companyName || '').trim();
 	const assessmentName = formatAssessmentTitle(assessment?.title) || 'Untitled Assessment';
-	const designation = String(assessment?.designation || '').trim();
+	const designation = formatDesignation(assessment?.designation, '');
 	const duration = getAssessmentDuration(assessment);
 	const durationLabel = duration === 'N/A' ? 'Duration: N/A' : `${duration} min`;
 

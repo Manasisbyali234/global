@@ -8,6 +8,7 @@ import MobileTestIndicator from "../../../../../components/MobileTestIndicator";
 import HomeJobCard from "../../../../../components/HomeJobCard";
 import { formatDate } from "../../../../../utils/dateFormatter";
 import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
+import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 // CSS is now in public/assets/css/home-job-cards.css
 import "../../../../../categories-mobile-grid-fix.css";
 import "../../../../../remove-carousel-hover-effects.css";
@@ -150,7 +151,7 @@ function HomeJobsList() {
                                 </div>
                                 <div className="twm-mid-content">
                                     <NavLink to={`${publicUser.jobs.DETAIL1}/${job._id}`} className="twm-job-title">
-                                        <h4>{job.title}<span className="twm-job-post-duration">/ {formatDate(job.createdAt)}</span></h4>
+                                        <h4>{formatJobTitle(job.title)}<span className="twm-job-post-duration">/ {formatDate(job.createdAt)}</span></h4>
                                     </NavLink>
                                     <p className="twm-job-address">
                                         {(() => {

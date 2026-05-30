@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { publicUser } from "../../../../../../globals/route-names";
 import PageLoader from "../../../../../../components/PageLoader";
 import { getJobDisplayLogo } from "../../../../../../utils/jobBranding";
+import { formatJobTitle } from "../../../../../../utils/jobTitleFormatter";
 import "../../../../../../new-job-card.css";
 
 function SectionAvailableJobsList({ employerId }) {
@@ -123,11 +124,7 @@ function SectionAvailableJobsList({ employerId }) {
 											)}
 										</div>
 										<div className="job-info">
-											<h4 className="job-title">{(() => {
-                                                const rawTitle = typeof job.title === "string" ? job.title.trim() : "";
-                                                if (!rawTitle) return "Job title";
-                                                return rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1);
-                                            })()}</h4>
+											<h4 className="job-title">{formatJobTitle(job.title)}</h4>
 											<div className="job-location">
 												<i className="feather-map-pin" />
 												{(() => {
