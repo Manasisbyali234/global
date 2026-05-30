@@ -28,8 +28,18 @@ body.home-page-scrollbar-hidden {
     -ms-overflow-style: none !important;
 }
 
+body.home-page-scrollbar-hidden .public-page-layout,
+body.home-page-scrollbar-hidden .public-page-content {
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
 html.home-page-scrollbar-hidden::-webkit-scrollbar,
 body.home-page-scrollbar-hidden::-webkit-scrollbar,
+body.home-page-scrollbar-hidden .public-page-layout::-webkit-scrollbar,
+body.home-page-scrollbar-hidden .public-page-content::-webkit-scrollbar,
 .home-page-alignment::-webkit-scrollbar,
 .home-page-alignment .hero-body::-webkit-scrollbar {
     width: 0 !important;
