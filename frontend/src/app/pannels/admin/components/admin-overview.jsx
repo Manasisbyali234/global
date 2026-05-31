@@ -863,7 +863,7 @@ function AdminOverviewPage() {
                                       }}
                                     >
                                       <div style={{ fontWeight: 600, fontSize: "12px", color: "#232323" }}>
-                                        {(() => { const n = round.name || round.type || `Round ${index + 1}`; return (n === 'Assessment' || n === 'assessment') ? 'MCQ/Assessment' : n; })()}
+                                        {round.name || round.type || `Round ${index + 1}`}
                                       </div>
                                       <div className="admin-overview-round-detail">
                                         <strong>Status:</strong>{" "}

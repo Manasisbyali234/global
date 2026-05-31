@@ -1372,8 +1372,8 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others ï¿½ Specify.',
-				assessment: 'MCQ/Assessment'
+				others: 'Others – Specify.',
+				assessment: 'Assessment'
 			};
 			
 			// Extract type from keys like "assessment_1770487959181"
@@ -1396,8 +1396,8 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others ï¿½ Specify.',
-				assessment: 'MCQ/Assessment',
+				others: 'Others – Specify.',
+				assessment: 'Assessment',
 				nonTechnical: 'Non-Technical',
 				managerial: 'Managerial Round',
 				final: 'Final',
@@ -1445,13 +1445,13 @@ function CanStatusPage() {
 				// Sanitize name: if it looks like a unique key, extract the actual type
 				if (name && (name.includes('_') || /^\d+$/.test(name))) {
 					const stageNames = {
-						assessment: 'MCQ/Assessment',
+						assessment: 'Assessment',
 						technical: 'Technical Round',
 						oneOnOne: 'One-to-One',
 						panel: 'Panel',
 						group: 'Group Discussion',
 						situational: 'Situational / Behavioral Round',
-						others: 'Others ï¿½ Specify.',
+						others: 'Others – Specify.',
 						nonTechnical: 'Non-Technical',
 						managerial: 'Managerial Round',
 						final: 'Final',
@@ -1503,8 +1503,8 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others ï¿½ Specify.',
-				assessment: 'MCQ/Assessment',
+				others: 'Others – Specify.',
+				assessment: 'Assessment',
 				nonTechnical: 'Non-Technical',
 				managerial: 'Managerial Round',
 				final: 'Final',
@@ -1570,7 +1570,7 @@ function CanStatusPage() {
 			if (roundTypes.group) rounds.push({ name: 'Group Discussion', uniqueKey: 'group', roundType: 'group' });
 			if (roundTypes.technical) rounds.push({ name: 'Technical Round', uniqueKey: 'technical', roundType: 'technical' });
 			if (roundTypes.situational) rounds.push({ name: 'Situational / Behavioral Round', uniqueKey: 'situational', roundType: 'situational' });
-			if (roundTypes.others) rounds.push({ name: 'Others ï¿½ Specify.', uniqueKey: 'others', roundType: 'others' });
+			if (roundTypes.others) rounds.push({ name: 'Others – Specify.', uniqueKey: 'others', roundType: 'others' });
 
 			if (rounds.length > 0) return rounds;
 		}
@@ -1702,15 +1702,6 @@ function CanStatusPage() {
 				: null;
 		};
 
-		const getReadyToBookStatus = () => ({
-			text: 'Schedule',
-			class: 'bg-info bg-opacity-10 text-info border border-info',
-			feedback: ''
-		});
-
-		const isUnbookedScheduleStatus = (status) =>
-			['scheduled', 'interview scheduled'].includes(normalizeStatusValue(status));
-
 		// Check assessment status for Assessment rounds
 		if (roundName === 'Assessment') {
 			const assessmentRoundInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
@@ -1804,8 +1795,6 @@ function CanStatusPage() {
 			return result;
 		}
 
-		const bookedSlotStatus = getBookedSlotStatus();
-
 		// Check if there are actual interview rounds data from employer review
 		if (application.interviewRounds && application.interviewRounds.length > 0) {
 			const round = application.interviewRounds.find(r => r.round === roundIndex + 1);
@@ -1825,8 +1814,9 @@ function CanStatusPage() {
 						};
 					case 'pending':
 					default:
-						return bookedSlotStatus || {
-							...getReadyToBookStatus(),
+						return { 
+							text: 'Scheduled', 
+							class: 'bg-info bg-opacity-10 text-info border border-info',
 							feedback: round.feedback || ''
 						};
 				}
@@ -1834,6 +1824,7 @@ function CanStatusPage() {
 		}
 
 		// Use current tracked stage status when available
+		const bookedSlotStatus = getBookedSlotStatus();
 		if (
 			(Array.isArray(application.interviewProcesses) && application.interviewProcesses.length > 0) ||
 			(Array.isArray(application.interviewProcess?.stages) && application.interviewProcess.stages.length > 0)
@@ -1876,9 +1867,6 @@ function CanStatusPage() {
 						: false;
 
 			if (trackedStatus && normalizedTrackedStatus !== 'pending') {
-				if (isUnbookedScheduleStatus(normalizedTrackedStatus)) {
-					return bookedSlotStatus || getReadyToBookStatus();
-				}
 				const mapped = mapProcessStatusToBadge(trackedStatus, {
 					isFinalStage: isFinalTrackedStage,
 					treatDeferredAttendanceStatusAsPending: false
@@ -1891,7 +1879,11 @@ function CanStatusPage() {
 			}
 
 			if (roundIndex > 0 && getRoundActivationState(application, roundIndex).canStart) {
-				return getReadyToBookStatus();
+				return {
+					text: 'Scheduled',
+					class: 'bg-info bg-opacity-10 text-info border border-info',
+					feedback: ''
+				};
 			}
 
 			if (trackedStatus) {
@@ -1912,11 +1904,11 @@ function CanStatusPage() {
 		
 		// For pending status, check if candidate is selected for process
 		if (status === 'pending' && application.isSelectedForProcess) {
-			return getReadyToBookStatus();
+			return { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' };
 		}
 		
 		if (status === 'shortlisted') {
-			return getReadyToBookStatus();
+			return { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' };
 		} else if (status === 'interviewed') {
 			return { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
 		} else if (status === 'hired') {
@@ -1993,7 +1985,7 @@ function CanStatusPage() {
 					dateStyle: 'medium',
 					timeStyle: 'short'
 				}) : null;
-				showWarning(startLabel ? `Assessment Not Yet Available\n\nThe assessment will open on ${startLabel}. Please log in 5 minutes before the scheduled time.` : ' Assessment is not yet available. Please wait for the scheduled time.');
+				showWarning(startLabel ? `? Assessment Not Yet Available\n\nThe assessment will open on ${startLabel}. Please log in 5 minutes before the scheduled time.` : '? Assessment is not yet available. Please wait for the scheduled time.');
 				return;
 			}
 			const endLabel = windowInfo.endDate ? windowInfo.endDate.toLocaleString('en-IN', {
@@ -2001,7 +1993,7 @@ function CanStatusPage() {
 				dateStyle: 'medium',
 				timeStyle: 'short'
 			}) : null;
-			showError(endLabel ? ` Assessment Window Closed\n\nThe assessment window ended on ${endLabel}.` : ' Assessment window has ended.');
+			showError(endLabel ? `? Assessment Window Closed\n\nThe assessment window ended on ${endLabel}.` : '? Assessment window has ended.');
 			return;
 		}
 		const assessmentId = getAssessmentRoundInfo(application, 'Assessment', roundDetails).assessmentId || job?.assessmentId;
@@ -2041,7 +2033,7 @@ function CanStatusPage() {
 		if (['rejected', 'failed', 'fail', 'expired', 'suspended', 'no show', 'not advanced to next stage'].includes(status)) {
 			return { backgroundColor: '#fdeaea', color: '#c82333', border: '1px solid #c82333' };
 		}
-		if (['schedule', 'scheduled', 'started', 'interview scheduled'].includes(status)) {
+		if (['scheduled', 'started', 'interview scheduled'].includes(status)) {
 			return { backgroundColor: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' };
 		}
 		if (['in progress', 'under review', 'shortlisted', 'shortlisted for next round', 'pending decision'].includes(status)) {
@@ -2387,8 +2379,8 @@ function CanStatusPage() {
 																						panel: 'Panel',
 																						group: 'Group Discussion',
 																						situational: 'Situational / Behavioral Round',
-																						others: 'Others ï¿½ Specify.',
-																						assessment: 'MCQ/Assessment',
+																						others: 'Others – Specify.',
+																						assessment: 'Assessment',
 																						nonTechnical: 'Non-Technical',
 																						managerial: 'Managerial Round',
 																						final: 'Final',
@@ -2612,7 +2604,7 @@ function CanStatusPage() {
 						</div>
 						<div className="status-page-pagination-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "row" }}>
 							<div style={{ color: "#6c757d", fontSize: "13px" }}>
-								Showing {filteredApplications.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}ï¿½{Math.min(currentPage * PAGE_SIZE, filteredApplications.length)} of {filteredApplications.length} record{filteredApplications.length !== 1 ? "s" : ""}
+								Showing {filteredApplications.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredApplications.length)} of {filteredApplications.length} record{filteredApplications.length !== 1 ? "s" : ""}
 							</div>
 							{Math.ceil(filteredApplications.length / PAGE_SIZE) > 1 && (
 								<div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
@@ -2790,8 +2782,8 @@ function CanStatusPage() {
 												panel: 'Panel',
 												group: 'Group Discussion',
 												situational: 'Situational / Behavioral Round',
-												others: 'Others ï¿½ Specify.',
-												assessment: 'MCQ/Assessment',
+												others: 'Others – Specify.',
+												assessment: 'Assessment',
 												nonTechnical: 'Non-Technical',
 												managerial: 'Managerial Round',
 												final: 'Final',
