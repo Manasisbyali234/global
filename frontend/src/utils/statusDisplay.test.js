@@ -1,4 +1,8 @@
-import { getAdminApplicantTableStatusKey } from './statusDisplay';
+import {
+  getAdminApplicantTableStatusKey,
+  getApplicationStatusKey,
+  getInterviewCurrentStatusKey,
+} from './statusDisplay';
 
 test('admin overview prefers rejected application status over a no-show interview status', () => {
   expect(
@@ -27,4 +31,28 @@ test('admin overview keeps the explicit application status over a backend no-sho
       applicationStatus: 'pending'
     })
   ).toBe('pending');
+});
+
+test('candidate interview status preserves suspended assessments over stale no-show values', () => {
+  const application = {
+    status: 'rejected',
+    applicationStatus: 'rejected',
+    interviewCurrentStatus: 'no_show',
+    assessmentStatus: 'suspended',
+  };
+
+  expect(getApplicationStatusKey(application)).toBe('rejected');
+  expect(getInterviewCurrentStatusKey(application)).toBe('suspended');
+});
+
+test('candidate interview status preserves suspended assessment attempts', () => {
+  expect(
+    getInterviewCurrentStatusKey({
+      status: 'rejected',
+      interviewCurrentStatus: 'no_show',
+      assessmentAttemptsByAssessmentId: {
+        assessmentA: { status: 'suspended' },
+      },
+    })
+  ).toBe('suspended');
 });

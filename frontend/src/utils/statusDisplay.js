@@ -101,6 +101,38 @@ export const getStatusLabel = (value = 'pending') => {
   return STATUS_LABELS[statusKey] || statusKey.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
+const getAssessmentRejectedStatusKey = (application = {}) => {
+  const assessmentStatusKey = getCanonicalStatusKey(
+    application?.assessmentStatus ||
+      application?.assessmentAttemptStatus ||
+      application?.assessmentAttempt?.status ||
+      '',
+    ''
+  );
+  const assessmentResultKey = getCanonicalStatusKey(
+    application?.assessmentResult ||
+      application?.assessmentAttempt?.result ||
+      '',
+    ''
+  );
+
+  if (assessmentStatusKey === 'suspended') return 'suspended';
+  if (assessmentStatusKey === 'failed' || assessmentResultKey === 'failed') return 'failed';
+  if (['no_show', 'session_expired'].includes(assessmentStatusKey)) return 'no_show';
+
+  const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
+  for (const attempt of Object.values(attemptsByAssessmentId)) {
+    const attemptStatusKey = getCanonicalStatusKey(attempt?.status || '', '');
+    const attemptResultKey = getCanonicalStatusKey(attempt?.result || '', '');
+
+    if (attemptStatusKey === 'suspended') return 'suspended';
+    if (attemptStatusKey === 'failed' || attemptResultKey === 'failed') return 'failed';
+    if (['no_show', 'session_expired'].includes(attemptStatusKey)) return 'no_show';
+  }
+
+  return '';
+};
+
 const normalizeApplicationDisplayStatusKey = (statusKey = 'pending') => {
   switch (statusKey) {
     case 'under_review':
@@ -173,6 +205,7 @@ export const getApplicationStatusKey = (application = {}, fallback = 'pending') 
 };
 
 export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pending') =>
+  getAssessmentRejectedStatusKey(application) ||
   getCanonicalStatusKey(
     application?.interviewCurrentStatus ||
       application?.currentInterviewStatus ||

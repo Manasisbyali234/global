@@ -625,6 +625,21 @@ const resolveAssessmentOutcomeStatus = (status = '', result = '', fallback = 'pe
   return getCanonicalStatusKey(status, fallback);
 };
 
+const getRejectedAssessmentOutcomeStatusKey = (status = '', result = '') => {
+  const normalizedStatus = normalizeApplicationStatusValue(status);
+  const normalizedResult = normalizeApplicationStatusValue(result);
+
+  if (normalizedStatus === 'suspended') return 'suspended';
+  if (['failed', 'fail'].includes(normalizedStatus) || ['failed', 'fail'].includes(normalizedResult)) {
+    return 'failed';
+  }
+  if (['no show', 'session expired'].includes(normalizedStatus)) {
+    return 'no_show';
+  }
+
+  return '';
+};
+
 const isAssessmentWindowClosed = (application = {}, assessmentId = '') => {
   const jobData = application?.jobId;
   if (!jobData || typeof jobData !== 'object') {
@@ -1012,28 +1027,18 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
 
   // Guard: if assessment-level fields directly indicate a terminal rejection outcome,
   // return it immediately so a stale/missing attempt lookup cannot flip it to pending.
-  const _ics_assessmentStatus = String(application?.assessmentStatus || '').toLowerCase();
-  const _ics_assessmentResult = String(application?.assessmentResult || '').toLowerCase();
-  const _ics_rejectedStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
-  const _ics_failedStatuses = ['failed', 'fail'];
-  const _ics_isExpiredWithPass = _ics_assessmentStatus === 'expired' && _ics_assessmentResult === 'pass';
-  const _ics_isExpiredPending = _ics_assessmentStatus === 'expired' && _ics_assessmentResult === 'pending';
-  if (!_ics_isExpiredWithPass && !_ics_isExpiredPending && (
-    _ics_rejectedStatuses.includes(_ics_assessmentStatus) ||
-    _ics_failedStatuses.includes(_ics_assessmentStatus) ||
-    _ics_failedStatuses.includes(_ics_assessmentResult)
-  )) {
-    return _ics_rejectedStatuses.includes(_ics_assessmentStatus) ? 'no_show' : 'failed';
+  const _ics_assessmentOutcomeStatus = getRejectedAssessmentOutcomeStatusKey(
+    application?.assessmentStatus,
+    application?.assessmentResult
+  );
+  if (_ics_assessmentOutcomeStatus) {
+    return _ics_assessmentOutcomeStatus;
   }
   const _ics_attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
-  const _ics_hasRejectedAttempt = Object.values(_ics_attemptsByAssessmentId).some((attempt) => {
-    const s = String(attempt?.status || '').toLowerCase();
-    const r = String(attempt?.result || '').toLowerCase();
-    if (s === 'expired' && r === 'pass') return false;
-    if (s === 'expired' && r === 'pending') return false;
-    return _ics_rejectedStatuses.includes(s) || _ics_failedStatuses.includes(s) || _ics_failedStatuses.includes(r);
-  });
-  if (_ics_hasRejectedAttempt) return 'no_show';
+  for (const attempt of Object.values(_ics_attemptsByAssessmentId)) {
+    const rejectedAttemptStatus = getRejectedAssessmentOutcomeStatusKey(attempt?.status, attempt?.result);
+    if (rejectedAttemptStatus) return rejectedAttemptStatus;
+  }
 
   const trackedProcessesForStatus = getResolvedTrackedProcesses(application, options);
   const hasRejectedTrackedProcess = trackedProcessesForStatus.some((process) =>
