@@ -134,6 +134,12 @@ export default function ViewAnswers() {
       return;
     }
 
+    const hasMarksErrors = Object.values(marksErrors).some((err) => err);
+    if (hasMarksErrors) {
+      showError('Please fix the marks errors before saving.');
+      return;
+    }
+
     const manualAnswersToEvaluate = (attempt.answers || []).filter((answer) => {
       const question = assessment.questions?.[answer.questionIndex];
       return question && isManualQuestionType(question.type) && hasManualResponse(answer);
@@ -360,7 +366,7 @@ export default function ViewAnswers() {
             </div>
             <div>
               <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Percentage</div>
-              <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{attempt.percentage}%</div>
+              <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{Math.min(100, attempt.percentage ?? 0)}%</div>
             </div>
             <div>
               <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Result</div>
