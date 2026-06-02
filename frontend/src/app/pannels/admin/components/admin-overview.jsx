@@ -363,12 +363,12 @@ function AdminOverviewPage() {
     }
 
     const normalizedStatus = normalizeStatusValue(round?.status);
+    const normalizedResult = normalizeStatusValue(round?.assessmentResult);
 
     // If assessment status is no show, result must also be No Show
-    if (["no show", "no_show"].includes(normalizedStatus)) {
+    if (normalizedStatus === "no show") {
       return { label: "No Show", style: badgeStyles.danger };
     }
-    const normalizedResult = normalizeStatusValue(round?.assessmentResult);
 
     if (["pass", "passed"].includes(normalizedResult) || normalizedStatus === "passed") {
       return { label: "Passed", style: badgeStyles.success };
@@ -919,7 +919,7 @@ function AdminOverviewPage() {
                                         <div className="admin-overview-round-detail admin-overview-round-remarks">
                                         <strong>Remarks:</strong> {round.remark || "No remarks"}
                                       </div>
-                                      {round.type === 'assessment' && (() => {
+                                      {(normalizeStatusValue(round?.type) === 'assessment' || normalizeStatusValue(round?.name).includes('assessment')) && (() => {
                                         return (
                                           <div className="admin-overview-round-detail" style={{ marginTop: '4px' }}>
                                             <strong>Assessment Result:</strong>{' '}
