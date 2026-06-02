@@ -3408,8 +3408,18 @@ exports.getApplicationDetails = async (req, res) => {
       dateOfBirth: candidateProfileObj.dateOfBirth || null
     };
 
+    const appObj = application.toObject();
+    // Serialize processRemarks Map to plain object
+    if (appObj.processRemarks instanceof Map) {
+      const remarksObj = {};
+      for (const [k, v] of appObj.processRemarks.entries()) {
+        remarksObj[k] = v;
+      }
+      appObj.processRemarks = remarksObj;
+    }
+
     const responseApplication = await ensureExpiredApplicationRejected({
-      ...application.toObject(),
+      ...appObj,
       candidateId: candidateData,
       assessmentAttempt: assessmentAttempt,
       assessmentAttempts,
@@ -4363,16 +4373,22 @@ exports.saveInterviewReview = async (req, res) => {
     }
     
     if (processRemarks && typeof processRemarks === 'object') {
-      const remarksMap = {};
+      const remarksMap = new Map();
       for (const [key, value] of Object.entries(processRemarks)) {
-        remarksMap[key] = String(value || '');
+        remarksMap.set(key, String(value || ''));
       }
       updateData.processRemarks = remarksMap;
     }
-    
+
+    const mongoUpdate = { $set: updateData };
+    if (updateData.$push) {
+      mongoUpdate.$push = updateData.$push;
+      delete mongoUpdate.$set.$push;
+    }
+
     const application = await Application.findOneAndUpdate(
       { _id: applicationId, employerId: req.user._id },
-      updateData,
+      mongoUpdate,
       { new: true }
     ).populate('candidateId', 'name email')
     .populate('jobId', 'title');
@@ -4482,10 +4498,19 @@ exports.saveInterviewReview = async (req, res) => {
       }
     }
     
-    const decoratedApplication = decorateEmployerApplicationStatusFields(application, {
+    const decoratedApplication = decorateEmployerApplicationStatusFields(application.toObject(), {
       assessmentAttemptsByAssessmentId,
       interviewProcess
     });
+
+    // Restore processRemarks as a plain object for JSON serialization
+    if (decoratedApplication.processRemarks instanceof Map) {
+      const remarksObj = {};
+      for (const [k, v] of decoratedApplication.processRemarks.entries()) {
+        remarksObj[k] = v;
+      }
+      decoratedApplication.processRemarks = remarksObj;
+    }
 
     if (applicationId === '6a0adb74a9e49375392a4af7') {
       console.log('DEBUG employer.saveInterviewReview response', {

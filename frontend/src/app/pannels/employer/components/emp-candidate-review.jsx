@@ -1870,6 +1870,10 @@ function EmpCandidateReviewPage() {
                                                                                 rows="1"
                                                                                 style={{ overflow: 'hidden', resize: 'none' }}
                                                                             />
+                                                                            <p style={{ fontSize: '12px', color: '#9aabcc', margin: '4px 0 0 0', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                                                <i className="fas fa-info-circle"></i>
+                                                                                Feedback entered here is automatically saved and visible for this candidate.
+                                                                            </p>
                                                                         </div>
                                                                         {process.type !== 'assessment' && <div className="stage-actions-horizontal"></div>}
                                                                     </div>
