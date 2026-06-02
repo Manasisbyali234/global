@@ -1166,19 +1166,12 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         let assessmentProcessIndex = 0;
 
         return application.interviewProcesses.map((process) => {
-          const roundDetails = getRoundDetails(application?.jobId, [
-            process.id,
-            process._id,
-            process.type,
-            process.name
-          ]);
           let matchedAttempt = null;
           let resolvedAssessmentId = null;
 
           if (process?.type === 'assessment') {
             resolvedAssessmentId =
               normalizeAssessmentId(process?.assessmentId) ||
-              normalizeAssessmentId(roundDetails?.assessmentId) ||
               orderedAssessmentIds[assessmentProcessIndex] ||
               singleConfiguredAssessmentId ||
               '';
@@ -1187,6 +1180,19 @@ exports.getJobApplicantsForOverview = async (req, res) => {
               singleAssessmentAttempt ||
               null;
             assessmentProcessIndex += 1;
+          }
+
+          // Resolve round details per assessment round using assessmentId to avoid date/time bleed
+          let roundDetails;
+          if (process?.type === 'assessment' && resolvedAssessmentId) {
+            const detailEntries = Object.entries(application?.jobId?.interviewRoundDetails || {});
+            const matchedEntry = detailEntries.find(([, d]) =>
+              normalizeAssessmentId(d?.assessmentId) === resolvedAssessmentId
+            );
+            const matchedKey = matchedEntry ? matchedEntry[0] : null;
+            roundDetails = getRoundDetails(application?.jobId, [matchedKey, process.id, process._id].filter(Boolean));
+          } else {
+            roundDetails = getRoundDetails(application?.jobId, [process.id, process._id, process.type, process.name]);
           }
 
           const resolvedStatus = process?.type === 'assessment' && matchedAttempt
