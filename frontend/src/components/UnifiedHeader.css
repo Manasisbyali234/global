@@ -152,6 +152,13 @@
     }
 }
 
+/* Hide profile icon on mobile only */
+@media (max-width: 768px) {
+    .unified-header-profile {
+        display: none !important;
+    }
+}
+
 /* Extra Small Mobile */
 @media (max-width: 480px) {
     .unified-header {
