@@ -292,10 +292,10 @@ function AdminOverviewPage() {
         return { label: "Under Review", style: badgeStyles.warning };
       }
       if (normalizedStatus === "pending decision") {
-        return { label: "Pending Decision", style: badgeStyles.warning };
+        return { label: "Pending", style: badgeStyles.neutral };
       }
       if (normalizedStatus === "on hold") {
-        return { label: "On Hold", style: badgeStyles.secondary };
+        return { label: "Pending", style: badgeStyles.neutral };
       }
       if (normalizedStatus === "no show") {
         return { label: "No Show", style: badgeStyles.danger };
