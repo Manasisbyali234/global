@@ -932,11 +932,13 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     return 'rejected';
   }
 
+  const latestTrackedKey = trackedProcesses.length > 0 ? getCanonicalStatusKey(trackedProcesses[trackedProcesses.length - 1]?.status || '', '') : '';
+  const NON_REJECTED_EMPLOYER_DECISION_KEYS = new Set(['on_hold', 'pending_decision', 'under_review', 'shortlisted', 'shortlisted_for_next_round', 'selected', 'passed']);
   if (
     baseStatus === 'rejected' &&
-    isAutoRejectedFromInterviewStageStatus(application) &&
     trackedProcesses.length > 0 &&
-    !hasRejectedProcess
+    !hasRejectedProcess &&
+    (isAutoRejectedFromInterviewStageStatus(application) || NON_REJECTED_EMPLOYER_DECISION_KEYS.has(latestTrackedKey))
   ) {
     return application?.isSelectedForProcess ? 'shortlisted' : 'pending';
   }
@@ -1044,11 +1046,13 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
   const hasRejectedTrackedProcess = trackedProcessesForStatus.some((process) =>
     isRejectedInterviewProcessStatus(process?.status)
   );
+  const latestTrackedKeyICS = trackedProcessesForStatus.length > 0 ? getCanonicalStatusKey(trackedProcessesForStatus[trackedProcessesForStatus.length - 1]?.status || '', '') : '';
+  const NON_REJECTED_ICS_KEYS = new Set(['on_hold', 'pending_decision', 'under_review', 'shortlisted', 'shortlisted_for_next_round', 'selected', 'passed']);
   if (
     baseStatus === 'rejected' &&
-    isAutoRejectedFromInterviewStageStatus(application) &&
     trackedProcessesForStatus.length > 0 &&
-    !hasRejectedTrackedProcess
+    !hasRejectedTrackedProcess &&
+    (isAutoRejectedFromInterviewStageStatus(application) || NON_REJECTED_ICS_KEYS.has(latestTrackedKeyICS))
   ) {
     return application?.isSelectedForProcess ? 'shortlisted' : 'pending';
   }
