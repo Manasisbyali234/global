@@ -31,6 +31,34 @@
 
 .emp-posted-jobs-page .manage-jobs-toolbar {
   margin-bottom: 1.5rem !important;
+  align-items: flex-end !important;
+}
+
+/* Uniform height & appearance for all filter controls */
+.emp-posted-jobs-page .manage-jobs-toolbar .form-control,
+.emp-posted-jobs-page .manage-jobs-toolbar .form-select {
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  padding: 0 12px !important;
+  font-size: 0.875rem !important;
+  border-radius: 8px !important;
+  border: 1px solid #d1d5db !important;
+  line-height: 1.5 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Date inputs need extra padding-left for the native calendar icon */
+.emp-posted-jobs-page .manage-jobs-toolbar input[type="date"].form-control {
+  padding: 0 12px !important;
+  cursor: pointer !important;
+}
+
+/* Search input keeps left padding for the icon */
+.emp-posted-jobs-page .manage-jobs-toolbar .position-relative .form-control {
+  padding-left: 40px !important;
 }
 
 .emp-posted-jobs-page .manage-jobs-toolbar__date-group {
@@ -39,6 +67,7 @@
   flex-direction: column;
   gap: 0.35rem;
   min-width: 260px;
+  align-self: flex-end;
 }
 
 .emp-posted-jobs-page .manage-jobs-toolbar__date-label {
@@ -69,6 +98,8 @@
   color: #6b7280;
   font-size: 0.875rem;
   font-weight: 500;
+  line-height: 48px;
+  flex-shrink: 0;
 }
 
 .emp-posted-jobs-page .manage-jobs-toolbar__clear-btn {
@@ -81,6 +112,7 @@
   flex-direction: column;
   gap: 0.35rem;
   min-width: 220px;
+  align-self: flex-end;
 }
 
 .emp-posted-jobs-page .manage-jobs-toolbar__status-label {

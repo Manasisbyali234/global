@@ -294,7 +294,7 @@ export default function EmpPostedJobs() {
 
 				<div className="panel-body wt-panel-body">
 					<div className="manage-jobs-toolbar d-flex flex-wrap gap-3 justify-content-between align-items-end">
-						<div className="position-relative" style={{maxWidth: '360px', flex: '1 1 300px'}}>
+						<div className="position-relative" style={{maxWidth: '360px', flex: '1 1 300px', alignSelf: 'flex-end'}}>
 							<i className="fa fa-search position-absolute" style={{left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#ff6b35', fontSize: '16px', zIndex: 10}}></i>
 							<input
 								type="text"
@@ -311,7 +311,7 @@ export default function EmpPostedJobs() {
 								))}
 							</datalist>
 						</div>
-                        <div style={{minWidth: '220px', flex: '0 1 240px'}}>
+                        <div style={{minWidth: '220px', flex: '0 1 240px', alignSelf: 'flex-end'}}>
                             <select
                                 className="form-select"
                                 value={designationFilter}
