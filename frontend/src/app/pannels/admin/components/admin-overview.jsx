@@ -82,10 +82,18 @@ function AdminOverviewPage() {
   const showJobCompanyColumn =
     selectedEmployer?.employerType === "consultant" ||
     visibleEmployerJobs.some((job) => String(job.companyName || "").trim());
+  const PENDING_DISPLAY_KEYS = new Set(['pending', 'on_hold', 'pending_decision', 'under_review', 'scheduled', 'in_progress', 'interview_scheduled', 'interview_completed']);
+
   const visibleJobApplicants = jobApplicants.filter((applicant) => {
     const applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
     if (!String(applicant?.applicantEmail || "").toLowerCase().includes(applicantSearch.toLowerCase())) return false;
-    if (applicantStatusFilter !== "all" && applicantStatusKey !== applicantStatusFilter) return false;
+    if (applicantStatusFilter !== "all") {
+      if (applicantStatusFilter === "pending") {
+        if (!PENDING_DISPLAY_KEYS.has(applicantStatusKey)) return false;
+      } else if (applicantStatusKey !== applicantStatusFilter) {
+        return false;
+      }
+    }
     return true;
   });
 
@@ -928,13 +936,13 @@ function AdminOverviewPage() {
                                 borderRadius: '999px',
                                 fontSize: '12px',
                                 fontWeight: 600,
-                                  ...(applicantStatusKey === 'pending' ? { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' } :
+                                  ...(['pending', 'on_hold', 'pending_decision', 'under_review', 'scheduled', 'in_progress', 'interview_scheduled', 'interview_completed'].includes(applicantStatusKey) ? { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' } :
                                   ['rejected', 'no_show', 'failed', 'suspended', 'session_expired'].includes(applicantStatusKey) ? { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' } :
                                   ['accepted', 'hired'].includes(applicantStatusKey) ? { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' } :
                                   ['shortlisted', 'offer_sent'].includes(applicantStatusKey) ? { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' } :
                                   { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' })
                               }}>
-                                {applicantStatusKey === 'no_show' ? 'Rejected' : getStatusLabel(applicantStatusKey)}
+                                {['on_hold', 'pending_decision', 'under_review', 'scheduled', 'in_progress', 'interview_scheduled', 'interview_completed'].includes(applicantStatusKey) ? 'Pending' : getStatusLabel(applicantStatusKey)}
                               </span>
                             </td>
                           </tr>
