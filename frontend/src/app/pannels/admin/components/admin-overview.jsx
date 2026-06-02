@@ -363,6 +363,11 @@ function AdminOverviewPage() {
     }
 
     const normalizedStatus = normalizeStatusValue(round?.status);
+
+    // If assessment status is no show, result must also be No Show
+    if (["no show", "no_show"].includes(normalizedStatus)) {
+      return { label: "No Show", style: badgeStyles.danger };
+    }
     const normalizedResult = normalizeStatusValue(round?.assessmentResult);
 
     if (["pass", "passed"].includes(normalizedResult) || normalizedStatus === "passed") {
