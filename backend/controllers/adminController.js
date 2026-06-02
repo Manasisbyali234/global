@@ -1022,6 +1022,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       // Check resolved status first (handles no_show set by employer manual tracking)
       const rs = String(resolvedStatus || '').toLowerCase();
       if (rs === 'no_show' || rs === 'no show') return 'No Show';
+      if (['expired', 'session_expired', 'session expired'].includes(rs)) return 'No Show';
       if (rs === 'suspended') return 'Suspended';
       // Then try AssessmentAttempt (most accurate for actual attempts)
       if (attempt) {
@@ -1035,8 +1036,8 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         if (aStatus === 'completed') return 'Completed';
         if (aStatus === 'in_progress') return 'In Progress';
       }
-      // Then try application-level fields only when there is a single assessment context.
-      if (allowApplicationFallback) {
+      // Then try application-level fields only when single assessment context AND no attempt matched
+      if (allowApplicationFallback && !attempt) {
         const appStatus = String(appAssessmentStatus || '').toLowerCase();
         const appResult = String(appAssessmentResult || '').toLowerCase();
         if (appStatus === 'suspended') return 'Suspended';
@@ -3450,7 +3451,7 @@ exports.approveAuthorizationLetter = async (req, res) => {
 
       const notificationData = {
         title: 'Authorization Letter Approved',
-        message: `Your authorization letter “${approvedLetter.fileName}” has been successfully approved. Please continue with the next steps.`,
+        message: `Your authorization letter ï¿½${approvedLetter.fileName}ï¿½ has been successfully approved. Please continue with the next steps.`,
         type: 'document_approved',
         role: 'employer',
         relatedId: new mongoose.Types.ObjectId(employerId),
