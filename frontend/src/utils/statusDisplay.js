@@ -246,10 +246,9 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
       return 'no_show';
     }
 
-    // If the latest meaningful round status is a pass/progression, hold/pending, or an
-    // explicitly pending state, the candidate is still in progress — do not escalate to
-    // no_show or rejected based on interviewCurrentStatus.
-    if (['passed', 'shortlisted', 'shortlisted_for_next_round', 'completed', 'on_hold', 'pending_decision', 'pending', 'scheduled', 'in_progress', 'interview_scheduled'].includes(roundStatusKey)) {
+    // If the latest meaningful round status is a pass/progression, the candidate is still
+    // in progress — the overall status must not resolve to rejected.
+    if (['passed', 'shortlisted', 'shortlisted_for_next_round', 'completed'].includes(roundStatusKey)) {
       return 'pending';
     }
   }
