@@ -231,7 +231,7 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
     }
 
     if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(historyStatusKey)) {
-      return 'no_show';
+      return 'rejected';
     }
 
     break;
@@ -243,7 +243,7 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
     const roundStatusKey = getCanonicalStatusKey(round?.status, '');
 
     if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundStatusKey)) {
-      return 'no_show';
+      return 'rejected';
     }
 
     // If the latest meaningful round status is a pass/progression, the candidate is still
@@ -276,7 +276,7 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
 
   const interviewStatusKey = getInterviewCurrentStatusKey(application, '');
   if (['no_show', 'session_expired', 'expired'].includes(interviewStatusKey)) {
-    return 'no_show';
+    return 'rejected';
   }
   if (['failed', 'suspended'].includes(interviewStatusKey)) {
     return interviewStatusKey;

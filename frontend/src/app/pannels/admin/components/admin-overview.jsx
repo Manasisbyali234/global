@@ -793,7 +793,6 @@ function AdminOverviewPage() {
                   <option value="offer_sent">offer letter sent</option>
                   <option value="accepted">Accepted</option>
                   <option value="rejected">Rejected</option>
-                  <option value="no_show">No Show</option>
                 </select>
               </div>
             </div>
