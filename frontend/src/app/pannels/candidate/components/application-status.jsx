@@ -1700,6 +1700,7 @@ function CanStatusPage() {
 			return bookedRoundContext?.hasBookedSlot
 				? { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' }
 				: null;
+			// Note: returns null when no slot booked so callers can show 'Schedule' instead
 		};
 
 		// Check assessment status for Assessment rounds
@@ -1880,8 +1881,8 @@ function CanStatusPage() {
 
 			if (roundIndex > 0 && getRoundActivationState(application, roundIndex).canStart) {
 				return {
-					text: 'Scheduled',
-					class: 'bg-info bg-opacity-10 text-info border border-info',
+					text: 'Schedule',
+					class: 'bg-warning bg-opacity-10 text-warning border border-warning',
 					feedback: ''
 				};
 			}
@@ -1908,7 +1909,7 @@ function CanStatusPage() {
 		}
 		
 		if (status === 'shortlisted') {
-			return { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' };
+			return { text: 'Schedule', class: 'bg-warning bg-opacity-10 text-warning border border-warning', feedback: '' };
 		} else if (status === 'interviewed') {
 			return { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
 		} else if (status === 'hired') {
@@ -2035,6 +2036,9 @@ function CanStatusPage() {
 		}
 		if (['scheduled', 'started', 'interview scheduled'].includes(status)) {
 			return { backgroundColor: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' };
+		}
+		if (status === 'schedule') {
+			return { backgroundColor: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' };
 		}
 		if (['in progress', 'under review', 'shortlisted', 'shortlisted for next round', 'pending decision'].includes(status)) {
 			return { backgroundColor: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' };
