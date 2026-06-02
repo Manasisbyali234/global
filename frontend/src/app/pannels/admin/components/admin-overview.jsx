@@ -339,6 +339,15 @@ function AdminOverviewPage() {
     return { label: "Pending", style: badgeStyles.neutral };
   };
 
+  const isRejectedAssessmentOutcome = (status = "", result = "") => {
+    const s = normalizeStatusValue(status);
+    const r = normalizeStatusValue(result);
+    return (
+      ["fail", "failed"].includes(r) ||
+      ["fail", "failed", "suspended", "no show", "expired", "session expired"].includes(s)
+    );
+  };
+
   const getAssessmentResultPresentation = (round = {}) => {
     const normalizedStatus = normalizeStatusValue(round?.status);
     const normalizedResult = normalizeStatusValue(round?.assessmentResult);
