@@ -290,7 +290,7 @@ function AdminOverviewPage() {
         return { label: "On Hold", style: badgeStyles.secondary };
       }
       if (normalizedStatus === "no show") {
-        return { label: "Rejected", style: badgeStyles.danger };
+        return { label: "No Show", style: badgeStyles.danger };
       }
       if (["rejected", "not advanced to next stage", "not advanced to next round"].includes(normalizedStatus)) {
         return { label: "Not Advanced to Next Stage", style: badgeStyles.danger };
@@ -339,29 +339,7 @@ function AdminOverviewPage() {
     return { label: "Pending", style: badgeStyles.neutral };
   };
 
-  const isRejectedAssessmentOutcome = (status = "", result = "") => {
-    const s = normalizeStatusValue(status);
-    const r = normalizeStatusValue(result);
-    return (
-      ["fail", "failed"].includes(r) ||
-      ["fail", "failed", "suspended", "no show", "expired", "session expired"].includes(s)
-    );
-  };
-
-  const getAssessmentResultPresentation = (round = {}, allRounds = [], currentIndex = 0) => {
-    // Business rule: if any previous assessment round is Fail/No Show/Suspended, show Pending
-    for (let i = 0; i < currentIndex; i++) {
-      const prev = allRounds[i];
-      if (
-        normalizeStatusValue(prev?.type) === "assessment" ||
-        normalizeStatusValue(prev?.name).includes("assessment")
-      ) {
-        if (isRejectedAssessmentOutcome(prev?.status, prev?.assessmentResult)) {
-          return { label: "Pending", style: badgeStyles.neutral };
-        }
-      }
-    }
-
+  const getAssessmentResultPresentation = (round = {}) => {
     const normalizedStatus = normalizeStatusValue(round?.status);
     const normalizedResult = normalizeStatusValue(round?.assessmentResult);
 
@@ -851,7 +829,7 @@ function AdminOverviewPage() {
                                   {applicant.interviewRounds.map((round, index) => (
                                     (() => {
                                       const roundStatus = getRoundStatusPresentation(round);
-                                      const assessmentResult = getAssessmentResultPresentation(round, applicant.interviewRounds, index);
+                                      const assessmentResult = getAssessmentResultPresentation(round);
                                       return (
                                       <div
                                         key={`${applicant.applicationId}-${round.id || round.type || index}`}
