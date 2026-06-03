@@ -2320,6 +2320,32 @@ exports.updateJob = async (req, res) => {
           existingRoundsByKey[round.key] = round;
         }
       });
+      const getRoundBaseKey = (round = {}) => String(round?.key || round?.roundType || '').split('_')[0];
+      const incrementCount = (counts, value) => {
+        const key = String(value || '').trim();
+        if (!key) return;
+        counts.set(key, (counts.get(key) || 0) + 1);
+      };
+      const buildRoundIdentityCounts = (rounds = []) => {
+        const nameCounts = new Map();
+        const baseKeyCounts = new Map();
+        const typeCounts = new Map();
+
+        rounds.forEach((round) => {
+          incrementCount(nameCounts, round?.name);
+          incrementCount(baseKeyCounts, getRoundBaseKey(round));
+          incrementCount(typeCounts, round?.roundType);
+        });
+
+        return { nameCounts, baseKeyCounts, typeCounts };
+      };
+      const incomingIdentityCounts = buildRoundIdentityCounts(interviewRounds);
+      const existingIdentityCounts = buildRoundIdentityCounts(existingRounds);
+      const isUniqueIdentity = (incomingCounts, existingCounts, value) => {
+        const key = String(value || '').trim();
+        if (!key) return false;
+        return (incomingCounts.get(key) || 0) <= 1 && (existingCounts.get(key) || 0) <= 1;
+      };
       console.log('[updateJob] Existing rounds by key:', Object.keys(existingRoundsByKey));
       console.log('[updateJob] Incoming round keys:', interviewRounds.map(r => r.key));
       
@@ -2349,7 +2375,11 @@ exports.updateJob = async (req, res) => {
             }
 
             // Fallback matching: if only one round of this name exists, match it
-            if (!existingRound && round.name) {
+            if (
+              !existingRound &&
+              round.name &&
+              isUniqueIdentity(incomingIdentityCounts.nameCounts, existingIdentityCounts.nameCounts, round.name)
+            ) {
               const matches = existingRounds.filter(r => r.name === round.name && !updatedIds.has(r._id.toString()));
               if (matches.length === 1) {
                 existingRound = matches[0];
@@ -2358,10 +2388,14 @@ exports.updateJob = async (req, res) => {
             }
 
             // More aggressive fallback: match by base key (type)
-            if (!existingRound && round.key) {
-              const baseKey = round.key.split('_')[0];
+            const baseKey = getRoundBaseKey(round);
+            if (
+              !existingRound &&
+              baseKey &&
+              isUniqueIdentity(incomingIdentityCounts.baseKeyCounts, existingIdentityCounts.baseKeyCounts, baseKey)
+            ) {
               const matches = existingRounds.filter(r => {
-                const rBaseKey = (r.key && r.key.split('_')[0]) || r.roundType;
+                const rBaseKey = getRoundBaseKey(r);
                 return rBaseKey === baseKey && !updatedIds.has(r._id.toString());
               });
               if (matches.length === 1) {
@@ -2371,7 +2405,11 @@ exports.updateJob = async (req, res) => {
             }
 
             // Last resort: match by roundType
-            if (!existingRound && round.roundType) {
+            if (
+              !existingRound &&
+              round.roundType &&
+              isUniqueIdentity(incomingIdentityCounts.typeCounts, existingIdentityCounts.typeCounts, round.roundType)
+            ) {
               const matches = existingRounds.filter(r => r.roundType === round.roundType && !updatedIds.has(r._id.toString()));
               if (matches.length === 1) {
                 existingRound = matches[0];

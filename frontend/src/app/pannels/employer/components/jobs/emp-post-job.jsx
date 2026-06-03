@@ -943,6 +943,18 @@ export default function EmpPostJob({ onNext }) {
 		});
 	};
 
+	const createInterviewRoundKey = (roundType, existingKeys = []) => {
+		const normalizedType = String(roundType || 'round').replace(/[^a-zA-Z0-9]/g, '') || 'round';
+		let uniqueKey = '';
+
+		do {
+			const entropy = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+			uniqueKey = `${normalizedType}_${Date.now()}${entropy}`;
+		} while (existingKeys.includes(uniqueKey));
+
+		return uniqueKey;
+	};
+
 	const getImagePreviewSrc = useCallback((imageValue) => {
 		if (!imageValue || typeof imageValue !== 'string') return '';
 		if (
@@ -4800,11 +4812,9 @@ export default function EmpPostJob({ onNext }) {
 										return;
 									}
 									
-									// Generate unique key for multiple instances
-									const uniqueKey = `${roundType}_${Date.now()}`;
-									
 									// Add to interview round order
 									setFormData(s => {
+										const uniqueKey = createInterviewRoundKey(roundType, s.interviewRoundOrder);
 										const newState = {
 											...s,
 											interviewRoundOrder: [...s.interviewRoundOrder, uniqueKey],
@@ -4962,6 +4972,21 @@ export default function EmpPostJob({ onNext }) {
 										<span 
 											style={{cursor: 'pointer', color: '#ef4444', fontWeight: 700, fontSize: 18, marginLeft: 4}}
 											onClick={() => {
+												setInterviewRoundIds(prev => {
+													const next = { ...prev };
+													delete next[uniqueKey];
+													return next;
+												});
+												setScheduledRounds(prev => {
+													const next = { ...prev };
+													delete next[uniqueKey];
+													return next;
+												});
+												setSelectedDayCount(prev => {
+													const next = { ...prev };
+													delete next[uniqueKey];
+													return next;
+												});
 												setFormData(s => {
 													const newState = {
 														...s,
