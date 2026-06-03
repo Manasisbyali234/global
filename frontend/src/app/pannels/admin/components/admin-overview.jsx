@@ -361,6 +361,14 @@ function AdminOverviewPage() {
       if (outcome.isNoShow) {
         return { label: "No Show", style: badgeStyles.danger };
       }
+      // Treat expired status as No Show when the window has passed and there's no explicit pass/fail result
+      // But if result is "pending", candidate submitted subjective answers awaiting employer evaluation
+      if (["expired", "session expired"].includes(normalizedStatus)) {
+        if (hasPendingReviewResult || hasExplicitResult) {
+          return { label: "Completed", style: badgeStyles.success };
+        }
+        return { label: "No Show", style: badgeStyles.danger };
+      }
       if (isWindowExpired && assessmentPendingStatuses.has(normalizedStatus)) {
         if (hasPendingReviewResult) {
           return { label: "Completed", style: badgeStyles.success };
@@ -396,16 +404,21 @@ function AdminOverviewPage() {
     const normalizedStatus = normalizeStatusValue(round?.status);
     const normalizedResult = normalizeStatusValue(round?.assessmentResult);
 
-    if (["pass", "passed"].includes(normalizedResult) || normalizedStatus === "passed") {
+    // Status is ground truth — completed/passed/failed status always wins over stale assessmentResult
+    if (normalizedStatus === "completed") {
+      return { label: "Completed", style: badgeStyles.success };
+    }
+    if (normalizedStatus === "passed" || ["pass", "passed"].includes(normalizedResult)) {
       return { label: "Passed", style: badgeStyles.success };
     }
-    if (["fail", "failed"].includes(normalizedResult) || normalizedStatus === "failed") {
+    if (normalizedStatus === "failed" || ["fail", "failed"].includes(normalizedResult)) {
       return { label: "Failed", style: badgeStyles.danger };
     }
     if (normalizedResult === "suspended" || normalizedStatus === "suspended") {
       return { label: "Suspended", style: badgeStyles.danger };
     }
-    if (["expired", "session expired"].includes(normalizedStatus) && normalizedResult === "pending") {
+    // pending result = subjective/upload questions awaiting employer marks
+    if (normalizedResult === "pending") {
       return { label: "Completed", style: badgeStyles.success };
     }
     if (
@@ -414,7 +427,7 @@ function AdminOverviewPage() {
     ) {
       return { label: "No Show", style: badgeStyles.danger };
     }
-    if (normalizedStatus === "completed" || normalizedResult === "completed") {
+    if (normalizedResult === "completed") {
       return { label: "Completed", style: badgeStyles.success };
     }
     if (normalizedStatus === "in progress") {

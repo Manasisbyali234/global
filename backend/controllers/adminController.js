@@ -343,12 +343,15 @@ const getAdminOverviewApplicantTableStatus = (applicationStatus = 'pending') => 
 const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
   const normalizedStatus = normalizeApplicationStatusValue(attempt?.status);
   const normalizedResult = normalizeApplicationStatusValue(attempt?.result);
+  const hasPendingManualEval = Number(attempt?.manualEvaluationPendingCount || 0) > 0;
 
   if (normalizedStatus === 'suspended') return 'suspended';
   if (normalizedStatus === 'in progress') return 'in_progress';
   if (normalizedStatus === 'not started') return 'pending';
   if (normalizedResult === 'pass' || normalizedStatus === 'passed') return 'passed';
   if (normalizedResult === 'fail' || normalizedStatus === 'failed') return 'failed';
+  // pending result = subjective/upload questions awaiting employer evaluation — treat as completed
+  if (normalizedResult === 'pending' || hasPendingManualEval) return 'completed';
   if (normalizedStatus === 'expired') return 'expired';
   if (normalizedStatus === 'completed') return 'completed';
   return attempt?.status || 'pending';
@@ -831,7 +834,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       applicationIds.length
         ? AssessmentAttempt.find({ applicationId: { $in: applicationIds } })
             .sort({ createdAt: -1 })
-            .select('_id applicationId assessmentId status result score totalMarks percentage startTime endTime suspendedAt')
+            .select('_id applicationId assessmentId status result score totalMarks percentage startTime endTime suspendedAt manualEvaluationPendingCount manualEvaluationRequiredCount')
             .lean()
         : []
     ]);
@@ -1074,9 +1077,6 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     ) => {
       const { allowApplicationFallback = true } = options;
 
-      // If employer has manually set any non-attempt-derived status (on_hold, pending_decision,
-      // shortlisted_for_next_round, selected, etc.) always prioritize the actual attempt result
-      // over the attempt status (expired/session_expired must not flip result to No Show)
       const isManualEmployerStatus = shouldPreserveAssessmentStageStatus(
         normalizeApplicationStatusValue(resolvedStatus)
       );
@@ -1084,27 +1084,21 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       if (attempt) {
         const aStatus = String(attempt.status || '').toLowerCase();
         const aResult = String(attempt.result || '').toLowerCase();
+        const hasPendingManualEval = Number(attempt.manualEvaluationPendingCount || 0) > 0;
 
-        // Suspended always wins regardless
         if (aStatus === 'suspended') return 'Suspended';
-
-        // Actual result always takes priority over session/expiry status
         if (aResult === 'pass' || aResult === 'passed') return 'Passed';
         if (aResult === 'fail' || aResult === 'failed') return 'Failed';
 
-        // When employer set a manual status, don't derive No Show from expired —
-        // the employer's decision implies the candidate completed something
-        if (isManualEmployerStatus) {
-          return 'Completed';
-        }
+        if (isManualEmployerStatus) return 'Completed';
 
-        if (aStatus === 'expired' && aResult === 'pending') return 'Completed';
+        // pending result means subjective/upload questions awaiting employer marks — always Completed
+        if (aResult === 'pending' || hasPendingManualEval) return 'Completed';
         if (aStatus === 'expired') return 'No Show';
         if (aStatus === 'completed') return 'Completed';
         if (aStatus === 'in_progress') return 'In Progress';
       }
 
-      // No attempt — if employer set a manual status, candidate must have completed something
       if (isManualEmployerStatus) return 'Completed';
 
       const rs = String(resolvedStatus || '').toLowerCase();
@@ -1116,18 +1110,18 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         const appStatus = String(appAssessmentStatus || '').toLowerCase();
         const appResult = String(appAssessmentResult || '').toLowerCase();
         if (appStatus === 'suspended') return 'Suspended';
-        if (appStatus === 'expired' && appResult === 'pending') return 'Completed';
+        if (appResult === 'pending' || appStatus === 'completed') return 'Completed';
         if (['no_show', 'no show', 'session_expired', 'session expired', 'expired'].includes(appStatus)) return 'No Show';
         if (appResult === 'pass' || appResult === 'passed') return 'Passed';
         if (appResult === 'fail' || appResult === 'failed') return 'Failed';
-        if (appStatus === 'completed') return 'Completed';
         if (appStatus === 'in_progress') return 'In Progress';
       }
 
       const stageStatus = String(stage?.status || '').toLowerCase();
       const stageResult = String(stage?.assessmentResult || '').toLowerCase();
       if (stageStatus === 'suspended') return 'Suspended';
-      if (stageStatus === 'expired' && stageResult === 'pending') return 'Completed';
+      // pending result always means Completed (subjective pending employer evaluation)
+      if (stageResult === 'pending') return 'Completed';
       if (['no_show', 'no show', 'expired'].includes(stageStatus)) return 'No Show';
       if (stageResult === 'pass' || stageStatus === 'passed') return 'Passed';
       if (stageResult === 'fail' || stageStatus === 'failed') return 'Failed';
