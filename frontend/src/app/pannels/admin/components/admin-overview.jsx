@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
-import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
+import { getAdminApplicantTableStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import { buildUtcDateTimeFromIst } from "../../../../utils/timezoneUtils";
 import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import SearchBar from "../../../../components/SearchBar";
@@ -83,7 +83,7 @@ function AdminOverviewPage() {
     selectedEmployer?.employerType === "consultant" ||
     visibleEmployerJobs.some((job) => String(job.companyName || "").trim());
   const visibleJobApplicants = jobApplicants.filter((applicant) => {
-    const applicantStatusKey = getApplicationStatusKey(applicant);
+    const applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
     if (!String(applicant?.applicantEmail || "").toLowerCase().includes(applicantSearch.toLowerCase())) return false;
     if (applicantStatusFilter !== "all") {
       if (applicantStatusKey !== applicantStatusFilter) return false;
@@ -255,7 +255,70 @@ function AdminOverviewPage() {
     return buildUtcDateTimeFromIst(endDateValue, endTimeValue, "end");
   };
 
-  const getRoundStatusPresentation = (round = {}) => {
+  const getInterviewRoundStatusLabel = (status = "pending", index = -1, totalRounds = 0) => {
+    const normalizedStatus = normalizeStatusValue(status);
+    const isFinalRound = totalRounds > 0 && index === totalRounds - 1;
+
+    if (!normalizedStatus) return "Pending";
+    if (normalizedStatus === "rejected") {
+      return isFinalRound ? "Rejected" : "Not Advanced to Next Stage";
+    }
+    if (normalizedStatus === "shortlisted for next round") return "Shortlisted for next Round";
+    if (normalizedStatus === "not advanced to next stage") return "Not Advanced to Next Stage";
+    if (normalizedStatus === "not advanced to next round") return "Not Advanced to Next Round";
+    if (normalizedStatus === "on hold") return "On Hold";
+    if (normalizedStatus === "pending decision") return "Pending Decision";
+    if (normalizedStatus === "under review") return "Under Review";
+    if (normalizedStatus === "no show") return "No Show";
+    if (normalizedStatus === "in progress") return "In Progress";
+    return getStatusLabel(status || "pending");
+  };
+
+  const getInterviewRoundStatusStyle = (status = "pending") => {
+    const normalizedStatus = normalizeStatusValue(status);
+
+    if ([
+      "rejected",
+      "not advanced to next stage",
+      "not advanced to next round",
+      "no show",
+      "failed",
+      "fail",
+      "suspended",
+      "expired",
+      "session expired"
+    ].includes(normalizedStatus)) {
+      return badgeStyles.danger;
+    }
+    if (["selected", "passed", "completed", "interview completed"].includes(normalizedStatus)) {
+      return badgeStyles.success;
+    }
+    if (["shortlisted", "shortlisted for next round", "scheduled", "interview scheduled"].includes(normalizedStatus)) {
+      return badgeStyles.info;
+    }
+    if (["pending", "pending decision", "under review", "in progress"].includes(normalizedStatus)) {
+      return badgeStyles.warning;
+    }
+    if (normalizedStatus === "on hold") {
+      return badgeStyles.secondary;
+    }
+    return badgeStyles.neutral;
+  };
+
+  const isEmployerDecisionRoundStatus = (status = "") => [
+    "shortlisted for next round",
+    "shortlisted",
+    "selected",
+    "on hold",
+    "pending decision",
+    "under review",
+    "no show",
+    "rejected",
+    "not advanced to next stage",
+    "not advanced to next round"
+  ].includes(normalizeStatusValue(status));
+
+  const getRoundStatusPresentation = (round = {}, index = -1, totalRounds = 0) => {
     const normalizedStatus = normalizeStatusValue(round?.status);
     const isAssessmentRound =
       normalizeStatusValue(round?.type) === "assessment" ||
@@ -263,6 +326,13 @@ function AdminOverviewPage() {
 
     // For assessment rounds, use assessment-specific logic
     if (isAssessmentRound) {
+      if (isEmployerDecisionRoundStatus(round?.status)) {
+        return {
+          label: getInterviewRoundStatusLabel(round?.status, index, totalRounds),
+          style: getInterviewRoundStatusStyle(round?.status)
+        };
+      }
+
       const normalizedResult = normalizeStatusValue(round?.assessmentResult);
       const outcome = getAssessmentOutcome({
         status: round?.status,
@@ -301,52 +371,16 @@ function AdminOverviewPage() {
       }
       
       // Default for assessment
-      return { label: getStatusLabel(round?.status || "pending"), style: badgeStyles.neutral };
+      return {
+        label: getInterviewRoundStatusLabel(round?.status || "pending", index, totalRounds),
+        style: getInterviewRoundStatusStyle(round?.status || "pending")
+      };
     }
 
-    // For non-assessment rounds — match exactly what Employer and Candidate display
-    if (["shortlisted for next round", "shortlisted_for_next_round"].includes(normalizedStatus)) {
-      return { label: "Shortlisted for next Round", style: badgeStyles.info };
-    }
-    if (normalizedStatus === "shortlisted") {
-      return { label: "Shortlisted", style: badgeStyles.info };
-    }
-    if (normalizedStatus === "selected") {
-      return { label: "Selected", style: badgeStyles.success };
-    }
-    if (normalizedStatus === "under review") {
-      return { label: "Under Review", style: badgeStyles.warning };
-    }
-    if (normalizedStatus === "pending decision") {
-      return { label: "Pending Decision", style: badgeStyles.warning };
-    }
-    if (normalizedStatus === "on hold") {
-      return { label: "On Hold", style: badgeStyles.secondary };
-    }
-    if (normalizedStatus === "no show") {
-      return { label: "No Show", style: badgeStyles.danger };
-    }
-    if (normalizedStatus === "rejected") {
-      return { label: "Rejected", style: badgeStyles.danger };
-    }
-    if (normalizedStatus === "not advanced to next stage") {
-      return { label: "Not Advanced to Next Stage", style: badgeStyles.danger };
-    }
-    if (normalizedStatus === "not advanced to next round") {
-      return { label: "Not Advanced to Next Round", style: badgeStyles.danger };
-    }
-    if (["scheduled", "interview scheduled"].includes(normalizedStatus)) {
-      return { label: getStatusLabel(round?.status || "pending"), style: badgeStyles.info };
-    }
-    if (["completed", "interview completed"].includes(normalizedStatus)) {
-      return { label: getStatusLabel(round?.status || "pending"), style: badgeStyles.success };
-    }
-    if (normalizedStatus === "in progress") {
-      return { label: "In Progress", style: badgeStyles.warning };
-    }
-
-    // Use the standardized status label for anything else
-    return { label: getStatusLabel(round?.status || "pending"), style: badgeStyles.neutral };
+    return {
+      label: getInterviewRoundStatusLabel(round?.status || "pending", index, totalRounds),
+      style: getInterviewRoundStatusStyle(round?.status || "pending")
+    };
   };
 
   const isRejectedAssessmentOutcome = (status = "", result = "") => {
@@ -829,7 +863,7 @@ function AdminOverviewPage() {
                     ) : (
                       visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant, index) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
-                        const applicantStatusKey = getApplicationStatusKey(applicant);
+                        const applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
 
                         return (
                           <tr key={applicant.applicationId}>
@@ -846,8 +880,11 @@ function AdminOverviewPage() {
                                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                   {applicant.interviewRounds.map((round, index) => (
                                     (() => {
-                                      const roundStatus = getRoundStatusPresentation(round);
+                                      const roundStatus = getRoundStatusPresentation(round, index, applicant.interviewRounds.length);
                                       const assessmentResult = getAssessmentResultPresentation(round);
+                                      const isAssessmentRound =
+                                        normalizeStatusValue(round?.type) === "assessment" ||
+                                        normalizeStatusValue(round?.name).includes("assessment");
                                       return (
                                       <div
                                         key={`${applicant.applicationId}-${round.id || round.type || index}`}
@@ -910,7 +947,7 @@ function AdminOverviewPage() {
                                         <div className="admin-overview-round-detail admin-overview-round-remarks">
                                         <strong>Remarks:</strong> {round.remark || "No remarks"}
                                       </div>
-                                      {round.type === 'assessment' && (() => {
+                                      {isAssessmentRound && (() => {
                                         return (
                                           <div className="admin-overview-round-detail" style={{ marginTop: '4px' }}>
                                             <strong>Assessment Result:</strong>{' '}
