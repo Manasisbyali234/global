@@ -997,14 +997,17 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     };
 
     const resolveStageStatus = (stage, savedProcesses) => {
-      const stageStatus = String(stage.status || '').trim().toLowerCase();
-      // Always prefer manually saved status from interviewProcesses for all stage types
       const stageId = String(stage._id || '');
       const saved = Array.isArray(savedProcesses)
         ? savedProcesses.find((p) => p && (String(p.id || '') === stageId || normalizeKey(p.name || '') === normalizeKey(stage.stageName || '')))
         : null;
       const savedStatus = String(saved?.status || '').trim().toLowerCase();
+      // Employer manual decision statuses always take priority over attempt-derived statuses
+      if (savedStatus && isAssessmentEmployerDecisionStatus(normalizeApplicationStatusValue(savedStatus))) {
+        return savedStatus;
+      }
       if (savedStatus && savedStatus !== 'pending') return savedStatus;
+      const stageStatus = String(stage.status || '').trim().toLowerCase();
       return stageStatus || 'pending';
     };
 
@@ -1016,27 +1019,46 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       resolvedStatus,
       options = {}
     ) => {
-      const {
-        allowApplicationFallback = true
-      } = options;
-      // Check resolved status first (handles no_show set by employer manual tracking)
+      const { allowApplicationFallback = true } = options;
+
+      // If employer has manually set any non-attempt-derived status (on_hold, pending_decision,
+      // shortlisted_for_next_round, selected, etc.) always prioritize the actual attempt result
+      // over the attempt status (expired/session_expired must not flip result to No Show)
+      const isManualEmployerStatus = shouldPreserveAssessmentStageStatus(
+        normalizeApplicationStatusValue(resolvedStatus)
+      );
+
+      if (attempt) {
+        const aStatus = String(attempt.status || '').toLowerCase();
+        const aResult = String(attempt.result || '').toLowerCase();
+
+        // Suspended always wins regardless
+        if (aStatus === 'suspended') return 'Suspended';
+
+        // Actual result always takes priority over session/expiry status
+        if (aResult === 'pass' || aResult === 'passed') return 'Passed';
+        if (aResult === 'fail' || aResult === 'failed') return 'Failed';
+
+        // When employer set a manual status, don't derive No Show from expired —
+        // the employer's decision implies the candidate completed something
+        if (isManualEmployerStatus) {
+          return 'Completed';
+        }
+
+        if (aStatus === 'expired' && aResult === 'pending') return 'Completed';
+        if (aStatus === 'expired') return 'No Show';
+        if (aStatus === 'completed') return 'Completed';
+        if (aStatus === 'in_progress') return 'In Progress';
+      }
+
+      // No attempt — if employer set a manual status, candidate must have completed something
+      if (isManualEmployerStatus) return 'Completed';
+
       const rs = String(resolvedStatus || '').toLowerCase();
       if (rs === 'no_show' || rs === 'no show') return 'No Show';
       if (['expired', 'session_expired', 'session expired'].includes(rs)) return 'No Show';
       if (rs === 'suspended') return 'Suspended';
-      // Then try AssessmentAttempt (most accurate for actual attempts)
-      if (attempt) {
-        const aStatus = String(attempt.status || '').toLowerCase();
-        const aResult = String(attempt.result || '').toLowerCase();
-        if (aStatus === 'suspended') return 'Suspended';
-        if (aStatus === 'expired' && aResult === 'pending') return 'Completed';
-        if (aStatus === 'expired') return 'No Show';
-        if (aResult === 'pass' || aResult === 'passed') return 'Passed';
-        if (aResult === 'fail' || aResult === 'failed') return 'Failed';
-        if (aStatus === 'completed') return 'Completed';
-        if (aStatus === 'in_progress') return 'In Progress';
-      }
-      // Then try application-level fields only when single assessment context AND no attempt matched
+
       if (allowApplicationFallback && !attempt) {
         const appStatus = String(appAssessmentStatus || '').toLowerCase();
         const appResult = String(appAssessmentResult || '').toLowerCase();
@@ -1048,7 +1070,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         if (appStatus === 'completed') return 'Completed';
         if (appStatus === 'in_progress') return 'In Progress';
       }
-      // Finally try stage-level fields
+
       const stageStatus = String(stage?.status || '').toLowerCase();
       const stageResult = String(stage?.assessmentResult || '').toLowerCase();
       if (stageStatus === 'suspended') return 'Suspended';
@@ -1328,10 +1350,26 @@ exports.getJobApplicantsForOverview = async (req, res) => {
 
       if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) return baseStatus;
 
-      const hasRejectedProcess = trackedProcesses.some((process) =>
-        isRejectedInterviewProcessStatusForOverview(process?.status)
-      );
-      if (hasRejectedProcess) return 'rejected';
+      // If candidate rejected an offer, always show as rejected
+      const hadOfferSent = Array.isArray(application?.statusHistory) &&
+        application.statusHistory.some((entry) => entry?.status === 'offer_sent');
+      if (baseStatus === 'rejected' && hadOfferSent) return 'rejected';
+
+      // For non-assessment stages: only 'rejected' counts as rejected (same as employer/candidate)
+      const hasRejectedNonAssessmentProcess = trackedProcesses.some((process) => {
+        const isAssessment = normalizeApplicationStatusValue(process?.type) === 'assessment';
+        if (isAssessment) return false;
+        return normalizeApplicationStatusValue(process?.status) === 'rejected';
+      });
+      if (hasRejectedNonAssessmentProcess) return 'rejected';
+
+      // For assessment stages: all rejected-like statuses count (same as employer/candidate)
+      const hasRejectedAssessmentProcess = trackedProcesses.some((process) => {
+        const isAssessment = normalizeApplicationStatusValue(process?.type) === 'assessment';
+        if (!isAssessment) return false;
+        return isRejectedInterviewProcessStatusForOverview(process?.status);
+      });
+      if (hasRejectedAssessmentProcess) return 'rejected';
 
       // Check legacy interviewRounds for failed
       const hasFailedRound = Array.isArray(application?.interviewRounds) &&
@@ -1365,9 +1403,18 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         baseStatus === 'rejected' &&
         isAutoRejectedFromInterviewStageStatus(application) &&
         trackedProcesses.length > 0 &&
-        !hasRejectedProcess
+        !hasRejectedNonAssessmentProcess &&
+        !hasRejectedAssessmentProcess
       ) {
         return 'pending';
+      }
+
+      // If no assessment round and base is rejected but no stage was explicitly rejected
+      const hasAssessmentRound =
+        Boolean(application?.jobId?.assessmentId) ||
+        trackedProcesses.some((p) => normalizeApplicationStatusValue(p?.type) === 'assessment');
+      if (!hasAssessmentRound && baseStatus === 'rejected' && !hasRejectedNonAssessmentProcess) {
+        return isAutoRejectedFromInterviewStageStatus(application) ? 'pending' : 'rejected';
       }
 
       return baseStatus;
