@@ -2769,8 +2769,7 @@ export default function EmpPostJob({ onNext }) {
 				const jobId = data.job?._id || data.jobId || id;
 				clearPostJobDraft(jobId);
 
-				const successMsg = isEditMode ? 'Job updated successfully!' : 'Job posted successfully!';
-				showSuccess(successMsg);
+				showSuccess('Job posted successfully!');
 				
 				setTimeout(() => {
 					navigate('/employer/manage-jobs');
@@ -3144,7 +3143,7 @@ export default function EmpPostJob({ onNext }) {
 									<div style={{ flex: 1, minWidth: 200 }}>
 										<label style={label}>
 											<i className="fa fa-image" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-											Hiring Company Logo
+											Hiring Company Logo(136x136px)
 										</label>
 										<input
 											style={{...input, padding: '10px'}}
@@ -4599,7 +4598,7 @@ export default function EmpPostJob({ onNext }) {
 							<RichTextEditor
 								value={formData.jobDescription}
 								onChange={(value) => update({ jobDescription: value })}
-								placeholder="Provide a detailed description of the job role, responsibilities, and expectations..."
+								placeholder="Provide a detailed description of the job role ..."
 								className="form-control-editor"
 							/>
 						</div>
@@ -4623,7 +4622,7 @@ export default function EmpPostJob({ onNext }) {
 						<RichTextEditor
 							value={formData.rolesAndResponsibilities || ''}
 							onChange={(value) => update({ rolesAndResponsibilities: value })}
-							placeholder="List the key roles and responsibilities for this position..."
+							placeholder="Specify the key roles and responsibilities for this position..."
 							className="form-control-editor"
 						/>
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 8, display: 'block'}}>

@@ -181,16 +181,22 @@ export const isPositiveInterviewStatusKey = (value = '') => {
 };
 
 export const getApplicationStatusKey = (application = {}, fallback = 'pending') => {
-  const applicationStatusKey = normalizeApplicationDisplayStatusKey(
-    getCanonicalStatusKey(
-      application?.applicationStatus ||
-        application?.applicationDisplayStatus ||
-        application?.displayStatus ||
-        application?.status ||
-        fallback,
-      fallback
-    )
+  const rawStatusKey = getCanonicalStatusKey(
+    application?.applicationStatus ||
+      application?.applicationDisplayStatus ||
+      application?.displayStatus ||
+      application?.status ||
+      fallback,
+    fallback
   );
+
+  // If the raw DB status is a terminal state, honour it before normalizing
+  const baseStatusKey = getCanonicalStatusKey(application?.status || '', '');
+  if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(baseStatusKey)) {
+    return baseStatusKey;
+  }
+
+  const applicationStatusKey = normalizeApplicationDisplayStatusKey(rawStatusKey);
 
   if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(applicationStatusKey)) {
     return applicationStatusKey;
@@ -222,35 +228,10 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
   const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
   for (let index = statusHistory.length - 1; index >= 0; index -= 1) {
     const historyStatusKey = getCanonicalStatusKey(statusHistory[index]?.status, '');
-    if (!historyStatusKey) {
-      continue;
-    }
-
-    if (ADMIN_PENDING_LIKE_STATUS_KEYS.has(historyStatusKey)) {
-      continue;
-    }
-
-    if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(historyStatusKey)) {
-      return 'rejected';
-    }
-
+    if (!historyStatusKey) continue;
+    if (ADMIN_PENDING_LIKE_STATUS_KEYS.has(historyStatusKey)) continue;
+    if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(historyStatusKey)) return 'rejected';
     break;
-  }
-
-  const interviewRounds = Array.isArray(application?.interviewRounds) ? application.interviewRounds : [];
-  for (let index = interviewRounds.length - 1; index >= 0; index -= 1) {
-    const round = interviewRounds[index] || {};
-    const roundStatusKey = getCanonicalStatusKey(round?.status, '');
-
-    if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundStatusKey)) {
-      return 'rejected';
-    }
-
-    // If the latest meaningful round status is a pass/progression, the candidate is still
-    // in progress — the overall status must not resolve to rejected.
-    if (['passed', 'shortlisted', 'shortlisted_for_next_round', 'completed'].includes(roundStatusKey)) {
-      return 'pending';
-    }
   }
 
   const applicationStatusKey = getCanonicalStatusKey(
@@ -262,25 +243,26 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
     fallback
   );
 
-  if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(applicationStatusKey)) {
-    // Guard: if any round shows a pass/progression, the candidate is still active.
-    const hasPassedRound = interviewRounds.some((round) => {
-      const key = getCanonicalStatusKey(round?.status, '');
-      return ['passed', 'shortlisted', 'shortlisted_for_next_round', 'completed'].includes(key);
-    });
-    if (applicationStatusKey === 'rejected' && hasPassedRound) {
-      return 'pending';
-    }
+  // Terminal positive states are never overridden by round statuses
+  if (['accepted', 'hired', 'offer_sent'].includes(applicationStatusKey)) {
     return applicationStatusKey;
   }
 
-  const interviewStatusKey = getInterviewCurrentStatusKey(application, '');
-  if (['no_show', 'session_expired', 'expired'].includes(interviewStatusKey)) {
+  // Offer letter rejected or any definitive rejection — never override with round statuses
+  if (applicationStatusKey === 'rejected') {
     return 'rejected';
   }
-  if (['failed', 'suspended'].includes(interviewStatusKey)) {
-    return interviewStatusKey;
+
+  const interviewRounds = Array.isArray(application?.interviewRounds) ? application.interviewRounds : [];
+  for (let index = interviewRounds.length - 1; index >= 0; index -= 1) {
+    const roundStatusKey = getCanonicalStatusKey(interviewRounds[index]?.status, '');
+    if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundStatusKey)) return 'rejected';
+    if (['passed', 'shortlisted', 'shortlisted_for_next_round', 'completed'].includes(roundStatusKey)) return 'pending';
   }
+
+  const interviewStatusKey = getInterviewCurrentStatusKey(application, '');
+  if (['no_show', 'session_expired', 'expired'].includes(interviewStatusKey)) return 'rejected';
+  if (['failed', 'suspended'].includes(interviewStatusKey)) return interviewStatusKey;
 
   return applicationStatusKey;
 };

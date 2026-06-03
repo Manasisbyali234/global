@@ -1623,7 +1623,7 @@ function EmpCandidateReviewPage() {
         );
     }
 
-    const applicationDisplayStatus = getApplicationStatusKey(application);
+    const applicationDisplayStatus = getApplicationDisplayStatus(application, interviewProcesses);
     const isAssessmentNoShowApplication = getInterviewCurrentStatusKey(application) === 'no_show';
     const applicationStatusForActions = applicationDisplayStatus;
 
