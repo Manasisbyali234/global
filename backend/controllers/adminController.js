@@ -1390,7 +1390,12 @@ exports.getJobApplicantsForOverview = async (req, res) => {
 
       // Check all assessment attempts
       const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
-      const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
+      const assessmentAttempts = Object.values(attemptsByAssessmentId);
+      if (application?.assessmentAttempt) {
+        assessmentAttempts.push(application.assessmentAttempt);
+      }
+
+      const hasRejectedAttempt = assessmentAttempts.some((attempt) => {
         const s = String(attempt?.status || '').toLowerCase();
         const r = String(attempt?.result || '').toLowerCase();
         if (s === 'expired' && r === 'pending') return false;
@@ -1429,7 +1434,8 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       const decoratedApplication = decorateAdminApplicationStatusFields(
         {
           ...application,
-          assessmentAttemptsByAssessmentId: attemptBundle.byAssessmentId || {}
+          assessmentAttemptsByAssessmentId: attemptBundle.byAssessmentId || {},
+          assessmentAttempt: attemptBundle.latestAttempt || null
         },
         {
           interviewProcess,
@@ -1443,9 +1449,16 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         application.status === 'offer_sent' ||
         (Array.isArray(application.statusHistory) &&
           application.statusHistory.some((entry) => entry?.status === 'offer_sent'));
+      const adminEffectiveStatus = computeEffectiveStatus({
+        ...application,
+        assessmentAttemptsByAssessmentId: attemptBundle.byAssessmentId || {},
+        assessmentAttempt: attemptBundle.latestAttempt || null
+      });
       const effectiveStatus = isOfferNotAccepted(decoratedApplication)
         ? 'rejected'
-        : decoratedApplication.applicationStatus;
+        : adminEffectiveStatus === 'rejected'
+          ? 'rejected'
+          : decoratedApplication.applicationStatus;
       const tableStatus = getAdminOverviewApplicantTableStatus(effectiveStatus);
       return {
         applicationId: application._id,
