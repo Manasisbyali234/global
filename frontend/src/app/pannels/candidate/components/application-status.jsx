@@ -2540,7 +2540,7 @@ function CanStatusPage() {
 																	{(applicationDisplayStatus === 'pending' && app.isSelectedForProcess) ? 'Shortlisted' : 
 																	 applicationDisplayStatus === 'hired' ? 'Hired' :
 																	 applicationDisplayStatus === 'offer_sent' ? 'Offer Letter Sent' :
-																	 applicationDisplayStatus === 'accepted' ? 'Accepted' :
+																	 applicationDisplayStatus === 'accepted' ? 'Offer Accepted' :
 																	 applicationDisplayStatus?.charAt(0).toUpperCase() + applicationDisplayStatus?.slice(1) || 'Pending'}
 																</span>
 															</td>

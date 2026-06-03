@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
-import { getAdminApplicantTableStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
+import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import { buildUtcDateTimeFromIst } from "../../../../utils/timezoneUtils";
 import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import SearchBar from "../../../../components/SearchBar";
@@ -82,17 +82,11 @@ function AdminOverviewPage() {
   const showJobCompanyColumn =
     selectedEmployer?.employerType === "consultant" ||
     visibleEmployerJobs.some((job) => String(job.companyName || "").trim());
-  const PENDING_DISPLAY_KEYS = new Set(['pending', 'on_hold', 'pending_decision', 'under_review', 'scheduled', 'in_progress', 'interview_scheduled', 'interview_completed']);
-
   const visibleJobApplicants = jobApplicants.filter((applicant) => {
-    const applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
+    const applicantStatusKey = getApplicationStatusKey(applicant);
     if (!String(applicant?.applicantEmail || "").toLowerCase().includes(applicantSearch.toLowerCase())) return false;
     if (applicantStatusFilter !== "all") {
-      if (applicantStatusFilter === "pending") {
-        if (!PENDING_DISPLAY_KEYS.has(applicantStatusKey)) return false;
-      } else if (applicantStatusKey !== applicantStatusFilter) {
-        return false;
-      }
+      if (applicantStatusKey !== applicantStatusFilter) return false;
     }
     return true;
   });
@@ -239,20 +233,6 @@ function AdminOverviewPage() {
     secondary: { background: "#eceff1", color: "#546e7a", border: "1px solid #b0bec5" }
   };
 
-  // Manual tracking status values set by the employer in Candidate Review → Manual Tracking
-  const manualTrackingStatuses = new Set([
-    "shortlisted",
-    "shortlisted for next round",
-    "selected",
-    "under review",
-    "pending decision",
-    "on hold",
-    "no show",
-    "rejected",
-    "not advanced to next stage",
-    "not advanced to next round"
-  ]);
-
   const assessmentPendingStatuses = new Set([
     "",
     "pending",
@@ -281,30 +261,7 @@ function AdminOverviewPage() {
       normalizeStatusValue(round?.type) === "assessment" ||
       normalizeStatusValue(round?.name).includes("assessment");
 
-    if (manualTrackingStatuses.has(normalizedStatus)) {
-      if (["shortlisted", "shortlisted for next round"].includes(normalizedStatus)) {
-        return { label: "Shortlisted for next Round", style: badgeStyles.info };
-      }
-      if (normalizedStatus === "selected") {
-        return { label: "Selected", style: badgeStyles.success };
-      }
-      if (normalizedStatus === "under review") {
-        return { label: "Under Review", style: badgeStyles.warning };
-      }
-      if (normalizedStatus === "pending decision") {
-        return { label: "Pending Decision", style: badgeStyles.warning };
-      }
-      if (normalizedStatus === "on hold") {
-        return { label: "On Hold", style: badgeStyles.secondary };
-      }
-      if (normalizedStatus === "no show") {
-        return { label: "No Show", style: badgeStyles.danger };
-      }
-      if (["rejected", "not advanced to next stage", "not advanced to next round"].includes(normalizedStatus)) {
-        return { label: "Not Advanced to Next Stage", style: badgeStyles.danger };
-      }
-    }
-
+    // For assessment rounds, use assessment-specific logic
     if (isAssessmentRound) {
       const normalizedResult = normalizeStatusValue(round?.assessmentResult);
       const outcome = getAssessmentOutcome({
@@ -314,7 +271,7 @@ function AdminOverviewPage() {
       const assessmentEndDate = getAssessmentRoundEndDate(round);
       const isWindowExpired = Boolean(assessmentEndDate && Date.now() > assessmentEndDate.getTime());
       const hasPendingReviewResult = normalizedResult === "pending";
-      const hasExplicitResult = Boolean(normalizedResult);
+      const hasExplicitResult = Boolean(normalizedResult && normalizedResult !== "pending");
 
       if (outcome.isPassed) {
         return { label: "Passed", style: badgeStyles.success };
@@ -342,9 +299,54 @@ function AdminOverviewPage() {
           return { label: "No Show", style: badgeStyles.danger };
         }
       }
+      
+      // Default for assessment
+      return { label: getStatusLabel(round?.status || "pending"), style: badgeStyles.neutral };
     }
 
-    return { label: "Pending", style: badgeStyles.neutral };
+    // For non-assessment rounds — match exactly what Employer and Candidate display
+    if (["shortlisted for next round", "shortlisted_for_next_round"].includes(normalizedStatus)) {
+      return { label: "Shortlisted for next Round", style: badgeStyles.info };
+    }
+    if (normalizedStatus === "shortlisted") {
+      return { label: "Shortlisted", style: badgeStyles.info };
+    }
+    if (normalizedStatus === "selected") {
+      return { label: "Selected", style: badgeStyles.success };
+    }
+    if (normalizedStatus === "under review") {
+      return { label: "Under Review", style: badgeStyles.warning };
+    }
+    if (normalizedStatus === "pending decision") {
+      return { label: "Pending Decision", style: badgeStyles.warning };
+    }
+    if (normalizedStatus === "on hold") {
+      return { label: "On Hold", style: badgeStyles.secondary };
+    }
+    if (normalizedStatus === "no show") {
+      return { label: "No Show", style: badgeStyles.danger };
+    }
+    if (normalizedStatus === "rejected") {
+      return { label: "Rejected", style: badgeStyles.danger };
+    }
+    if (normalizedStatus === "not advanced to next stage") {
+      return { label: "Not Advanced to Next Stage", style: badgeStyles.danger };
+    }
+    if (normalizedStatus === "not advanced to next round") {
+      return { label: "Not Advanced to Next Round", style: badgeStyles.danger };
+    }
+    if (["scheduled", "interview scheduled"].includes(normalizedStatus)) {
+      return { label: getStatusLabel(round?.status || "pending"), style: badgeStyles.info };
+    }
+    if (["completed", "interview completed"].includes(normalizedStatus)) {
+      return { label: getStatusLabel(round?.status || "pending"), style: badgeStyles.success };
+    }
+    if (normalizedStatus === "in progress") {
+      return { label: "In Progress", style: badgeStyles.warning };
+    }
+
+    // Use the standardized status label for anything else
+    return { label: getStatusLabel(round?.status || "pending"), style: badgeStyles.neutral };
   };
 
   const isRejectedAssessmentOutcome = (status = "", result = "") => {
@@ -827,7 +829,7 @@ function AdminOverviewPage() {
                     ) : (
                       visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant, index) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
-                        const applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
+                        const applicantStatusKey = getApplicationStatusKey(applicant);
 
                         return (
                           <tr key={applicant.applicationId}>
@@ -935,13 +937,13 @@ function AdminOverviewPage() {
                                 borderRadius: '999px',
                                 fontSize: '12px',
                                 fontWeight: 600,
-                                  ...(['pending', 'on_hold', 'pending_decision', 'under_review', 'scheduled', 'in_progress', 'interview_scheduled', 'interview_completed'].includes(applicantStatusKey) ? { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' } :
-                                  ['rejected', 'no_show', 'failed', 'suspended', 'session_expired'].includes(applicantStatusKey) ? { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' } :
-                                  ['accepted', 'hired'].includes(applicantStatusKey) ? { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' } :
-                                  ['shortlisted', 'offer_sent'].includes(applicantStatusKey) ? { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' } :
-                                  { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' })
+                                ...(applicantStatusKey === 'rejected' ? badgeStyles.danger :
+                                  applicantStatusKey === 'accepted' || applicantStatusKey === 'hired' ? badgeStyles.success :
+                                  applicantStatusKey === 'offer_sent' || applicantStatusKey === 'shortlisted' ? badgeStyles.info :
+                                  applicantStatusKey === 'interviewed' ? badgeStyles.info :
+                                  badgeStyles.warning)
                               }}>
-                                {['on_hold', 'pending_decision', 'under_review', 'scheduled', 'in_progress', 'interview_scheduled', 'interview_completed'].includes(applicantStatusKey) ? 'Pending' : getStatusLabel(applicantStatusKey)}
+                                {getStatusLabel(applicantStatusKey)}
                               </span>
                             </td>
                           </tr>
