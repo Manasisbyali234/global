@@ -295,6 +295,22 @@ const getStatusBadge = (status) => {
   };
 };
 
+const hasRejectedInterviewProcess = (application = {}) => {
+  const isRejectedProcessStatus = (status = '') => {
+    const normalized = String(status || '').trim().toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
+    return [
+      'rejected', 'not advanced to next stage', 'not advanced to next round',
+      'failed', 'fail', 'no show', 'no_show', 'expired', 'suspended', 'session expired'
+    ].includes(normalized);
+  };
+
+  const processes = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+  if (processes.some(p => isRejectedProcessStatus(p?.status))) return true;
+
+  const stages = Array.isArray(application?.interviewProcess?.stages) ? application.interviewProcess.stages : [];
+  return stages.some(s => isRejectedProcessStatus(s?.status));
+};
+
 const getInterviewCardStatus = (application = {}) => {
   const applicationStatusKey = getApplicationStatusKey(application);
   const interviewStatusKey = getInterviewCurrentStatusKey(application, applicationStatusKey);
@@ -304,7 +320,7 @@ const getInterviewCardStatus = (application = {}) => {
     return applicationStatusKey;
   }
 
-  if (applicationStatusKey === "rejected") {
+  if (applicationStatusKey === "rejected" || hasRejectedInterviewProcess(application)) {
     return hasMeaningfulInterviewStatus && isRejectedStatusKey(interviewStatusKey)
       ? interviewStatusKey
       : "rejected";
