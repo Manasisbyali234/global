@@ -1909,6 +1909,12 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             });
             app.jobId.interviewRoundDetails[String(round._id)] = targetDetails;
 
+            // Map resolvedKey (uniqueKey from interviewRoundOrder e.g. "hr_1234") so
+            // multiple rounds of the same type each resolve to their own distinct _id.
+            if (resolvedKey) {
+              interviewRoundIds[resolvedKey] = round._id;
+            }
+
             // Always trust InterviewRound collection for schedule/timing metadata.
             const hasScheduleContent = (value) => {
               if (Array.isArray(value)) return value.length > 0;
