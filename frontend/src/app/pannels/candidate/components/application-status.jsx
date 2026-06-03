@@ -2839,7 +2839,7 @@ function CanStatusPage() {
 											}
 										}
 										const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
-										const roundId = selectedApplication.interviewRoundIds?.[uniqueKey] || selectedApplication.interviewRoundIds?.[roundTypeRaw] || uniqueKey;
+										const roundId = selectedApplication.interviewRoundIds?.[roundTypeRaw] || uniqueKey;
 										const candidateId = (() => {
 											const directCandidateId = selectedApplication.candidateId?._id || selectedApplication.candidateId;
 											if (directCandidateId) return directCandidateId;
