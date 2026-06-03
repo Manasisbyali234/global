@@ -64,7 +64,9 @@ const isAutoRejectedFromStageStatus = (app) => {
 };
 
 async function run() {
-  await mongoose.connect(process.env.MONGODB_URI || process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGODB_URI || process.env.MONGO_URI, {
+    writeConcern: { w: 1 }
+  });
   console.log('Connected to MongoDB\n');
 
   // Only look at applications currently marked rejected
@@ -156,7 +158,8 @@ async function run() {
             notes: 'Status corrected by fixApplicationStatusForManualStages script — previous rejection was not justified by any stage'
           }
         }
-      }
+      },
+      { writeConcern: { w: 1 } }
     );
 
     fixedCount++;
