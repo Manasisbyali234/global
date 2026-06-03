@@ -67,7 +67,7 @@ function SectionCanResumeHeadline({ profile }) {
                                 <label><i className="fa fa-newspaper-o me-1"></i> Resume Headline</label>
                                 <textarea 
                                     className="form-control" 
-                                    placeholder="e.g., Experienced Software Developer with 3+ years in React and Node.js" 
+                                    placeholder="e.g., Strong analytical skills with a focus on quality and efficiency" 
                                     value={headline}
                                     onChange={(e) => setHeadline(e.target.value)}
                                     rows={3}
