@@ -5832,7 +5832,7 @@ export default function EmpPostJob({ onNext }) {
 															padding: '8px'
 														}}
 														rows={1}
-														placeholder="Describe the interview round..."
+														placeholder="Only candidates who pass Round 1 will be eligible for Round 2 and subsequent rounds..."
 														value={details.description || ''}
 														onChange={(e) => {
 															autoResizeTextarea(e.target);
