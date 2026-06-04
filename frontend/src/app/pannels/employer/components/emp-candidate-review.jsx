@@ -870,9 +870,9 @@ function EmpCandidateReviewPage() {
             normalizeStatusValue(applicationData?.assessmentResult)
         );
 
-        // For non-assessment stages, only treat as rejected if explicitly set to 'rejected'
+        // For non-assessment stages, treat as rejected if set to 'rejected' or 'no_show'
         const hasRejectedNonAssessmentStage = normalizedProcesses.some((process) =>
-            !isAssessmentProcess(process) && normalizeStatusValue(process?.status) === 'rejected'
+            !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
         );
 
         if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage || assessmentIsSuspended || assessmentIsFailed) {
@@ -1913,7 +1913,7 @@ function EmpCandidateReviewPage() {
                                                                             <button
                                                                                 className="btn-decision btn-shortlist-action"
                                                                                 onClick={() => updateApplicationStatus('shortlisted')}
-                                                                                disabled={['shortlisted', 'offer_sent', 'accepted', 'hired'].includes(applicationStatusForActions)}
+                                                                                disabled={['shortlisted', 'offer_sent', 'accepted', 'hired'].includes(applicationStatusForActions) || (applicationDisplayStatus === 'rejected' && hadOfferSentInHistory(application))}
                                                                             >
                                                                                 <i className="fas fa-check-circle"></i> Shortlisted
                                                                             </button>
