@@ -331,6 +331,18 @@ const shouldAutoRejectExpiredApplication = (application = {}) => {
     return false;
   }
 
+  // Don't auto-reject purely pending applications that have never been acted upon
+  // Only auto-reject if there's activity initiated but not completed
+  if (baseStatus === 'pending') {
+    const hasActivityInitiated = (
+      hasTrackedInterviewActivity(application) ||
+      application?.assessmentAttemptsByAssessmentId ||
+      (Array.isArray(application?.interviewProcesses) && application.interviewProcesses.length > 0) ||
+      (Array.isArray(application?.interviewRounds) && application.interviewRounds.length > 0)
+    );
+    return hasActivityInitiated;
+  }
+
   return !hasTrackedInterviewActivity(application);
 };
 
