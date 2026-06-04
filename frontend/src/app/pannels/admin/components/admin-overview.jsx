@@ -876,7 +876,16 @@ function AdminOverviewPage() {
                     ) : (
                       visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant, index) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
-                        const applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
+                        let applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
+                        // If any assessment round is a computed no-show (window expired, never attempted),
+                        // override the status to rejected even when the DB status is still pending.
+                        if (applicantStatusKey !== 'rejected' && Array.isArray(applicant.interviewRounds)) {
+                          const hasNoShowRound = applicant.interviewRounds.some((round, roundIndex) => {
+                            const presentation = getRoundStatusPresentation(round, roundIndex, applicant.interviewRounds.length);
+                            return presentation.label === 'No Show';
+                          });
+                          if (hasNoShowRound) applicantStatusKey = 'rejected';
+                        }
 
                         return (
                           <tr key={applicant.applicationId}>
