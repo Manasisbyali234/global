@@ -310,7 +310,8 @@ function EmpJobReviewPage() {
                                         )}
                                         {jobDetails.companyDescription && (
                                             <div className="consultant-company-description">
-                                                <strong>Description:</strong> {jobDetails.companyDescription}
+                                                <strong>Description:</strong>
+                                                <div dangerouslySetInnerHTML={{ __html: jobDetails.companyDescription }} />
                                             </div>
                                         )}
                                     </div>
