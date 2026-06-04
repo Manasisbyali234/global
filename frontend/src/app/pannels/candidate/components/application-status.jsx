@@ -65,6 +65,157 @@ function CanStatusPage() {
 			.replace(/[_-]+/g, ' ')
 			.replace(/\s+/g, ' ');
 
+	const normalizeRoundLookupKey = (value = '') =>
+		String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+	const getBaseRoundType = (value = '') => String(value || '').split('_')[0];
+
+	const getRoundTypeCount = (application, roundTypeRaw) => {
+		const targetType = normalizeRoundLookupKey(getBaseRoundType(roundTypeRaw));
+		if (!targetType) return 0;
+
+		const job = application?.jobId || {};
+		const orderedKeys = Array.isArray(job?.interviewRoundOrder) ? job.interviewRoundOrder : [];
+		if (orderedKeys.length > 0) {
+			const orderedCount = orderedKeys.filter((roundKey) => {
+				const configuredType = job?.interviewRoundTypes?.[roundKey] || roundKey;
+				return (
+					normalizeRoundLookupKey(getBaseRoundType(configuredType)) === targetType ||
+					normalizeRoundLookupKey(getBaseRoundType(roundKey)) === targetType
+				);
+			}).length;
+			if (orderedCount > 0) return orderedCount;
+		}
+
+		const trackedProcesses = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+		return trackedProcesses.filter((process) =>
+			normalizeRoundLookupKey(getBaseRoundType(process?.type || process?.name)) === targetType
+		).length;
+	};
+
+	const isDuplicateRoundType = (application, roundTypeRaw) => getRoundTypeCount(application, roundTypeRaw) > 1;
+
+	const resolveTrackedRoundKey = (application, process = {}, processIndex = -1) => {
+		const job = application?.jobId || {};
+		const orderedKeys = Array.isArray(job?.interviewRoundOrder) ? job.interviewRoundOrder : [];
+		const orderKey = processIndex >= 0 ? orderedKeys[processIndex] : null;
+		const processType = process?.type || process?.stageType || '';
+		const processTypeKey = normalizeRoundLookupKey(getBaseRoundType(processType || process?.name));
+
+		if (orderKey) {
+			const orderType = job?.interviewRoundTypes?.[orderKey] || orderKey;
+			const orderTypeKey = normalizeRoundLookupKey(getBaseRoundType(orderType));
+			const orderKeyBase = normalizeRoundLookupKey(getBaseRoundType(orderKey));
+			if (!processTypeKey || processTypeKey === orderTypeKey || processTypeKey === orderKeyBase) {
+				return orderKey;
+			}
+		}
+
+		const processId = String(process?.id || process?._id || '').trim();
+		if (processId) {
+			if (orderedKeys.includes(processId) || job?.interviewRoundDetails?.[processId]) {
+				return processId;
+			}
+
+			const initialMatch = processId.match(/^initial-(.+)-\d+$/);
+			if (initialMatch?.[1]) {
+				return initialMatch[1];
+			}
+
+			const normalizedProcessId = normalizeRoundLookupKey(processId);
+			const containedOrderKey = orderedKeys.find((roundKey) => {
+				const normalizedRoundKey = normalizeRoundLookupKey(roundKey);
+				return normalizedRoundKey && normalizedProcessId.includes(normalizedRoundKey);
+			});
+			if (containedOrderKey) return containedOrderKey;
+
+			return processId;
+		}
+
+		return processType || process?.name || '';
+	};
+
+	const getInterviewRoundIdForRound = (application, uniqueKey, roundTypeRaw, roundDetails = {}) => {
+		const baseRoundType = getBaseRoundType(roundTypeRaw);
+		const allowTypeFallback = !isDuplicateRoundType(application, roundTypeRaw || uniqueKey);
+		return (
+			application?.interviewRoundIds?.[uniqueKey] ||
+			roundDetails?.interviewRoundId ||
+			(allowTypeFallback
+				? application?.interviewRoundIds?.[roundTypeRaw] || application?.interviewRoundIds?.[baseRoundType]
+				: null) ||
+			uniqueKey
+		);
+	};
+
+	const processMatchesRound = (application, process, roundContext, processIndex = -1) => {
+		if (!process) return false;
+		const { uniqueKey, roundType, roundName, index } = roundContext || {};
+		const processRoundKey = resolveTrackedRoundKey(application, process, processIndex);
+		const normalizedUniqueKey = normalizeRoundLookupKey(uniqueKey);
+		const normalizedProcessRoundKey = normalizeRoundLookupKey(processRoundKey);
+		const processIdKey = normalizeRoundLookupKey(process?.id || process?._id);
+
+		if (
+			normalizedUniqueKey &&
+			(normalizedProcessRoundKey === normalizedUniqueKey ||
+				processIdKey === normalizedUniqueKey ||
+				processIdKey.includes(normalizedUniqueKey))
+		) {
+			return true;
+		}
+
+		const targetType = normalizeRoundLookupKey(getBaseRoundType(roundType));
+		const processType = normalizeRoundLookupKey(getBaseRoundType(process?.type || process?.name));
+		if (Number.isInteger(index) && index >= 0 && processIndex === index && (!targetType || processType === targetType)) {
+			return true;
+		}
+
+		if (isDuplicateRoundType(application, roundType)) {
+			return false;
+		}
+
+		const processName = normalizeRoundLookupKey(process?.name);
+		const targetName = normalizeRoundLookupKey(roundName);
+		return (
+			(targetType && processType === targetType) ||
+			(targetName && processName.includes(targetName))
+		);
+	};
+
+	const findRelatedInterviewProcessIndex = (application, roundContext) => {
+		const trackedProcesses = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+		return trackedProcesses.findIndex((process, processIndex) =>
+			processMatchesRound(application, process, roundContext, processIndex)
+		);
+	};
+
+	const findRelatedInterviewProcess = (application, roundContext) => {
+		const trackedProcesses = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+		const processIndex = findRelatedInterviewProcessIndex(application, roundContext);
+		return processIndex !== -1 ? trackedProcesses[processIndex] : null;
+	};
+
+	const findRelatedInterviewStage = (application, roundContext) => {
+		const trackedStages = Array.isArray(application?.interviewProcess?.stages) ? application.interviewProcess.stages : [];
+		const { uniqueKey, roundType, index } = roundContext || {};
+		const normalizedUniqueKey = normalizeRoundLookupKey(uniqueKey);
+		const targetType = normalizeRoundLookupKey(getBaseRoundType(roundType));
+
+		return trackedStages.find((stage, stageIndex) => {
+			const stageKey = normalizeRoundLookupKey(stage?._id || stage?.id || stage?.key);
+			if (normalizedUniqueKey && stageKey === normalizedUniqueKey) return true;
+
+			const stageType = normalizeRoundLookupKey(getBaseRoundType(stage?.stageType || stage?.type));
+			const isSamePosition = Number.isInteger(index) && index >= 0
+				? stageIndex === index || Number(stage?.stageOrder || 0) === index + 1
+				: false;
+			if (isSamePosition && (!targetType || stageType === targetType)) return true;
+			if (isDuplicateRoundType(application, roundType)) return false;
+			return targetType && stageType === targetType;
+		}) || null;
+	};
+
 	const isDeferredInterviewAttendanceStatus = (value, isAssessment = false) => {
 		const normalized = normalizeStatusValue(value);
 		if (!normalized) return false;
@@ -419,9 +570,12 @@ function CanStatusPage() {
 		const allDetails = job?.interviewRoundDetails || {};
 		const detailEntries = Object.entries(allDetails);
 		const baseRoundType = String(roundTypeRaw || '').split('_')[0];
+		const allowTypeFallback = !isDuplicateRoundType(application, roundTypeRaw || uniqueKey);
 		const mappedRoundId =
-			application?.interviewRoundIds?.[roundTypeRaw] ||
-			application?.interviewRoundIds?.[baseRoundType] ||
+			application?.interviewRoundIds?.[uniqueKey] ||
+			(allowTypeFallback
+				? application?.interviewRoundIds?.[roundTypeRaw] || application?.interviewRoundIds?.[baseRoundType]
+				: null) ||
 			null;
 
 		const assessmentRoundIndex = roundsList
@@ -459,25 +613,34 @@ function CanStatusPage() {
 		} else {
 			roundDetails =
 				allDetails[uniqueKey] ||
-				allDetails[roundTypeRaw] ||
-				allDetails[baseRoundType] ||
 				(mappedRoundId ? allDetails[String(mappedRoundId)] : null) ||
+				(allowTypeFallback ? allDetails[roundTypeRaw] || allDetails[baseRoundType] : null) ||
 				null;
 		}
 
 		if (!roundDetails) {
 			for (const [key, details] of detailEntries) {
 				const keyNorm = normalized(key);
+				const uniqueKeyNorm = normalized(uniqueKey);
 				const typeNorm = normalized(roundTypeRaw);
 				const baseTypeNorm = normalized(baseRoundType);
 				const detailTypeNorm = normalized(details?.roundType || details?.key || details?.name || '');
 				const detailRoundId = details?.interviewRoundId ? String(details.interviewRoundId) : '';
 				const mappedId = mappedRoundId ? String(mappedRoundId) : '';
-				const matches =
-					(keyNorm && (keyNorm.includes(typeNorm) || keyNorm.includes(baseTypeNorm))) ||
-					(detailTypeNorm && (detailTypeNorm === typeNorm || detailTypeNorm === baseTypeNorm)) ||
+				const exactMatches =
+					(uniqueKeyNorm && (
+						keyNorm === uniqueKeyNorm ||
+						normalized(details?.key || '') === uniqueKeyNorm ||
+						normalized(details?.interviewRoundId || '') === uniqueKeyNorm
+					)) ||
 					(mappedId && detailRoundId && mappedId === detailRoundId) ||
 					(mappedId && key === mappedId);
+				const matches =
+					exactMatches ||
+					(allowTypeFallback && (
+						(keyNorm && ((typeNorm && keyNorm.includes(typeNorm)) || (baseTypeNorm && keyNorm.includes(baseTypeNorm)))) ||
+						(detailTypeNorm && (detailTypeNorm === typeNorm || detailTypeNorm === baseTypeNorm))
+					));
 				if (matches && details) {
 					roundDetails = details;
 					break;
@@ -549,18 +712,16 @@ function CanStatusPage() {
 				: previousRoundName?.toLowerCase();
 		const previousRoundType = normalizeType(previousRoundTypeRaw);
 		const previousRoundKey = typeof previousRound === 'object' ? previousRound?.uniqueKey : previousRoundType;
-		const previousRelatedProcess = application?.interviewProcesses?.find((process) => {
-			const processType = normalizeType(process?.type || '');
-			const processName = normalizeType(process?.name || '');
-			const roundNameNorm = normalizeType(previousRoundName || '');
-			return processType === previousRoundType ||
-				processName.includes(roundNameNorm) ||
-				String(process?.id) === String(previousRoundKey) ||
-				String(process?._id) === String(previousRoundKey);
+		const previousRelatedProcess = findRelatedInterviewProcess(application, {
+			uniqueKey: previousRoundKey,
+			roundType: previousRoundTypeRaw,
+			roundName: previousRoundName,
+			index: roundIndex - 1
 		});
-		const previousRelatedStage = application?.interviewProcess?.stages?.find((stage) => {
-			const stageType = normalizeType(stage?.stageType || '');
-			return String(stage?._id) === String(previousRoundKey) || stageType === previousRoundType;
+		const previousRelatedStage = findRelatedInterviewStage(application, {
+			uniqueKey: previousRoundKey,
+			roundType: previousRoundTypeRaw,
+			index: roundIndex - 1
 		});
 		const previousProcessStatus = normalizeStatusValue(previousRelatedProcess?.status);
 		const previousStageStatus = normalizeStatusValue(previousRelatedStage?.status);
@@ -1098,8 +1259,18 @@ function CanStatusPage() {
 
 		const normalizeKey = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
 		const baseRoundType = String(roundType || '').split('_')[0];
-		const rawIdentifiers = [uniqueKey, roundType, baseRoundType, roundId].filter(Boolean).map((value) => String(value));
-		const normalizedIdentifiers = new Set(rawIdentifiers.map((value) => normalizeKey(value)).filter(Boolean));
+		const allowTypeFallback = !isDuplicateRoundType(application, roundType || uniqueKey);
+		const exactIdentifiers = [
+			uniqueKey,
+			roundId,
+			currentRoundDetails?.key,
+			currentRoundDetails?.interviewRoundId
+		].filter(Boolean).map((value) => String(value));
+		const fallbackIdentifiers = allowTypeFallback
+			? [roundType, baseRoundType].filter(Boolean).map((value) => String(value))
+			: [];
+		const normalizedExactIdentifiers = new Set(exactIdentifiers.map((value) => normalizeKey(value)).filter(Boolean));
+		const normalizedFallbackIdentifiers = new Set(fallbackIdentifiers.map((value) => normalizeKey(value)).filter(Boolean));
 		const candidateBookedSlots = application?.bookedSlots || [];
 		const detailEntries = [
 			['__current__', currentRoundDetails],
@@ -1119,10 +1290,15 @@ function CanStatusPage() {
 			]
 				.filter(Boolean)
 				.map((value) => String(value));
-			const matchesRound = detailIdentifiers.some((value) => {
+			const exactMatch = detailIdentifiers.some((value) => {
 				const normalizedValue = normalizeKey(value);
-				return rawIdentifiers.includes(value) || (normalizedValue && normalizedIdentifiers.has(normalizedValue));
+				return exactIdentifiers.includes(value) || (normalizedValue && normalizedExactIdentifiers.has(normalizedValue));
 			});
+			const fallbackMatch = allowTypeFallback && detailIdentifiers.some((value) => {
+				const normalizedValue = normalizeKey(value);
+				return fallbackIdentifiers.includes(value) || (normalizedValue && normalizedFallbackIdentifiers.has(normalizedValue));
+			});
+			const matchesRound = exactMatch || fallbackMatch;
 
 			if (!matchesRound) continue;
 
@@ -1428,18 +1604,26 @@ function CanStatusPage() {
 		// PRIORITY 1: Check if application has interviewProcess.stages from InterviewProcessManager
 		if (application?.interviewProcess?.stages && application.interviewProcess.stages.length > 0) {
 			console.log('Using interviewProcess.stages:', application.interviewProcess.stages);
-			return application.interviewProcess.stages.map(stage => ({
-				name: getProperRoundName(stage.stageType, stage.stageName),
-				uniqueKey: stage._id || stage.stageType,
-				roundType: stage.stageType,
-				assessmentId: stage.assessmentId || null
-			}));
+			return application.interviewProcess.stages.map((stage, stageIndex) => {
+				const uniqueKey = resolveTrackedRoundKey(application, {
+					id: stage._id,
+					name: stage.stageName,
+					type: stage.stageType
+				}, stageIndex);
+				return {
+					name: getProperRoundName(stage.stageType, stage.stageName),
+					uniqueKey: uniqueKey || stage._id || stage.stageType,
+					processId: stage._id || null,
+					roundType: stage.stageType,
+					assessmentId: stage.assessmentId || null
+				};
+			});
 		}
 		
 		// PRIORITY 2: Check if application has interviewProcesses from employer review (legacy)
 		if (application?.interviewProcesses && application.interviewProcesses.length > 0) {
 			console.log('Using interviewProcesses from application:', application.interviewProcesses);
-			return application.interviewProcesses.map(process => {
+			return application.interviewProcesses.map((process, processIndex) => {
 				let name = process.name || getRoundNameFromKey(process.type);
 				
 				// Sanitize name: if it looks like a unique key, extract the actual type
@@ -1480,7 +1664,8 @@ function CanStatusPage() {
 				
 				return {
 					name: normalizeRoundDisplayName(name),
-					uniqueKey: process.id || process.type,
+					uniqueKey: resolveTrackedRoundKey(application, process, processIndex) || process.id || process.type,
+					processId: process.id || process._id || null,
 					roundType: process.type,
 					assessmentId: process.assessmentId || null
 				};
@@ -1676,12 +1861,7 @@ function CanStatusPage() {
 			if (roundName === 'Assessment') return null;
 			const roundTypeRaw = roundDetails?.__roundType || getRoundTypeFromName(roundName);
 			const uniqueKey = roundDetails?.__uniqueKey || roundTypeRaw;
-			const baseRoundType = String(roundTypeRaw || '').split('_')[0];
-			const roundId =
-				application?.interviewRoundIds?.[roundTypeRaw] ||
-				application?.interviewRoundIds?.[baseRoundType] ||
-				roundDetails?.interviewRoundId ||
-				uniqueKey;
+			const roundId = getInterviewRoundIdForRound(application, uniqueKey, roundTypeRaw, roundDetails);
 			const candidateId = application?.candidateId?._id || application?.candidateId;
 			const candidateSlotIdentity = application?.candidateId || {
 				_id: candidateId,
@@ -1833,30 +2013,20 @@ function CanStatusPage() {
 			const roundType = getRoundTypeFromName(roundName);
 			const trackedProcesses = Array.isArray(application.interviewProcesses) ? application.interviewProcesses : [];
 			const trackedStages = Array.isArray(application.interviewProcess?.stages) ? application.interviewProcess.stages : [];
-			const relatedProcessIndexById = trackedProcesses.findIndex((p) =>
-				String(p?.id || '').trim() === String(roundDetails?.__uniqueKey || '').trim()
-			);
-			const relatedProcessIndexByType = trackedProcesses.findIndex((p) => p?.type === roundType);
-			const relatedProcessIndexByName = trackedProcesses.findIndex((p) =>
-				String(p?.name || '').toLowerCase().includes(String(roundName || '').toLowerCase())
-			);
-			const relatedProcessIndex =
-				relatedProcessIndexById !== -1
-					? relatedProcessIndexById
-					: relatedProcessIndexByType !== -1
-					? relatedProcessIndexByType
-					: relatedProcessIndexByName !== -1
-						? relatedProcessIndexByName
-						: roundIndex < trackedProcesses.length
-							? roundIndex
-							: -1;
+			const relatedProcessIndex = findRelatedInterviewProcessIndex(application, {
+				uniqueKey: roundDetails?.__uniqueKey,
+				roundType: roundDetails?.__roundType || roundType,
+				roundName,
+				index: roundIndex
+			});
 			const relatedProcess =
 				relatedProcessIndex !== -1
 					? trackedProcesses[relatedProcessIndex]
 					: null;
-			const relatedStage = trackedStages.find((stage) => {
-				const stageType = String(stage?.stageType || '');
-				return String(stage?._id) === String(roundDetails?.__uniqueKey) || stageType === roundType;
+			const relatedStage = findRelatedInterviewStage(application, {
+				uniqueKey: roundDetails?.__uniqueKey,
+				roundType: roundDetails?.__roundType || roundType,
+				index: roundIndex
 			}) || null;
 			const trackedStatus = relatedProcess?.status || relatedStage?.status || '';
 			const normalizedTrackedStatus = normalizeStatusValue(trackedStatus);
@@ -2839,7 +3009,7 @@ function CanStatusPage() {
 											}
 										}
 										const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
-										const roundId = selectedApplication.interviewRoundIds?.[roundTypeRaw] || uniqueKey;
+										const roundId = getInterviewRoundIdForRound(selectedApplication, uniqueKey, roundTypeRaw, roundDetails);
 										const candidateId = (() => {
 											const directCandidateId = selectedApplication.candidateId?._id || selectedApplication.candidateId;
 											if (directCandidateId) return directCandidateId;
@@ -3147,7 +3317,12 @@ function CanStatusPage() {
 																)}
 																{(() => {
 																	const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
-																	const process = selectedApplication.interviewProcesses?.find(p => p.type === roundTypeRaw);
+																	const process = findRelatedInterviewProcess(selectedApplication, {
+																		uniqueKey,
+																		roundType: roundTypeRaw,
+																		roundName,
+																		index: roundIndex
+																	});
 																	const processRemarks = resolveProcessRemarks(
 																		process,
 																		roundName,
@@ -3210,7 +3385,6 @@ function CanStatusPage() {
 												{/* Schedule Button - Below the card */}
 												{roundName !== 'Assessment' && (() => {
 													const roundWindowInfo = getInterviewRoundWindowInfo(roundDetails);
-													const normalizedRoundType = (roundTypeRaw || '').toString().split('_')[0];
 													const bookSlotUrl = `https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`;
 													const candidateSearchTokens = [
 														candidateId,
@@ -3232,14 +3406,17 @@ function CanStatusPage() {
 														}
 													};
 													
-													const relatedProcess = selectedApplication.interviewProcesses?.find((process) => {
-														const processType = (process?.type || '').toString().split('_')[0];
-														return processType === normalizedRoundType || String(process?.id) === String(uniqueKey);
+													const relatedProcess = findRelatedInterviewProcess(selectedApplication, {
+														uniqueKey,
+														roundType: roundTypeRaw,
+														roundName,
+														index: roundIndex
 													});
 													
-													const relatedStage = selectedApplication.interviewProcess?.stages?.find((stage) => {
-														const stageType = (stage?.stageType || '').toString().split('_')[0];
-														return String(stage?._id) === String(uniqueKey) || stageType === normalizedRoundType;
+													const relatedStage = findRelatedInterviewStage(selectedApplication, {
+														uniqueKey,
+														roundType: roundTypeRaw,
+														index: roundIndex
 													});
 													
 													const processStatus = (relatedProcess?.status || '').toLowerCase();

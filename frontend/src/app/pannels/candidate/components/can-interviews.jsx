@@ -72,6 +72,72 @@ const normalizeRoundName = (value) => {
   return ROUND_NAME_MAP[raw] || ROUND_NAME_MAP[lower] || raw;
 };
 
+const normalizeRoundLookupKey = (value = "") =>
+  String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const getBaseRoundType = (value = "") => String(value || "").split("_")[0];
+
+const getRoundTypeCount = (application, roundTypeRaw) => {
+  const targetType = normalizeRoundLookupKey(getBaseRoundType(roundTypeRaw));
+  if (!targetType) return 0;
+
+  const job = application?.jobId || application?.job || {};
+  const orderedKeys = Array.isArray(job?.interviewRoundOrder) ? job.interviewRoundOrder : [];
+  if (orderedKeys.length > 0) {
+    const orderedCount = orderedKeys.filter((roundKey) => {
+      const configuredType = job?.interviewRoundTypes?.[roundKey] || roundKey;
+      return (
+        normalizeRoundLookupKey(getBaseRoundType(configuredType)) === targetType ||
+        normalizeRoundLookupKey(getBaseRoundType(roundKey)) === targetType
+      );
+    }).length;
+    if (orderedCount > 0) return orderedCount;
+  }
+
+  const trackedProcesses = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+  return trackedProcesses.filter((process) =>
+    normalizeRoundLookupKey(getBaseRoundType(process?.type || process?.name)) === targetType
+  ).length;
+};
+
+const isDuplicateRoundType = (application, roundTypeRaw) => getRoundTypeCount(application, roundTypeRaw) > 1;
+
+const resolveTrackedRoundKey = (application, process = {}, processIndex = -1) => {
+  const job = application?.jobId || application?.job || {};
+  const orderedKeys = Array.isArray(job?.interviewRoundOrder) ? job.interviewRoundOrder : [];
+  const orderKey = processIndex >= 0 ? orderedKeys[processIndex] : null;
+  const processType = process?.type || process?.stageType || "";
+  const processTypeKey = normalizeRoundLookupKey(getBaseRoundType(processType || process?.name));
+
+  if (orderKey) {
+    const orderType = job?.interviewRoundTypes?.[orderKey] || orderKey;
+    const orderTypeKey = normalizeRoundLookupKey(getBaseRoundType(orderType));
+    const orderKeyBase = normalizeRoundLookupKey(getBaseRoundType(orderKey));
+    if (!processTypeKey || processTypeKey === orderTypeKey || processTypeKey === orderKeyBase) {
+      return orderKey;
+    }
+  }
+
+  const processId = String(process?.id || process?._id || "").trim();
+  if (processId) {
+    if (orderedKeys.includes(processId) || job?.interviewRoundDetails?.[processId]) return processId;
+
+    const initialMatch = processId.match(/^initial-(.+)-\d+$/);
+    if (initialMatch?.[1]) return initialMatch[1];
+
+    const normalizedProcessId = normalizeRoundLookupKey(processId);
+    const containedOrderKey = orderedKeys.find((roundKey) => {
+      const normalizedRoundKey = normalizeRoundLookupKey(roundKey);
+      return normalizedRoundKey && normalizedProcessId.includes(normalizedRoundKey);
+    });
+    if (containedOrderKey) return containedOrderKey;
+
+    return processId;
+  }
+
+  return processType || process?.name || "";
+};
+
 const getCompanyName = (application) =>
   application?.jobId?.companyName ||
   application?.jobId?.brandName ||
@@ -109,17 +175,23 @@ const getLogoSrc = (value) => {
 
 const getInterviewRounds = (job, application) => {
   if (application?.interviewProcess?.stages?.length) {
-    return application.interviewProcess.stages.map((stage) => ({
+    return application.interviewProcess.stages.map((stage, stageIndex) => ({
       name: normalizeRoundName(stage.stageName || stage.stageType),
-      uniqueKey: stage._id || stage.stageType || stage.stageName,
+      uniqueKey: resolveTrackedRoundKey(application, {
+        id: stage._id,
+        name: stage.stageName,
+        type: stage.stageType
+      }, stageIndex) || stage._id || stage.stageType || stage.stageName,
+      processId: stage._id || null,
       roundType: stage.stageType || stage.stageName
     }));
   }
 
   if (application?.interviewProcesses?.length) {
-    return application.interviewProcesses.map((process) => ({
+    return application.interviewProcesses.map((process, processIndex) => ({
       name: normalizeRoundName(process.name || process.type),
-      uniqueKey: process.id || process._id || process.type || process.name,
+      uniqueKey: resolveTrackedRoundKey(application, process, processIndex) || process.id || process._id || process.type || process.name,
+      processId: process.id || process._id || null,
       roundType: process.type || process.name
     }));
   }
@@ -235,18 +307,38 @@ const findNestedTimeWindow = (value) => {
 
 const getRoundDetails = (application, round, index) => {
   const job = application?.jobId || {};
+  const normalizedUniqueKey = normalizeRoundLookupKey(round.uniqueKey || round.roundType || round.name);
+  const normalizedRoundType = normalizeRoundLookupKey(getBaseRoundType(round.roundType || round.name));
+  const allowTypeFallback = !isDuplicateRoundType(application, round.roundType || round.uniqueKey);
   const stage =
-    application?.interviewProcess?.stages?.find((s) =>
-      String(s?._id || s?.stageType || s?.stageName) === String(round.uniqueKey || round.roundType || round.name)
-    ) || application?.interviewProcess?.stages?.[index];
+    application?.interviewProcess?.stages?.find((s, stageIndex) => {
+      const stageKey = normalizeRoundLookupKey(s?._id || s?.id || s?.key);
+      const stageType = normalizeRoundLookupKey(getBaseRoundType(s?.stageType || s?.stageName));
+      if (normalizedUniqueKey && stageKey === normalizedUniqueKey) return true;
+      if (stageIndex === index && (!normalizedRoundType || stageType === normalizedRoundType)) return true;
+      return allowTypeFallback && normalizedRoundType && stageType === normalizedRoundType;
+    }) || null;
   const process =
-    application?.interviewProcesses?.find((p) =>
-      String(p?._id || p?.id || p?.type || p?.name) === String(round.uniqueKey || round.roundType || round.name)
-    ) || application?.interviewProcesses?.[index];
+    application?.interviewProcesses?.find((p, processIndex) => {
+      const processRoundKey = normalizeRoundLookupKey(resolveTrackedRoundKey(application, p, processIndex));
+      const processIdKey = normalizeRoundLookupKey(p?._id || p?.id);
+      const processType = normalizeRoundLookupKey(getBaseRoundType(p?.type || p?.name));
+      if (
+        normalizedUniqueKey &&
+        (processRoundKey === normalizedUniqueKey ||
+          processIdKey === normalizedUniqueKey ||
+          processIdKey.includes(normalizedUniqueKey))
+      ) {
+        return true;
+      }
+      if (processIndex === index && (!normalizedRoundType || processType === normalizedRoundType)) return true;
+      return allowTypeFallback && normalizedRoundType && processType === normalizedRoundType;
+    }) || null;
   const roundDetails =
     job?.interviewRoundDetails?.[round.uniqueKey] ||
-    job?.interviewRoundDetails?.[round.roundType] ||
-    job?.interviewRoundDetails?.[round.name] ||
+    (allowTypeFallback
+      ? job?.interviewRoundDetails?.[round.roundType] || job?.interviewRoundDetails?.[round.name]
+      : null) ||
     {};
 
   const fromDate =

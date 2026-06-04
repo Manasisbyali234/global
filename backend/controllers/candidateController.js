@@ -1872,28 +1872,69 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             app.jobId.interviewRoundDetails = {};
           }
           const normalizeRoundKey = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+          const roundAliasCounts = interviewRounds.reduce((counts, round) => {
+            const addAlias = (alias) => {
+              const normalized = normalizeRoundKey(alias);
+              if (!normalized) return;
+              counts[normalized] = (counts[normalized] || 0) + 1;
+            };
+            addAlias(round.roundType);
+            addAlias(round.name);
+            addAlias(String(round.roundType || '').split('_')[0]);
+            return counts;
+          }, {});
+          const isAmbiguousRoundAlias = (alias) => {
+            const normalized = normalizeRoundKey(alias);
+            return normalized && roundAliasCounts[normalized] > 1;
+          };
+          const registerRoundIdAlias = (alias, roundId, allowAmbiguous = false) => {
+            if (!alias) return;
+            if (!allowAmbiguous && isAmbiguousRoundAlias(alias)) return;
+            interviewRoundIds[alias] = roundId;
+          };
+          const registerDetailsAlias = (alias, targetDetails, allowAmbiguous = false) => {
+            if (!alias) return;
+            if (!allowAmbiguous && isAmbiguousRoundAlias(alias)) return;
+            app.jobId.interviewRoundDetails[alias] = targetDetails;
+          };
 
           interviewRounds.forEach(round => {
-            const aliases = [round.key, round.roundType, round.name].filter(Boolean);
+            const exactAliases = [round.key, String(round._id)].filter(Boolean);
+            const descriptiveAliases = [round.roundType, round.name].filter(Boolean);
+            const normalizedBaseTypes = [String(round.roundType || '').split('_')[0]].filter(Boolean);
+            const aliases = [...exactAliases, ...descriptiveAliases];
             if (aliases.length === 0) return;
-            const normalizedBaseTypes = aliases
-              .map((alias) => String(alias).split('_')[0])
-              .filter(Boolean);
 
-            aliases.forEach((alias) => {
-              interviewRoundIds[alias] = round._id;
-            });
-            normalizedBaseTypes.forEach((alias) => {
-              interviewRoundIds[alias] = round._id;
-            });
-            interviewRoundIds[String(round._id)] = round._id;
+            exactAliases.forEach((alias) => registerRoundIdAlias(alias, round._id, true));
+            descriptiveAliases.forEach((alias) => registerRoundIdAlias(alias, round._id));
+            normalizedBaseTypes.forEach((alias) => registerRoundIdAlias(alias, round._id));
 
             const detailsEntries = Object.entries(app.jobId.interviewRoundDetails || {});
-            let matchedKey = aliases.find((alias) => app.jobId.interviewRoundDetails[alias]);
+            let matchedKey = exactAliases.find((alias) => app.jobId.interviewRoundDetails[alias]);
             if (!matchedKey) {
-              const normalizedAliases = aliases.map((alias) => normalizeRoundKey(alias)).filter(Boolean);
-              const matchedEntry = detailsEntries.find(([key]) => normalizedAliases.includes(normalizeRoundKey(key)));
+              const normalizedExactAliases = exactAliases.map((alias) => normalizeRoundKey(alias)).filter(Boolean);
+              const matchedEntry = detailsEntries.find(([key, details]) => {
+                const detailKeys = [key, details?.key, details?.interviewRoundId]
+                  .filter(Boolean)
+                  .map(normalizeRoundKey);
+                return detailKeys.some((detailKey) => normalizedExactAliases.includes(detailKey));
+              });
               matchedKey = matchedEntry ? matchedEntry[0] : null;
+            }
+            if (!matchedKey) {
+              const safeAliases = [...descriptiveAliases, ...normalizedBaseTypes]
+                .filter((alias) => !isAmbiguousRoundAlias(alias));
+              matchedKey = safeAliases.find((alias) => app.jobId.interviewRoundDetails[alias]);
+              if (!matchedKey) {
+                const normalizedSafeAliases = safeAliases.map((alias) => normalizeRoundKey(alias)).filter(Boolean);
+                const matchedEntry = detailsEntries.find(([key, details]) => {
+                  const detailKeys = [key, details?.key, details?.roundType, details?.name, details?.interviewRoundId]
+                    .filter(Boolean)
+                    .map(normalizeRoundKey);
+                  return detailKeys.some((detailKey) => normalizedSafeAliases.includes(detailKey));
+                });
+                matchedKey = matchedEntry ? matchedEntry[0] : null;
+              }
             }
             const resolvedKey = matchedKey || round.key || round.roundType || round.name;
 
@@ -1901,13 +1942,9 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
               app.jobId.interviewRoundDetails[resolvedKey] = {};
             }
             const targetDetails = app.jobId.interviewRoundDetails[resolvedKey];
-            aliases.forEach((alias) => {
-              app.jobId.interviewRoundDetails[alias] = targetDetails;
-            });
-            normalizedBaseTypes.forEach((alias) => {
-              app.jobId.interviewRoundDetails[alias] = targetDetails;
-            });
-            app.jobId.interviewRoundDetails[String(round._id)] = targetDetails;
+            exactAliases.forEach((alias) => registerDetailsAlias(alias, targetDetails, true));
+            descriptiveAliases.forEach((alias) => registerDetailsAlias(alias, targetDetails));
+            normalizedBaseTypes.forEach((alias) => registerDetailsAlias(alias, targetDetails));
 
             // Always trust InterviewRound collection for schedule/timing metadata.
             const hasScheduleContent = (value) => {
@@ -2664,12 +2701,38 @@ exports.getApplicationInterviewDetails = async (req, res) => {
     const InterviewRound = require('../models/InterviewRound');
     const dbRounds = await InterviewRound.find({ jobId: job._id }).lean();
     const normalizeRoundKey = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+    const roundAliasCounts = dbRounds.reduce((counts, round) => {
+      const addAlias = (alias) => {
+        const normalized = normalizeRoundKey(alias);
+        if (!normalized) return;
+        counts[normalized] = (counts[normalized] || 0) + 1;
+      };
+      addAlias(round.roundType);
+      addAlias(round.name);
+      addAlias(String(round.roundType || '').split('_')[0]);
+      return counts;
+    }, {});
     const findDbRound = (uniqueKey, roundType) => {
-      const candidates = [uniqueKey, roundType].filter(Boolean).map(normalizeRoundKey);
-      return dbRounds.find((round) => {
-        const roundKeys = [round.key, round.roundType, round.name].filter(Boolean).map(normalizeRoundKey);
-        return candidates.some((candidate) => roundKeys.includes(candidate));
+      const normalizedUniqueKey = normalizeRoundKey(uniqueKey);
+      const exactMatch = dbRounds.find((round) => {
+        const exactRoundKeys = [round.key, round._id]
+          .filter(Boolean)
+          .map(normalizeRoundKey);
+        return normalizedUniqueKey && exactRoundKeys.includes(normalizedUniqueKey);
       });
+      if (exactMatch) return exactMatch;
+
+      const normalizedRoundType = normalizeRoundKey(roundType);
+      if (!normalizedRoundType || roundAliasCounts[normalizedRoundType] > 1) {
+        return null;
+      }
+
+      return dbRounds.find((round) => {
+        const roundKeys = [round.roundType, round.name, String(round.roundType || '').split('_')[0]]
+          .filter(Boolean)
+          .map(normalizeRoundKey);
+        return roundKeys.includes(normalizedRoundType);
+      }) || null;
     };
     const interviewDetails = {
       applicationId: application._id,
@@ -2729,6 +2792,9 @@ exports.getApplicationInterviewDetails = async (req, res) => {
           
           if (details.description || details.fromDate || details.toDate || details.startTime || details.endTime) {
             interviewDetails.rounds.push({
+              uniqueKey,
+              roundKey: uniqueKey,
+              interviewRoundId: dbRound?._id || details.interviewRoundId || null,
               type: roundTypeNames[roundType] || roundType,
               description: details.description || `${roundTypeNames[roundType]} - Please be prepared for this interview stage`,
               fromDate: details.fromDate,
