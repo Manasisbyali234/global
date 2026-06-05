@@ -256,8 +256,11 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
   const interviewRounds = Array.isArray(application?.interviewRounds) ? application.interviewRounds : [];
   for (let index = interviewRounds.length - 1; index >= 0; index -= 1) {
     const roundStatusKey = getCanonicalStatusKey(interviewRounds[index]?.status, '');
-    if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundStatusKey)) return 'rejected';
+    // A passed/completed/shortlisted round means candidate is still in process — stop scanning
     if (['passed', 'shortlisted', 'shortlisted_for_next_round', 'completed'].includes(roundStatusKey)) return 'pending';
+    // Only mark rejected if there is no later passing round (since we iterate last-to-first,
+    // reaching here means no subsequent round was passed)
+    if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundStatusKey)) return 'rejected';
   }
 
   const interviewStatusKey = getInterviewCurrentStatusKey(application, '');

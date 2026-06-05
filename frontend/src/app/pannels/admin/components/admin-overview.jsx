@@ -877,14 +877,20 @@ function AdminOverviewPage() {
                       visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant, index) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
                         let applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
-                        // If any assessment round is a computed no-show (window expired, never attempted),
-                        // override the status to rejected even when the DB status is still pending.
-                        if (applicantStatusKey !== 'rejected' && Array.isArray(applicant.interviewRounds)) {
-                          const hasNoShowRound = applicant.interviewRounds.some((round, roundIndex) => {
-                            const presentation = getRoundStatusPresentation(round, roundIndex, applicant.interviewRounds.length);
-                            return presentation.label === 'No Show';
+                        // Override to rejected only if the LAST round (most recent) is a No Show
+                        // and no subsequent round has a passed/completed/shortlisted result.
+                        if (applicantStatusKey !== 'rejected' && Array.isArray(applicant.interviewRounds) && applicant.interviewRounds.length > 0) {
+                          const rounds = applicant.interviewRounds;
+                          const lastRoundIndex = rounds.length - 1;
+                          const lastPresentation = getRoundStatusPresentation(rounds[lastRoundIndex], lastRoundIndex, rounds.length);
+                          const hasPassedRoundAfterNoShow = rounds.some((round, roundIndex) => {
+                            if (roundIndex <= lastRoundIndex) return false;
+                            const p = getRoundStatusPresentation(round, roundIndex, rounds.length);
+                            return ['Passed', 'Completed', 'Selected', 'Shortlisted for next Round'].includes(p.label);
                           });
-                          if (hasNoShowRound) applicantStatusKey = 'rejected';
+                          if (lastPresentation.label === 'No Show' && !hasPassedRoundAfterNoShow) {
+                            applicantStatusKey = 'rejected';
+                          }
                         }
 
                         return (
