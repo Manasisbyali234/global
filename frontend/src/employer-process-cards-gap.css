@@ -1,0 +1,17 @@
+/* Reduce gap between "How It Works for Employers" cards on mobile */
+
+@media (max-width: 767px) {
+    /* Reduce gap on mobile */
+    .home-page-alignment .redesign-section .row.g-4 {
+        --bs-gutter-x: 0.5rem !important;
+        --bs-gutter-y: 0.5rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Even smaller gap on extra small screens */
+    .home-page-alignment .redesign-section .row.g-4 {
+        --bs-gutter-x: 0.25rem !important;
+        --bs-gutter-y: 0.25rem !important;
+    }
+}

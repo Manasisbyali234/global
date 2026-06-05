@@ -82,7 +82,7 @@
 }
 
 .logo-footer img[src*="logo-skin-8.gif"] {
-  height: 90px !important;
+  height: 75px !important;
   width: auto !important;
   max-width: 250px !important;
   background: transparent !important;
@@ -178,8 +178,8 @@
   }
   
   .logo-footer img[src*="logo-skin-8.gif"] {
-    height: 50px !important;
-    max-width: 150px !important;
+    height: 100px !important;
+    max-width: 250px !important;
   }
   
   .footer-contact-item {
@@ -204,8 +204,8 @@
   }
   
   .logo-footer img[src*="logo-skin-8.gif"] {
-    height: 40px !important;
-    max-width: 120px !important;
+    height: 75px !important;
+    max-width: 250px !important;
   }
 }
 

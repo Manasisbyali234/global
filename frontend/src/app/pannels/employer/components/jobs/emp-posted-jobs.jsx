@@ -311,11 +311,13 @@ export default function EmpPostedJobs() {
 								))}
 							</datalist>
 						</div>
-                        <div style={{minWidth: '220px', flex: '0 1 240px', alignSelf: 'flex-end'}}>
+                        <div style={{minWidth: '220px', flex: '0 1 240px', alignSelf: 'flex-end', display: 'flex', flexDirection: 'column', gap: '0.35rem', height: '100%', boxSizing: 'border-box'}}>
+                            <label style={{color: '#4b5563', fontSize: '0.875rem', fontWeight: '600', margin: '0', lineHeight: '1.2', height: '16px'}} className="manage-jobs-toolbar__position-label">Position</label>
                             <select
                                 className="form-select"
                                 value={designationFilter}
                                 onChange={(e) => setDesignationFilter(e.target.value)}
+                                style={{height: '48px', minHeight: '48px', boxSizing: 'border-box'}}
                             >
                                 <option value="all">All Designation</option>
                                 {designationOptions.map((designation) => (

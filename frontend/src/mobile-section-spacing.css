@@ -19,6 +19,11 @@
         margin-bottom: 1.5rem !important;
     }
 
+    .home-page-alignment .workflow-section .row.align-items-center.mb-5 > .text-end {
+        text-align: center !important;
+        margin-top: 4px !important;
+    }
+
     .home-page-alignment .category-cards-container {
         margin-top: 10px !important;
         gap: 8px !important;
@@ -51,8 +56,13 @@
 
     .home-page-alignment .redesign-section .row.g-4,
     .home-page-alignment .workflow-section .row.g-5 {
-        --bs-gutter-x: 12px !important;
-        --bs-gutter-y: 12px !important;
+        --bs-gutter-x: 8px !important;
+        --bs-gutter-y: 8px !important;
+    }
+
+    .home-page-alignment .workflow-section .workflow-illustration-card {
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
     }
 
     .home-page-alignment .cta-container-box {
@@ -92,8 +102,8 @@
 
     .home-page-alignment .redesign-section .row.g-4,
     .home-page-alignment .workflow-section .row.g-5 {
-        --bs-gutter-x: 10px !important;
-        --bs-gutter-y: 10px !important;
+        --bs-gutter-x: 6px !important;
+        --bs-gutter-y: 6px !important;
     }
 
     .home-page-alignment .section-head.mb-5,

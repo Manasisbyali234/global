@@ -82,7 +82,7 @@
     -webkit-appearance: none !important;
     position: absolute !important;
     inset: 0 !important;
-    display: block !important;
+    display: none !important;
     min-width: 0 !important;
     min-height: 0 !important;
     width: auto !important;
@@ -119,6 +119,7 @@
   }
 
   .mobile-employers-filter-sidebar-shell.is-open .mobile-employers-filter-overlay {
+    display: block !important;
     opacity: 1;
   }
 

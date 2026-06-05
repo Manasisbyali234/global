@@ -158,7 +158,7 @@ function Footer1() {
                     .footer-brand-logo img {
                         display: block;
                         max-width: 100%;
-                        height: 56px !important;
+                        height: auto !important;
                         object-fit: contain;
                     }
                 }
@@ -184,7 +184,7 @@ function Footer1() {
                                             id="skin_footer_light_logo"
                                             src="images/skins-logo/logo-skin-8.gif"
                                             alt=""
-                                            style={{ height: '70px', width: 'auto' }}
+                                            style={{ height: '160px', width: 'auto' }}
                                         />
                                     </NavLink>
                                 </div>

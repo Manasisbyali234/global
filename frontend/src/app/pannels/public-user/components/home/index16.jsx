@@ -21,6 +21,7 @@ import "../../../../../ux-improvements.css";
 import "../../../../../container-fixes.css";
 import "../../../../../how-it-works-improvements.css";
 import "../../../../../mobile-section-spacing.css";
+import "../../../../../employer-process-cards-gap.css";
 import "./naukri-preview.css";
 import "../../../../../home-alignment.css";
 

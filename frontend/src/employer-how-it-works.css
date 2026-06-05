@@ -166,8 +166,8 @@
     .twm-w-process-steps3 {
         flex-direction: row !important;
         align-items: flex-start !important;
-        margin-bottom: 1rem;
         padding: 1rem !important;
+        margin-bottom: 0.25rem;
     }
 
     .twm-w-process-steps3 .twm-media {
@@ -235,7 +235,7 @@
         flex-direction: row !important;
         align-items: flex-start !important;
         padding: 1rem !important;
-        margin-bottom: 1rem;
+        margin-bottom: 0.25rem;
     }
 
     .twm-w-process-steps3 .twm-media {
