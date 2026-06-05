@@ -1295,7 +1295,7 @@ export default function EmpPostJob({ onNext }) {
 				headers: { 'Authorization': `Bearer ${token}` }
 			});
 			const tickets = Array.isArray(ticketsData?.tickets) ? ticketsData.tickets : [];
-			const candidateSupportTicketsCount = tickets.filter(ticket => ticket.ticketType === 'candidate').length;
+			const candidateSupportTicketsCount = tickets.filter(ticket => ticket.userType === 'candidate' && ticket.status !== 'resolved' && ticket.status !== 'closed').length;
 
 			setPostJobAccess({
 				loading: false,
@@ -2937,7 +2937,7 @@ export default function EmpPostJob({ onNext }) {
 	const accessMessage = hasAccessError
 		? postJobAccess.error
 		: overTicketLimit
-			? `Cannot post job: You have ${postJobAccess.candidateSupportTicketsCount} candidate support tickets. Please resolve them to below ${POST_JOB_TICKET_LIMIT}.`
+			? `Cannot post job: You have ${postJobAccess.candidateSupportTicketsCount} unresolved candidate support tickets. Please resolve tickets to bring the active count to ${POST_JOB_TICKET_LIMIT} or below.`
 			: postJobAccess.message || 'Account verification is in progress. Job posting will be available after approval requirements are complete.';
 
 	if (gatePostJob && postJobAccess.loading) {
