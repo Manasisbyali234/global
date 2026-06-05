@@ -782,12 +782,15 @@ function EmployerSupportTickets() {
                                         <Col md={6}>
                                             <Form.Group>
                                                 <Form.Label className="detail-label">Status</Form.Label>
-                                                <Form.Select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                                                    <option value="new">New</option>
-                                                    <option value="in-progress">In Progress</option>
-                                                    <option value="resolved">Resolved</option>
-                                                    <option value="closed">Closed</option>
-                                                </Form.Select>
+                                                <div className="filter-select-wrapper">
+                                                    <Form.Select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                                                        <option value="new">New</option>
+                                                        <option value="in-progress">In Progress</option>
+                                                        <option value="resolved">Resolved</option>
+                                                        <option value="closed">Closed</option>
+                                                    </Form.Select>
+                                                    <i className="fa fa-chevron-down filter-select-icon" aria-hidden="true"></i>
+                                                </div>
                                             </Form.Group>
                                         </Col>
                                     </Row>
