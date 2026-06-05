@@ -879,22 +879,24 @@ function AdminOverviewPage() {
                         let applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
                         if (Array.isArray(applicant.interviewRounds)) {
                           const rounds = applicant.interviewRounds;
-                          const hasPassedAssessment = rounds.some((round) => {
-                            const isAssessment =
-                              normalizeStatusValue(round?.type) === 'assessment' ||
-                              normalizeStatusValue(round?.name).includes('assessment');
-                            if (!isAssessment) return false;
-                            const result = getAssessmentResultPresentation(round);
-                            return result.label === 'Passed';
-                          });
-                          if (hasPassedAssessment) {
-                            applicantStatusKey = 'pending';
-                          } else if (applicantStatusKey !== 'rejected') {
-                            const presentations = rounds.map((round, roundIndex) =>
-                              getRoundStatusPresentation(round, roundIndex, rounds.length)
-                            );
-                            const hasNoShowRound = presentations.some((p) => p.label === 'No Show');
-                            if (hasNoShowRound) applicantStatusKey = 'rejected';
+                          if (applicantStatusKey !== 'rejected') {
+                            const hasPassedAssessment = rounds.some((round) => {
+                              const isAssessment =
+                                normalizeStatusValue(round?.type) === 'assessment' ||
+                                normalizeStatusValue(round?.name).includes('assessment');
+                              if (!isAssessment) return false;
+                              const result = getAssessmentResultPresentation(round);
+                              return result.label === 'Passed';
+                            });
+                            if (hasPassedAssessment) {
+                              applicantStatusKey = 'pending';
+                            } else {
+                              const presentations = rounds.map((round, roundIndex) =>
+                                getRoundStatusPresentation(round, roundIndex, rounds.length)
+                              );
+                              const hasNoShowRound = presentations.some((p) => p.label === 'No Show');
+                              if (hasNoShowRound) applicantStatusKey = 'rejected';
+                            }
                           }
                         }
 

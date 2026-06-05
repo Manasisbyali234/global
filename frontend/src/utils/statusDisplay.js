@@ -77,7 +77,12 @@ const ADMIN_PENDING_LIKE_STATUS_KEYS = new Set([
 const ADMIN_NO_SHOW_LIKE_STATUS_KEYS = new Set([
   'expired',
   'no_show',
-  'session_expired'
+  'session_expired',
+  'rejected',
+  'not_advanced_to_next_stage',
+  'not_advanced_to_next_round',
+  'failed',
+  'suspended'
 ]);
 
 export const normalizeStatusValue = (value = '') =>
