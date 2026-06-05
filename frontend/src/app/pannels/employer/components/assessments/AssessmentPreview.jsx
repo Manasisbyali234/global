@@ -70,13 +70,10 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                     </h2>
                     <div style={{
                         display: "flex",
-                        justifyContent: "space-between",
+                        justifyContent: "flex-end",
                         marginTop: "10px",
                         alignItems: "center",
                     }}>
-                        <div style={{ fontSize: "14px", color: "#555" }}>
-                            Progress: {questions.length > 0 ? Math.round(((currentQuestionIndex + 1) / questions.length) * 100) : 0}% complete
-                        </div>
                         <div style={{
                             display: "flex",
                             alignItems: "center",

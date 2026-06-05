@@ -3093,10 +3093,12 @@ function CanStatusPage() {
 																	const startDateLabel = formatDate(interviewStartDate);
 																	const dateLabel = startDateLabel;
 																	const timingLabel = `${formatTimeToAMPM(startTime)} - ${formatTimeToAMPM(endTime)}`;
+																	const assessmentTimerMinutes = roundDetails?.assessmentTimer ?? selectedApplication.jobId?.assessmentTimer ?? null;
 																	const [startHours, startMinutes] = startTime.split(':').map(Number);
 																	const [endHours, endMinutes] = endTime.split(':').map(Number);
-																	const totalMinutes = (endHours * 60 + endMinutes) - (startHours * 60 + startMinutes);
-																	const durationLabel = `${Math.max(0, totalMinutes)}mins`;
+																	const computedMinutes = (endHours * 60 + endMinutes) - (startHours * 60 + startMinutes);
+																	const durationMinutes = (assessmentTimerMinutes != null && assessmentTimerMinutes > 0) ? assessmentTimerMinutes : Math.max(0, computedMinutes);
+																	const durationLabel = `${durationMinutes}mins`;
 																			return (
 																				<div className="mb-2" style={{ fontSize: '14px' }}>
 																					<div className="d-flex align-items-start" style={{ gap: '10px' }}>

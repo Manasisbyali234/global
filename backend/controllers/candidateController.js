@@ -2080,6 +2080,31 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
           console.log(`Job ${app.jobId._id} has assessmentId:`, app.jobId.assessmentId, 'Type:', typeof app.jobId.assessmentId);
         }
         
+        // Attach assessmentTimer from Assessment model to roundDetails
+        if (app.jobId?.interviewRoundDetails) {
+          const Assessment = require('../models/Assessment');
+          const detailEntries = Object.entries(app.jobId.interviewRoundDetails);
+          const assessmentDetailEntries = detailEntries.filter(([, details]) => details?.assessmentId);
+          await Promise.all(assessmentDetailEntries.map(async ([key, details]) => {
+            try {
+              const assessmentDoc = await Assessment.findById(details.assessmentId).select('timer').lean();
+              if (assessmentDoc?.timer != null) {
+                app.jobId.interviewRoundDetails[key].assessmentTimer = assessmentDoc.timer;
+              }
+            } catch (e) { /* ignore */ }
+          }));
+          // Also attach via job-level assessmentId fallback
+          if (app.jobId.assessmentId && !assessmentDetailEntries.length) {
+            try {
+              const Assessment = require('../models/Assessment');
+              const assessmentDoc = await Assessment.findById(app.jobId.assessmentId).select('timer').lean();
+              if (assessmentDoc?.timer != null) {
+                app.jobId.assessmentTimer = assessmentDoc.timer;
+              }
+            } catch (e) { /* ignore */ }
+          }
+        }
+
         const assessmentAttempts = await AssessmentAttempt.find({
           applicationId: app._id,
           candidateId: req.user._id

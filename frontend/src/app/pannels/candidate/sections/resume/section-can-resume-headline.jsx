@@ -67,7 +67,7 @@ function SectionCanResumeHeadline({ profile }) {
                                 <label><i className="fa fa-newspaper-o me-1"></i> Resume Headline</label>
                                 <textarea 
                                     className="form-control" 
-                                    placeholder="e.g., Strong analytical skills with a focus on quality and efficiency" 
+                                    placeholder="A resume headline is a brief summary of your profile that highlights your skills, experience, qualifications, and career objectives." 
                                     value={headline}
                                     onChange={(e) => setHeadline(e.target.value)}
                                     rows={3}
