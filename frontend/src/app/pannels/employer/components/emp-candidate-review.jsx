@@ -166,6 +166,16 @@ function EmpCandidateReviewPage() {
         ].includes(normalized);
     };
 
+    const AUTO_REJECT_SESSION_NOTE = 'Auto-rejected after application session expired';
+
+    const isAutoRejectedAfterExpiredSession = (applicationData = {}) => {
+        if (normalizeStatusValue(applicationData?.status) !== 'rejected') return false;
+        const history = Array.isArray(applicationData?.statusHistory) ? applicationData.statusHistory : [];
+        const latest = [...history].reverse().find((entry) => entry?.status);
+        return normalizeStatusValue(latest?.status) === 'rejected' &&
+            String(latest?.notes || '').trim() === AUTO_REJECT_SESSION_NOTE;
+    };
+
     const wasAutoRejectedFromStageStatus = (applicationData = {}) =>
         Array.isArray(applicationData?.statusHistory) &&
         applicationData.statusHistory.some((entry) =>
@@ -882,6 +892,11 @@ function EmpCandidateReviewPage() {
         );
 
     const getApplicationDisplayStatus = (applicationData, processes = []) => {
+        // If the only reason this is rejected is an expired browser session, treat as pending
+        if (isAutoRejectedAfterExpiredSession(applicationData)) {
+            return 'pending';
+        }
+
         const baseStatus = String(applicationData?.status || '').trim().toLowerCase() || 'pending';
         if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
             return baseStatus;
@@ -1499,6 +1514,8 @@ function EmpCandidateReviewPage() {
         const pendingAssessmentEvaluation = hasPendingAssessmentEvaluation(application, interviewProcesses);
         const normalizedApplicationStatus = normalizeStatusValue(application?.status);
         if (!pendingAssessmentEvaluation && (negativeStatuses.has(normalizedApplicationStatus) || isRejectedLikeStatus(normalizedApplicationStatus))) {
+            // Don't treat session-expiry auto-reject as a real negative status
+            if (isAutoRejectedAfterExpiredSession(application)) return false;
             return true;
         }
 
