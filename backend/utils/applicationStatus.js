@@ -859,6 +859,13 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     return getCanonicalStatusKey(explicitDisplayStatus);
   }
 
+  // If the application was auto-rejected only because the assessment session expired
+  // (candidate never actually failed — the browser session timed out), treat it as
+  // pending so it is not surfaced as a real rejection to either party.
+  if (isAutoRejectedAfterExpiredSession(application)) {
+    return getCanonicalStatusKey(getStatusBeforeExpiredSessionAutoReject(application) || 'pending');
+  }
+
   const baseStatus = getDisplayBaseStatus(application, options, 'pending');
   const fallbackBaseStatus = baseStatus === 'under_review' ? 'pending' : baseStatus;
   if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
@@ -1001,6 +1008,11 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
   ).trim();
   if (explicitInterviewStatus) {
     return getCanonicalStatusKey(explicitInterviewStatus);
+  }
+
+  // Same session-expiry guard as getEffectiveApplicationDisplayStatus
+  if (isAutoRejectedAfterExpiredSession(application)) {
+    return 'pending';
   }
 
   const baseStatus = getDisplayBaseStatus(application, options, 'pending');
