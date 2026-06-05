@@ -248,12 +248,25 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
     return applicationStatusKey;
   }
 
+  const interviewRounds = Array.isArray(application?.interviewRounds) ? application.interviewRounds : [];
+
+  // If any assessment round has passed, candidate is still in-process — show Pending regardless of DB status
+  const hasPassedAssessmentRound = interviewRounds.some((round) => {
+    const roundType = normalizeStatusValue(round?.type || '');
+    const roundName = normalizeStatusValue(round?.name || '');
+    const isAssessment = roundType === 'assessment' || roundName.includes('assessment');
+    if (!isAssessment) return false;
+    const roundStatusKey = getCanonicalStatusKey(round?.status || '', '');
+    const roundResultKey = getCanonicalStatusKey(round?.assessmentResult || '', '');
+    return roundStatusKey === 'passed' || roundResultKey === 'passed';
+  });
+  if (hasPassedAssessmentRound) return 'pending';
+
   // Offer letter rejected or any definitive rejection — never override with round statuses
   if (applicationStatusKey === 'rejected') {
     return 'rejected';
   }
 
-  const interviewRounds = Array.isArray(application?.interviewRounds) ? application.interviewRounds : [];
   for (let index = interviewRounds.length - 1; index >= 0; index -= 1) {
     const roundStatusKey = getCanonicalStatusKey(interviewRounds[index]?.status, '');
     if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundStatusKey)) return 'rejected';
