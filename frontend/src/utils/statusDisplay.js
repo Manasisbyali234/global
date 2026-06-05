@@ -190,9 +190,9 @@ export const getApplicationStatusKey = (application = {}, fallback = 'pending') 
     fallback
   );
 
-  // If the raw DB status is a terminal state, honour it before normalizing
+  // If the raw DB status is a positive terminal state, honour it before normalizing
   const baseStatusKey = getCanonicalStatusKey(application?.status || '', '');
-  if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(baseStatusKey)) {
+  if (['accepted', 'hired', 'offer_sent'].includes(baseStatusKey)) {
     return baseStatusKey;
   }
 
