@@ -1746,14 +1746,24 @@ export default function EmpPostJob({ onNext }) {
 					
 					if (duration) {
 						try {
-							const [hours, mins] = value.split(':').map(Number);
-							if (!isNaN(hours) && !isNaN(mins)) {
-								const date = new Date();
-								date.setHours(hours);
-								date.setMinutes(mins + parseInt(duration));
-								const calculatedEndTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-								additionalUpdates.endTime = calculatedEndTime;
-								console.log(`Auto-calculated assessment end time: ${calculatedEndTime} based on ${duration} min duration`);
+							const durMin = parseInt(duration, 10);
+							if (Number.isFinite(durMin)) {
+								const [hours, mins] = value.split(':').map(Number);
+								if (!isNaN(hours) && !isNaN(mins)) {
+									// Build a date object for the start time on an arbitrary day
+									const date = new Date();
+									date.setHours(hours);
+									date.setMinutes(mins);
+									// Add duration minutes; this may advance the day
+									const endDate = new Date(date.getTime() + durMin * 60 * 1000);
+									const calculatedEndTime = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
+									additionalUpdates.endTime = calculatedEndTime;
+									// If endDate is next day, also update toDate to next calendar day
+									if (endDate.getDate() !== date.getDate()) {
+										additionalUpdates.toDate = getNextDayDateString(s.interviewRoundDetails[roundType]?.fromDate || s.assessmentStartDate || '');
+									}
+									console.log(`Auto-calculated assessment end time: ${calculatedEndTime} based on ${duration} min duration`);
+								}
 							}
 						} catch (e) {
 							console.error('Error calculating end time:', e);
@@ -1830,6 +1840,9 @@ export default function EmpPostJob({ onNext }) {
 							return prev;
 						}
 
+						const durMin = parseInt(duration, 10);
+						if (!Number.isFinite(durMin)) return prev;
+
 						const [hours, mins] = startTime.split(':').map(Number);
 						if (isNaN(hours) || isNaN(mins)) {
 							return prev;
@@ -1837,9 +1850,22 @@ export default function EmpPostJob({ onNext }) {
 
 						const date = new Date();
 						date.setHours(hours);
-						date.setMinutes(mins + parseInt(duration, 10));
-						const endTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+						date.setMinutes(mins);
+						const endDate = new Date(date.getTime() + durMin * 60 * 1000);
+						const endTime = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
 						newDetails[roundKey] = { ...newDetails[roundKey], endTime };
+
+						// If end crosses to next day, bump toDate and ensure it doesn't exceed job-level assessmentEndDate
+						if (endDate.getDate() !== date.getDate()) {
+							newDetails[roundKey].toDate = getNextDayDateString(newDetails[roundKey]?.fromDate || prev.assessmentStartDate || '');
+
+							// Validate against job's assessmentEndDate (if present on form)
+							const jobAssessmentEndDate = prev.assessmentEndDate || prev.jobAssessmentEndDate || null;
+							if (jobAssessmentEndDate && newDetails[roundKey].toDate > jobAssessmentEndDate) {
+								showWarning('Assessment end crosses the configured assessment end date. Please reduce duration or change dates.');
+								return prev;
+							}
+						}
 
 						return { ...prev, interviewRoundDetails: newDetails };
 					});
