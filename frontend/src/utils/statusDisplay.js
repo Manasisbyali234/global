@@ -255,7 +255,19 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
 
   const interviewRounds = Array.isArray(application?.interviewRounds) ? application.interviewRounds : [];
 
-  // If any assessment round has passed, candidate is still in-process — show Pending regardless of DB status
+  // Check for any definitive rejection status on any round first — this always wins
+  const hasRejectedRound = interviewRounds.some((round) => {
+    const roundStatusKey = getCanonicalStatusKey(round?.status || '', '');
+    return ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundStatusKey);
+  });
+  if (hasRejectedRound) return 'rejected';
+
+  // Offer letter rejected or any definitive rejection — never override with round statuses
+  if (applicationStatusKey === 'rejected') {
+    return 'rejected';
+  }
+
+  // If any assessment round has passed AND no round is rejected, candidate is still in-process
   const hasPassedAssessmentRound = interviewRounds.some((round) => {
     const roundType = normalizeStatusValue(round?.type || '');
     const roundName = normalizeStatusValue(round?.name || '');
@@ -266,11 +278,6 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
     return roundStatusKey === 'passed' || roundResultKey === 'passed';
   });
   if (hasPassedAssessmentRound) return 'pending';
-
-  // Offer letter rejected or any definitive rejection — never override with round statuses
-  if (applicationStatusKey === 'rejected') {
-    return 'rejected';
-  }
 
   for (let index = interviewRounds.length - 1; index >= 0; index -= 1) {
     const roundStatusKey = getCanonicalStatusKey(interviewRounds[index]?.status, '');
