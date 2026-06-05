@@ -49,10 +49,19 @@
   line-height: 24px !important;
   box-sizing: border-box !important;
   -webkit-box-sizing: border-box !important;
-  display: flex !important;
-  align-items: center !important;
   -webkit-appearance: none;
   appearance: none;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar .form-control {
+  display: block !important;
+  width: 100% !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar .form-select {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: 100% !important;
 }
 
 /* Date inputs need extra padding-left for the native calendar icon */
@@ -63,6 +72,10 @@
 }
 
 /* Search input keeps left padding for the icon */
+.emp-posted-jobs-page .manage-jobs-toolbar .position-relative {
+  min-width: 0;
+}
+
 .emp-posted-jobs-page .manage-jobs-toolbar .position-relative .form-control {
   padding-left: 40px !important;
 }
@@ -105,9 +118,9 @@
   flex: 1 1 auto;
   flex-direction: column;
   gap: 0.35rem;
-  min-width: 520px;
   align-self: flex-end;
   max-width: 100%;
+  min-width: 0;
 }
 
 .emp-posted-jobs-page .manage-jobs-toolbar__date-label {
