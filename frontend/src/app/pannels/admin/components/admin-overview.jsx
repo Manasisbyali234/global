@@ -877,19 +877,24 @@ function AdminOverviewPage() {
                       visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant, index) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
                         let applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
-                        // Override to rejected only if the LAST round (most recent) is a No Show
-                        // and no subsequent round has a passed/completed/shortlisted result.
-                        if (applicantStatusKey !== 'rejected' && Array.isArray(applicant.interviewRounds) && applicant.interviewRounds.length > 0) {
+                        if (Array.isArray(applicant.interviewRounds)) {
                           const rounds = applicant.interviewRounds;
-                          const lastRoundIndex = rounds.length - 1;
-                          const lastPresentation = getRoundStatusPresentation(rounds[lastRoundIndex], lastRoundIndex, rounds.length);
-                          const hasPassedRoundAfterNoShow = rounds.some((round, roundIndex) => {
-                            if (roundIndex <= lastRoundIndex) return false;
-                            const p = getRoundStatusPresentation(round, roundIndex, rounds.length);
-                            return ['Passed', 'Completed', 'Selected', 'Shortlisted for next Round'].includes(p.label);
+                          const hasPassedAssessment = rounds.some((round) => {
+                            const isAssessment =
+                              normalizeStatusValue(round?.type) === 'assessment' ||
+                              normalizeStatusValue(round?.name).includes('assessment');
+                            if (!isAssessment) return false;
+                            const result = getAssessmentResultPresentation(round);
+                            return result.label === 'Passed';
                           });
-                          if (lastPresentation.label === 'No Show' && !hasPassedRoundAfterNoShow) {
-                            applicantStatusKey = 'rejected';
+                          if (hasPassedAssessment) {
+                            applicantStatusKey = 'pending';
+                          } else if (applicantStatusKey !== 'rejected') {
+                            const presentations = rounds.map((round, roundIndex) =>
+                              getRoundStatusPresentation(round, roundIndex, rounds.length)
+                            );
+                            const hasNoShowRound = presentations.some((p) => p.label === 'No Show');
+                            if (hasNoShowRound) applicantStatusKey = 'rejected';
                           }
                         }
 
