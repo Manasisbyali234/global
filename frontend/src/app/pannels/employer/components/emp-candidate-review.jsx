@@ -114,6 +114,45 @@ function EmpCandidateReviewPage() {
     const isAssessmentProcess = (process = {}) =>
         normalizeStatusValue(process?.type) === 'assessment';
 
+    const isPendingAssessmentEvaluationProcess = (process = {}) => {
+        if (!isAssessmentProcess(process)) return false;
+
+        const manualEvaluationPendingCount = Number(process?.manualEvaluationPendingCount || 0);
+        if (manualEvaluationPendingCount > 0) return true;
+
+        const outcome = getAssessmentOutcome({
+            status: process?.rawAssessmentStatus || process?.assessmentAttemptStatus || process?.status,
+            result: process?.assessmentResult || process?.result,
+            manualEvaluationPendingCount
+        });
+
+        return outcome.isPendingReview;
+    };
+
+    const hasPendingAssessmentEvaluation = (applicationData = {}, processes = []) => {
+        const normalizedProcesses = Array.isArray(processes) ? processes : [];
+        if (normalizedProcesses.some((process) => isPendingAssessmentEvaluationProcess(process))) {
+            return true;
+        }
+
+        const attempts = [
+            applicationData?.assessmentAttempt,
+            ...(Array.isArray(applicationData?.assessmentAttempts) ? applicationData.assessmentAttempts : []),
+            ...Object.values(applicationData?.assessmentAttemptsByAssessmentId || {})
+        ].filter(Boolean);
+
+        return attempts.some((attempt) => {
+            const manualEvaluationPendingCount = Number(attempt?.manualEvaluationPendingCount || 0);
+            const outcome = getAssessmentOutcome({
+                status: attempt?.status,
+                result: attempt?.result,
+                manualEvaluationPendingCount
+            });
+
+            return manualEvaluationPendingCount > 0 || outcome.isPendingReview;
+        });
+    };
+
     const isAutoAssessmentStageStatus = (value) => {
         const normalized = normalizeStatusValue(value);
         return [
@@ -861,8 +900,11 @@ function EmpCandidateReviewPage() {
             Boolean(applicationData?.assessmentResult) ||
             (normalizedAssessmentStatus && normalizedAssessmentStatus !== 'not required');
 
+        const pendingAssessmentEvaluation = hasPendingAssessmentEvaluation(applicationData, normalizedProcesses);
         const hasRejectedAssessmentStage = normalizedProcesses.some((process) =>
-            isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
+            isAssessmentProcess(process) &&
+            !isPendingAssessmentEvaluationProcess(process) &&
+            isRejectedLikeStatus(process?.status)
         );
         const assessmentIsSuspended =
             normalizeStatusValue(applicationData?.assessmentStatus) === 'suspended';
@@ -875,7 +917,15 @@ function EmpCandidateReviewPage() {
             !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
         );
 
-        if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage || assessmentIsSuspended || assessmentIsFailed) {
+        if (hasRejectedNonAssessmentStage || assessmentIsSuspended || assessmentIsFailed) {
+            return 'rejected';
+        }
+
+        if (pendingAssessmentEvaluation) {
+            return 'pending';
+        }
+
+        if (hasRejectedAssessmentStage) {
             return 'rejected';
         }
 
@@ -1446,8 +1496,9 @@ function EmpCandidateReviewPage() {
             'not_eligible_for_next_round'
         ]);
 
+        const pendingAssessmentEvaluation = hasPendingAssessmentEvaluation(application, interviewProcesses);
         const normalizedApplicationStatus = normalizeStatusValue(application?.status);
-        if (negativeStatuses.has(normalizedApplicationStatus) || isRejectedLikeStatus(normalizedApplicationStatus)) {
+        if (!pendingAssessmentEvaluation && (negativeStatuses.has(normalizedApplicationStatus) || isRejectedLikeStatus(normalizedApplicationStatus))) {
             return true;
         }
 
@@ -1458,6 +1509,9 @@ function EmpCandidateReviewPage() {
 
         return interviewProcesses.some((process) => {
             const normalizedStageStatus = normalizeStatusValue(process?.status);
+            if (isPendingAssessmentEvaluationProcess(process)) {
+                return false;
+            }
             return negativeStatuses.has(normalizedStageStatus) || isRejectedLikeStatus(normalizedStageStatus);
         });
     };

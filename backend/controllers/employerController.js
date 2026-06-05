@@ -3433,6 +3433,9 @@ exports.getApplicationDetails = async (req, res) => {
             assessmentScore: matchedAttempt.score ?? stage.assessmentScore ?? null,
             assessmentTotalMarks: matchedAttempt.totalMarks ?? stage.assessmentTotalMarks ?? null,
             assessmentPercentage: matchedAttempt.percentage ?? stage.assessmentPercentage ?? null,
+            manualEvaluationPendingCount: matchedAttempt.manualEvaluationPendingCount ?? stage.manualEvaluationPendingCount ?? 0,
+            manualEvaluationRequiredCount: matchedAttempt.manualEvaluationRequiredCount ?? stage.manualEvaluationRequiredCount ?? 0,
+            manualEvaluationCompletedCount: matchedAttempt.manualEvaluationCompletedCount ?? stage.manualEvaluationCompletedCount ?? 0,
             assessmentCaptures: Array.isArray(matchedAttempt.captures) ? matchedAttempt.captures : [],
             assessmentStartedAt: matchedAttempt.startTime || stage.assessmentStartedAt || null,
             assessmentCompletedAt: matchedAttempt.endTime || matchedAttempt.suspendedAt || stage.assessmentCompletedAt || null

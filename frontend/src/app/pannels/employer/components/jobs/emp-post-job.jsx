@@ -1756,13 +1756,14 @@ export default function EmpPostJob({ onNext }) {
 									date.setMinutes(mins);
 									// Add duration minutes; this may advance the day
 									const endDate = new Date(date.getTime() + durMin * 60 * 1000);
-									const calculatedEndTime = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
-									additionalUpdates.endTime = calculatedEndTime;
-									// If endDate is next day, also update toDate to next calendar day
+									// If end crosses to next day, restrict and warn (do not auto-set endTime)
 									if (endDate.getDate() !== date.getDate()) {
-										additionalUpdates.toDate = getNextDayDateString(s.interviewRoundDetails[roundType]?.fromDate || s.assessmentStartDate || '');
+										showWarning('Assessment duration crosses midnight. Reduce duration or choose a later date.');
+									} else {
+										const calculatedEndTime = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
+										additionalUpdates.endTime = calculatedEndTime;
+										console.log(`Auto-calculated assessment end time: ${calculatedEndTime} based on ${duration} min duration`);
 									}
-									console.log(`Auto-calculated assessment end time: ${calculatedEndTime} based on ${duration} min duration`);
 								}
 							}
 						} catch (e) {
@@ -1852,20 +1853,15 @@ export default function EmpPostJob({ onNext }) {
 						date.setHours(hours);
 						date.setMinutes(mins);
 						const endDate = new Date(date.getTime() + durMin * 60 * 1000);
+
+						// If end crosses midnight, block and warn
+						if (endDate.getDate() !== date.getDate()) {
+							showWarning('Assessment duration crosses midnight. Reduce duration or choose a later date.');
+							return prev;
+						}
+
 						const endTime = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
 						newDetails[roundKey] = { ...newDetails[roundKey], endTime };
-
-						// If end crosses to next day, bump toDate and ensure it doesn't exceed job-level assessmentEndDate
-						if (endDate.getDate() !== date.getDate()) {
-							newDetails[roundKey].toDate = getNextDayDateString(newDetails[roundKey]?.fromDate || prev.assessmentStartDate || '');
-
-							// Validate against job's assessmentEndDate (if present on form)
-							const jobAssessmentEndDate = prev.assessmentEndDate || prev.jobAssessmentEndDate || null;
-							if (jobAssessmentEndDate && newDetails[roundKey].toDate > jobAssessmentEndDate) {
-								showWarning('Assessment end crosses the configured assessment end date. Please reduce duration or change dates.');
-								return prev;
-							}
-						}
 
 						return { ...prev, interviewRoundDetails: newDetails };
 					});
