@@ -183,7 +183,8 @@ exports.registerPlacement = async (req, res) => {
 
     const existingUser = await checkEmailExists(email);
     if (existingUser) {
-      return res.status(400).json({ success: false, message: 'Email already registered' });
+      const roleMsg = existingUser.role !== 'placement' ? ` as a ${existingUser.role}` : '';
+      return res.status(409).json({ success: false, message: `This email is already registered${roleMsg}. Please log in instead.` });
     }
 
     // If sendWelcomeEmail is true, create placement without password
@@ -222,7 +223,15 @@ exports.registerPlacement = async (req, res) => {
         await sendSMS(phone, otp, name);
       }
 
-      const placement = await Placement.create(placementData);
+      let placement;
+      try {
+        placement = await Placement.create(placementData);
+      } catch (createError) {
+        if (createError.code === 11000 && createError.keyPattern?.phone) {
+          return res.status(409).json({ success: false, field: 'phone', message: 'This mobile number is already registered. Please use a different number.' });
+        }
+        throw createError;
+      }
       
       // Create notification for admin
       try {

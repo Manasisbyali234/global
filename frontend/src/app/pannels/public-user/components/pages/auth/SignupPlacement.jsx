@@ -119,6 +119,14 @@ function SignupPlacement() {
                 setOtp('');
                 setShowOtpModal(true);
                 startOtpTimer();
+            } else if (response.status === 409) {
+                if (data.field === 'phone') {
+                    setFieldErrors(prev => ({ ...prev, phone: data.message || 'This mobile number is already registered. Please use a different number.' }));
+                    showError(data.message || 'This mobile number is already registered.');
+                } else {
+                    setFieldErrors(prev => ({ ...prev, email: data.message || 'This email is already registered. Please log in instead.' }));
+                    showError(data.message || 'This email is already registered. Please log in instead.');
+                }
             } else {
                 showError(data.message || 'Registration failed.');
             }
@@ -131,20 +139,28 @@ function SignupPlacement() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // Debug logging
-        console.log('Form data:', placementData);
-        console.log('Field errors:', fieldErrors);
-        
-        // Validate all required fields
-        const requiredFields = ['name', 'email', 'phone', 'collegeName'];
-        const missingFields = requiredFields.filter(field => !placementData[field] || !placementData[field].trim());
-        
-        console.log('Missing fields:', missingFields);
-        console.log('Has field errors:', Object.keys(fieldErrors).length > 0);
-        
-        if (Object.keys(fieldErrors).filter(key => fieldErrors[key]).length > 0 || missingFields.length > 0) {
-            showError('Please complete all required fields correctly.');
+
+        // Validate all required fields before submitting
+        const newErrors = {};
+        if (!placementData.name.trim()) newErrors.name = 'Name is required';
+        else if (placementData.name.trim().length < 2) newErrors.name = 'Name must be at least 2 characters long';
+
+        if (!placementData.email.trim()) newErrors.email = 'Email is required';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(placementData.email.trim())) newErrors.email = 'Please enter a valid email address';
+
+        if (!placementData.phone.trim()) newErrors.phone = 'Mobile number is required';
+
+        if (!placementData.collegeName.trim()) newErrors.collegeName = 'College/University name is required';
+        else if (placementData.collegeName.trim().length < 3) newErrors.collegeName = 'Name must be at least 3 characters long';
+
+        if (Object.keys(newErrors).length > 0) {
+            setFieldErrors(newErrors);
+            showError('Please fill in all required fields correctly.');
+            return;
+        }
+
+        if (Object.values(fieldErrors).some(Boolean)) {
+            showError('Please correct the errors before submitting.');
             return;
         }
 

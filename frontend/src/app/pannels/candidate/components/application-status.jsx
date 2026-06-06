@@ -2164,7 +2164,7 @@ function CanStatusPage() {
 				dateStyle: 'medium',
 				timeStyle: 'short'
 			}) : null;
-			showError(endLabel ? `? Assessment Window Closed\n\nThe assessment window ended on ${endLabel}.` : '? Assessment window has ended.');
+			showError(endLabel ? `Assessment Window Closed\n\nThe assessment window ended on ${endLabel}.` : '? Assessment window has ended.');
 			return;
 		}
 		const assessmentId = getAssessmentRoundInfo(application, 'Assessment', roundDetails).assessmentId || job?.assessmentId;

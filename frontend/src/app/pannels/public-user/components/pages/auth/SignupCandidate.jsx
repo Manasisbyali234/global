@@ -141,10 +141,12 @@ function SignupCandidate() {
                 startOtpTimer();
             } else if (response.status === 409) {
                 if (data.field === 'mobile') {
-                    setFieldErrors(prev => ({ ...prev, mobile: data.message }));
+                    setFieldErrors(prev => ({ ...prev, mobile: data.message || 'This mobile number is already registered. Please use a different number.' }));
+                    showError(data.message || 'This mobile number is already registered.');
                 } else {
+                    // Duplicate email — show error with inline field highlight and redirect link
+                    setFieldErrors(prev => ({ ...prev, email: data.message || 'This email is already registered. Please log in instead.' }));
                     showError(data.message || 'This email is already registered. Please log in instead.');
-                    setTimeout(() => navigate(publicUser.pages.LOGIN_CANDIDATE), 2000);
                 }
             } else {
                 // Show first validation error if present, otherwise show general message
@@ -160,8 +162,27 @@ function SignupCandidate() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        if (Object.keys(fieldErrors).filter(key => fieldErrors[key]).length > 0) {
+
+        // Validate all required fields before submitting
+        const newErrors = {};
+        if (!candidateData.firstName.trim()) newErrors.firstName = 'First name is required';
+        else if (!/^[a-zA-Z\s]+$/.test(candidateData.firstName.trim())) newErrors.firstName = 'First name can only contain letters and spaces';
+
+        if (!candidateData.lastName.trim()) newErrors.lastName = 'Last name is required';
+        else if (!/^[a-zA-Z\s]+$/.test(candidateData.lastName.trim())) newErrors.lastName = 'Last name can only contain letters and spaces';
+
+        if (!candidateData.email.trim()) newErrors.email = 'Email is required';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidateData.email.trim())) newErrors.email = 'Please enter a valid email address';
+
+        if (!candidateData.mobile.trim()) newErrors.mobile = 'Mobile number is required';
+
+        if (Object.keys(newErrors).length > 0) {
+            setFieldErrors(newErrors);
+            showError('Please fill in all required fields correctly.');
+            return;
+        }
+
+        if (Object.values(fieldErrors).some(Boolean)) {
             showError('Please correct the errors before submitting.');
             return;
         }

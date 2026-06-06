@@ -876,7 +876,33 @@ function AdminOverviewPage() {
                     ) : (
                       visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant, index) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
+<<<<<<< HEAD
                         const applicantStatusKey = getApplicationStatusKey(applicant);
+=======
+                        let applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
+                        if (Array.isArray(applicant.interviewRounds)) {
+                          const rounds = applicant.interviewRounds;
+                          if (applicantStatusKey !== 'rejected') {
+                            const hasPassedAssessment = rounds.some((round) => {
+                              const isAssessment =
+                                normalizeStatusValue(round?.type) === 'assessment' ||
+                                normalizeStatusValue(round?.name).includes('assessment');
+                              if (!isAssessment) return false;
+                              const result = getAssessmentResultPresentation(round);
+                              return result.label === 'Passed';
+                            });
+                            if (hasPassedAssessment) {
+                              applicantStatusKey = 'pending';
+                            } else {
+                              const presentations = rounds.map((round, roundIndex) =>
+                                getRoundStatusPresentation(round, roundIndex, rounds.length)
+                              );
+                              const hasNoShowRound = presentations.some((p) => p.label === 'No Show');
+                              if (hasNoShowRound) applicantStatusKey = 'rejected';
+                            }
+                          }
+                        }
+>>>>>>> d552eba6d889e7d5ae7cd49f7ea4077a823e5f27
 
                         return (
                           <tr key={applicant.applicationId}>
