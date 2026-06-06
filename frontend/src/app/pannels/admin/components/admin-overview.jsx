@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
-import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
+import { getAdminApplicantTableStatusKey, getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import { buildUtcDateTimeFromIst } from "../../../../utils/timezoneUtils";
 import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import SearchBar from "../../../../components/SearchBar";
@@ -876,9 +876,6 @@ function AdminOverviewPage() {
                     ) : (
                       visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant, index) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
-<<<<<<< HEAD
-                        const applicantStatusKey = getApplicationStatusKey(applicant);
-=======
                         let applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
                         if (Array.isArray(applicant.interviewRounds)) {
                           const rounds = applicant.interviewRounds;
@@ -902,7 +899,6 @@ function AdminOverviewPage() {
                             }
                           }
                         }
->>>>>>> d552eba6d889e7d5ae7cd49f7ea4077a823e5f27
 
                         return (
                           <tr key={applicant.applicationId}>

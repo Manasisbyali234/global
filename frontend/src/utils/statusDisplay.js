@@ -229,10 +229,6 @@ export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pendi
     fallback
   );
 
-<<<<<<< HEAD
-export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pending') =>
-  getApplicationStatusKey(application, fallback);
-=======
 export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pending') => {
   const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
   for (let index = statusHistory.length - 1; index >= 0; index -= 1) {
@@ -295,4 +291,3 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
 
   return applicationStatusKey;
 };
->>>>>>> d552eba6d889e7d5ae7cd49f7ea4077a823e5f27
