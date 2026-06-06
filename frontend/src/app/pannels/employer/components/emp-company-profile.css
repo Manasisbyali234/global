@@ -1612,8 +1612,10 @@ button.btn-danger:hover i.fas {
 .logo-container img,
 .banner-container img,
 .id-card-container img {
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
   object-fit: cover;
   object-position: center;
 }
