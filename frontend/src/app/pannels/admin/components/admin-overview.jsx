@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
-import { getAdminApplicantTableStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
+import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import { buildUtcDateTimeFromIst } from "../../../../utils/timezoneUtils";
 import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import SearchBar from "../../../../components/SearchBar";
@@ -83,7 +83,7 @@ function AdminOverviewPage() {
     selectedEmployer?.employerType === "consultant" ||
     visibleEmployerJobs.some((job) => String(job.companyName || "").trim());
   const visibleJobApplicants = jobApplicants.filter((applicant) => {
-    const applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
+    const applicantStatusKey = getApplicationStatusKey(applicant);
     if (!String(applicant?.applicantEmail || "").toLowerCase().includes(applicantSearch.toLowerCase())) return false;
     if (applicantStatusFilter !== "all") {
       if (applicantStatusKey !== applicantStatusFilter) return false;
@@ -876,16 +876,7 @@ function AdminOverviewPage() {
                     ) : (
                       visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant, index) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
-                        let applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
-                        // If any assessment round is a computed no-show (window expired, never attempted),
-                        // override the status to rejected even when the DB status is still pending.
-                        if (applicantStatusKey !== 'rejected' && Array.isArray(applicant.interviewRounds)) {
-                          const hasNoShowRound = applicant.interviewRounds.some((round, roundIndex) => {
-                            const presentation = getRoundStatusPresentation(round, roundIndex, applicant.interviewRounds.length);
-                            return presentation.label === 'No Show';
-                          });
-                          if (hasNoShowRound) applicantStatusKey = 'rejected';
-                        }
+                        const applicantStatusKey = getApplicationStatusKey(applicant);
 
                         return (
                           <tr key={applicant.applicationId}>

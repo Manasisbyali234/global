@@ -224,45 +224,5 @@ export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pendi
     fallback
   );
 
-export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pending') => {
-  const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
-  for (let index = statusHistory.length - 1; index >= 0; index -= 1) {
-    const historyStatusKey = getCanonicalStatusKey(statusHistory[index]?.status, '');
-    if (!historyStatusKey) continue;
-    if (ADMIN_PENDING_LIKE_STATUS_KEYS.has(historyStatusKey)) continue;
-    if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(historyStatusKey)) return 'rejected';
-    break;
-  }
-
-  const applicationStatusKey = getCanonicalStatusKey(
-    application?.applicationStatus ||
-      application?.applicationDisplayStatus ||
-      application?.displayStatus ||
-      application?.status ||
-      fallback,
-    fallback
-  );
-
-  // Terminal positive states are never overridden by round statuses
-  if (['accepted', 'hired', 'offer_sent'].includes(applicationStatusKey)) {
-    return applicationStatusKey;
-  }
-
-  // Offer letter rejected or any definitive rejection — never override with round statuses
-  if (applicationStatusKey === 'rejected') {
-    return 'rejected';
-  }
-
-  const interviewRounds = Array.isArray(application?.interviewRounds) ? application.interviewRounds : [];
-  for (let index = interviewRounds.length - 1; index >= 0; index -= 1) {
-    const roundStatusKey = getCanonicalStatusKey(interviewRounds[index]?.status, '');
-    if (ADMIN_NO_SHOW_LIKE_STATUS_KEYS.has(roundStatusKey)) return 'rejected';
-    if (['passed', 'shortlisted', 'shortlisted_for_next_round', 'completed'].includes(roundStatusKey)) return 'pending';
-  }
-
-  const interviewStatusKey = getInterviewCurrentStatusKey(application, '');
-  if (['no_show', 'session_expired', 'expired'].includes(interviewStatusKey)) return 'rejected';
-  if (['failed', 'suspended'].includes(interviewStatusKey)) return interviewStatusKey;
-
-  return applicationStatusKey;
-};
+export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pending') =>
+  getApplicationStatusKey(application, fallback);

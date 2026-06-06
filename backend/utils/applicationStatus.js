@@ -607,9 +607,34 @@ const resolveAssessmentOutcomeStatus = (status = '', result = '', fallback = 'pe
   const normalizedStatus = normalizeApplicationStatusValue(status);
   const normalizedResult = normalizeApplicationStatusValue(result);
 
+  // Preserve explicit suspended/in-progress values
   if (normalizedStatus === 'suspended') return 'suspended';
   if (normalizedStatus === 'in progress') return 'in_progress';
-  // Result takes priority over session expiry — a passing score on auto-submit is a pass
+
+  // CUSTOM MAPPING: map student assessment outcomes to admin display statuses
+  // 1) Attended -> Passed  => show as 'pending' (manual processing by admin)
+  // 2) Attended -> Failed  => show as 'failed' (treated as rejection)
+  // 3) Expired  -> Passed  => show as 'pending' (manual submission required)
+  // 4) Suspended           => keep 'suspended' (handled above)
+  // 5) Expired  -> Failed  => treat as 'no_show' (auto-reject)
+  // 6) Expired  -> Not Attended => treat as 'no_show'
+  const isExpired = ['expired', 'session expired'].includes(normalizedStatus);
+  const isPassed = normalizedResult === 'pass' || normalizedStatus === 'passed';
+  const isFailed = normalizedResult === 'fail' || normalizedStatus === 'failed';
+
+  // Attended (not expired) -> Passed => pending
+  if (!isExpired && isPassed) return 'pending';
+
+  // Attended (not expired) -> Failed => failed
+  if (!isExpired && isFailed) return 'failed';
+
+  // Expired -> Passed => pending (manual submission required)
+  if (isExpired && isPassed) return 'pending';
+
+  // Expired -> Failed OR expired with no attendance => no_show
+  if (isExpired && (isFailed || !normalizedResult || normalizedResult === 'no show')) return 'no_show';
+
+  // Fallback to previous behavior
   if (normalizedResult === 'pass' || normalizedStatus === 'passed') return 'passed';
   if (normalizedResult === 'fail' || normalizedStatus === 'failed') return 'failed';
   if (normalizedStatus === 'completed') return 'completed';

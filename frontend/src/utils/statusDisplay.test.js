@@ -14,17 +14,17 @@ test('admin overview prefers rejected application status over a no-show intervie
   ).toBe('rejected');
 });
 
-test('admin overview still shows no show when the application is not terminally rejected', () => {
+test('admin overview keeps pending when application status is pending and interview status is expired', () => {
   expect(
     getAdminApplicantTableStatusKey({
       status: 'pending',
       applicationStatus: 'pending',
       interviewCurrentStatus: 'expired'
     })
-  ).toBe('no_show');
+  ).toBe('pending');
 });
 
-test('admin overview keeps the explicit application status over a backend no-show row status', () => {
+test('admin overview resolves shared status rules for backend no-show values', () => {
   expect(
     getAdminApplicantTableStatusKey({
       status: 'no_show',
