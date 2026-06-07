@@ -2122,8 +2122,7 @@ function CanStatusPage() {
 		}
 		
 		if (status === 'shortlisted') {
-			const slotStatus = getBookedSlotStatus();
-			return slotStatus || scheduleSlotStatus;
+			return bookedSlotStatus || scheduleSlotStatus;
 		} else if (status === 'interviewed') {
 			return { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
 		} else if (status === 'hired') {
