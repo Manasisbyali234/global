@@ -364,7 +364,7 @@ const getRoundDetails = (application, round, index) => {
     roundDetails?.location ||
     formatJobLocation(job?.location);
   const interviewerName = stage?.interviewerName || process?.interviewerName || roundDetails?.interviewerName;
-  const status = stage?.status || process?.status || application?.status || "pending";
+  const status = process?.status || stage?.status || application?.status || "pending";
 
   return {
     fromDate,

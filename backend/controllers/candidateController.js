@@ -113,6 +113,23 @@ const shouldPreserveAssessmentStageStatus = (value = '') => {
   ].includes(normalizedStatus) && !isAssessmentAttemptDerivedStageStatus(normalizedStatus);
 };
 
+const isAssessmentEmployerDecisionStatus = (value = '') => {
+  const normalizedStatus = normalizeApplicationStatusValue(value);
+  if (!normalizedStatus) return false;
+
+  return [
+    'shortlisted for next round',
+    'shortlisted',
+    'selected',
+    'on hold',
+    'pending decision',
+    'no show',
+    'rejected',
+    'not advanced to next stage',
+    'not advanced to next round'
+  ].includes(normalizedStatus);
+};
+
 const getLatestApplicationStatusHistoryEntry = (application = {}) => {
   const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
 
@@ -2136,7 +2153,10 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
               }
 
               const resolvedAttemptStatus = resolveAssessmentAttemptStageStatus(matchedAttempt);
-              const stageStatus = shouldPreserveAssessmentStageStatus(stage?.status)
+              const stageStatus = (
+                isAssessmentEmployerDecisionStatus(stage?.status) ||
+                shouldPreserveAssessmentStageStatus(stage?.status)
+              )
                 ? stage.status
                 : resolvedAttemptStatus;
 

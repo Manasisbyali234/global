@@ -413,7 +413,20 @@ function CanStatusPage() {
 		);
 
 	const getTrackedAssessmentProcess = (application = {}, roundDetails = null) => {
-		const trackedProcesses = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+		const embeddedProcesses = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+		const stageProcesses = Array.isArray(application?.interviewProcess?.stages)
+			? application.interviewProcess.stages.map((stage) => ({
+				id: stage?._id,
+				name: stage?.stageName,
+				type: stage?.stageType,
+				status: stage?.status,
+				assessmentId: stage?.assessmentId,
+				assessmentAttemptId: stage?.assessmentAttemptId
+			}))
+			: [];
+		const trackedProcesses = embeddedProcesses.length > 0
+			? embeddedProcesses
+			: stageProcesses;
 		if (trackedProcesses.length === 0) {
 			return null;
 		}
