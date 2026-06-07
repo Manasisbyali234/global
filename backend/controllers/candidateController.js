@@ -257,10 +257,7 @@ const decorateCandidateApplicationStatusFields = (application = null, options = 
 
   return {
     ...application,
-    ...buildSharedApplicationStatusSnapshot(application, {
-      ...options,
-      surfaceNonFinalProgressionStatus: true
-    })
+    ...buildSharedApplicationStatusSnapshot(application, options)
   };
 };
 

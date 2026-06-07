@@ -1024,10 +1024,7 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     if (isFinalRoundSelected) {
       return fallbackBaseStatus === 'shortlisted' ? 'shortlisted' : 'pending';
     }
-    if (
-      options?.surfaceNonFinalProgressionStatus &&
-      ['shortlisted', 'shortlisted_for_next_round', 'on_hold', 'pending_decision', 'under_review', 'selected'].includes(latestTrackedStatus)
-    ) {
+    if (['shortlisted', 'shortlisted_for_next_round', 'on_hold', 'pending_decision', 'under_review', 'selected'].includes(latestTrackedStatus)) {
       return latestTrackedStatus;
     }
     if (
@@ -1138,7 +1135,7 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
     const isFinalRound = lastRoundWithMeaningfulStatus !== null &&
       lastRoundWithMeaningfulStatus.index === trackedProcessesForStatus.length - 1;
 
-    if (isFinalRound || options?.surfaceNonFinalProgressionStatus) {
+    if (isFinalRound || ['shortlisted', 'shortlisted_for_next_round', 'on_hold', 'pending_decision', 'under_review', 'selected'].includes(latestTrackedStatus)) {
       return latestTrackedStatus === 'interviewed' ? 'interview_completed' : latestTrackedStatus;
     }
   }
