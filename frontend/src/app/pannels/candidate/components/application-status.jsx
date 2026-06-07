@@ -151,11 +151,17 @@ function CanStatusPage() {
 	const processMatchesRound = (application, process, roundContext, processIndex = -1) => {
 		if (!process) return false;
 		const { uniqueKey, roundType, roundName, index } = roundContext || {};
-		const processRoundKey = resolveTrackedRoundKey(application, process, processIndex);
-		const normalizedUniqueKey = normalizeRoundLookupKey(uniqueKey);
-		const normalizedProcessRoundKey = normalizeRoundLookupKey(processRoundKey);
-		const processIdKey = normalizeRoundLookupKey(process?.id || process?._id);
 
+		// For duplicate round types, only match by position (index) or exact unique key.
+		// Never fall back to type-based matching — that would make both rounds show the same status.
+		const isDuplicate = isDuplicateRoundType(application, roundType);
+
+		const normalizedUniqueKey = normalizeRoundLookupKey(uniqueKey);
+		const processIdKey = normalizeRoundLookupKey(process?.id || process?._id);
+		const processRoundKey = resolveTrackedRoundKey(application, process, processIndex);
+		const normalizedProcessRoundKey = normalizeRoundLookupKey(processRoundKey);
+
+		// Exact key match (unique key from interviewRoundOrder or stored process id)
 		if (
 			normalizedUniqueKey &&
 			(normalizedProcessRoundKey === normalizedUniqueKey ||
@@ -165,13 +171,15 @@ function CanStatusPage() {
 			return true;
 		}
 
+		// Position-based match (same index + compatible type)
 		const targetType = normalizeRoundLookupKey(getBaseRoundType(roundType));
 		const processType = normalizeRoundLookupKey(getBaseRoundType(process?.type || process?.name));
 		if (Number.isInteger(index) && index >= 0 && processIndex === index && (!targetType || processType === targetType)) {
 			return true;
 		}
 
-		if (isDuplicateRoundType(application, roundType)) {
+		// For duplicate round types stop here — no type-name fallback allowed
+		if (isDuplicate) {
 			return false;
 		}
 
@@ -201,6 +209,7 @@ function CanStatusPage() {
 		const { uniqueKey, roundType, index } = roundContext || {};
 		const normalizedUniqueKey = normalizeRoundLookupKey(uniqueKey);
 		const targetType = normalizeRoundLookupKey(getBaseRoundType(roundType));
+		const isDuplicate = isDuplicateRoundType(application, roundType);
 
 		return trackedStages.find((stage, stageIndex) => {
 			const stageKey = normalizeRoundLookupKey(stage?._id || stage?.id || stage?.key);
@@ -211,7 +220,8 @@ function CanStatusPage() {
 				? stageIndex === index || Number(stage?.stageOrder || 0) === index + 1
 				: false;
 			if (isSamePosition && (!targetType || stageType === targetType)) return true;
-			if (isDuplicateRoundType(application, roundType)) return false;
+			// For duplicate round types never fall back to type-only matching
+			if (isDuplicate) return false;
 			return targetType && stageType === targetType;
 		}) || null;
 	};
