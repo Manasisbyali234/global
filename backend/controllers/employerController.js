@@ -4326,6 +4326,12 @@ exports.saveInterviewReview = async (req, res) => {
       const normalizeProcessObjectId = (value) =>
         value && mongoose.Types.ObjectId.isValid(value) ? value : null;
 
+      // Build a map of existing statuses so subsequent rounds that weren't explicitly
+      // changed by the employer are not accidentally overwritten.
+      const existingStatusById = new Map(
+        (previousInterviewProcesses || []).map((p) => [String(p?.id || '').trim(), String(p?.status || '').trim()])
+      );
+
       updateData.interviewProcesses = interviewProcesses.reduce((sanitizedProcesses, process, index) => {
         const hasRejectedBefore = sanitizedProcesses.some((previousProcess) =>
           isRejectedInterviewProcessStatus(previousProcess)
@@ -4334,9 +4340,20 @@ exports.saveInterviewReview = async (req, res) => {
           isProgressionInterviewProcessStatus(previousProcess.status)
         );
 
-        let nextStatus = String(process?.status || 'pending');
-        if (index > 0 && (hasRejectedBefore || !allPreviousStagesShortlisted)) {
-          nextStatus = 'pending';
+        const incomingStatus = String(process?.status || 'pending');
+        const existingStatus = existingStatusById.get(String(process?.id || '').trim()) || 'pending';
+
+        let nextStatus = incomingStatus;
+
+        if (index > 0) {
+          if (hasRejectedBefore || !allPreviousStagesShortlisted) {
+            // Previous round is not completed with a progression status — lock this round to pending
+            nextStatus = 'pending';
+          } else if (incomingStatus === existingStatus || incomingStatus === 'pending') {
+            // Employer did not change this round's status — preserve existing DB value
+            nextStatus = existingStatus;
+          }
+          // else: employer explicitly changed this round's status and previous round qualifies — allow it
         }
 
         sanitizedProcesses.push({
