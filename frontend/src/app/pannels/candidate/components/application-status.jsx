@@ -9,7 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import { api } from "../../../../utils/api";
 import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
-import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
+import { getCanonicalStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import { buildUtcDateTimeFromIst } from "../../../../utils/timezoneUtils";
 import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import { pubRoute, publicUser, canRoute, candidate } from "../../../../globals/route-names";
@@ -246,9 +246,6 @@ function CanStatusPage() {
 		].includes(normalized);
 	};
 
-	const isRejectedInterviewDisplayStatus = (value) =>
-		isRejectedInterviewProcessStatus(value) && !isDeferredInterviewAttendanceStatus(value);
-
 	const isPositiveInterviewProcessStatus = (value) => {
 		const normalized = normalizeStatusValue(value);
 		if (!normalized) return false;
@@ -259,55 +256,6 @@ function CanStatusPage() {
 			'selected'
 		].includes(normalized);
 	};
-
-	const getLatestStatusHistoryEntry = (application = {}) => {
-		const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
-		for (let index = statusHistory.length - 1; index >= 0; index -= 1) {
-			if (statusHistory[index]?.status) {
-				return statusHistory[index];
-			}
-		}
-
-		return null;
-	};
-
-	const wasAutoRejectedFromInterviewStageStatus = (application = {}) => {
-		if (normalizeStatusValue(application?.status) !== 'rejected') {
-			return false;
-		}
-
-		const latestStatusEntry = getLatestStatusHistoryEntry(application);
-		return normalizeStatusValue(latestStatusEntry?.status) === 'rejected' &&
-			normalizeStatusValue(latestStatusEntry?.notes).includes('auto updated from interview stage status');
-	};
-
-	const isAssessmentProcess = (process = {}) =>
-		normalizeStatusValue(process?.type || process?.stageType) === 'assessment';
-
-	const getPreferredTrackedProcesses = (application = {}) => {
-		const manualProcesses = Array.isArray(application?.interviewProcesses)
-			? application.interviewProcesses.filter(Boolean)
-			: [];
-		if (manualProcesses.length > 0) {
-			return manualProcesses;
-		}
-
-		return Array.isArray(application?.interviewProcess?.stages)
-			? application.interviewProcess.stages
-				.filter(Boolean)
-				.map((stage) => ({
-					id: stage?._id,
-					name: stage?.stageName,
-					type: stage?.stageType,
-					status: stage?.status
-				}))
-			: [];
-	};
-
-	const isRejectedTrackedProcessForDisplay = (process = {}) =>
-		isAssessmentProcess(process)
-			? isRejectedInterviewDisplayStatus(process?.status)
-			: isRejectedInterviewProcessStatus(process?.status);
 
 	const isAssessmentAttemptDerivedStatus = (value) => {
 		const normalized = normalizeStatusValue(value);
@@ -342,34 +290,17 @@ function CanStatusPage() {
 		].includes(normalized);
 	};
 
-	const hadOfferSentInHistory = (application = {}) =>
-		Array.isArray(application?.statusHistory) &&
-		application.statusHistory.some((entry) => {
-			const s = normalizeStatusValue(entry?.status);
-			return s === 'offer sent' || s === 'offer_sent';
-		});
-
-	const getApplicationDisplayStatus = (application = {}) => {
-		const baseDisplayStatus = getApplicationStatusKey(application);
-		if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(baseDisplayStatus)) {
-			return baseDisplayStatus;
+	const getApplicationOnlyStatus = (application = {}) => {
+		const rawStatus = getCanonicalStatusKey(application?.status || 'pending');
+		if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(rawStatus)) {
+			return rawStatus;
 		}
-
-		const trackedProcesses = getPreferredTrackedProcesses(application);
-		if (trackedProcesses.some(isRejectedTrackedProcessForDisplay)) {
-			return 'rejected';
-		}
-
-		if (hasRejectedRoundStatus(application)) {
-			return 'rejected';
-		}
-
-		return baseDisplayStatus;
+		return rawStatus || 'pending';
 	};
 
 	const formatStatusLabel = (status) => getStatusLabel(status);
 
-	const getApplicationFilterStatus = (application = {}) => getApplicationDisplayStatus(application);
+	const getApplicationFilterStatus = (application = {}) => getApplicationOnlyStatus(application);
 
 	const getAssessmentScheduleSource = (job, roundDetails = null) => ({
 		startDate: roundDetails?.fromDate || roundDetails?.date || job?.assessmentStartDate || null,
@@ -2513,7 +2444,7 @@ function CanStatusPage() {
 											) : (
 												paginatedApplications.map((app, index) => {
 													const interviewRounds = getInterviewRounds(app.jobId, app);
-													const applicationDisplayStatus = getApplicationDisplayStatus(app);
+													const applicationDisplayStatus = getApplicationOnlyStatus(app);
 													const isShortlisted = applicationDisplayStatus === 'shortlisted';
 													const shouldHighlightRow = highlightShortlisted && isShortlisted;
 													return (
@@ -2661,7 +2592,7 @@ function CanStatusPage() {
 																			? getAssessmentRoundInfo(app, roundName, roundDetails)
 																			: null;
 																			let roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
-																			// If overall app is rejected and this round still shows Pending, show Rejected (same as interview-details page)
+																			// If the application itself is rejected and this round still shows Pending, show Rejected.
 																			if (applicationDisplayStatus === 'rejected' && normalizeStatusValue(roundStatus?.text) === 'pending') {
 																				roundStatus = { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 																			}
@@ -2742,7 +2673,6 @@ function CanStatusPage() {
 															</td>
 															<td className="px-4 py-3">
 																<span className={
-																	(applicationDisplayStatus === 'pending' && app.isSelectedForProcess) ? 'badge bg-info bg-opacity-10 text-info border border-info' :
 																	applicationDisplayStatus === 'pending' ? 'badge bg-warning bg-opacity-10 text-warning border border-warning' :
 																	['shortlisted', 'shortlisted_for_next_round'].includes(applicationDisplayStatus) ? 'badge bg-info bg-opacity-10 text-info border border-info' :
 																	applicationDisplayStatus === 'interviewed' ? 'badge bg-primary bg-opacity-10 text-primary border border-primary' :
@@ -2751,8 +2681,7 @@ function CanStatusPage() {
 																	applicationDisplayStatus === 'accepted' ? 'badge bg-success bg-opacity-10 text-success border border-success' :
 																	applicationDisplayStatus === 'rejected' ? 'badge bg-danger bg-opacity-10 text-danger border border-danger' : 'badge bg-secondary bg-opacity-10 text-secondary border border-secondary'
 																} style={{fontSize: '12px', padding: '6px 12px'}}>
-																	{(applicationDisplayStatus === 'pending' && app.isSelectedForProcess) ? 'Shortlisted' : 
-																	 applicationDisplayStatus === 'hired' ? 'Hired' :
+																	{applicationDisplayStatus === 'hired' ? 'Hired' :
 																	 applicationDisplayStatus === 'offer_sent' ? 'Offer Letter Sent' :
 																	 applicationDisplayStatus === 'accepted' ? 'Offer Accepted' :
 																	 formatStatusLabel(applicationDisplayStatus) || 'Pending'}
@@ -2933,7 +2862,7 @@ function CanStatusPage() {
 										</div>
 										<div className="col-md-12 mb-2">
 											{(() => {
-												const selectedApplicationDisplayStatus = getApplicationDisplayStatus(selectedApplication);
+												const selectedApplicationDisplayStatus = getApplicationOnlyStatus(selectedApplication);
 												const hasRejectedOffer = selectedApplication.statusHistory?.some((history) => history?.status === 'offer_sent') && selectedApplicationDisplayStatus === 'rejected';
 
 												return (
@@ -2987,7 +2916,7 @@ function CanStatusPage() {
 									</h6>
 									{(() => {
 										const roundsList = getInterviewRounds(selectedApplication.jobId, selectedApplication);
-										const selectedAppDisplayStatus = getApplicationDisplayStatus(selectedApplication);
+										const selectedAppDisplayStatus = getApplicationOnlyStatus(selectedApplication);
 										return roundsList.map((round, roundIndex) => {
 										let roundName = typeof round === 'string' ? round : round.name;
 										const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round.uniqueKey;
