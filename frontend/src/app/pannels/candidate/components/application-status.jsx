@@ -1629,7 +1629,8 @@ function CanStatusPage() {
 					uniqueKey: resolveTrackedRoundKey(application, process, processIndex) || process.id || process.type,
 					processId: process.id || process._id || null,
 					roundType: process.type,
-					assessmentId: process.assessmentId || null
+					assessmentId: process.assessmentId || null,
+					status: process.status || null
 				};
 			});
 		}
@@ -2028,7 +2029,11 @@ function CanStatusPage() {
 				roundType: roundDetails?.__roundType || roundType,
 				index: roundIndex
 			}) || null;
-			const trackedStatus = relatedProcess?.status || relatedStage?.status || '';
+			// Only use the status from the process that belongs to THIS round (matched by index).
+			// If no match found (-1), treat as no tracked status.
+			const trackedStatus = relatedProcessIndex !== -1
+				? (relatedProcess?.status || relatedStage?.status || '')
+				: (relatedStage?.status || '');
 			const normalizedTrackedStatus = normalizeStatusValue(trackedStatus);
 			const isFinalTrackedStage =
 				relatedProcessIndex !== -1
@@ -2049,7 +2054,11 @@ function CanStatusPage() {
 				return bookedSlotStatus;
 			}
 
-			if (roundIndex > 0 && getRoundActivationState(application, roundIndex).canStart) {
+			// For duplicate round types, never show 'Schedule' for the second untouched round
+			// based on the first round's shortlisted status — each round is independent.
+			const effectiveRoundType = roundDetails?.__roundType || roundType;
+			const isThisRoundDuplicate = isDuplicateRoundType(application, effectiveRoundType);
+			if (!isThisRoundDuplicate && roundIndex > 0 && getRoundActivationState(application, roundIndex).canStart) {
 				return {
 					text: 'Schedule',
 					class: 'bg-warning bg-opacity-10 text-warning border border-warning',
