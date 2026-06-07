@@ -161,6 +161,16 @@ function CanStatusPage() {
 		const processRoundKey = resolveTrackedRoundKey(application, process, processIndex);
 		const normalizedProcessRoundKey = normalizeRoundLookupKey(processRoundKey);
 
+		// For duplicate round types: only position-based match is allowed
+		const targetType = normalizeRoundLookupKey(getBaseRoundType(roundType));
+		const processType = normalizeRoundLookupKey(getBaseRoundType(process?.type || process?.name));
+		if (isDuplicate) {
+			if (Number.isInteger(index) && index >= 0 && processIndex === index && (!targetType || processType === targetType)) {
+				return true;
+			}
+			return false;
+		}
+
 		// Exact key match (unique key from interviewRoundOrder or stored process id)
 		if (
 			normalizedUniqueKey &&
@@ -172,15 +182,8 @@ function CanStatusPage() {
 		}
 
 		// Position-based match (same index + compatible type)
-		const targetType = normalizeRoundLookupKey(getBaseRoundType(roundType));
-		const processType = normalizeRoundLookupKey(getBaseRoundType(process?.type || process?.name));
 		if (Number.isInteger(index) && index >= 0 && processIndex === index && (!targetType || processType === targetType)) {
 			return true;
-		}
-
-		// For duplicate round types stop here — no type-name fallback allowed
-		if (isDuplicate) {
-			return false;
 		}
 
 		const processName = normalizeRoundLookupKey(process?.name);
