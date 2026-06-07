@@ -319,6 +319,7 @@ const findNestedTimeWindow = (value) => {
 const getRoundDetails = (application, round, index) => {
   const job = application?.jobId || {};
   const normalizedUniqueKey = normalizeRoundLookupKey(round.uniqueKey || round.roundType || round.name);
+  const normalizedProcessId = normalizeRoundLookupKey(round.processId || round.id || round._id);
   const normalizedRoundType = normalizeRoundLookupKey(getBaseRoundType(round.roundType || round.name));
   const allowTypeFallback = !isDuplicateRoundType(application, round.roundType || round.uniqueKey);
   const stage =
@@ -334,6 +335,9 @@ const getRoundDetails = (application, round, index) => {
       const processRoundKey = normalizeRoundLookupKey(resolveTrackedRoundKey(application, p, processIndex));
       const processIdKey = normalizeRoundLookupKey(p?._id || p?.id);
       const processType = normalizeRoundLookupKey(getBaseRoundType(p?.type || p?.name));
+      if (normalizedProcessId && processIdKey && processIdKey === normalizedProcessId) {
+        return true;
+      }
       if (
         normalizedUniqueKey &&
         (processRoundKey === normalizedUniqueKey ||

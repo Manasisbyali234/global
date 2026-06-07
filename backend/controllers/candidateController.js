@@ -266,12 +266,39 @@ const normalizeManualTrackingRoundKey = (value = '') =>
 
 const getManualTrackingBaseRoundType = (value = '') => String(value || '').split('_')[0];
 
+const getManualTrackingRoundTypeCount = (application = {}, roundType = '') => {
+  const targetType = normalizeManualTrackingRoundKey(getManualTrackingBaseRoundType(roundType));
+  if (!targetType) return 0;
+
+  const job = application?.jobId || application?.job || {};
+  const orderedKeys = Array.isArray(job?.interviewRoundOrder) ? job.interviewRoundOrder : [];
+  if (orderedKeys.length > 0) {
+    const orderedCount = orderedKeys.filter((roundKey) => {
+      const configuredType = job?.interviewRoundTypes?.[roundKey] || roundKey;
+      return (
+        normalizeManualTrackingRoundKey(getManualTrackingBaseRoundType(configuredType)) === targetType ||
+        normalizeManualTrackingRoundKey(getManualTrackingBaseRoundType(roundKey)) === targetType
+      );
+    }).length;
+    if (orderedCount > 0) return orderedCount;
+  }
+
+  const processes = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+  return processes.filter((process) =>
+    normalizeManualTrackingRoundKey(getManualTrackingBaseRoundType(process?.type || process?.stageType || process?.name)) === targetType
+  ).length;
+};
+
+const isDuplicateManualTrackingRoundType = (application = {}, roundType = '') =>
+  getManualTrackingRoundTypeCount(application, roundType) > 1;
+
 const resolveTrackedInterviewProcessForRound = (application = {}, uniqueKey = '', roundType = '', index = -1) => {
   const processes = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
   if (processes.length === 0) return null;
 
   const targetKey = normalizeManualTrackingRoundKey(uniqueKey);
   const targetType = normalizeManualTrackingRoundKey(getManualTrackingBaseRoundType(roundType || uniqueKey));
+  const isDuplicate = isDuplicateManualTrackingRoundType(application, roundType || uniqueKey);
 
   return processes.find((process, processIndex) => {
     const processId = normalizeManualTrackingRoundKey(process?.id || process?._id);
@@ -280,6 +307,7 @@ const resolveTrackedInterviewProcessForRound = (application = {}, uniqueKey = ''
 
     if (targetKey && (processId === targetKey || processId.includes(targetKey))) return true;
     if (processIndex === index && (!targetType || processType === targetType)) return true;
+    if (isDuplicate) return false;
     return targetType && (processType === targetType || processName.includes(targetType));
   }) || null;
 };
@@ -1783,7 +1811,10 @@ function buildCandidateInterviewRounds(application = {}, interviewProcess = null
       const stageType = normalizeManualTrackingRoundKey(getManualTrackingBaseRoundType(candidateStage?.stageType || candidateStage?.stageName));
       const targetKey = normalizeManualTrackingRoundKey(entry.uniqueKey);
       const targetType = normalizeManualTrackingRoundKey(roundType);
-      return (targetKey && stageKey === targetKey) || (stageIndex === index && (!targetType || stageType === targetType)) || (targetType && stageType === targetType);
+      if (targetKey && stageKey === targetKey) return true;
+      if (stageIndex === index && (!targetType || stageType === targetType)) return true;
+      if (isDuplicateManualTrackingRoundType(application, entry.roundType || entry.uniqueKey)) return false;
+      return targetType && stageType === targetType;
     }) || null;
     const resolvedTrackedProcess = resolvedTrackedProcesses[index] || null;
     const { details, dbRound } = resolveCandidateRoundDetails(job, entry.uniqueKey, entry.roundType, dbRounds);

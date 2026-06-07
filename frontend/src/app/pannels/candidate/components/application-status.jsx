@@ -150,16 +150,28 @@ function CanStatusPage() {
 
 	const processMatchesRound = (application, process, roundContext, processIndex = -1) => {
 		if (!process) return false;
-		const { uniqueKey, roundType, roundName, index } = roundContext || {};
+		const { uniqueKey, processId, roundId, roundType, roundName, index } = roundContext || {};
 
 		// For duplicate round types, only match by position (index) or exact unique key.
 		// Never fall back to type-based matching — that would make both rounds show the same status.
 		const isDuplicate = isDuplicateRoundType(application, roundType);
 
 		const normalizedUniqueKey = normalizeRoundLookupKey(uniqueKey);
+		const normalizedProcessId = normalizeRoundLookupKey(processId || roundId);
 		const processIdKey = normalizeRoundLookupKey(process?.id || process?._id);
 		const processRoundKey = resolveTrackedRoundKey(application, process, processIndex);
 		const normalizedProcessRoundKey = normalizeRoundLookupKey(processRoundKey);
+		const exactIdentityMatches = Boolean(
+			(normalizedProcessId && processIdKey && processIdKey === normalizedProcessId) ||
+			(normalizedUniqueKey &&
+				(normalizedProcessRoundKey === normalizedUniqueKey ||
+					processIdKey === normalizedUniqueKey ||
+					processIdKey.includes(normalizedUniqueKey)))
+		);
+
+		if (exactIdentityMatches) {
+			return true;
+		}
 
 		// For duplicate round types: only position-based match is allowed
 		const targetType = normalizeRoundLookupKey(getBaseRoundType(roundType));
@@ -169,16 +181,6 @@ function CanStatusPage() {
 				return true;
 			}
 			return false;
-		}
-
-		// Exact key match (unique key from interviewRoundOrder or stored process id)
-		if (
-			normalizedUniqueKey &&
-			(normalizedProcessRoundKey === normalizedUniqueKey ||
-				processIdKey === normalizedUniqueKey ||
-				processIdKey.includes(normalizedUniqueKey))
-		) {
-			return true;
 		}
 
 		// Position-based match (same index + compatible type)
@@ -196,7 +198,15 @@ function CanStatusPage() {
 
 	const findRelatedInterviewProcessIndex = (application, roundContext) => {
 		const trackedProcesses = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
-		const { roundType, index } = roundContext || {};
+		const { processId, roundId, roundType, index } = roundContext || {};
+		const normalizedProcessId = normalizeRoundLookupKey(processId || roundId);
+		if (normalizedProcessId) {
+			const exactIndex = trackedProcesses.findIndex((process) =>
+				normalizeRoundLookupKey(process?.id || process?._id) === normalizedProcessId
+			);
+			if (exactIndex !== -1) return exactIndex;
+		}
+
 		// For duplicate round types, always match strictly by position (index) to avoid
 		// both rounds resolving to the same process entry.
 		if (isDuplicateRoundType(application, roundType) && Number.isInteger(index) && index >= 0) {
@@ -645,6 +655,7 @@ function CanStatusPage() {
 		return {
 			...(roundDetails || {}),
 			__uniqueKey: uniqueKey,
+			__processId: typeof round === 'object' ? (round?.processId || round?.id || round?._id || '') : '',
 			__roundType: roundTypeRaw,
 			__roundName: roundName,
 			__roundIndex: roundIndex,
@@ -684,6 +695,7 @@ function CanStatusPage() {
 		const previousRoundKey = typeof previousRound === 'object' ? previousRound?.uniqueKey : previousRoundType;
 		const previousRelatedProcess = findRelatedInterviewProcess(application, {
 			uniqueKey: previousRoundKey,
+			processId: typeof previousRound === 'object' ? (previousRound.processId || previousRound.id || previousRound._id) : '',
 			roundType: previousRoundTypeRaw,
 			roundName: previousRoundName,
 			index: roundIndex - 1
@@ -1977,9 +1989,12 @@ function CanStatusPage() {
 			const normalizeRoundKey = (value = '') => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 			const targetType = normalizeRoundKey(roundDetails?.__roundType || getRoundTypeFromName(roundName));
 			const targetKey = normalizeRoundKey(roundDetails?.__uniqueKey || targetType);
+			const targetProcessId = normalizeRoundKey(roundDetails?.__processId);
 			const round = application.interviewRounds.find((r, candidateIndex) => {
 				const legacyRoundNumber = Number(r?.round);
 				if (legacyRoundNumber && legacyRoundNumber === roundIndex + 1) return true;
+				const candidateProcessId = normalizeRoundKey(r?.processId || r?.id || r?._id);
+				if (targetProcessId && candidateProcessId && candidateProcessId === targetProcessId) return true;
 				const candidateKey = normalizeRoundKey(r?.uniqueKey || r?.id || r?.key);
 				const candidateType = normalizeRoundKey(r?.roundType || r?.type || r?.name);
 				if (targetKey && candidateKey && candidateKey === targetKey) return true;
@@ -2023,6 +2038,7 @@ function CanStatusPage() {
 			const trackedStages = Array.isArray(application.interviewProcess?.stages) ? application.interviewProcess.stages : [];
 			const relatedProcessIndex = findRelatedInterviewProcessIndex(application, {
 				uniqueKey: roundDetails?.__uniqueKey,
+				processId: roundDetails?.__processId,
 				roundType: roundDetails?.__roundType || roundType,
 				roundName,
 				index: roundIndex
@@ -3335,6 +3351,7 @@ function CanStatusPage() {
 																	const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
 																	const process = findRelatedInterviewProcess(selectedApplication, {
 																		uniqueKey,
+																		processId: typeof round === 'object' ? (round.processId || round.id || round._id) : '',
 																		roundType: roundTypeRaw,
 																		roundName,
 																		index: roundIndex
@@ -3424,6 +3441,7 @@ function CanStatusPage() {
 													
 													const relatedProcess = findRelatedInterviewProcess(selectedApplication, {
 														uniqueKey,
+														processId: typeof round === 'object' ? (round.processId || round.id || round._id) : '',
 														roundType: roundTypeRaw,
 														roundName,
 														index: roundIndex
