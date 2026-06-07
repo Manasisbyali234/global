@@ -1025,6 +1025,12 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
       return fallbackBaseStatus === 'shortlisted' ? 'shortlisted' : 'pending';
     }
     if (
+      options?.surfaceNonFinalProgressionStatus &&
+      ['shortlisted', 'shortlisted_for_next_round', 'on_hold', 'pending_decision', 'under_review', 'selected'].includes(latestTrackedStatus)
+    ) {
+      return latestTrackedStatus;
+    }
+    if (
       shouldReflectTrackedStatusInApplicationDisplay(
         lastRoundWithMeaningfulStatus?.process,
         latestTrackedStatus
@@ -1132,7 +1138,7 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
     const isFinalRound = lastRoundWithMeaningfulStatus !== null &&
       lastRoundWithMeaningfulStatus.index === trackedProcessesForStatus.length - 1;
 
-    if (isFinalRound) {
+    if (isFinalRound || options?.surfaceNonFinalProgressionStatus) {
       return latestTrackedStatus === 'interviewed' ? 'interview_completed' : latestTrackedStatus;
     }
   }

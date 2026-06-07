@@ -2744,7 +2744,7 @@ function CanStatusPage() {
 																<span className={
 																	(applicationDisplayStatus === 'pending' && app.isSelectedForProcess) ? 'badge bg-info bg-opacity-10 text-info border border-info' :
 																	applicationDisplayStatus === 'pending' ? 'badge bg-warning bg-opacity-10 text-warning border border-warning' :
-																	applicationDisplayStatus === 'shortlisted' ? 'badge bg-info bg-opacity-10 text-info border border-info' :
+																	['shortlisted', 'shortlisted_for_next_round'].includes(applicationDisplayStatus) ? 'badge bg-info bg-opacity-10 text-info border border-info' :
 																	applicationDisplayStatus === 'interviewed' ? 'badge bg-primary bg-opacity-10 text-primary border border-primary' :
 																	applicationDisplayStatus === 'hired' ? 'badge bg-success bg-opacity-10 text-success border border-success' :
 																	applicationDisplayStatus === 'offer_sent' ? 'badge bg-info bg-opacity-10 text-info border border-info' :
@@ -2755,7 +2755,7 @@ function CanStatusPage() {
 																	 applicationDisplayStatus === 'hired' ? 'Hired' :
 																	 applicationDisplayStatus === 'offer_sent' ? 'Offer Letter Sent' :
 																	 applicationDisplayStatus === 'accepted' ? 'Offer Accepted' :
-																	 applicationDisplayStatus?.charAt(0).toUpperCase() + applicationDisplayStatus?.slice(1) || 'Pending'}
+																	 formatStatusLabel(applicationDisplayStatus) || 'Pending'}
 																</span>
 															</td>
 															<td className="px-4 py-3 text-center" style={{ verticalAlign: 'middle', textAlign: 'center', minWidth: '92px', width: '92px' }}>
@@ -2941,7 +2941,7 @@ function CanStatusPage() {
 														<strong>Status:</strong>
 														<span className={
 															selectedApplicationDisplayStatus === 'pending' ? 'badge bg-warning ms-2' :
-															selectedApplicationDisplayStatus === 'shortlisted' ? 'badge bg-info ms-2' :
+															['shortlisted', 'shortlisted_for_next_round'].includes(selectedApplicationDisplayStatus) ? 'badge bg-info ms-2' :
 															selectedApplicationDisplayStatus === 'interviewed' ? 'badge bg-primary ms-2' :
 															selectedApplicationDisplayStatus === 'offer_sent' ? 'badge bg-info bg-opacity-10 text-info border border-info ms-2' :
 															selectedApplicationDisplayStatus === 'accepted' || selectedApplicationDisplayStatus === 'hired' ? 'badge bg-success ms-2' :

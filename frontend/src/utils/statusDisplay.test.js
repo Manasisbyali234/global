@@ -83,3 +83,13 @@ test('candidate interview status preserves suspended assessment attempts', () =>
     })
   ).toBe('suspended');
 });
+
+test('candidate application status preserves shortlisted for next round', () => {
+  expect(
+    getApplicationStatusKey({
+      status: 'pending',
+      applicationStatus: 'shortlisted_for_next_round',
+      interviewCurrentStatus: 'shortlisted_for_next_round',
+    })
+  ).toBe('shortlisted_for_next_round');
+});

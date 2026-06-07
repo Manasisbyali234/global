@@ -21,7 +21,8 @@ const { sendSMS } = require('../utils/smsProvider');
 const { buildUtcDateTimeFromIst } = require('../utils/dateTime');
 const { formatDate } = require('../utils/dateFormatter');
 const {
-  buildApplicationStatusSnapshot: buildSharedApplicationStatusSnapshot
+  buildApplicationStatusSnapshot: buildSharedApplicationStatusSnapshot,
+  getResolvedTrackedProcesses
 } = require('../utils/applicationStatus');
 const { applyNoShowRejection, isNoShowCandidate } = require('../utils/noShowHandler');
 
@@ -256,7 +257,10 @@ const decorateCandidateApplicationStatusFields = (application = null, options = 
 
   return {
     ...application,
-    ...buildSharedApplicationStatusSnapshot(application, options)
+    ...buildSharedApplicationStatusSnapshot(application, {
+      ...options,
+      surfaceNonFinalProgressionStatus: true
+    })
   };
 };
 
@@ -1741,6 +1745,10 @@ function buildCandidateInterviewRounds(application = {}, interviewProcess = null
   const order = Array.isArray(job?.interviewRoundOrder) ? job.interviewRoundOrder : [];
   const stageList = Array.isArray(interviewProcess?.stages) ? interviewProcess.stages : [];
   const processList = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+  const resolvedTrackedProcesses = getResolvedTrackedProcesses(application, {
+    interviewProcess,
+    assessmentAttemptsByAssessmentId
+  });
   const roundEntries = [];
 
   if (order.length > 0) {
@@ -1780,12 +1788,13 @@ function buildCandidateInterviewRounds(application = {}, interviewProcess = null
       const targetType = normalizeManualTrackingRoundKey(roundType);
       return (targetKey && stageKey === targetKey) || (stageIndex === index && (!targetType || stageType === targetType)) || (targetType && stageType === targetType);
     }) || null;
+    const resolvedTrackedProcess = resolvedTrackedProcesses[index] || null;
     const { details, dbRound } = resolveCandidateRoundDetails(job, entry.uniqueKey, entry.roundType, dbRounds);
     const isAssessment = normalizeManualTrackingRoundKey(roundType) === 'assessment';
     const assessmentId = trackedProcess?.assessmentId || stage?.assessmentId || details?.assessmentId || dbRound?.assessmentId || (isAssessment ? job?.assessmentId : null) || null;
     const assessmentAttempt = assessmentId ? assessmentAttemptsByAssessmentId[String(assessmentId)] : null;
     const attemptStatus = assessmentAttempt ? resolveAssessmentAttemptStageStatus(assessmentAttempt) : '';
-    const trackedStatus = trackedProcess?.status || stage?.status || '';
+    const trackedStatus = trackedProcess?.status || resolvedTrackedProcess?.status || stage?.status || '';
     const status = isAssessment && (!trackedStatus || normalizeApplicationStatusValue(trackedStatus) === 'pending')
       ? (attemptStatus || trackedStatus || 'pending')
       : (trackedStatus || 'pending');

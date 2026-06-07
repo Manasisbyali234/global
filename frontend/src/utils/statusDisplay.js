@@ -201,6 +201,10 @@ export const getApplicationStatusKey = (application = {}, fallback = 'pending') 
     return baseStatusKey;
   }
 
+  if (rawStatusKey === 'shortlisted_for_next_round') {
+    return rawStatusKey;
+  }
+
   const applicationStatusKey = normalizeApplicationDisplayStatusKey(rawStatusKey);
 
   if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(applicationStatusKey)) {
