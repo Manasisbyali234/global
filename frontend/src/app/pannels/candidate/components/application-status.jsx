@@ -2029,6 +2029,10 @@ function CanStatusPage() {
 						if (round.status && normalizeStatusValue(round.status) !== 'pending') {
 							return { ...mapProcessStatusToBadge(round.status), feedback: round.feedback || round.remark || '' };
 						}
+						if (roundName !== 'Assessment' && ['shortlisted', 'pending'].includes(String(application.status || '').toLowerCase())) {
+							const bookedSlotStatusEarly = getBookedSlotStatus();
+							return bookedSlotStatusEarly || scheduleSlotStatus;
+						}
 						return mapProcessStatusToBadge(round.status || 'pending');
 				}
 			}
