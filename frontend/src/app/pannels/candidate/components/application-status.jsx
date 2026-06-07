@@ -1426,6 +1426,13 @@ function CanStatusPage() {
 		}
 	}, [applicationId, applications]);
 
+	// Re-fetch when the interview details page is opened so candidate always sees the latest status
+	useEffect(() => {
+		if (isInterviewDetailsPage) {
+			fetchApplications();
+		}
+	}, [isInterviewDetailsPage]);
+
 	const fetchApplications = async () => {
 		setLoading(true);
 		try {
