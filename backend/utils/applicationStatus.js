@@ -732,6 +732,29 @@ const hasExpiredAssessmentWindowWithoutActivity = (application = {}, options = {
   }
 
   const matchedAttempt = getAssessmentAttemptForWindow(application, options, assessmentId);
+  if (matchedAttempt) {
+    const attemptResult = normalizeApplicationStatusValue(matchedAttempt?.result);
+    const attemptStatus = normalizeApplicationStatusValue(matchedAttempt?.status);
+    if (
+      ['pass', 'passed', 'fail', 'failed', 'pending'].includes(attemptResult) ||
+      ['completed', 'passed', 'failed', 'suspended', 'in progress'].includes(attemptStatus) ||
+      matchedAttempt?.score !== null && matchedAttempt?.score !== undefined ||
+      matchedAttempt?.percentage !== null && matchedAttempt?.percentage !== undefined ||
+      attemptHasSavedAnswerActivity(matchedAttempt)
+    ) {
+      return false;
+    }
+  } else {
+    const applicationResult = normalizeApplicationStatusValue(application?.assessmentResult);
+    const applicationStatus = normalizeApplicationStatusValue(application?.assessmentStatus);
+    if (
+      ['pass', 'passed', 'fail', 'failed', 'pending'].includes(applicationResult) ||
+      ['completed', 'passed', 'failed', 'suspended', 'in progress'].includes(applicationStatus)
+    ) {
+      return false;
+    }
+  }
+
   const resolvedOutcome = matchedAttempt
     ? resolveAssessmentOutcomeStatus(
         resolveAssessmentAttemptStageStatus(matchedAttempt),

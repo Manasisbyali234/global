@@ -286,7 +286,12 @@ export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pe
   }
 
   const interviewStatusKey = getInterviewCurrentStatusKey(application, '');
-  if (['no_show', 'session_expired', 'expired'].includes(interviewStatusKey)) return 'rejected';
+  if (
+    ['no_show', 'session_expired', 'expired'].includes(interviewStatusKey) &&
+    !ADMIN_PENDING_LIKE_STATUS_KEYS.has(applicationStatusKey)
+  ) {
+    return 'rejected';
+  }
   if (['failed', 'suspended'].includes(interviewStatusKey)) return interviewStatusKey;
 
   return applicationStatusKey;

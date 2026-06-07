@@ -671,7 +671,7 @@ exports.getEmployerOverviewJobs = async (req, res) => {
     const jobIds = jobs.map(job => job._id);
     const applications = jobIds.length
       ? await Application.find({ jobId: { $in: jobIds } })
-          .select('jobId status statusHistory paymentStatus paymentId orderId paymentAmount paymentCurrency interviewProcesses assessmentStatus assessmentResult assessmentAttemptsByAssessmentId interviewRounds')
+          .select('jobId status statusHistory paymentStatus paymentId orderId paymentAmount paymentCurrency interviewProcesses assessmentStatus assessmentResult assessmentScore assessmentPercentage assessmentAttemptsByAssessmentId interviewRounds')
           .lean()
       : [];
 
@@ -781,7 +781,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     const applications = await Application.find({ jobId })
       .populate('candidateId', 'name email')
       .populate('jobId', 'interviewRoundOrder interviewRoundTypes interviewRoundDetails assessmentId')
-      .select('candidateId applicantName applicantEmail status statusHistory appliedAt isGuestApplication isSelectedForProcess interviewProcesses interviewProcessId processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency assessmentStatus assessmentResult assessmentAttemptsByAssessmentId interviewRounds')
+      .select('candidateId applicantName applicantEmail status statusHistory appliedAt isGuestApplication isSelectedForProcess interviewProcesses interviewProcessId processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency assessmentStatus assessmentResult assessmentScore assessmentPercentage assessmentAttemptsByAssessmentId interviewRounds')
       .sort({ appliedAt: -1 })
       .lean();
 

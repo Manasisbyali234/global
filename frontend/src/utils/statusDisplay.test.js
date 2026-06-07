@@ -33,6 +33,33 @@ test('admin overview resolves shared status rules for backend no-show values', (
   ).toBe('pending');
 });
 
+test('admin overview keeps passed assessment applications pending despite stale no-show interview status', () => {
+  expect(
+    getAdminApplicantTableStatusKey({
+      status: 'pending',
+      applicationStatus: 'pending',
+      applicationDisplayStatus: 'pending',
+      displayStatus: 'pending',
+      interviewCurrentStatus: 'no_show',
+      assessmentStatus: 'completed',
+      assessmentResult: 'pass',
+      interviewRounds: [
+        {
+          name: 'Assessment',
+          type: 'assessment',
+          status: 'passed',
+          assessmentResult: 'Passed'
+        },
+        {
+          name: 'One-on-One / Panel',
+          type: 'oneOnOnePanel',
+          status: 'pending'
+        }
+      ]
+    })
+  ).toBe('pending');
+});
+
 test('candidate interview status preserves suspended assessments over stale no-show values', () => {
   const application = {
     status: 'rejected',
