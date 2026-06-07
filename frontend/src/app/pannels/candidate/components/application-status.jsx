@@ -193,6 +193,18 @@ function CanStatusPage() {
 
 	const findRelatedInterviewProcessIndex = (application, roundContext) => {
 		const trackedProcesses = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+		const { roundType, index } = roundContext || {};
+		// For duplicate round types, always match strictly by position (index) to avoid
+		// both rounds resolving to the same process entry.
+		if (isDuplicateRoundType(application, roundType) && Number.isInteger(index) && index >= 0) {
+			const targetType = normalizeRoundLookupKey(getBaseRoundType(roundType));
+			if (trackedProcesses[index]) {
+				const processType = normalizeRoundLookupKey(getBaseRoundType(trackedProcesses[index]?.type || trackedProcesses[index]?.name));
+				if (!targetType || processType === targetType) {
+					return index;
+				}
+			}
+		}
 		return trackedProcesses.findIndex((process, processIndex) =>
 			processMatchesRound(application, process, roundContext, processIndex)
 		);
