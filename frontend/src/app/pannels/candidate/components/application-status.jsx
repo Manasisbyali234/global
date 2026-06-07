@@ -1843,6 +1843,13 @@ function CanStatusPage() {
 			return mappings[status] || { text: formatProcessStatusLabel(rawStatus), class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' };
 		};
 
+		const isSlotBookingStatus = (rawStatus) => {
+			const status = normalizeStatusValue(rawStatus).replace(/\s+/g, '_');
+			return status === 'scheduled' || status === 'interview_scheduled';
+		};
+
+		const scheduleSlotStatus = { text: 'Schedule', class: 'bg-warning bg-opacity-10 text-warning border border-warning', feedback: '' };
+
 		const getRoundTypeFromName = (name = '') => {
 			const n = String(name).toLowerCase();
 			if (n.includes('assessment')) return 'assessment';
@@ -2066,6 +2073,9 @@ function CanStatusPage() {
 						: false;
 
 			if (trackedStatus && normalizedTrackedStatus !== 'pending') {
+				if (isSlotBookingStatus(trackedStatus)) {
+					return bookedSlotStatus || scheduleSlotStatus;
+				}
 				const mapped = mapProcessStatusToBadge(trackedStatus, {
 					isFinalStage: isFinalTrackedStage,
 					treatDeferredAttendanceStatusAsPending: false
@@ -2082,14 +2092,13 @@ function CanStatusPage() {
 			const effectiveRoundType = roundDetails?.__roundType || roundType;
 			const isThisRoundDuplicate = isDuplicateRoundType(application, effectiveRoundType);
 			if (!isThisRoundDuplicate && roundIndex > 0 && getRoundActivationState(application, roundIndex).canStart) {
-				return {
-					text: 'Schedule',
-					class: 'bg-warning bg-opacity-10 text-warning border border-warning',
-					feedback: ''
-				};
+				return scheduleSlotStatus;
 			}
 
 			if (trackedStatus) {
+				if (isSlotBookingStatus(trackedStatus)) {
+					return bookedSlotStatus || scheduleSlotStatus;
+				}
 				const mapped = mapProcessStatusToBadge(trackedStatus, {
 					isFinalStage: isFinalTrackedStage,
 					treatDeferredAttendanceStatusAsPending: false
@@ -2109,11 +2118,12 @@ function CanStatusPage() {
 		if (status === 'pending' && application.isSelectedForProcess) {
 			const slotStatus = getBookedSlotStatus();
 			if (slotStatus) return slotStatus;
-			return { text: 'Schedule', class: 'bg-warning bg-opacity-10 text-warning border border-warning', feedback: '' };
+			return scheduleSlotStatus;
 		}
 		
 		if (status === 'shortlisted') {
-			return { text: 'Schedule', class: 'bg-warning bg-opacity-10 text-warning border border-warning', feedback: '' };
+			const slotStatus = getBookedSlotStatus();
+			return slotStatus || scheduleSlotStatus;
 		} else if (status === 'interviewed') {
 			return { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
 		} else if (status === 'hired') {
