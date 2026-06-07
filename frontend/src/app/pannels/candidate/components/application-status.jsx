@@ -2105,9 +2105,11 @@ function CanStatusPage() {
 		// Enhanced status logic based on application status
 		const status = application.status;
 		
-		// For pending status, check if candidate is selected for process
+		// For pending status, check if candidate is selected for process AND slot is booked
 		if (status === 'pending' && application.isSelectedForProcess) {
-			return { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' };
+			const slotStatus = getBookedSlotStatus();
+			if (slotStatus) return slotStatus;
+			return { text: 'Schedule', class: 'bg-warning bg-opacity-10 text-warning border border-warning', feedback: '' };
 		}
 		
 		if (status === 'shortlisted') {
