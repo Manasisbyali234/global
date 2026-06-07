@@ -692,6 +692,7 @@ function CanStatusPage() {
 			__roundType: roundTypeRaw,
 			__roundName: roundName,
 			__roundIndex: roundIndex,
+			__roundStatus: typeof round === 'object' ? round?.status : '',
 			__assessmentOrderIndex: assessmentRoundIndex
 		};
 	};
@@ -1569,6 +1570,17 @@ function CanStatusPage() {
 			const extractedType = key.includes('_') ? key.split('_')[0] : key;
 			return roundNames[extractedType] || roundNames[key] || 'Interview Round';
 		};
+
+		if (application?.interviewRounds && application.interviewRounds.length > 0) {
+			return application.interviewRounds.map((round, roundIndex) => ({
+				...round,
+				name: normalizeRoundDisplayName(round.name || getRoundNameFromKey(round.type || round.roundType || round.id)),
+				uniqueKey: round.uniqueKey || round.id || round.key || round.type || `round_${roundIndex}`,
+				processId: round.processId || round.id || round._id || null,
+				roundType: round.roundType || round.type || round.name,
+				assessmentId: round.assessmentId || null
+			}));
+		}
 		
 		// Helper function to get round name from stage type or stage name
 		const getProperRoundName = (stageType, stageName) => {
@@ -1899,7 +1911,14 @@ function CanStatusPage() {
 		// Check assessment status for Assessment rounds
 		if (roundName === 'Assessment') {
 			const assessmentRoundInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
-			const trackedDecisionStatus = assessmentRoundInfo?.trackedDecisionStatus || '';
+			const roundProvidedStatus = roundDetails?.__roundStatus || '';
+			const trackedDecisionStatus = assessmentRoundInfo?.trackedDecisionStatus || (
+				roundProvidedStatus &&
+				normalizeStatusValue(roundProvidedStatus) !== 'pending' &&
+				!isAssessmentAttemptDerivedStatus(roundProvidedStatus)
+					? roundProvidedStatus
+					: ''
+			);
 			if (trackedDecisionStatus) {
 				const mappedDecision = mapProcessStatusToBadge(trackedDecisionStatus, {
 					isFinalStage: false
@@ -1991,16 +2010,29 @@ function CanStatusPage() {
 
 		// Check if there are actual interview rounds data from employer review
 		if (application.interviewRounds && application.interviewRounds.length > 0) {
-			const round = application.interviewRounds.find(r => r.round === roundIndex + 1);
+			const normalizeRoundKey = (value = '') => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+			const targetType = normalizeRoundKey(roundDetails?.__roundType || getRoundTypeFromName(roundName));
+			const targetKey = normalizeRoundKey(roundDetails?.__uniqueKey || targetType);
+			const round = application.interviewRounds.find((r, candidateIndex) => {
+				const legacyRoundNumber = Number(r?.round);
+				if (legacyRoundNumber && legacyRoundNumber === roundIndex + 1) return true;
+				const candidateKey = normalizeRoundKey(r?.uniqueKey || r?.id || r?.key);
+				const candidateType = normalizeRoundKey(r?.roundType || r?.type || r?.name);
+				if (targetKey && candidateKey && candidateKey === targetKey) return true;
+				if (targetType && candidateType && candidateType === targetType && candidateIndex === roundIndex) return true;
+				return candidateIndex === roundIndex;
+			});
 			if (round) {
-				switch (round.status) {
+				switch (normalizeStatusValue(round.status).replace(/\s+/g, '_')) {
 					case 'passed':
+					case 'pass':
 						return { 
 							text: 'Pass', 
 							class: 'bg-success bg-opacity-10 text-success border border-success',
 							feedback: round.feedback || ''
 						};
 					case 'failed':
+					case 'fail':
 						return { 
 							text: 'Fail', 
 							class: 'bg-danger bg-opacity-10 text-danger border border-danger',
@@ -2008,11 +2040,10 @@ function CanStatusPage() {
 						};
 					case 'pending':
 					default:
-						return { 
-							text: 'Scheduled', 
-							class: 'bg-info bg-opacity-10 text-info border border-info',
-							feedback: round.feedback || ''
-						};
+						if (round.status && normalizeStatusValue(round.status) !== 'pending') {
+							return { ...mapProcessStatusToBadge(round.status), feedback: round.feedback || round.remark || '' };
+						}
+						return mapProcessStatusToBadge(round.status || 'pending');
 				}
 			}
 		}

@@ -1688,6 +1688,134 @@ function resolveAssessmentRoundSchedule(job = {}, uniqueKey = '', dbRounds = [])
   };
 }
 
+function getCandidateRoundDisplayName(roundType = '', fallbackName = '') {
+  const normalizedType = String(roundType || '').split('_')[0];
+  const labels = {
+    assessment: 'Assessment',
+    technical: 'Technical Round',
+    oneOnOne: 'One-on-One / Panel',
+    oneonone: 'One-on-One / Panel',
+    oneOnOnePanel: 'One-on-One / Panel',
+    oneononepanel: 'One-on-One / Panel',
+    panel: 'Panel',
+    group: 'Group Discussion',
+    situational: 'Situational / Behavioral Round',
+    behavioral: 'Situational / Behavioral Round',
+    hr: 'HR Round',
+    final: 'Final',
+    others: 'Others - Specify.'
+  };
+
+  return labels[normalizedType] || fallbackName || labels[normalizeManualTrackingRoundKey(normalizedType)] || 'Interview Round';
+}
+
+function resolveCandidateRoundDetails(job = {}, uniqueKey = '', roundType = '', dbRounds = []) {
+  const detailsMap = job?.interviewRoundDetails || {};
+  const normalizedUniqueKey = normalizeRoundLookupKey(uniqueKey);
+  const normalizedRoundType = normalizeRoundLookupKey(getManualTrackingBaseRoundType(roundType || uniqueKey));
+  const matchedDbRound = Array.isArray(dbRounds)
+    ? dbRounds.find((round) => {
+        const keys = [round?.key, round?.roundType, round?.name, round?._id]
+          .filter(Boolean)
+          .map(normalizeRoundLookupKey);
+        return keys.includes(normalizedUniqueKey) || (normalizedRoundType && keys.includes(normalizedRoundType));
+      }) || null
+    : null;
+
+  let details = detailsMap[uniqueKey] || detailsMap[roundType] || detailsMap[getManualTrackingBaseRoundType(roundType)] || null;
+  if (!details) {
+    const matchedEntry = Object.entries(detailsMap).find(([key, value]) => {
+      const keys = [key, value?.key, value?.roundType, value?.name, value?.interviewRoundId]
+        .filter(Boolean)
+        .map(normalizeRoundLookupKey);
+      return keys.includes(normalizedUniqueKey) || (normalizedRoundType && keys.includes(normalizedRoundType));
+    });
+    details = matchedEntry ? matchedEntry[1] : null;
+  }
+
+  return { details: details || {}, dbRound: matchedDbRound };
+}
+
+function buildCandidateInterviewRounds(application = {}, interviewProcess = null, assessmentAttemptsByAssessmentId = {}, dbRounds = []) {
+  const job = application?.jobId || {};
+  const order = Array.isArray(job?.interviewRoundOrder) ? job.interviewRoundOrder : [];
+  const stageList = Array.isArray(interviewProcess?.stages) ? interviewProcess.stages : [];
+  const processList = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+  const roundEntries = [];
+
+  if (order.length > 0) {
+    order.forEach((uniqueKey) => {
+      roundEntries.push({
+        uniqueKey,
+        roundType: job?.interviewRoundTypes?.[uniqueKey] || uniqueKey
+      });
+    });
+  } else if (stageList.length > 0) {
+    stageList.forEach((stage) => {
+      roundEntries.push({
+        uniqueKey: stage?._id || stage?.id || stage?.stageType || stage?.stageName,
+        roundType: stage?.stageType || stage?.stageName,
+        stage
+      });
+    });
+  } else if (processList.length > 0) {
+    processList.forEach((process) => {
+      roundEntries.push({
+        uniqueKey: process?.id || process?._id || process?.type || process?.name,
+        roundType: process?.type || process?.name,
+        process
+      });
+    });
+  } else if (job?.assessmentId) {
+    roundEntries.push({ uniqueKey: 'assessment', roundType: 'assessment' });
+  }
+
+  return roundEntries.map((entry, index) => {
+    const roundType = getManualTrackingBaseRoundType(entry.roundType || entry.uniqueKey);
+    const trackedProcess = entry.process || resolveTrackedInterviewProcessForRound(application, entry.uniqueKey, entry.roundType, index);
+    const stage = entry.stage || stageList.find((candidateStage, stageIndex) => {
+      const stageKey = normalizeManualTrackingRoundKey(candidateStage?._id || candidateStage?.id || candidateStage?.key);
+      const stageType = normalizeManualTrackingRoundKey(getManualTrackingBaseRoundType(candidateStage?.stageType || candidateStage?.stageName));
+      const targetKey = normalizeManualTrackingRoundKey(entry.uniqueKey);
+      const targetType = normalizeManualTrackingRoundKey(roundType);
+      return (targetKey && stageKey === targetKey) || (stageIndex === index && (!targetType || stageType === targetType)) || (targetType && stageType === targetType);
+    }) || null;
+    const { details, dbRound } = resolveCandidateRoundDetails(job, entry.uniqueKey, entry.roundType, dbRounds);
+    const isAssessment = normalizeManualTrackingRoundKey(roundType) === 'assessment';
+    const assessmentId = trackedProcess?.assessmentId || stage?.assessmentId || details?.assessmentId || dbRound?.assessmentId || (isAssessment ? job?.assessmentId : null) || null;
+    const assessmentAttempt = assessmentId ? assessmentAttemptsByAssessmentId[String(assessmentId)] : null;
+    const attemptStatus = assessmentAttempt ? resolveAssessmentAttemptStageStatus(assessmentAttempt) : '';
+    const trackedStatus = trackedProcess?.status || stage?.status || '';
+    const status = isAssessment && (!trackedStatus || normalizeApplicationStatusValue(trackedStatus) === 'pending')
+      ? (attemptStatus || trackedStatus || 'pending')
+      : (trackedStatus || 'pending');
+    const fromDate = dbRound?.fromdate || trackedProcess?.fromDate || stage?.fromDate || stage?.scheduledDate || details?.fromDate || details?.date || null;
+    const toDate = dbRound?.todate || trackedProcess?.toDate || stage?.toDate || details?.toDate || fromDate;
+    const startTime = dbRound?.startTime || trackedProcess?.startTime || stage?.startTime || details?.startTime || '';
+    const endTime = dbRound?.endTime || trackedProcess?.endTime || stage?.endTime || details?.endTime || '';
+
+    return {
+      id: String(trackedProcess?.id || trackedProcess?._id || stage?._id || entry.uniqueKey || `${roundType}_${index}`),
+      name: trackedProcess?.name || getCandidateRoundDisplayName(roundType, stage?.stageName || dbRound?.name || details?.name),
+      type: roundType,
+      status,
+      assessmentResult: assessmentAttempt?.result
+        ? String(assessmentAttempt.result).charAt(0).toUpperCase() + String(assessmentAttempt.result).slice(1)
+        : (isAssessment && application?.assessmentResult
+            ? String(application.assessmentResult).charAt(0).toUpperCase() + String(application.assessmentResult).slice(1)
+            : null),
+      remark: trackedProcess?.remarks || trackedProcess?.remark || stage?.remarks || stage?.remark || '',
+      assessmentId,
+      scheduledDate: trackedProcess?.scheduledDate || stage?.scheduledDate || fromDate,
+      fromDate,
+      toDate,
+      scheduledTime: startTime && endTime ? `${startTime} - ${endTime}` : (trackedProcess?.scheduledTime || stage?.scheduledTime || details?.time || ''),
+      startTime,
+      endTime
+    };
+  });
+}
+
 function buildCandidateSlotIdentity(candidate = {}) {
   const ids = new Set();
   const emails = new Set();
@@ -1935,8 +2063,10 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
         
         // Fetch InterviewRound IDs for this job
         let interviewRoundIds = {};
+        let jobInterviewRounds = [];
         if (app.jobId?._id) {
           const interviewRounds = await InterviewRound.find({ jobId: app.jobId._id }).lean();
+          jobInterviewRounds = interviewRounds;
           if (!app.jobId.interviewRoundDetails) {
             app.jobId.interviewRoundDetails = {};
           }
@@ -2249,6 +2379,12 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
           assessmentAttemptsByAssessmentId,
           assessmentTimerInfo,
           interviewProcess: normalizedInterviewProcess,
+          interviewRounds: buildCandidateInterviewRounds(
+            normalizedApplication,
+            normalizedInterviewProcess,
+            assessmentAttemptsByAssessmentId,
+            jobInterviewRounds
+          ),
           interviewRoundIds: interviewRoundIds
         };
 

@@ -174,6 +174,17 @@ const getLogoSrc = (value) => {
 };
 
 const getInterviewRounds = (job, application) => {
+  if (application?.interviewRounds?.length) {
+    return application.interviewRounds.map((round, roundIndex) => ({
+      ...round,
+      name: normalizeRoundName(round.name || round.type || round.roundType),
+      uniqueKey: round.uniqueKey || round.id || round.key || round.type || `round_${roundIndex}`,
+      processId: round.processId || round.id || round._id || null,
+      roundType: round.roundType || round.type || round.name,
+      assessmentId: round.assessmentId || null
+    }));
+  }
+
   if (application?.interviewProcesses?.length) {
     return application.interviewProcesses.map((process, processIndex) => ({
       name: normalizeRoundName(process.name || process.type),
@@ -364,7 +375,7 @@ const getRoundDetails = (application, round, index) => {
     roundDetails?.location ||
     formatJobLocation(job?.location);
   const interviewerName = stage?.interviewerName || process?.interviewerName || roundDetails?.interviewerName;
-  const status = process?.status || stage?.status || application?.status || "pending";
+  const status = round?.status || process?.status || stage?.status || application?.status || "pending";
 
   return {
     fromDate,
