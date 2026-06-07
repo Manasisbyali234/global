@@ -174,6 +174,15 @@ const getLogoSrc = (value) => {
 };
 
 const getInterviewRounds = (job, application) => {
+  if (application?.interviewProcesses?.length) {
+    return application.interviewProcesses.map((process, processIndex) => ({
+      name: normalizeRoundName(process.name || process.type),
+      uniqueKey: resolveTrackedRoundKey(application, process, processIndex) || process.id || process._id || process.type || process.name,
+      processId: process.id || process._id || null,
+      roundType: process.type || process.name
+    }));
+  }
+
   if (application?.interviewProcess?.stages?.length) {
     return application.interviewProcess.stages.map((stage, stageIndex) => ({
       name: normalizeRoundName(stage.stageName || stage.stageType),
@@ -184,15 +193,6 @@ const getInterviewRounds = (job, application) => {
       }, stageIndex) || stage._id || stage.stageType || stage.stageName,
       processId: stage._id || null,
       roundType: stage.stageType || stage.stageName
-    }));
-  }
-
-  if (application?.interviewProcesses?.length) {
-    return application.interviewProcesses.map((process, processIndex) => ({
-      name: normalizeRoundName(process.name || process.type),
-      uniqueKey: resolveTrackedRoundKey(application, process, processIndex) || process.id || process._id || process.type || process.name,
-      processId: process.id || process._id || null,
-      roundType: process.type || process.name
     }));
   }
 

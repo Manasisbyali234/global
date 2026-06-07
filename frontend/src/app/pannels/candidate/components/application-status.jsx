@@ -1614,26 +1614,7 @@ function CanStatusPage() {
 			return normalizeRoundDisplayName(roundNames[actualStageType] || roundNames[stageType] || 'Interview Round');
 		};
 		
-		// PRIORITY 1: Check if application has interviewProcess.stages from InterviewProcessManager
-		if (application?.interviewProcess?.stages && application.interviewProcess.stages.length > 0) {
-			console.log('Using interviewProcess.stages:', application.interviewProcess.stages);
-			return application.interviewProcess.stages.map((stage, stageIndex) => {
-				const uniqueKey = resolveTrackedRoundKey(application, {
-					id: stage._id,
-					name: stage.stageName,
-					type: stage.stageType
-				}, stageIndex);
-				return {
-					name: getProperRoundName(stage.stageType, stage.stageName),
-					uniqueKey: uniqueKey || stage._id || stage.stageType,
-					processId: stage._id || null,
-					roundType: stage.stageType,
-					assessmentId: stage.assessmentId || null
-				};
-			});
-		}
-		
-		// PRIORITY 2: Check if application has interviewProcesses from employer review (legacy)
+		// PRIORITY 1: Employer Manual Tracking statuses are stored on the application.
 		if (application?.interviewProcesses && application.interviewProcesses.length > 0) {
 			console.log('Using interviewProcesses from application:', application.interviewProcesses);
 			return application.interviewProcesses.map((process, processIndex) => {
@@ -1684,8 +1665,27 @@ function CanStatusPage() {
 				};
 			});
 		}
+
+		// PRIORITY 2: Check if application has interviewProcess.stages from InterviewProcessManager
+		if (application?.interviewProcess?.stages && application.interviewProcess.stages.length > 0) {
+			console.log('Using interviewProcess.stages:', application.interviewProcess.stages);
+			return application.interviewProcess.stages.map((stage, stageIndex) => {
+				const uniqueKey = resolveTrackedRoundKey(application, {
+					id: stage._id,
+					name: stage.stageName,
+					type: stage.stageType
+				}, stageIndex);
+				return {
+					name: getProperRoundName(stage.stageType, stage.stageName),
+					uniqueKey: uniqueKey || stage._id || stage.stageType,
+					processId: stage._id || null,
+					roundType: stage.stageType,
+					assessmentId: stage.assessmentId || null
+				};
+			});
+		}
 		
-		// PRIORITY 2: Check if job has interviewRoundOrder (new format)
+		// PRIORITY 3: Check if job has interviewRoundOrder (new format)
 		if (job?.interviewRoundOrder && job.interviewRoundOrder.length > 0) {
 			const rounds = [];
 			const stageNames = {

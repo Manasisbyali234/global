@@ -260,6 +260,58 @@ const decorateCandidateApplicationStatusFields = (application = null, options = 
   };
 };
 
+const normalizeRoundLookupKey = (value = '') =>
+  String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+const getBaseRoundType = (value = '') => String(value || '').split('_')[0];
+
+const resolveTrackedInterviewProcessForRound = (application = {}, uniqueKey = '', roundType = '', index = -1) => {
+  const processes = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+  if (processes.length === 0) return null;
+
+  const targetKey = normalizeRoundLookupKey(uniqueKey);
+  const targetType = normalizeRoundLookupKey(getBaseRoundType(roundType || uniqueKey));
+
+  return processes.find((process, processIndex) => {
+    const processId = normalizeRoundLookupKey(process?.id || process?._id);
+    const processName = normalizeRoundLookupKey(process?.name);
+    const processType = normalizeRoundLookupKey(getBaseRoundType(process?.type || process?.stageType || process?.name));
+
+    if (targetKey && (processId === targetKey || processId.includes(targetKey))) return true;
+    if (processIndex === index && (!targetType || processType === targetType)) return true;
+    return targetType && (processType === targetType || processName.includes(targetType));
+  }) || null;
+};
+
+const applyManualTrackingToInterviewProcess = (interviewProcess = null, application = {}) => {
+  if (!interviewProcess) return interviewProcess;
+
+  const processObject = typeof interviewProcess.toObject === 'function'
+    ? interviewProcess.toObject()
+    : { ...interviewProcess };
+  const stages = Array.isArray(processObject?.stages) ? processObject.stages : [];
+
+  return {
+    ...processObject,
+    stages: stages.map((stage, index) => {
+      const trackedProcess = resolveTrackedInterviewProcessForRound(
+        application,
+        stage?._id || stage?.id || stage?.key || '',
+        stage?.stageType || stage?.type || stage?.stageName || '',
+        index
+      );
+      if (!trackedProcess?.status) return stage;
+
+      return {
+        ...stage,
+        status: trackedProcess.status,
+        manualTrackingStatus: trackedProcess.status,
+        manualTrackingProcessId: trackedProcess.id || trackedProcess._id || null
+      };
+    })
+  };
+};
+
 // Authentication Controllers
 exports.registerCandidate = async (req, res) => {
   try {
@@ -2291,6 +2343,7 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
       if (job.interviewRoundOrder && job.interviewRoundOrder.length > 0) {
         job.interviewRoundOrder.forEach((uniqueKey, index) => {
           const roundType = job.interviewRoundTypes[uniqueKey];
+          const trackedProcess = resolveTrackedInterviewProcessForRound(application, uniqueKey, roundType, index);
           
           if (roundType === 'assessment' && job.assessmentId) {
             const assessmentSchedule = resolveAssessmentRoundSchedule(job, uniqueKey);
@@ -2301,7 +2354,9 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
               fromDate: assessmentSchedule.fromDate,
               toDate: assessmentSchedule.toDate,
               time: null,
-              status: application.assessmentStatus || 'not_required',
+              status: trackedProcess?.status || application.assessmentStatus || 'not_required',
+              processId: trackedProcess?.id || trackedProcess?._id || null,
+              processRemarks: trackedProcess?.remarks || null,
               order: index + 1
             });
           } else if (roundType && job.interviewRoundDetails[uniqueKey]) {
@@ -2327,7 +2382,9 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
                 fromDate: details.fromDate,
                 toDate: details.toDate,
                 time: details.time || '',
-                status: 'scheduled',
+                status: trackedProcess?.status || 'scheduled',
+                processId: trackedProcess?.id || trackedProcess?._id || null,
+                processRemarks: trackedProcess?.remarks || null,
                 order: index + 1
               });
             }
@@ -2792,6 +2849,7 @@ exports.getApplicationInterviewDetails = async (req, res) => {
     if (job.interviewRoundOrder && job.interviewRoundOrder.length > 0) {
       job.interviewRoundOrder.forEach((uniqueKey, index) => {
         const roundType = job.interviewRoundTypes[uniqueKey];
+        const trackedProcess = resolveTrackedInterviewProcessForRound(application, uniqueKey, roundType, index);
         
         if (roundType === 'assessment' && job.assessmentId) {
           const assessmentSchedule = resolveAssessmentRoundSchedule(job, uniqueKey, dbRounds);
@@ -2802,7 +2860,9 @@ exports.getApplicationInterviewDetails = async (req, res) => {
             fromDate: assessmentSchedule.fromDate,
             toDate: assessmentSchedule.toDate,
             time: 'Available 24/7 during the assessment period',
-            status: application.assessmentStatus || 'not_required',
+            status: trackedProcess?.status || application.assessmentStatus || 'not_required',
+            processId: trackedProcess?.id || trackedProcess?._id || null,
+            processRemarks: trackedProcess?.remarks || null,
             order: index + 1,
             assessmentId: assessmentSchedule.assessmentId,
             isAssessment: true
@@ -2845,7 +2905,9 @@ exports.getApplicationInterviewDetails = async (req, res) => {
               fromDate: details.fromDate,
               toDate: details.toDate,
               time: details.time || 'Time will be communicated separately',
-              status: 'scheduled',
+              status: trackedProcess?.status || 'scheduled',
+              processId: trackedProcess?.id || trackedProcess?._id || null,
+              processRemarks: trackedProcess?.remarks || null,
               order: index + 1,
               isAssessment: false
             });
@@ -3042,11 +3104,19 @@ exports.getInterviewProcessDetails = async (req, res) => {
         .populate('candidateId', 'name email');
       
       if (interviewProcess) {
+        const mergedInterviewProcess = applyManualTrackingToInterviewProcess(interviewProcess, application);
+        const mergedStages = Array.isArray(mergedInterviewProcess?.stages) ? mergedInterviewProcess.stages : [];
+        const completedStages = mergedStages.filter((stage) =>
+          ['completed', 'passed', 'selected', 'shortlisted', 'shortlisted_for_next_round', 'rejected', 'no_show', 'failed']
+            .includes(String(stage?.status || '').toLowerCase())
+        ).length;
         return res.json({ 
           success: true, 
           interviewProcess: {
-            ...interviewProcess.toObject(),
-            completionPercentage: interviewProcess.completionPercentage
+            ...mergedInterviewProcess,
+            completionPercentage: mergedStages.length > 0
+              ? Math.round((completedStages / mergedStages.length) * 100)
+              : interviewProcess.completionPercentage
           }
         });
       }
@@ -3071,8 +3141,9 @@ exports.getInterviewProcessDetails = async (req, res) => {
     
     // Process rounds based on the order they were added
     if (job.interviewRoundOrder && job.interviewRoundOrder.length > 0) {
-      job.interviewRoundOrder.forEach((uniqueKey) => {
+      job.interviewRoundOrder.forEach((uniqueKey, index) => {
         const roundType = job.interviewRoundTypes[uniqueKey];
+        const trackedProcess = resolveTrackedInterviewProcessForRound(application, uniqueKey, roundType, index);
         
         if (roundType === 'assessment' && job.assessmentId) {
           const assessmentSchedule = resolveAssessmentRoundSchedule(job, uniqueKey);
@@ -3082,7 +3153,8 @@ exports.getInterviewProcessDetails = async (req, res) => {
             stageOrder: stageOrder++,
             fromDate: assessmentSchedule.fromDate,
             toDate: assessmentSchedule.toDate,
-            status: application.assessmentStatus || 'pending',
+            status: trackedProcess?.status || application.assessmentStatus || 'pending',
+            processId: trackedProcess?.id || trackedProcess?._id || null,
             assessmentId: assessmentSchedule.assessmentId,
             assessmentScore: application.assessmentScore,
             assessmentPercentage: application.assessmentPercentage,
@@ -3114,7 +3186,8 @@ exports.getInterviewProcessDetails = async (req, res) => {
               scheduledTime: details.time,
               location: details.location,
               interviewerName: details.interviewerName,
-              status: 'scheduled',
+              status: trackedProcess?.status || 'scheduled',
+              processId: trackedProcess?.id || trackedProcess?._id || null,
               description: details.description || `${roundTypeNames[roundType]} interview stage`
             });
           }
