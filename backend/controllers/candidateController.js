@@ -260,22 +260,22 @@ const decorateCandidateApplicationStatusFields = (application = null, options = 
   };
 };
 
-const normalizeRoundLookupKey = (value = '') =>
+const normalizeManualTrackingRoundKey = (value = '') =>
   String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
-const getBaseRoundType = (value = '') => String(value || '').split('_')[0];
+const getManualTrackingBaseRoundType = (value = '') => String(value || '').split('_')[0];
 
 const resolveTrackedInterviewProcessForRound = (application = {}, uniqueKey = '', roundType = '', index = -1) => {
   const processes = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
   if (processes.length === 0) return null;
 
-  const targetKey = normalizeRoundLookupKey(uniqueKey);
-  const targetType = normalizeRoundLookupKey(getBaseRoundType(roundType || uniqueKey));
+  const targetKey = normalizeManualTrackingRoundKey(uniqueKey);
+  const targetType = normalizeManualTrackingRoundKey(getManualTrackingBaseRoundType(roundType || uniqueKey));
 
   return processes.find((process, processIndex) => {
-    const processId = normalizeRoundLookupKey(process?.id || process?._id);
-    const processName = normalizeRoundLookupKey(process?.name);
-    const processType = normalizeRoundLookupKey(getBaseRoundType(process?.type || process?.stageType || process?.name));
+    const processId = normalizeManualTrackingRoundKey(process?.id || process?._id);
+    const processName = normalizeManualTrackingRoundKey(process?.name);
+    const processType = normalizeManualTrackingRoundKey(getManualTrackingBaseRoundType(process?.type || process?.stageType || process?.name));
 
     if (targetKey && (processId === targetKey || processId.includes(targetKey))) return true;
     if (processIndex === index && (!targetType || processType === targetType)) return true;
