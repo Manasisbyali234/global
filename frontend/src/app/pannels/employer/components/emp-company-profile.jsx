@@ -110,6 +110,7 @@ function EmpCompanyProfilePage() {
     });
 
     const [fieldErrors, setFieldErrors] = useState({});
+    const [validationSummary, setValidationSummary] = useState([]);
     const [loading, setLoading] = useState(false);
     const [savingHiringCompanies, setSavingHiringCompanies] = useState(false);
     const [authSections, setAuthSections] = useState([{ id: 1, companyName: '', documentId: null }]);
@@ -690,21 +691,15 @@ function EmpCompanyProfilePage() {
         // Update inline field errors
         setFieldErrors(formErrors);
 
+        // Build flat list for validation summary
+        const summaryMessages = [];
+        Object.entries(formErrors).forEach(([, msgs]) => {
+            const list = Array.isArray(msgs) ? msgs : [msgs];
+            list.forEach(m => { if (m && !summaryMessages.includes(m)) summaryMessages.push(m); });
+        });
+        setValidationSummary(summaryMessages);
+
         const errorCount = Object.keys(formErrors).length;
-        if (errorCount > 0) {
-            const errorMessages = [];
-            Object.entries(formErrors).forEach(([field, fieldErrors]) => {
-                if (Array.isArray(fieldErrors)) {
-                    fieldErrors.forEach(error => {
-                        errorMessages.push(`${error}`);
-                    });
-                } else {
-                    errorMessages.push(`${fieldErrors}`);
-                }
-            });
-            showError(errorMessages.join('\n'));
-        }
-        
         return errorCount === 0;
     };
 
@@ -1445,17 +1440,11 @@ function EmpCompanyProfilePage() {
         }
         
         if (!validateFormData()) {
-            // Scroll to first error
-            const firstErrorField = document.querySelector('.is-invalid');
-            if (firstErrorField) {
-                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                firstErrorField.focus();
-            } else if (formData.employerCategory === 'consultancy') {
-                const hiringCompaniesSection = document.getElementById('hiring-companies');
-                if (hiringCompaniesSection) {
-                    hiringCompaniesSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
+            // Scroll to validation summary
+            setTimeout(() => {
+                const summary = document.getElementById('validation-summary');
+                if (summary) summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 50);
             return;
         }
         
@@ -1551,6 +1540,7 @@ function EmpCompanyProfilePage() {
             });
 
             if (data.success) {
+                setValidationSummary([]);
                 showSuccess('Profile updated successfully!');
                 // Refresh profile data to get latest state
                 fetchProfile();
@@ -1776,12 +1766,13 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Building size={16} className="me-2" /> Brand Name</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.brandName ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.brandName || ''}
-                                        onChange={(e) => handleInputChange('brandName', e.target.value)}
+                                        onChange={(e) => { handleInputChange('brandName', e.target.value); if (fieldErrors.brandName) setFieldErrors(prev => { const n = {...prev}; delete n.brandName; return n; }); }}
                                         placeholder="Enter brand name"
                                     />
+                                    {fieldErrors.brandName && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.brandName) ? fieldErrors.brandName[0] : fieldErrors.brandName}</div>}
                                     <small className="text-muted">Brand name as per GST</small>
                                 </div>
                             </div>
@@ -1792,12 +1783,12 @@ function EmpCompanyProfilePage() {
                                     <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
                                         <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{formData.phoneCountryCode}</span>
                                         <input
-                                            className="form-control"
+                                            className={`form-control${fieldErrors.phone ? ' is-invalid' : ''}`}
                                             type="text"
                                             value={formData.phone}
                                             onChange={(e) => {
                                                 const value = e.target.value.replace(/\D/g, '');
-                                                if (value.length <= 15) handleInputChange('phone', value);
+                                                if (value.length <= 15) { handleInputChange('phone', value); if (fieldErrors.phone) setFieldErrors(prev => { const n = {...prev}; delete n.phone; return n; }); }
                                             }}
                                             placeholder="9087654321"
                                             minLength="10"
@@ -1805,6 +1796,7 @@ function EmpCompanyProfilePage() {
                                             style={{ paddingLeft: '55px', height: '50px' }}
                                         />
                                     </div>
+                                    {fieldErrors.phone && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.phone) ? fieldErrors.phone[0] : fieldErrors.phone}</div>}
                                 </div>
                             </div>
 
@@ -1825,12 +1817,13 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Globe size={16} className="me-2" /> Website</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.website ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.website}
-                                        onChange={(e) => handleInputChange('website', e.target.value)}
+                                        onChange={(e) => { handleInputChange('website', e.target.value); if (fieldErrors.website) setFieldErrors(prev => { const n = {...prev}; delete n.website; return n; }); }}
                                         placeholder="https://..."
                                     />
+                                    {fieldErrors.website && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.website) ? fieldErrors.website[0] : fieldErrors.website}</div>}
                                 </div>
                             </div>
 
@@ -1867,9 +1860,9 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><UsersIcon size={16} className="me-2" /> Team Size</label>
                                     <select
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.teamSize ? ' is-invalid' : ''}`}
                                         value={formData.teamSize}
-                                        onChange={(e) => handleInputChange('teamSize', e.target.value)}
+                                        onChange={(e) => { handleInputChange('teamSize', e.target.value); if (fieldErrors.teamSize) setFieldErrors(prev => { const n = {...prev}; delete n.teamSize; return n; }); }}
                                     >
                                         <option value="">Select team size</option>
                                         <option value="1-10">1-10 (Startup)</option>
@@ -1880,6 +1873,7 @@ function EmpCompanyProfilePage() {
                                         <option value="1000+">1000+ (Enterprise)</option>
                                         <option value="custom">Other (Enter manually)</option>
                                     </select>
+                                    {fieldErrors.teamSize && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.teamSize) ? fieldErrors.teamSize[0] : fieldErrors.teamSize}</div>}
                                     {formData.teamSize === 'custom' && (
                                         <input
                                             className="form-control mt-2"
@@ -1898,12 +1892,13 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><MapPin size={16} className="me-2" /> Primary Office Location</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.location ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.location || 'Bangalore, India'}
-                                        onChange={(e) => handleInputChange('location', e.target.value)}
+                                        onChange={(e) => { handleInputChange('location', e.target.value); if (fieldErrors.location) setFieldErrors(prev => { const n = {...prev}; delete n.location; return n; }); }}
                                         placeholder="e.g., Bangalore, India"
                                     />
+                                    {fieldErrors.location && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.location) ? fieldErrors.location[0] : fieldErrors.location}</div>}
                                     <small className="text-muted">A default location has been provided. You can edit it as needed.</small>
                                 </div>
                             </div>
@@ -1956,10 +1951,11 @@ function EmpCompanyProfilePage() {
                                     <label className="required-field"><FileText size={16} className="me-2" /> About Company</label>
                                     <RichTextEditor
                                         value={formData.description || ''}
-                                        onChange={(value) => handleInputChange('description', value)}
+                                        onChange={(value) => { handleInputChange('description', value); if (fieldErrors.description) setFieldErrors(prev => { const n = {...prev}; delete n.description; return n; }); }}
                                         placeholder="Enter company description..."
-                                        className="form-control-editor"
+                                        className={`form-control-editor${fieldErrors.description ? ' is-invalid' : ''}`}
                                     />
+                                    {fieldErrors.description && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.description) ? fieldErrors.description[0] : fieldErrors.description}</div>}
                                     <small className="text-muted mt-1">Use the toolbar above to format your company description with bold, italic, lists, and alignment options.</small>
                                     {formData.description && (
                                         <div className="mt-3 p-3 border rounded" style={{backgroundColor: '#f8f9fa'}}>
@@ -2015,12 +2011,13 @@ function EmpCompanyProfilePage() {
                                         Corporate Office Address
                                     </label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.corporateAddress ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.corporateAddress}
-                                        onChange={(e) => handleInputChange('corporateAddress', e.target.value)}
+                                        onChange={(e) => { handleInputChange('corporateAddress', e.target.value); if (fieldErrors.corporateAddress) setFieldErrors(prev => { const n = {...prev}; delete n.corporateAddress; return n; }); }}
                                         placeholder="Enter corporate address"
                                     />
+                                    {fieldErrors.corporateAddress && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.corporateAddress) ? fieldErrors.corporateAddress[0] : fieldErrors.corporateAddress}</div>}
                                 </div>
                             </div>
 
@@ -2041,14 +2038,15 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><MapPin size={16} className="me-2" /> Pincode</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.pincode ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.pincode}
-                                        onChange={(e) => handleInputChange('pincode', e.target.value)}
+                                        onChange={(e) => { handleInputChange('pincode', e.target.value); if (fieldErrors.pincode) setFieldErrors(prev => { const n = {...prev}; delete n.pincode; return n; }); }}
                                         placeholder="Enter 6-digit pincode"
                                         maxLength="6"
                                     />
                                     {fetchingCity && <small className="text-info">Fetching city...</small>}
+                                    {fieldErrors.pincode && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.pincode) ? fieldErrors.pincode[0] : fieldErrors.pincode}</div>}
                                 </div>
                             </div>
 
@@ -2056,12 +2054,13 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><MapPin size={16} className="me-2" /> City</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.city ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.city}
-                                        onChange={(e) => handleInputChange('city', e.target.value)}
+                                        onChange={(e) => { handleInputChange('city', e.target.value); if (fieldErrors.city) setFieldErrors(prev => { const n = {...prev}; delete n.city; return n; }); }}
                                         placeholder="Enter city or auto-fill from pincode"
                                     />
+                                    {fieldErrors.city && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.city) ? fieldErrors.city[0] : fieldErrors.city}</div>}
                                 </div>
                             </div>
 
@@ -2069,9 +2068,9 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><MapPin size={16} className="me-2" /> State</label>
                                     <select 
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.state ? ' is-invalid' : ''}`}
                                         value={formData.state}
-                                        onChange={(e) => handleInputChange('state', e.target.value)}
+                                        onChange={(e) => { handleInputChange('state', e.target.value); if (fieldErrors.state) setFieldErrors(prev => { const n = {...prev}; delete n.state; return n; }); }}
                                     >
                                         <option value="">Select State</option>
                                         <option value="Andhra Pradesh">Andhra Pradesh</option>
@@ -2111,6 +2110,7 @@ function EmpCompanyProfilePage() {
                                         <option value="Lakshadweep">Lakshadweep</option>
                                         <option value="Puducherry">Puducherry</option>
                                     </select>
+                                    {fieldErrors.state && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.state) ? fieldErrors.state[0] : fieldErrors.state}</div>}
                                 </div>
                             </div>
 
@@ -2118,12 +2118,27 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Mail size={16} className="me-2" /> Official Email ID</label>
                                     <input
-                                        className="form-control"
-                                        type="email"
+                                        className={`form-control${fieldErrors.officialEmail ? ' is-invalid' : ''}`}
+                                        type="text"
                                         value={formData.officialEmail}
-                                        onChange={(e) => handleInputChange('officialEmail', e.target.value)}
+                                        onChange={(e) => {
+                                            handleInputChange('officialEmail', e.target.value);
+                                            const val = e.target.value.trim();
+                                            if (!val) {
+                                                setFieldErrors(prev => ({ ...prev, officialEmail: 'Official Email ID is required' }));
+                                            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                                                setFieldErrors(prev => ({ ...prev, officialEmail: 'Please enter a valid email address' }));
+                                            } else {
+                                                setFieldErrors(prev => { const n = { ...prev }; delete n.officialEmail; return n; });
+                                            }
+                                        }}
                                         placeholder="email@company.com"
                                     />
+                                    {fieldErrors.officialEmail && (
+                                        <div className="invalid-feedback d-block" style={{ color: '#dc3545' }}>
+                                            {Array.isArray(fieldErrors.officialEmail) ? fieldErrors.officialEmail[0] : fieldErrors.officialEmail}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -2133,12 +2148,12 @@ function EmpCompanyProfilePage() {
                                     <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
                                         <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{formData.officialMobileCountryCode}</span>
                                         <input
-                                            className="form-control"
+                                            className={`form-control${fieldErrors.officialMobile ? ' is-invalid' : ''}`}
                                             type="text"
                                             value={formData.officialMobile}
                                             onChange={(e) => {
                                                 const value = e.target.value.replace(/\D/g, '');
-                                                if (value.length <= 15) handleInputChange('officialMobile', value);
+                                                if (value.length <= 15) { handleInputChange('officialMobile', value); if (fieldErrors.officialMobile) setFieldErrors(prev => { const n = {...prev}; delete n.officialMobile; return n; }); }
                                             }}
                                             placeholder="9876543210"
                                             minLength="10"
@@ -2146,6 +2161,7 @@ function EmpCompanyProfilePage() {
                                             style={{ paddingLeft: '55px', height: '50px' }}
                                         />
                                     </div>
+                                    {fieldErrors.officialMobile && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.officialMobile) ? fieldErrors.officialMobile[0] : fieldErrors.officialMobile}</div>}
                                 </div>
                             </div>
 
@@ -2153,9 +2169,9 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Briefcase size={16} className="me-2" /> Type of Company / Business</label>
                                     <select 
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.companyType ? ' is-invalid' : ''}`}
                                         value={formData.companyType}
-                                        onChange={(e) => handleInputChange('companyType', e.target.value)}
+                                        onChange={(e) => { handleInputChange('companyType', e.target.value); if (fieldErrors.companyType) setFieldErrors(prev => { const n = {...prev}; delete n.companyType; return n; }); }}
                                     >
                                         <option value="">Select Type</option>
                                         <option value="Private Limited">Private Limited</option>
@@ -2168,6 +2184,7 @@ function EmpCompanyProfilePage() {
                                         <option value="Startup">Startup</option>
                                         <option value="Others - Specify">Others - Specify</option>
                                     </select>
+                                    {fieldErrors.companyType && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.companyType) ? fieldErrors.companyType[0] : fieldErrors.companyType}</div>}
                                     {formData.companyType === 'Others - Specify' && (
                                         <input
                                             className="form-control mt-2"
@@ -2197,13 +2214,14 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Hash size={16} className="me-2" /> GST Number/Darpan (if applicable)</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.gstNumber ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.gstNumber}
-                                        onChange={(e) => handleInputChange('gstNumber', e.target.value)}
+                                        onChange={(e) => { handleInputChange('gstNumber', e.target.value); if (fieldErrors.gstNumber) setFieldErrors(prev => { const n = {...prev}; delete n.gstNumber; return n; }); }}
                                         placeholder="12ABCDE1234F1Z5"
                                         maxLength="15"
                                     />
+                                    {fieldErrors.gstNumber && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.gstNumber) ? fieldErrors.gstNumber[0] : fieldErrors.gstNumber}</div>}
                                 </div>
                             </div>
 
@@ -2211,9 +2229,9 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Briefcase size={16} className="me-2" /> Industry Sector</label>
                                     <select 
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.industrySector ? ' is-invalid' : ''}`}
                                         value={formData.industrySector}
-                                        onChange={(e) => handleInputChange('industrySector', e.target.value)}
+                                        onChange={(e) => { handleInputChange('industrySector', e.target.value); if (fieldErrors.industrySector) setFieldErrors(prev => { const n = {...prev}; delete n.industrySector; return n; }); }}
                                     >
                                         <option value="">Select Industry</option>
                                         <option value="it">IT</option>
@@ -2224,6 +2242,7 @@ function EmpCompanyProfilePage() {
                                         <option value="manufacturing">Manufacturing</option>
                                         <option value="others-specify">Others - Specify</option>
                                     </select>
+                                    {fieldErrors.industrySector && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.industrySector) ? fieldErrors.industrySector[0] : fieldErrors.industrySector}</div>}
                                     {formData.industrySector === 'others-specify' && (
                                         <input
                                             className="form-control mt-2"
@@ -2240,13 +2259,14 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Hash size={16} className="me-2" /> Company PAN Card Number</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.panNumber ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.panNumber}
-                                        onChange={(e) => handleInputChange('panNumber', e.target.value)}
+                                        onChange={(e) => { handleInputChange('panNumber', e.target.value); if (fieldErrors.panNumber) setFieldErrors(prev => { const n = {...prev}; delete n.panNumber; return n; }); }}
                                         placeholder="ABCDE1234F"
                                         required
                                     />
+                                    {fieldErrors.panNumber && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.panNumber) ? fieldErrors.panNumber[0] : fieldErrors.panNumber}</div>}
                                 </div>
                             </div>
 
@@ -2262,6 +2282,7 @@ function EmpCompanyProfilePage() {
                                         required={!formData.panCardImage && formData.panCardVerified !== 'approved'}
                                     />
                                     <small style={{color: '#eb8a8a', fontSize: '11px', display: 'block', marginTop: '4px'}}>Documents auto-save after upload.</small>
+                                    {fieldErrors.panCardImage && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.panCardImage) ? fieldErrors.panCardImage[0] : fieldErrors.panCardImage}</div>}
                                     {formData.panCardImage ? (
                                         <>
                                             <p className="text-success mt-1 mb-0">✓ PAN Card uploaded</p>
@@ -2306,6 +2327,7 @@ function EmpCompanyProfilePage() {
                                         disabled={formData.gstVerified === 'approved'}
                                     />
                                     <small style={{color: '#9ca3af', fontSize: '11px', display: 'block', marginTop: '4px'}}>Documents auto-save after upload.</small>
+                                    {fieldErrors.gstImage && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.gstImage) ? fieldErrors.gstImage[0] : fieldErrors.gstImage}</div>}
                                     {formData.gstImage ? (
                                         <>
                                             <p className="text-success mt-1 mb-0">✓ GST Certificate uploaded</p>
@@ -2328,6 +2350,7 @@ function EmpCompanyProfilePage() {
                                         disabled={formData.incorporationVerified === 'approved'}
                                     />
                                     <small style={{color: '#9ca3af', fontSize: '11px', display: 'block', marginTop: '4px'}}>Documents auto-save after upload.</small>
+                                    {fieldErrors.certificateOfIncorporation && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.certificateOfIncorporation) ? fieldErrors.certificateOfIncorporation[0] : fieldErrors.certificateOfIncorporation}</div>}
                                     {formData.certificateOfIncorporation ? (
                                         <>
                                             <p className="text-success mt-1 mb-0">✓ Certificate of Incorporation uploaded</p>
@@ -2354,12 +2377,13 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><UserIcon size={16} className="me-2" /> First Name</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.contactFullName ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.contactFullName}
-                                        onChange={(e) => handleInputChange('contactFullName', e.target.value)}
+                                        onChange={(e) => { handleInputChange('contactFullName', e.target.value); if (fieldErrors.contactFullName) setFieldErrors(prev => { const n = {...prev}; delete n.contactFullName; return n; }); }}
                                         placeholder="Enter First Name"
                                     />
+                                    {fieldErrors.contactFullName && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.contactFullName) ? fieldErrors.contactFullName[0] : fieldErrors.contactFullName}</div>}
                                 </div>
                             </div>
 
@@ -2380,12 +2404,13 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><UserIcon size={16} className="me-2" /> Last Name</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.contactLastName ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.contactLastName}
-                                        onChange={(e) => handleInputChange('contactLastName', e.target.value)}
+                                        onChange={(e) => { handleInputChange('contactLastName', e.target.value); if (fieldErrors.contactLastName) setFieldErrors(prev => { const n = {...prev}; delete n.contactLastName; return n; }); }}
                                         placeholder="Enter Last Name"
                                     />
+                                    {fieldErrors.contactLastName && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.contactLastName) ? fieldErrors.contactLastName[0] : fieldErrors.contactLastName}</div>}
                                 </div>
                             </div>
 
@@ -2393,12 +2418,13 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Briefcase size={16} className="me-2" /> Designation</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.contactDesignation ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.contactDesignation}
-                                        onChange={(e) => handleInputChange('contactDesignation', e.target.value)}
+                                        onChange={(e) => { handleInputChange('contactDesignation', e.target.value); if (fieldErrors.contactDesignation) setFieldErrors(prev => { const n = {...prev}; delete n.contactDesignation; return n; }); }}
                                         placeholder="e.g., HR Manager, Recruitment Lead, Founder"
                                     />
+                                    {fieldErrors.contactDesignation && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.contactDesignation) ? fieldErrors.contactDesignation[0] : fieldErrors.contactDesignation}</div>}
                                 </div>
                             </div>
 
@@ -2406,12 +2432,13 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Mail size={16} className="me-2" /> Official Email ID</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.contactOfficialEmail ? ' is-invalid' : ''}`}
                                         type="email"
                                         value={formData.contactOfficialEmail}
-                                        onChange={(e) => handleInputChange('contactOfficialEmail', e.target.value)}
+                                        onChange={(e) => { handleInputChange('contactOfficialEmail', e.target.value); if (fieldErrors.contactOfficialEmail) setFieldErrors(prev => { const n = {...prev}; delete n.contactOfficialEmail; return n; }); }}
                                         placeholder="Enter official email"
                                     />
+                                    {fieldErrors.contactOfficialEmail && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.contactOfficialEmail) ? fieldErrors.contactOfficialEmail[0] : fieldErrors.contactOfficialEmail}</div>}
                                 </div>
                             </div>
 
@@ -2421,12 +2448,12 @@ function EmpCompanyProfilePage() {
                                     <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
                                         <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{formData.contactMobileCountryCode}</span>
                                         <input
-                                            className="form-control"
+                                            className={`form-control${fieldErrors.contactMobile ? ' is-invalid' : ''}`}
                                             type="tel"
                                             value={formData.contactMobile}
                                             onChange={(e) => {
                                                 const value = e.target.value.replace(/\D/g, '');
-                                                if (value.length <= 15) handleInputChange('contactMobile', value);
+                                                if (value.length <= 15) { handleInputChange('contactMobile', value); if (fieldErrors.contactMobile) setFieldErrors(prev => { const n = {...prev}; delete n.contactMobile; return n; }); }
                                             }}
                                             placeholder="9876543210"
                                             minLength="10"
@@ -2434,6 +2461,7 @@ function EmpCompanyProfilePage() {
                                             style={{ paddingLeft: '55px', height: '50px' }}
                                         />
                                     </div>
+                                    {fieldErrors.contactMobile && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.contactMobile) ? fieldErrors.contactMobile[0] : fieldErrors.contactMobile}</div>}
                                 </div>
                             </div>
 
@@ -2448,6 +2476,7 @@ function EmpCompanyProfilePage() {
                                         disabled={formData.companyIdCardVerified === 'approved'}
                                     />
                                     <small style={{color: '#9ca3af', fontSize: '11px', display: 'block', marginTop: '4px'}}>Documents auto-save after upload.</small>
+                                    {fieldErrors.companyIdCardPicture && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.companyIdCardPicture) ? fieldErrors.companyIdCardPicture[0] : fieldErrors.companyIdCardPicture}</div>}
                                     {formData.companyIdCardPicture && (
                                         <div className="mt-2">
                                             <img 
@@ -2498,12 +2527,13 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Hash size={16} className="me-2" /> Employer Code</label>
                                     <input
-                                        className="form-control"
+                                        className={`form-control${fieldErrors.employerCode ? ' is-invalid' : ''}`}
                                         type="text"
                                         value={formData.employerCode}
-                                        onChange={(e) => handleInputChange('employerCode', e.target.value)}
+                                        onChange={(e) => { handleInputChange('employerCode', e.target.value); if (fieldErrors.employerCode) setFieldErrors(prev => { const n = {...prev}; delete n.employerCode; return n; }); }}
                                         placeholder="Enter employer code"
                                     />
+                                    {fieldErrors.employerCode && <div className="invalid-feedback d-block">{Array.isArray(fieldErrors.employerCode) ? fieldErrors.employerCode[0] : fieldErrors.employerCode}</div>}
                                 </div>
                             </div>
                         </div>
@@ -2811,6 +2841,16 @@ function EmpCompanyProfilePage() {
                         <div className="row">
                             <div className="col-lg-12 col-md-12">
                                 <div className="text-left">
+                                    {validationSummary.length > 0 && (
+                                        <div id="validation-summary" className="alert alert-danger mb-3" style={{textAlign: 'left'}}>
+                                            <strong><i className="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
+                                            <ul className="mb-0 mt-2 ps-3">
+                                                {validationSummary.map((msg, i) => (
+                                                    <li key={i}>{msg}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
                                     <button type="submit" className="site-button" disabled={loading}>
                                         {loading ? 'Saving...' : 'Save Profile'}
                                     </button>

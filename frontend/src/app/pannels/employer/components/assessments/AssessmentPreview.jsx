@@ -81,7 +81,7 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                             color: "#e74c3c",
                         }}>
                             <FaClock style={{ marginRight: "5px" }} />
-                            {assessment.timer || 0}:00
+                            {assessment.timer || 0} min
                         </div>
                     </div>
                     {/* Progress Bar */}

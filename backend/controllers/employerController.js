@@ -3662,7 +3662,7 @@ exports.getProfileCompletion = async (req, res) => {
     } else if (!profileSubmittedForReview) {
       message = 'Your profile is complete. Save your profile to submit it for admin review.';
     } else if (profileSubmittedForReview && !isApproved) {
-      message = 'Thank you for completing your profile! Your profile has been submitted for admin review.';
+      message = 'Thank you for completing profile !! Profile been submitted for admin review,once approved start posting jobs.';
     } else if (!hasMinimumApprovedDocuments) {
       message = `Without documents verification, Will not approve to post job`;
     } else {

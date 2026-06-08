@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import JobZImage from "../../../common/jobz-img";
 import NotificationBell from "../../../../components/NotificationBell";
 import '../components/admin-header-mobile-fix.css';
 
@@ -61,8 +60,12 @@ function AdminHeaderSection(props) {
                                             <div className="dropdown">
                                                 {/* <a href="#" className="dropdown-toggle" id="ID-ACCOUNT_dropdown" data-bs-toggle="dropdown"> */}
                                                     <div className="">
-                                                        <span>
-                                                            <JobZImage src="images/user-avtar/pic4.jpg" alt="Admin" />
+                                                        <span style={{
+                                                            display: 'flex',
+                                                            width: '40px', height: '40px', borderRadius: '50%',
+                                                            background: '#e0e0e0', alignItems: 'center', justifyContent: 'center'
+                                                        }}>
+                                                            <i className="fa fa-user" style={{ fontSize: '20px', color: '#888' }}></i>
                                                         </span>
                                                     </div>
                                                 {/* </a> */}

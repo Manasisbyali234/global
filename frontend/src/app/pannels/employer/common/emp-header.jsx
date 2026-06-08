@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import JobZImage from "../../../common/jobz-img";
 import { NavLink } from "react-router-dom";
 import { empRoute, employer } from "../../../../globals/route-names";
 import NotificationBell from "../../../../components/NotificationBell";
@@ -74,10 +73,16 @@ function EmpHeaderSection(props) {
                                                             src={profileData.logo}
                                                             alt="Company Logo"
                                                             style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                                                            onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                                                         />
-                                                    ) : (
-                                                        <JobZImage src="images/user-avtar/pic4.jpg" alt="" />
-                                                    )}
+                                                    ) : null}
+                                                    <span style={{
+                                                        display: profileData?.logo ? 'none' : 'flex',
+                                                        width: '40px', height: '40px', borderRadius: '50%',
+                                                        background: '#e0e0e0', alignItems: 'center', justifyContent: 'center'
+                                                    }}>
+                                                        <i className="fa fa-user" style={{ fontSize: '20px', color: '#888' }}></i>
+                                                    </span>
                                                 </span>
                                             </div>
                                         </NavLink>

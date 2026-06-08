@@ -1,7 +1,6 @@
 // CANDIDATE DASHBOARD HEADER
 
 import React, { useState, useEffect } from "react";
-import JobZImage from "../../../common/jobz-img";
 import { NavLink } from "react-router-dom";
 import { canRoute, candidate } from "../../../../globals/route-names";
 import { api, BACKEND_URL } from "../../../../utils/api";
@@ -104,10 +103,16 @@ function CanHeaderSection(props) {
                                                         src={getProfileImageSrc(profileData.profilePicture)} 
                                                         alt="Profile" 
                                                         style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                                                        onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                                                     />
-                                                ) : (
-                                                    <JobZImage src="images/user-avtar/pic4.jpg" alt="" />
-                                                )}
+                                                ) : null}
+                                                <span style={{
+                                                    display: profileData?.profilePicture ? 'none' : 'flex',
+                                                    width: '40px', height: '40px', borderRadius: '50%',
+                                                    background: '#e0e0e0', alignItems: 'center', justifyContent: 'center'
+                                                }}>
+                                                    <i className="fa fa-user" style={{ fontSize: '20px', color: '#888' }}></i>
+                                                </span>
                                             </span>
                                         </div>
                                     </div>
