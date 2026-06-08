@@ -558,7 +558,7 @@ function EmpCandidatesPage() {
             <div>
               <h2 className="employer-page-title">
                 {jobId && currentJob
-                  ? `Applicants for ${currentJob.title}`
+                  ? `Applicants for ${formatJobTitle(currentJob.title)}`
                   : "Applicants Details"}
               </h2>
               {jobId && currentJob && (

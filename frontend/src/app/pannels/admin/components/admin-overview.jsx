@@ -93,7 +93,7 @@ function AdminOverviewPage() {
 
   const headerTitle =
     viewMode === "applicants" && selectedJob
-      ? `Actual Applicants for ${selectedJob.title}`
+      ? `Actual Applicants for ${formatJobTitle(selectedJob.title)}`
       : viewMode === "jobs" && selectedEmployer
         ? `Jobs posted by ${selectedEmployer.employerName}`
         : "Employer Overview";
