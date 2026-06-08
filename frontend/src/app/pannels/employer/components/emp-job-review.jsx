@@ -524,6 +524,15 @@ function EmpJobReviewPage() {
                         <div className="document-modal-body">
                             <iframe src={interviewModal.url} title={interviewModal.title} />
                         </div>
+                        <div className="document-modal-footer">
+                            <button
+                                className="document-modal-close-btn"
+                                onClick={() => setInterviewModal({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false })}
+                                aria-label="Close interview popup"
+                            >
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
