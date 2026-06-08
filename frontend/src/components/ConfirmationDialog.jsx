@@ -36,17 +36,6 @@ const ConfirmationDialog = ({
           <div className="popup-message">{message}</div>
           <div className="popup-buttons" style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
             <button
-              className="popup-button popup-button-confirm"
-              onClick={onConfirm}
-              style={{
-                backgroundColor: '#dc3545',
-                color: 'white',
-                minWidth: '80px'
-              }}
-            >
-              {confirmText}
-            </button>
-            <button
               className="popup-button popup-button-cancel"
               onClick={onCancel}
               style={{
@@ -56,6 +45,17 @@ const ConfirmationDialog = ({
               }}
             >
               {cancelText}
+            </button>
+            <button
+              className="popup-button popup-button-confirm"
+              onClick={onConfirm}
+              style={{
+                backgroundColor: '#dc3545',
+                color: 'white',
+                minWidth: '80px'
+              }}
+            >
+              {confirmText}
             </button>
           </div>
         </div>
