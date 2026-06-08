@@ -365,7 +365,7 @@ export default function ViewAnswers() {
               <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{attempt.score}/{attempt.totalMarks}</div>
             </div>
             <div>
-              <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Percentage</div>
+              <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Obtained Percentage</div>
               <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{Math.min(100, attempt.percentage ?? 0)}%</div>
             </div>
             <div>

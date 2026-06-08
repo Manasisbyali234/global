@@ -101,9 +101,9 @@ export const getAssessmentOutcomeLabel = (details = {}) => {
     case 'pending_review':
       return 'Pending Review';
     case 'passed':
-      return 'Passed';
+      return 'Pass';
     case 'failed':
-      return 'Failed';
+      return 'Fail';
     case 'no_show':
       return 'No Show';
     case 'in_progress':
