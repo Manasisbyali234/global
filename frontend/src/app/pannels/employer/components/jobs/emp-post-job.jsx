@@ -152,6 +152,173 @@ const PREDEFINED_CATEGORIES = [
 const POST_JOB_TICKET_LIMIT = 10;
 
 // LocationSearchInput Component
+const ALL_SKILLS = [
+	"React", "Vue.js", "Angular", "Node.js", "Python", "Java", "C++", "C#", "PHP", "Ruby",
+	"Go", "Rust", "Swift", "Kotlin", "TypeScript", "JavaScript", "HTML", "CSS", "SASS", "LESS",
+	"SQL", "MySQL", "PostgreSQL", "MongoDB", "Redis", "Cassandra", "Oracle", "SQLite",
+	"AWS", "Azure", "Google Cloud", "Docker", "Kubernetes", "Jenkins", "Git", "GitHub", "GitLab",
+	"REST API", "GraphQL", "SOAP", "Microservices", "Spring Boot", "Django", "Flask", "Express.js",
+	"Machine Learning", "Deep Learning", "Data Science", "AI", "TensorFlow", "PyTorch", "Pandas", "NumPy",
+	"DevOps", "CI/CD", "Agile", "Scrum", "Jira", "Confluence", "Linux", "Unix", "Windows Server",
+	"Networking", "Security", "Cybersecurity", "Penetration Testing", "Ethical Hacking",
+	"Salesforce", "SAP", "Oracle ERP", "Power BI", "Tableau", "Excel", "Data Analysis",
+	"UI/UX Design", "Figma", "Adobe XD", "Sketch", "Photoshop", "Illustrator", "InDesign",
+	"Digital Marketing", "SEO", "SEM", "Content Writing", "Social Media Marketing", "Email Marketing",
+	"Project Management", "Product Management", "Business Analysis", "Financial Analysis",
+	"Communication", "Leadership", "Team Management", "Problem Solving", "Critical Thinking"
+];
+
+function SkillsSearchInput({ value, onChange, error, style }) {
+	const [searchTerm, setSearchTerm] = useState('');
+	const [showDropdown, setShowDropdown] = useState(false);
+
+	const selectedSkills = Array.isArray(value) ? value : [];
+
+	const filteredSkills = ALL_SKILLS.filter(skill =>
+		skill.toLowerCase().includes(searchTerm.toLowerCase()) &&
+		!selectedSkills.includes(skill)
+	);
+
+	const handleSkillSelect = (skill) => {
+		onChange([...selectedSkills, skill]);
+		setSearchTerm('');
+		setShowDropdown(false);
+	};
+
+	const handleAddCustom = () => {
+		const trimmed = searchTerm.trim();
+		if (trimmed && !selectedSkills.includes(trimmed)) {
+			onChange([...selectedSkills, trimmed]);
+		}
+		setSearchTerm('');
+		setShowDropdown(false);
+	};
+
+	const removeSkillItem = (skill) => {
+		onChange(selectedSkills.filter(s => s !== skill));
+	};
+
+	const handleKeyDown = (e) => {
+		if (e.key === 'Enter' && searchTerm.trim()) {
+			e.preventDefault();
+			if (filteredSkills.length > 0) {
+				handleSkillSelect(filteredSkills[0]);
+			} else {
+				handleAddCustom();
+			}
+		} else if (e.key === 'Backspace' && searchTerm === '' && selectedSkills.length > 0) {
+			removeSkillItem(selectedSkills[selectedSkills.length - 1]);
+		}
+	};
+
+	return (
+		<div style={{ position: 'relative' }}>
+			<div
+				style={{
+					...style,
+					display: 'flex',
+					flexWrap: 'wrap',
+					gap: '8px',
+					padding: '8px 12px',
+					minHeight: '45px',
+					alignItems: 'center',
+					cursor: 'text'
+				}}
+				onClick={() => document.getElementById('skills-input').focus()}
+			>
+				{selectedSkills.map((skill, index) => (
+					<div key={index} style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '6px',
+						background: '#e7f3ff',
+						border: '1px solid #b3d9ff',
+						borderRadius: '16px',
+						padding: '2px 10px',
+						fontSize: '13px',
+						color: '#0066cc',
+						fontWeight: 500
+					}}>
+						<span>{skill}</span>
+						<i
+							className="fa fa-times"
+							style={{ cursor: 'pointer', color: '#ef4444', fontSize: '11px' }}
+							onClick={(e) => { e.stopPropagation(); removeSkillItem(skill); }}
+						/>
+					</div>
+				))}
+				<input
+					id="skills-input"
+					style={{
+						border: 'none',
+						outline: 'none',
+						flex: 1,
+						minWidth: '150px',
+						padding: '4px 0',
+						fontSize: '14px',
+						background: 'transparent'
+					}}
+					type="text"
+					value={searchTerm}
+					onChange={(e) => { setSearchTerm(e.target.value); setShowDropdown(true); }}
+					onFocus={() => setShowDropdown(true)}
+					onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+					onKeyDown={handleKeyDown}
+					placeholder={selectedSkills.length === 0 ? '  Search or type a skill...' : ''}
+					autoComplete="off"
+				/>
+				<i className="fa fa-search" style={{ color: '#9ca3af', fontSize: '14px', marginLeft: 'auto' }} />
+			</div>
+
+			{showDropdown && (filteredSkills.length > 0 || searchTerm.trim() !== '') && (
+				<div style={{
+					position: 'absolute',
+					top: '100%',
+					left: 0,
+					right: 0,
+					background: '#fff',
+					border: '1px solid #d1d5db',
+					borderRadius: '0 0 8px 8px',
+					maxHeight: '200px',
+					overflowY: 'auto',
+					zIndex: 1000,
+					boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+					marginTop: '2px'
+				}}>
+					{filteredSkills.slice(0, 10).map((skill, index) => (
+						<div
+							key={index}
+							style={{ padding: '10px 12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', transition: 'background-color 0.2s' }}
+							onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+							onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+							onMouseDown={(e) => { e.preventDefault(); handleSkillSelect(skill); }}
+						>
+							<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+								<i className="fa fa-plus-circle" style={{ color: '#ff6b35', fontSize: '12px' }}></i>
+								<span style={{ fontSize: '14px', color: '#374151' }}>{skill}</span>
+							</div>
+						</div>
+					))}
+					{searchTerm.trim() !== '' && !ALL_SKILLS.some(s => s.toLowerCase() === searchTerm.toLowerCase()) && !selectedSkills.includes(searchTerm.trim()) && (
+						<div
+							style={{ padding: '10px 12px', cursor: 'pointer', color: '#ff6b35', fontWeight: '500', borderBottom: '1px solid #f3f4f6' }}
+							onMouseDown={(e) => { e.preventDefault(); handleAddCustom(); }}
+						>
+							<i className="fa fa-plus" style={{ marginRight: 8 }}></i>
+							Add "{searchTerm}"
+						</div>
+					)}
+					{filteredSkills.length === 0 && searchTerm.trim() === '' && (
+						<div style={{ padding: '12px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
+							All matching skills selected.
+						</div>
+					)}
+				</div>
+			)}
+		</div>
+	);
+}
+
 function LocationSearchInput({ value, onChange, error, style }) {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [showDropdown, setShowDropdown] = useState(false);
@@ -4275,170 +4442,23 @@ export default function EmpPostJob({ onNext }) {
 								({formData.requiredSkills.length} skills selected)
 							</span>
 						</label>
-						<div style={{display: 'flex', gap: 8, alignItems: 'flex-start'}}>
-							<div style={{position: 'relative', flex: 1}}>
-								<input
-									style={input}
-									type="text"
-									placeholder="Type to search or add custom skill..."
-									value={formData.skillInput}
-									onChange={(e) => update({ skillInput: e.target.value })}
-									onFocus={() => update({ skillInput: formData.skillInput || '' })}
-									onKeyPress={(e) => {
-										if (e.key === 'Enter' && formData.skillInput.trim()) {
-											e.preventDefault();
-											const newSkill = formData.skillInput.trim();
-											if (!formData.requiredSkills.includes(newSkill)) {
-												update({ 
-													requiredSkills: [...formData.requiredSkills, newSkill],
-													skillInput: ''
-												});
-											}
-										}
-									}}
-								/>
-							{formData.skillInput && (() => {
-								const allSkills = [
-									"React", "Vue.js", "Angular", "Node.js", "Python", "Java", "C++", "C#", "PHP", "Ruby",
-									"Go", "Rust", "Swift", "Kotlin", "TypeScript", "JavaScript", "HTML", "CSS", "SASS", "LESS",
-									"SQL", "MySQL", "PostgreSQL", "MongoDB", "Redis", "Cassandra", "Oracle", "SQLite",
-									"AWS", "Azure", "Google Cloud", "Docker", "Kubernetes", "Jenkins", "Git", "GitHub", "GitLab",
-									"REST API", "GraphQL", "SOAP", "Microservices", "Spring Boot", "Django", "Flask", "Express.js",
-									"Machine Learning", "Deep Learning", "Data Science", "AI", "TensorFlow", "PyTorch", "Pandas", "NumPy",
-									"DevOps", "CI/CD", "Agile", "Scrum", "Jira", "Confluence", "Linux", "Unix", "Windows Server",
-									"Networking", "Security", "Cybersecurity", "Penetration Testing", "Ethical Hacking",
-									"Salesforce", "SAP", "Oracle ERP", "Power BI", "Tableau", "Excel", "Data Analysis",
-									"UI/UX Design", "Figma", "Adobe XD", "Sketch", "Photoshop", "Illustrator", "InDesign",
-									"Digital Marketing", "SEO", "SEM", "Content Writing", "Social Media Marketing", "Email Marketing",
-									"Project Management", "Product Management", "Business Analysis", "Financial Analysis",
-									"Communication", "Leadership", "Team Management", "Problem Solving", "Critical Thinking"
-								];
-								const filtered = allSkills.filter(skill => 
-									skill.toLowerCase().includes(formData.skillInput.toLowerCase()) &&
-									!formData.requiredSkills.includes(skill)
-								);
-								return filtered.length > 0 ? (
-									<div style={{
-										position: 'absolute',
-										top: '100%',
-										left: 0,
-										right: 0,
-										background: '#fff',
-										border: '1px solid #d1d5db',
-										borderTop: 'none',
-										borderRadius: '0 0 8px 8px',
-										maxHeight: '200px',
-										overflowY: 'auto',
-										zIndex: 1000,
-										boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-									}}>
-										{filtered.slice(0, 10).map((skill, index) => (
-											<div
-												key={index}
-												style={{
-													padding: '10px 12px',
-													cursor: 'pointer',
-													borderBottom: index < Math.min(filtered.length, 10) - 1 ? '1px solid #f3f4f6' : 'none',
-													transition: 'background-color 0.2s'
-												}}
-												onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-												onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-												onClick={() => {
-													update({ 
-														requiredSkills: [...formData.requiredSkills, skill],
-														skillInput: ''
-													});
-												}}
-											>
-												<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-													<i className="fa fa-plus-circle" style={{ color: '#ff6b35', fontSize: '12px' }}></i>
-													<span style={{ fontSize: '14px', color: '#374151' }}>{skill}</span>
-												</div>
-											</div>
-										))}
-										{filtered.length > 10 && (
-											<div style={{
-												padding: '8px 12px',
-												background: '#f9fafb',
-												color: '#6b7280',
-												fontSize: '12px',
-												textAlign: 'center',
-												borderTop: '1px solid #e5e7eb'
-											}}>
-												+{filtered.length - 10} more skills. Keep typing to narrow down...
-											</div>
-										)}
-									</div>
-								) : null;
-							})()}
-							</div>
-							<button
-								style={{
-									background: '#ff6b35',
-									color: '#fff',
-									border: 'none',
-									padding: '12px 16px',
-									borderRadius: 8,
-									cursor: formData.skillInput.trim() ? 'pointer' : 'not-allowed',
-									fontSize: '14px',
-									fontWeight: 600,
-									opacity: formData.skillInput.trim() ? 1 : 0.5,
-									transition: 'all 0.2s',
-									whiteSpace: 'nowrap'
-								}}
-								onClick={() => {
-									if (formData.skillInput.trim()) {
-										const newSkill = formData.skillInput.trim();
-										if (!formData.requiredSkills.includes(newSkill)) {
-											update({ 
-												requiredSkills: [...formData.requiredSkills, newSkill],
-												skillInput: ''
-											});
-										}
-									}
-								}}
-								onMouseEnter={(e) => {
-									if (formData.skillInput.trim()) {
-										e.currentTarget.style.background = '#e55a2b';
-									}
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.background = '#ff6b35';
-								}}
-							>
-								<i className="fa fa-plus" style={{marginRight: 4}}></i>
-								Add
-							</button>
-						</div>
+						<SkillsSearchInput
+							value={formData.requiredSkills}
+							onChange={(skills) => update({ requiredSkills: skills })}
+							error={errors.requiredSkills}
+							style={{
+								...input,
+								borderColor: errors.requiredSkills ? '#dc2626' : '#d1d5db'
+							}}
+						/>
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
 							<i className="fa fa-info-circle" style={{marginRight: 4}}></i>
-							Type to search from 90+ skills, select from dropdown, or press Enter/click Add button to add custom skills
+							Search from 90+ skills or type a custom skill and press Enter to add it. Click × to remove.
 						</small>
-						{formData.requiredSkills.length > 0 && (
-							<div
-								style={{
-									marginTop: 14,
-									display: "flex",
-									gap: 10,
-									flexWrap: "wrap",
-									padding: 12,
-									background: '#f9fafb',
-									borderRadius: 8,
-									border: '1px solid #e5e7eb',
-								}}
-							>
-								{formData.requiredSkills.map((s, i) => (
-									<div key={i} style={chip}>
-										<span>{s}</span>
-										<span 
-											style={chipX} 
-											onClick={() => removeSkill(s)}
-											title="Remove skill"
-										>
-											×
-										</span>
-									</div>
-								))}
+						{errors.requiredSkills && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.requiredSkills[0]}
 							</div>
 						)}
 					</div>

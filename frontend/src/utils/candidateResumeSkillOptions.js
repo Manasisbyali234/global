@@ -481,6 +481,22 @@ export const degreeSkillCatalog = [
     }
 ];
 
+const additionalSkills = [
+    "React", "Vue.js", "Angular", "Node.js", "Python", "Java", "C++", "C#", "PHP", "Ruby",
+    "Go", "Rust", "Swift", "Kotlin", "TypeScript", "JavaScript", "HTML", "CSS", "SASS", "LESS",
+    "SQL", "MySQL", "PostgreSQL", "MongoDB", "Redis", "Cassandra", "Oracle", "SQLite",
+    "AWS", "Azure", "Google Cloud", "Docker", "Kubernetes", "Jenkins", "Git", "GitHub", "GitLab",
+    "REST API", "GraphQL", "SOAP", "Microservices", "Spring Boot", "Django", "Flask", "Express.js",
+    "Machine Learning", "Deep Learning", "Data Science", "AI", "TensorFlow", "PyTorch", "Pandas", "NumPy",
+    "DevOps", "CI/CD", "Agile", "Scrum", "Jira", "Confluence", "Linux", "Unix", "Windows Server",
+    "Networking", "Security", "Cybersecurity", "Penetration Testing", "Ethical Hacking",
+    "Salesforce", "SAP", "Oracle ERP", "Power BI", "Tableau", "Excel", "Data Analysis",
+    "UI/UX Design", "Figma", "Adobe XD", "Sketch", "Photoshop", "Illustrator", "InDesign",
+    "Digital Marketing", "SEO", "SEM", "Content Writing", "Social Media Marketing", "Email Marketing",
+    "Project Management", "Product Management", "Business Analysis", "Financial Analysis",
+    "Communication", "Leadership", "Team Management", "Problem Solving", "Critical Thinking"
+];
+
 export const candidateResumeSkillOptions = degreeSkillCatalog.reduce((allSkills, degree) => {
     [...degree.technicalSkills, ...degree.softSkills].forEach((skill) => {
         const normalizedSkill = skill.trim().toLowerCase();
@@ -492,3 +508,12 @@ export const candidateResumeSkillOptions = degreeSkillCatalog.reduce((allSkills,
 
     return allSkills;
 }, []);
+
+additionalSkills.forEach((skill) => {
+    const normalized = skill.trim().toLowerCase();
+    if (!candidateResumeSkillOptions.some((s) => s.toLowerCase() === normalized)) {
+        candidateResumeSkillOptions.push(skill.trim());
+    }
+});
+
+candidateResumeSkillOptions.sort((a, b) => a.localeCompare(b));
