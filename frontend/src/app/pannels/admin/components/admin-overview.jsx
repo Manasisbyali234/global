@@ -344,10 +344,10 @@ function AdminOverviewPage() {
       const hasExplicitResult = Boolean(normalizedResult && normalizedResult !== "pending");
 
       if (outcome.isPassed) {
-        return { label: "Passed", style: badgeStyles.success };
+        return { label: "Pass", style: badgeStyles.success };
       }
       if (outcome.isFailed) {
-        return { label: "Failed", style: badgeStyles.danger };
+        return { label: "Fail", style: badgeStyles.danger };
       }
       if (outcome.isSuspended) {
         return { label: "Suspended", style: badgeStyles.danger };
@@ -409,10 +409,10 @@ function AdminOverviewPage() {
       return { label: "Completed", style: badgeStyles.success };
     }
     if (normalizedStatus === "passed" || ["pass", "passed"].includes(normalizedResult)) {
-      return { label: "Passed", style: badgeStyles.success };
+      return { label: "Pass", style: badgeStyles.success };
     }
     if (normalizedStatus === "failed" || ["fail", "failed"].includes(normalizedResult)) {
-      return { label: "Failed", style: badgeStyles.danger };
+      return { label: "Fail", style: badgeStyles.danger };
     }
     if (normalizedResult === "suspended" || normalizedStatus === "suspended") {
       return { label: "Suspended", style: badgeStyles.danger };
@@ -886,7 +886,7 @@ function AdminOverviewPage() {
                                 normalizeStatusValue(round?.name).includes('assessment');
                               if (!isAssessment) return false;
                               const result = getAssessmentResultPresentation(round);
-                              return result.label === 'Passed';
+                              return result.label === 'Pass';
                             });
                             if (hasPassedAssessment) {
                               applicantStatusKey = 'pending';
