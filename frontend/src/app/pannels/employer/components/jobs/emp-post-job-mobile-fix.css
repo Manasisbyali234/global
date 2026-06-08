@@ -229,3 +229,50 @@
     gap: 8px !important;
   }
 }
+
+/* Schedule Interview modal footer */
+.document-modal-footer {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px 16px;
+  background: #fff;
+  border-top: 1px solid #e3e8ef;
+  border-radius: 0 0 12px 12px;
+}
+
+.document-modal-close-btn {
+  min-height: 40px;
+  padding: 0 24px;
+  background: transparent;
+  color: #f97316;
+  border: 2px solid #f97316;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.document-modal-close-btn:hover,
+.document-modal-close-btn:focus {
+  background: #f97316;
+  color: #fff;
+  outline: none;
+}
+
+.document-modal-container.minimized .document-modal-footer {
+  display: none;
+}
+
+@media (max-width: 575px) {
+  .document-modal-footer {
+    padding: 10px 12px;
+  }
+
+  .document-modal-close-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
