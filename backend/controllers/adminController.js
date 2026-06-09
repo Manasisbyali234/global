@@ -2700,7 +2700,7 @@ exports.updatePlacementStatus = async (req, res) => {
         
         await createNotification({
           title: 'Account Approved',
-          message: 'Your Placement Dean account has been approved by admin. You can now sign in.',
+          message: 'Welcome to TaleGlobal! 🎉Your Placement Dean account has been approved by the admin. You now have access to the platform.',
           type: 'placement_approved',
           role: 'placement',
           placementId: new mongoose.Types.ObjectId(placement._id),
