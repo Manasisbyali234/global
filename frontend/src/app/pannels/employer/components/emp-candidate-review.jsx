@@ -1689,7 +1689,8 @@ function EmpCandidateReviewPage() {
         return (
             <div className="candidate-review-error">
                 <h3>Candidate or Application not found</h3>
-                <button className="back-btn" onClick={() => navigate(-1)}>Go Back</button>
+                  <button  className="back-btn"style={{ display: "block", marginTop: "15px" }} onClick={() => navigate(-1)} > Go Back
+                </button>
             </div>
         );
     }
