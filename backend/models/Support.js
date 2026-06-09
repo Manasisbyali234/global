@@ -8,7 +8,7 @@ const supportSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, refPath: 'userModel' },
   userModel: { type: String, enum: ['Employer', 'Candidate', 'Placement'] },
   subject: { type: String, required: true },
-  category: { type: String, enum: ['technical', 'billing', 'account', 'job-posting', 'application', 'general'], default: 'general' },
+  category: { type: String, enum: ['technical', 'billing', 'account', 'job-posting', 'application', 'student-application', 'general'], default: 'general' },
   priority: { type: String, enum: ['low', 'medium', 'high', 'urgent'], default: 'medium' },
   message: { type: String, required: true },
   status: { type: String, enum: ['new', 'in-progress', 'resolved', 'closed'], default: 'new' },
