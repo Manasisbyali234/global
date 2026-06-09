@@ -5094,12 +5094,13 @@ const enrichSupportTicketRequester = (ticket) => {
 // Support Ticket Management Controllers
 exports.getSupportTickets = async (req, res) => {
   try {
-    const { status, userType, priority, page = 1, limit = 20 } = req.query;
+    const { status, userType, priority, category, page = 1, limit = 20 } = req.query;
     
     let query = { receiverRole: 'admin' };
     if (status) query.status = status;
     if (userType) query.userType = userType;
     if (priority) query.priority = priority;
+    if (category) query.category = category;
 
     const tickets = await Support.find(query)
       .populate('userId', 'name email companyName collegeName')

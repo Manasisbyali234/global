@@ -646,10 +646,10 @@ function AdminSupportTickets() {
                                         onChange={(e) => setFilters({ ...filters, category: e.target.value })}
                                     >
                                         <option value="">All Categories</option>
-                                        <option value="General Inquiry">General Inquiry</option>
-                                        <option value="Technical Issue">Technical Issue</option>
-                                        <option value="Account Management">Account Management</option>
-                                        <option value="Job Posting">Job Posting</option>
+                                        <option value="general">General Inquiry</option>
+                                        <option value="technical">Technical Issue</option>
+                                        <option value="account">Account Management</option>
+                                        <option value="job-posting">Job Posting</option>
                                     </Form.Select>
                                     <span className="filter-select-icon" aria-hidden="true">
                                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
