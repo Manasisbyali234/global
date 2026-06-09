@@ -624,6 +624,12 @@
 .status-pill.pending { background: #f5f5f5; color: #757575; }
 .status-pill.shortlisted { background: #e3f2fd; color: #1976d2; }
 .status-pill.rejected { background: #ffebee; color: #c62828; }
+.status-pill.no_show { background: #ffebee; color: #c62828; }
+.status-pill.not_advanced { background: #ffebee; color: #c62828; }
+.status-pill.shortlisted_for_next_round { background: #e3f2fd; color: #1976d2; }
+.status-pill.on_hold { background: #fff8e1; color: #f57f17; }
+.status-pill.pending_decision { background: #f3e5f5; color: #6a1a9a; }
+.status-pill.selected { background: #e8f5e9; color: #2e7d32; }
 
 /* Action Buttons Redesign */
 .stage-actions {

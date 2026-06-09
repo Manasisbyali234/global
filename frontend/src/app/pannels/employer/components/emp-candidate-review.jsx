@@ -1827,7 +1827,7 @@ function EmpCandidateReviewPage() {
                                                                     <div className="stage-row-primary">
                                                                         <div className="stage-header-block">
                                                                             <h5>{cleanProcessName(process.name)}</h5>
-                                                                            <span className={`status-pill ${process.isCompleted ? 'completed' : 'pending'}`}>
+                                                                            <span className={`status-pill ${process.status || 'pending'}`}>
                                                                                 {process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired)
                                                                                     ? assessmentDisplay.statusLabel
                                                                                     : (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))}
@@ -1927,6 +1927,12 @@ function EmpCandidateReviewPage() {
                                                                                     Please award marks for manual questions before selecting a status.
                                                                                 </p>
                                                                             )}
+                                                                            {!statusUpdateUnlocked && (
+                                                                                <p style={{ fontSize: '12px', color: '#9aabcc', margin: '4px 0 0 0', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                                                    <i className="fas fa-info-circle"></i>
+                                                                                    Click on Status Update button.
+                                                                                </p>
+                                                                            )}
                                                                         </div>
                                                                         <div className="control-remarks-wrapper">
                                                                             <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'block' }}>Stage Feedback</label>
@@ -1944,7 +1950,7 @@ function EmpCandidateReviewPage() {
                                                                             />
                                                                             <p style={{ fontSize: '12px', color: '#9aabcc', margin: '4px 0 0 0', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                                                                 <i className="fas fa-info-circle"></i>
-                                                                                Feedback entered here is automatically saved and visible for this candidate.
+                                                                                Feedback entered here is automatically saved and visible for  candidate.
                                                                             </p>
                                                                         </div>
                                                                         {process.type !== 'assessment' && <div className="stage-actions-horizontal"></div>}
