@@ -3110,11 +3110,9 @@ function CanStatusPage() {
 														{roundName}
 													</h6>
 													<div className="d-flex gap-2 align-items-center">
-														{normalizeStatusValue(roundStatus.text) !== 'pending' && (
-															<span style={{fontSize: '13px', fontWeight: '600', padding: '6px 10px', minWidth: '84px', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1.2, borderRadius: '999px', ...getRoundStatusPillStyle(roundStatus.text)}}>
-																{roundStatus.text}
-															</span>
-														)}
+														<span style={{fontSize: '13px', fontWeight: '600', padding: '6px 10px', minWidth: '84px', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1.2, borderRadius: '999px', ...getRoundStatusPillStyle(roundStatus.text)}}>
+															{roundStatus.text}
+														</span>
 													</div>
 												</div>
 												
@@ -3548,9 +3546,14 @@ function CanStatusPage() {
 														);
 													}
 
+													const isShortlistedForNextRound =
+														['shortlisted for next round', 'shortlisted_for_next_round'].includes(
+															(roundStatus?.text || '').toLowerCase().replace(/\s+/g, ' ')
+														);
 													const shouldShowPendingBadge =
-														(!hasBookedSlot && roundWindowInfo.isAfterEnd) ||
-														(Boolean(bookedSlot) && isBookedSlotExpired);
+														!isShortlistedForNextRound &&
+														((!hasBookedSlot && roundWindowInfo.isAfterEnd) ||
+														(Boolean(bookedSlot) && isBookedSlotExpired));
 
 													if (shouldShowPendingBadge) {
 														return (
