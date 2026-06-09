@@ -39,13 +39,10 @@ function EmployerDetails() {
         try {
             const token = localStorage.getItem('adminToken');
             const response = await fetch(`${API_BASE_URL}/admin/employers/${id}/profile`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' }
             });
             const data = await response.json();
             if (data.success) {
-                
-                
-                // Set default verification status for existing profiles
                 const profileWithDefaults = {
                     ...data.profile,
                     panCardVerified: data.profile.panCardVerified || 'pending',
@@ -54,7 +51,6 @@ function EmployerDetails() {
                     incorporationVerified: data.profile.incorporationVerified || 'pending',
                     authorizationVerified: data.profile.authorizationVerified || 'pending'
                 };
-                
                 setProfile(profileWithDefaults);
             }
         } catch (error) {
@@ -314,6 +310,8 @@ function EmployerDetails() {
             if (response.ok) {
                 setProfile(prev => ({ ...prev, [field]: status }));
                 showSuccess(`Document ${status} successfully`);
+                // Re-fetch to get the latest document paths after status update
+                await fetchEmployerProfile();
             } else {
                 showError('Failed to update document status');
             }
@@ -805,6 +803,15 @@ function EmployerDetails() {
                     {[panCardMeta, cinMeta, gstMeta, incorporationMeta, companyIdMeta].some(m => m.isResubmitted) && (
                         <span className="company-name-dot company-name-dot--resubmit" title="Document resubmitted" style={{marginLeft: '8px', verticalAlign: 'middle'}} aria-hidden="true"></span>
                     )}
+                    <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm"
+                        style={{ marginLeft: '12px', fontSize: '12px', verticalAlign: 'middle' }}
+                        onClick={fetchEmployerProfile}
+                        title="Refresh documents"
+                    >
+                        <i className="fa fa-sync-alt me-1"></i>Refresh
+                    </button>
                 </h4>
                 <div className="table-responsive">
                     <table className="table documents-table">
