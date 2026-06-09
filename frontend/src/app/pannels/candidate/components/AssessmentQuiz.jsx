@@ -16,6 +16,26 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
   const [violations, setViolations] = useState([]);
   const [startTime] = useState(Date.now());
   const { popup, showSuccess, hidePopup } = usePopupNotification();
+
+  const handleCloseAttempt = () => {
+    window.__assessmentCloseHandler = handleSubmit;
+    if (window.bootstrap) {
+      const modal = new window.bootstrap.Modal(document.getElementById('assessment-close-confirm'));
+      modal.show();
+    }
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      delete window.__assessmentCloseHandler;
+    };
+  }, []);
   const captureCountRef = React.useRef(0);
   const videoRef = React.useRef(null);
   const canvasRef = React.useRef(null);
@@ -487,7 +507,15 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
       />
       <div className="mt-4">
       <div className="card">
-        <div className="card-header d-flex justify-content-between align-items-center">
+        <div className="card-header d-flex justify-content-between align-items-center" style={{position: 'relative'}}>
+          <button
+            type="button"
+            className="site-button outline-primary"
+            style={{position: 'absolute', top: '10px', right: '10px', padding: '6px 18px', fontSize: '14px'}}
+            onClick={handleCloseAttempt}
+          >
+            Close
+          </button>
           <div>
             <h5 className="mb-0">
               {decodeAssessmentText(assessment.title)}{assessment.jobTitle && ` - ${formatJobTitle(decodeAssessmentText(assessment.jobTitle))}`}

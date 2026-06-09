@@ -87,6 +87,7 @@ function CandidateLayout() {
 
                 <YesNoPopup id="delete-dash-profile" type={popupType.DELETE} msg={"Do you want to delete your profile?"} />
                 <YesNoPopup id="logout-dash-profile" type={popupType.LOGOUT} msg={"Do you want to Logout your profile?"} />
+                <YesNoPopup id="assessment-close-confirm" type={popupType.ASSESSMENT_CLOSE} msg={"Are you sure you want to close the assessment? It will be submitted automatically."} onConfirm={() => { if (window.__assessmentCloseHandler) window.__assessmentCloseHandler(); }} />
 
             </div>
         </>

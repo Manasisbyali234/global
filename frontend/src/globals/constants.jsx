@@ -3,7 +3,8 @@ export const default_skin = "8"
 
 export const popupType = {
     DELETE: "DELETE",
-    LOGOUT: "LOGOUT"
+    LOGOUT: "LOGOUT",
+    ASSESSMENT_CLOSE: "ASSESSMENT_CLOSE"
 }
 
 export const formType = {

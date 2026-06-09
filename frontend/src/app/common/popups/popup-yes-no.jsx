@@ -20,6 +20,14 @@ function YesNoPopup(props) {
             }
             navigateToAfterLogin();
         }
+        if(props.type === popupType.ASSESSMENT_CLOSE) {
+            const modal = document.getElementById(props.id);
+            if (modal) {
+                const bsModal = window.bootstrap.Modal.getInstance(modal);
+                if (bsModal) bsModal.hide();
+            }
+            if (props.onConfirm) props.onConfirm();
+        }
     }
 
     const navigateToAfterLogin = () => {
