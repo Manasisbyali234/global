@@ -3475,7 +3475,11 @@ function CanStatusPage() {
 														'interview_completed', 'completed', 'selected', 'rejected',
 														'failed', 'passed'
 													];
+													const isRoundShortlistedForNext = ['shortlisted for next round', 'shortlisted_for_next_round'].includes(
+														currentRoundStatusText.replace(/\s+/g, ' ')
+													);
 													const isCurrentRoundCompleted =
+														isRoundShortlistedForNext ||
 														currentRoundCompletedStates.includes(processStatus) ||
 														currentRoundCompletedStates.includes(stageStatus) ||
 														currentRoundCompletedStates.includes(currentRoundStatusText);
