@@ -352,6 +352,16 @@ function EmployerSupportTickets() {
         );
     };
 
+    const categoryLabels = {
+        general: 'General Inquiry',
+        technical: 'Technical Issue',
+        application: 'Job Application',
+        billing: 'Billing',
+        account: 'Account',
+        'job-posting': 'Job Posting'
+    };
+    const getCategoryLabel = (category) => categoryLabels[category] || (category ? category.charAt(0).toUpperCase() + category.slice(1) : 'General');
+
     const getRequesterName = (ticket) => ticket?.name || ticket?.requesterDisplayName || 'N/A';
     const getRequesterEmail = (ticket) => ticket?.email || 'No email provided';
     const getRequesterType = (ticket) => ticket?.userType || 'candidate';
@@ -528,9 +538,9 @@ function EmployerSupportTickets() {
                                     onChange={(e) => setFilters({ ...filters, category: e.target.value })}
                                 >
                                     <option value="">All categories</option>
-                                    <option value="General Inquiry">General Inquiry</option>
-                                    <option value="Technical Issue">Technical Issue</option>
-                                    <option value="Job Application">Job Application</option>
+                                    <option value="general">General Inquiry</option>
+                                    <option value="technical">Technical Issue</option>
+                                    <option value="application">Job Application</option>
                                 </Form.Select>
                                 <i className="fa fa-chevron-down filter-select-icon" aria-hidden="true"></i>
                             </div>
@@ -600,8 +610,8 @@ function EmployerSupportTickets() {
                                                                 <div className="user-email">{ticket.email || 'No email'}</div>
                                                             </div>
                                                         </td>
-                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.category || 'General'}>
-                                                            <span className="category-badge">{ticket.category || 'General'}</span>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getCategoryLabel(ticket.category)}>
+                                                            <span className="category-badge">{getCategoryLabel(ticket.category)}</span>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getPriorityBadge(ticket.priority)}</td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getStatusBadge(ticket.status)}</td>

@@ -1550,8 +1550,7 @@ const StartAssessment = () => {
 		}
 	};
 
-	const handleTermsDecline = useCallback(() => {
-		setShowTermsModal(false);
+	const closeAssessmentWindow = useCallback(() => {
 		clearStoredAssessment();
 		stopAssessmentWebcam();
 		cleanupSecureMode();
@@ -1573,6 +1572,11 @@ const StartAssessment = () => {
 		navigate('/candidate/status', { replace: true });
 	}, [clearStoredAssessment, cleanupSecureMode, navigate, stopAssessmentWebcam]);
 
+	const handleTermsDecline = useCallback(() => {
+		setShowTermsModal(false);
+		closeAssessmentWindow();
+	}, [closeAssessmentWindow]);
+
 	const handleViolationAcknowledge = () => {
 		setShowViolationModal(false);
 		// Assessment is already terminated, component will show termination screen
@@ -1589,7 +1593,12 @@ const StartAssessment = () => {
 		}
 	};
 
-	const submitAssessment = async () => {
+	const submitAssessment = useCallback(async (options = {}) => {
+		const {
+			redirectOnSuccess = true,
+			successMessage = 'Assessment submitted successfully! Redirecting to results...'
+		} = options;
+
 		if (!attemptId) {
 			setError("Assessment session not started. Please restart the assessment.");
 			setShowTermsModal(true);
@@ -1605,17 +1614,19 @@ const StartAssessment = () => {
 				clearStoredAssessment();
 				
 				// Show success message
-				showSuccess('Assessment submitted successfully! Redirecting to results...');
+				showSuccess(successMessage);
 				
 				// Redirect after 2 seconds
-				setTimeout(() => {
-					navigate(`/candidate/assessment-result/${applicationId}`, {
-						state: {
-							result: submitResponse.result,
-							assessment: assessment
-						},
-					});
-				}, 2000);
+				if (redirectOnSuccess) {
+					setTimeout(() => {
+						navigate(`/candidate/assessment-result/${applicationId}`, {
+							state: {
+								result: submitResponse.result,
+								assessment: assessment
+							},
+						});
+					}, 2000);
+				}
 				
 				return true;
 			}
@@ -1626,7 +1637,77 @@ const StartAssessment = () => {
 			setError(err.message || "Failed to submit assessment");
 			return false;
 		}
-	};
+	}, [applicationId, assessment, attemptId, clearStoredAssessment, navigate, removeSecurityListeners, showSuccess]);
+
+	const handleConfirmedAssessmentClose = useCallback(async () => {
+		if (isSubmitted) return;
+
+		setIsSubmitted(true);
+		await logViolation('assessment_close_confirmed', 'Candidate confirmed closing the assessment tab.');
+		const success = await submitAssessment({
+			redirectOnSuccess: false,
+			successMessage: 'Assessment submitted successfully.'
+		});
+
+		if (success) {
+			window.setTimeout(closeAssessmentWindow, 700);
+			return;
+		}
+
+		setIsSubmitted(false);
+	}, [closeAssessmentWindow, isSubmitted, logViolation, submitAssessment]);
+
+	const showAssessmentCloseConfirmation = useCallback(() => {
+		if (assessmentState !== 'in_progress' || isSubmitted) {
+			return;
+		}
+
+		if (typeof window === 'undefined' || !window.bootstrap) {
+			return;
+		}
+
+		window.__assessmentCloseHandler = handleConfirmedAssessmentClose;
+		const modalElement = document.getElementById('assessment-close-confirm');
+		if (!modalElement) {
+			return;
+		}
+
+		const modal = window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement);
+		modal.show();
+	}, [assessmentState, handleConfirmedAssessmentClose, isSubmitted]);
+
+	useEffect(() => {
+		if (assessmentState !== 'in_progress') {
+			return undefined;
+		}
+
+		window.__assessmentCloseHandler = handleConfirmedAssessmentClose;
+
+		return () => {
+			if (window.__assessmentCloseHandler === handleConfirmedAssessmentClose) {
+				delete window.__assessmentCloseHandler;
+			}
+		};
+	}, [assessmentState, handleConfirmedAssessmentClose]);
+
+	useEffect(() => {
+		if (assessmentState !== 'in_progress' || typeof window === 'undefined') {
+			return undefined;
+		}
+
+		window.history.pushState({ assessmentInProgress: true }, '', window.location.href);
+
+		const handlePopState = () => {
+			window.history.pushState({ assessmentInProgress: true }, '', window.location.href);
+			showAssessmentCloseConfirmation();
+		};
+
+		window.addEventListener('popstate', handlePopState);
+
+		return () => {
+			window.removeEventListener('popstate', handlePopState);
+		};
+	}, [assessmentState, showAssessmentCloseConfirmation]);
 
 	const formatTime = (seconds) => {
 		const m = Math.floor(seconds / 60);
@@ -1939,7 +2020,25 @@ const StartAssessment = () => {
 								Assessment is running in a dedicated tab. Fullscreen, single-screen use, and staying on this tab are required throughout the test.
 							</div>
 						</div>
-						<div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+						<div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "flex-end", alignItems: "stretch" }}>
+							<button
+								type="button"
+								onClick={showAssessmentCloseConfirmation}
+								disabled={isSubmitted}
+								style={{
+									border: "1px solid #dc2626",
+									background: "#fff",
+									color: "#dc2626",
+									borderRadius: "8px",
+									padding: "10px 14px",
+									fontWeight: "700",
+									fontSize: "13px",
+									cursor: isSubmitted ? "not-allowed" : "pointer",
+									opacity: isSubmitted ? 0.6 : 1
+								}}
+							>
+								Close Assessment
+							</button>
 							<div style={{
 								minWidth: "150px",
 								padding: "12px 14px",

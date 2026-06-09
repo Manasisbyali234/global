@@ -194,13 +194,6 @@ function AdminTransactionsPage() {
                         <h2 className="m-0">All Transactions</h2>
                         <p className="text-muted m-0 mt-1">Monitor all platform payments from candidates</p>
                     </div>
-                    <button
-                        className="btn btn-success d-flex align-items-center gap-2"
-                        onClick={exportToExcel}
-                        title="Export to Excel"
-                    >
-                        <Download size={16} /> Export to Excel
-                    </button>
                 </div>
             </div>
 
@@ -208,6 +201,16 @@ function AdminTransactionsPage() {
             <div style={{ padding: '0 2rem 2rem 2rem' }}>
                 <div className="panel panel-default site-bg-white p-4" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
                     
+                    <div className="d-flex justify-content-end mb-3">
+                        <button
+                            className="btn btn-success d-flex align-items-center gap-2"
+                            onClick={exportToExcel}
+                            title="Export to Excel"
+                        >
+                            <Download size={16} /> Export to Excel
+                        </button>
+                    </div>
+
                     <div className="page-toolbar mb-4">
                         <div className="page-toolbar__controls page-toolbar__controls--single">
                         <div className="page-toolbar__section">

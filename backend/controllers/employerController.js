@@ -17,6 +17,12 @@ const { createTransport, getMailFromHeader, sendWelcomeEmail, sendMailWithGreeti
 const { checkEmailExists } = require('../utils/authUtils');
 const { cacheInvalidation } = require('../utils/cacheInvalidation');
 const { sendSMS } = require('../utils/smsProvider');
+const {
+  createOrUpdatePendingSignup,
+  verifyPendingSignupOtp,
+  resendPendingSignupOtp,
+  deletePendingSignup
+} = require('../utils/pendingSignup');
 const { validateGSTFormat, fetchGSTInfo, mapGSTToProfile } = require('../utils/gstService');
 const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
 const { buildUtcDateTimeFromIst, getStartOfCurrentIstDayUtc } = require('../utils/dateTime');
@@ -623,15 +629,28 @@ exports.registerEmployer = async (req, res) => {
       employerType: finalEmployerType
     };
 
-    // If OTP verification is skipped, mark phone as verified
+    // If OTP verification is skipped, create the employer immediately.
     if (skipOtpVerification) {
       employerData.isPhoneVerified = true;
     } else {
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      employerData.phoneOTP = otp;
-      employerData.phoneOTPExpires = Date.now() + 10 * 60 * 1000;
-      // Send SMS OTP
-      await sendSMS(phone, otp, name);
+      const pendingSignup = await createOrUpdatePendingSignup({
+        role: 'employer',
+        email,
+        phone,
+        name,
+        payload: {
+          employerData,
+          employerCategory: employerCategory || finalEmployerType
+        }
+      });
+
+      await sendSMS(phone, pendingSignup.phoneOTP, name);
+
+      return res.status(201).json({
+        success: true,
+        message: 'Registration successful! Please verify your mobile number via OTP sent to your phone.',
+        requiresOtpVerification: true
+      });
     }
 
     const employer = await Employer.create(employerData);
@@ -5030,20 +5049,55 @@ exports.downloadSupportAttachment = async (req, res) => {
 exports.verifyMobileOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const employer = await Employer.findByEmail(email.trim());
-
-    if (!employer) {
-      return res.status(404).json({ success: false, message: 'Employer not found' });
+    const { pendingSignup, error } = await verifyPendingSignupOtp({ role: 'employer', email, otp });
+    if (error) {
+      return res.status(error === 'Invalid or expired OTP' ? 400 : 404).json({ success: false, message: error });
     }
 
-    if (employer.phoneOTP !== otp || (employer.phoneOTPExpires && employer.phoneOTPExpires < Date.now())) {
-      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+    const existingUser = await checkEmailExists(pendingSignup.email);
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: 'Email already registered' });
     }
 
-    employer.isPhoneVerified = true;
-    employer.phoneOTP = undefined;
-    employer.phoneOTPExpires = undefined;
-    await employer.save();
+    const existingPhone = await Employer.findOne({ phone: pendingSignup.phone });
+    if (existingPhone) {
+      return res.status(409).json({ success: false, field: 'mobile', message: 'This mobile number is already registered. Please use a different number.' });
+    }
+
+    const { employerData, employerCategory } = pendingSignup.payload || {};
+    const verifiedEmployerData = {
+      ...employerData,
+      isPhoneVerified: true
+    };
+
+    const employer = await Employer.create(verifiedEmployerData);
+
+    await EmployerProfile.create({
+      employerId: employer._id,
+      employerCategory: employerCategory || employer.employerType,
+      companyName: employer.companyName,
+      email: employer.email,
+      phone: employer.phone,
+      description: 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.',
+      location: 'Bangalore, India'
+    });
+
+    await EmployerPublicProfile.create({
+      employerId: employer._id,
+      companyName: employer.companyName,
+      email: employer.email,
+      phone: employer.phone,
+      description: 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.',
+      location: 'Bangalore, India'
+    });
+
+    await EmployerAdminProfile.create({
+      employerId: employer._id,
+      employerCategory: employerCategory || employer.employerType
+    });
+
+    await Subscription.create({ employerId: employer._id });
+    await deletePendingSignup(pendingSignup);
 
     // Send welcome email with password creation link only after OTP verification
     try {
@@ -5062,21 +5116,13 @@ exports.verifyMobileOTP = async (req, res) => {
 
 exports.resendMobileOTP = async (req, res) => {
   try {
-    const { email, phone } = req.body;
-    const employer = await Employer.findByEmail(email.trim());
-
-    if (!employer) {
-      return res.status(404).json({ success: false, message: 'Employer not found' });
+    const { email } = req.body;
+    const { pendingSignup, error } = await resendPendingSignupOtp({ role: 'employer', email });
+    if (error) {
+      return res.status(404).json({ success: false, message: error });
     }
 
-    // Generate new OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    employer.phoneOTP = otp;
-    employer.phoneOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-    await employer.save();
-
-    // Send SMS OTP
-    await sendSMS(phone, otp, employer.name);
+    await sendSMS(pendingSignup.phone, pendingSignup.phoneOTP, pendingSignup.name || pendingSignup.payload?.employerData?.name || 'Employer');
 
     res.json({ success: true, message: 'New OTP sent successfully' });
   } catch (error) {

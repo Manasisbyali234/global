@@ -2940,17 +2940,7 @@ function CanStatusPage() {
 												return (
 													<>
 														<strong>Status:</strong>
-														<span className={
-															selectedApplicationDisplayStatus === 'pending' ? 'badge bg-warning ms-2' :
-															['shortlisted', 'shortlisted_for_next_round'].includes(selectedApplicationDisplayStatus) ? 'badge bg-info ms-2' :
-															selectedApplicationDisplayStatus === 'interviewed' ? 'badge bg-primary ms-2' :
-															selectedApplicationDisplayStatus === 'offer_sent' ? 'badge bg-info bg-opacity-10 text-info border border-info ms-2' :
-															selectedApplicationDisplayStatus === 'accepted' || selectedApplicationDisplayStatus === 'hired' ? 'badge bg-success ms-2' :
-															selectedApplicationDisplayStatus === 'rejected' ? 'badge bg-danger ms-2' :
-															'badge bg-secondary ms-2'
-														}>
-															{formatStatusLabel(selectedApplicationDisplayStatus)}
-														</span>
+														<span className="ms-2">{formatStatusLabel(selectedApplicationDisplayStatus)}</span>
 														{selectedApplicationDisplayStatus === 'offer_sent' ? (
 															<div className="d-flex gap-2 flex-wrap mt-3">
 																<button
@@ -3475,7 +3465,11 @@ function CanStatusPage() {
 														'interview_completed', 'completed', 'selected', 'rejected',
 														'failed', 'passed'
 													];
+													const isRoundShortlistedForNext = ['shortlisted for next round', 'shortlisted_for_next_round'].includes(
+														currentRoundStatusText.replace(/\s+/g, ' ')
+													);
 													const isCurrentRoundCompleted =
+														isRoundShortlistedForNext ||
 														currentRoundCompletedStates.includes(processStatus) ||
 														currentRoundCompletedStates.includes(stageStatus) ||
 														currentRoundCompletedStates.includes(currentRoundStatusText);
@@ -3546,9 +3540,14 @@ function CanStatusPage() {
 														);
 													}
 
+													const isShortlistedForNextRound =
+														['shortlisted for next round', 'shortlisted_for_next_round'].includes(
+															(roundStatus?.text || '').toLowerCase().replace(/\s+/g, ' ')
+														);
 													const shouldShowPendingBadge =
-														(!hasBookedSlot && roundWindowInfo.isAfterEnd) ||
-														(Boolean(bookedSlot) && isBookedSlotExpired);
+														!isShortlistedForNextRound &&
+														((!hasBookedSlot && roundWindowInfo.isAfterEnd) ||
+														(Boolean(bookedSlot) && isBookedSlotExpired));
 
 													if (shouldShowPendingBadge) {
 														return (

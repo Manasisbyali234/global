@@ -1787,7 +1787,18 @@ function PlacementDashboardRedesigned() {
 
                                             {/* Action Buttons */}
                                             <div className="form-actions">
-                                                <button className="btn-cancel">Cancel</button>
+                                                <button className="btn-cancel" onClick={() => {
+                                                    setSelectedFile(null);
+                                                    setSelectedFileName('');
+                                                    setUploadError('');
+                                                    setCourseName('');
+                                                    setCourseNameOption('');
+                                                    setCourseSearch('');
+                                                    setUniversity('');
+                                                    setUniversityOption('');
+                                                    setUniversitySearch('');
+                                                    setBatch('');
+                                                }}>Cancel</button>
                                                 <button className="btn-upload" onClick={() => {
                                                     if (selectedFile) {
                                                         console.log('Manual upload triggered for:', selectedFileName);
@@ -1810,46 +1821,45 @@ function PlacementDashboardRedesigned() {
                             {activeTab === 'history' && (
                                 <div className="upload-page">
                                     <div className="upload-history-section">
-                                        <div className="section-header">
+                                        <div className="section-header" style={{marginBottom: '16px'}}>
                                             <h3>Batch History</h3>
-                                            <div className="upload-history-header-actions">
-                                                <div className="upload-history-search" style={{display: 'flex', gap: '16px', alignItems: 'flex-end', flexWrap: 'wrap'}}>
-                                                    <div style={{flex: 1, minWidth: '150px'}}>
-                                                        <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block'}}>Course Name</label>
-                                                        <input
-                                                            type="text"
-                                                            value={uploadHistorySearch}
-                                                            onChange={(e) => { setUploadHistorySearch(e.target.value); setHistoryPage(1); }}
-                                                            placeholder="Search by course name"
-                                                        />
-                                                    </div>
-                                                    <div style={{flex: 1, minWidth: '150px'}}>
-                                                        <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block'}}>University</label>
-                                                        <input
-                                                            type="text"
-                                                            value={uploadHistoryUniversitySearch}
-                                                            onChange={(e) => { setUploadHistoryUniversitySearch(e.target.value); setHistoryPage(1); }}
-                                                            placeholder="Search by university"
-                                                        />
-                                                    </div>
-                                                    <div style={{flex: 1, minWidth: '150px'}}>
-                                                        <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block'}}>Batch</label>
-                                                        <select
-                                                            value={uploadHistoryBatchFilter}
-                                                            onChange={(e) => { setUploadHistoryBatchFilter(e.target.value); setHistoryPage(1); }}
-                                                        >
-                                                            <option value="">All Batches</option>
-                                                            {uploadHistoryBatchOptions.map(b => (
-                                                                <option key={b} value={b}>{b}</option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div className="history-count">
-                                                    {filteredFileHistory.length}
-                                                    {uploadHistorySearchTerm ? ` of ${placementData?.fileHistory?.length || 0}` : ''}
-                                                    {' '}Files
-                                                </div>
+                                        </div>
+                                        <div style={{display: 'flex', gap: '16px', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '16px', padding: '16px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #e9ecef'}}>
+                                            <div style={{flex: 1, minWidth: '150px'}}>
+                                                <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block', color: '#495057'}}>Course Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={uploadHistorySearch}
+                                                    onChange={(e) => { setUploadHistorySearch(e.target.value); setHistoryPage(1); }}
+                                                    placeholder="Search by course name"
+                                                    style={{width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px'}}
+                                                />
+                                            </div>
+                                            <div style={{flex: 1, minWidth: '150px'}}>
+                                                <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block', color: '#495057'}}>University</label>
+                                                <input
+                                                    type="text"
+                                                    value={uploadHistoryUniversitySearch}
+                                                    onChange={(e) => { setUploadHistoryUniversitySearch(e.target.value); setHistoryPage(1); }}
+                                                    placeholder="Search by university"
+                                                    style={{width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px'}}
+                                                />
+                                            </div>
+                                            <div style={{flex: 1, minWidth: '150px'}}>
+                                                <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block', color: '#495057'}}>Batch</label>
+                                                <select
+                                                    value={uploadHistoryBatchFilter}
+                                                    onChange={(e) => { setUploadHistoryBatchFilter(e.target.value); setHistoryPage(1); }}
+                                                    style={{width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px'}}
+                                                >
+                                                    <option value="">All Batches</option>
+                                                    {uploadHistoryBatchOptions.map(b => (
+                                                        <option key={b} value={b}>{b}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div style={{alignSelf: 'flex-end', color: '#6c757d', fontSize: '13px', fontWeight: '500', whiteSpace: 'nowrap', paddingBottom: '8px'}}>
+                                                {filteredFileHistory.length}{uploadHistorySearchTerm ? ` of ${placementData?.fileHistory?.length || 0}` : ''} Files
                                             </div>
                                         </div>
                                         <div className="upload-history-table table-responsive">

@@ -8,6 +8,12 @@ const PlacementCandidate = require('../models/PlacementCandidate');
 const { createNotification } = require('./notificationController');
 const { sendWelcomeEmail, sendApprovalEmail, sendPlacementCandidateWelcomeEmail } = require('../utils/emailService');
 const { sendSMS } = require('../utils/smsProvider');
+const {
+  createOrUpdatePendingSignup,
+  verifyPendingSignupOtp,
+  resendPendingSignupOtp,
+  deletePendingSignup
+} = require('../utils/pendingSignup');
 const XLSX = require('xlsx');
 const { base64ToBuffer } = require('../utils/base64Helper');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
@@ -187,6 +193,14 @@ exports.registerPlacement = async (req, res) => {
       return res.status(409).json({ success: false, message: `This email is already registered${roleMsg}. Please log in instead.` });
     }
 
+    const fullPhone = phone ? phone.trim() : '';
+    if (fullPhone) {
+      const existingPhone = await Placement.findOne({ phone: fullPhone });
+      if (existingPhone) {
+        return res.status(409).json({ success: false, field: 'phone', message: 'This mobile number is already registered. Please use a different number.' });
+      }
+    }
+
     // If sendWelcomeEmail is true, create placement without password
     if (shouldSendEmail) {
       if (!name || !email || !phone || !collegeName) {
@@ -212,15 +226,28 @@ exports.registerPlacement = async (req, res) => {
         collegeOfficialPhone: collegeOfficialPhone ? collegeOfficialPhone.trim() : undefined
       };
 
-      // If OTP verification is skipped, mark phone as verified
+      // If OTP verification is skipped, create the placement account immediately.
       if (skipOtpVerification) {
         placementData.isPhoneVerified = true;
       } else {
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        placementData.phoneOTP = otp;
-        placementData.phoneOTPExpires = Date.now() + 10 * 60 * 1000;
-        // Send SMS OTP
-        await sendSMS(phone, otp, name);
+        const pendingSignup = await createOrUpdatePendingSignup({
+          role: 'placement',
+          email,
+          phone,
+          name,
+          payload: {
+            placementData,
+            shouldSendEmail: true
+          }
+        });
+
+        await sendSMS(phone, pendingSignup.phoneOTP, name);
+
+        return res.status(201).json({
+          success: true,
+          message: 'Registration successful. Please verify your mobile number via OTP sent to your phone.',
+          requiresOtpVerification: true
+        });
       }
 
       let placement;
@@ -293,15 +320,28 @@ exports.registerPlacement = async (req, res) => {
       collegeOfficialPhone: collegeOfficialPhone ? collegeOfficialPhone.trim() : undefined
     };
 
-    // If OTP verification is skipped, mark phone as verified
+    // If OTP verification is skipped, create the placement account immediately.
     if (skipOtpVerification) {
       placementData.isPhoneVerified = true;
     } else {
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      placementData.phoneOTP = otp;
-      placementData.phoneOTPExpires = Date.now() + 10 * 60 * 1000;
-      // Send SMS OTP
-      await sendSMS(phone, otp, name);
+      const pendingSignup = await createOrUpdatePendingSignup({
+        role: 'placement',
+        email,
+        phone,
+        name,
+        payload: {
+          placementData,
+          shouldSendEmail: false
+        }
+      });
+
+      await sendSMS(phone, pendingSignup.phoneOTP, name);
+
+      return res.status(201).json({
+        success: true,
+        message: 'Registration successful. Please verify your mobile number via OTP sent to your phone. Please wait for admin approval before you can sign in.',
+        requiresOtpVerification: true
+      });
     }
 
     const placement = await Placement.create(placementData);
@@ -2013,20 +2053,43 @@ exports.updatePasswordReset = async (req, res) => {
 exports.verifyMobileOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const placement = await Placement.findByEmail(email.trim());
-
-    if (!placement) {
-      return res.status(404).json({ success: false, message: 'no account found with this email address' });
+    const { pendingSignup, error } = await verifyPendingSignupOtp({ role: 'placement', email, otp });
+    if (error) {
+      return res.status(error === 'Invalid or expired OTP' ? 400 : 404).json({ success: false, message: error });
     }
 
-    if (placement.phoneOTP !== otp || (placement.phoneOTPExpires && placement.phoneOTPExpires < Date.now())) {
-      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+    const existingUser = await checkEmailExists(pendingSignup.email);
+    if (existingUser) {
+      const roleMsg = existingUser.role !== 'placement' ? ` as a ${existingUser.role}` : '';
+      return res.status(409).json({ success: false, message: `This email is already registered${roleMsg}. Please log in instead.` });
     }
 
-    placement.isPhoneVerified = true;
-    placement.phoneOTP = undefined;
-    placement.phoneOTPExpires = undefined;
-    await placement.save();
+    const existingPhone = await Placement.findOne({ phone: pendingSignup.phone });
+    if (existingPhone) {
+      return res.status(409).json({ success: false, field: 'phone', message: 'This mobile number is already registered. Please use a different number.' });
+    }
+
+    const placementData = {
+      ...pendingSignup.payload?.placementData,
+      isPhoneVerified: true
+    };
+
+    const placement = await Placement.create(placementData);
+
+    try {
+      await createNotification({
+        title: 'New Placement Dean Registration',
+        message: `${placement.name} from ${placement.collegeName} has registered as a Placement Dean.`,
+        type: 'placement_registered',
+        role: 'admin',
+        relatedId: placement._id,
+        createdBy: placement._id
+      });
+    } catch (notifError) {
+      console.error('Failed to create registration notification:', notifError);
+    }
+
+    await deletePendingSignup(pendingSignup);
 
     // Send welcome email with password creation link only after OTP verification
     try {
@@ -2045,21 +2108,13 @@ exports.verifyMobileOTP = async (req, res) => {
 
 exports.resendMobileOTP = async (req, res) => {
   try {
-    const { email, phone } = req.body;
-    const placement = await Placement.findByEmail(email.trim());
-
-    if (!placement) {
-      return res.status(404).json({ success: false, message: 'no account found with this email address' });
+    const { email } = req.body;
+    const { pendingSignup, error } = await resendPendingSignupOtp({ role: 'placement', email });
+    if (error) {
+      return res.status(404).json({ success: false, message: error });
     }
 
-    // Generate new OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    placement.phoneOTP = otp;
-    placement.phoneOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-    await placement.save();
-
-    // Send SMS OTP
-    await sendSMS(phone, otp, placement.name);
+    await sendSMS(pendingSignup.phone, pendingSignup.phoneOTP, pendingSignup.name || pendingSignup.payload?.placementData?.name || 'Placement Dean');
 
     res.json({ success: true, message: 'New OTP sent successfully' });
   } catch (error) {

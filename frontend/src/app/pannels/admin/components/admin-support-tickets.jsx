@@ -646,10 +646,12 @@ function AdminSupportTickets() {
                                         onChange={(e) => setFilters({ ...filters, category: e.target.value })}
                                     >
                                         <option value="">All Categories</option>
-                                        <option value="General Inquiry">General Inquiry</option>
-                                        <option value="Technical Issue">Technical Issue</option>
-                                        <option value="Account Management">Account Management</option>
-                                        <option value="Job Posting">Job Posting</option>
+                                        <option value="general">General Inquiry</option>
+                                        <option value="technical">Technical Issue</option>
+                                        <option value="account">Account Management</option>
+                                        <option value="job-posting">Job Posting</option>
+                                        <option value="application">Job Application</option>
+                                        <option value="student-application">Student/Application Query</option>
                                     </Form.Select>
                                     <span className="filter-select-icon" aria-hidden="true">
                                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -730,7 +732,7 @@ function AdminSupportTickets() {
                                                             <span className="category-badge">{formatJobTitle(getJobTitle(ticket), ticket.userType === 'candidate' ? 'N/A' : '-')}</span>
                                                         </td>
                                                         <td style={{minWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.category || 'General'}>
-                                                            <span className="category-badge">{ticket.category || 'General'}</span>
+                                                            <span className="category-badge">{{ general: 'General Inquiry', technical: 'Technical Issue', account: 'Account Management', 'job-posting': 'Job Posting', application: 'Job Application', billing: 'Billing', 'student-application': 'Student/Application Query' }[ticket.category] || ticket.category || 'General'}</span>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getPriorityBadge(ticket.priority)}</td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getStatusBadge(ticket.status)}</td>

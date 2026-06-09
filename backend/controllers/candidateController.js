@@ -18,6 +18,12 @@ const {
 } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { sendSMS } = require('../utils/smsProvider');
+const {
+  createOrUpdatePendingSignup,
+  verifyPendingSignupOtp,
+  resendPendingSignupOtp,
+  deletePendingSignup
+} = require('../utils/pendingSignup');
 const { buildUtcDateTimeFromIst } = require('../utils/dateTime');
 const { formatDate } = require('../utils/dateFormatter');
 const {
@@ -404,16 +410,26 @@ exports.registerCandidate = async (req, res) => {
       status: 'pending'
     };
 
-    // If OTP verification is skipped, mark phone as verified and set status to active
+    // If OTP verification is skipped, create the user immediately.
     if (skipOtpVerification) {
       candidateData.isPhoneVerified = true;
       candidateData.status = 'active';
     } else {
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      candidateData.phoneOTP = otp;
-      candidateData.phoneOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-      // Send SMS OTP
-      await sendSMS(phone, otp, fullName);
+      const pendingSignup = await createOrUpdatePendingSignup({
+        role: 'candidate',
+        email,
+        phone,
+        name: fullName,
+        payload: candidateData
+      });
+
+      await sendSMS(phone, pendingSignup.phoneOTP, fullName);
+
+      return res.status(201).json({
+        success: true,
+        message: 'Registration successful! Please verify your mobile number via OTP sent to your phone.',
+        requiresOtpVerification: true
+      });
     }
     
     const candidate = await Candidate.create(candidateData);
@@ -1454,20 +1470,46 @@ exports.verifyOTPAndResetPassword = async (req, res) => {
 exports.verifyMobileOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const candidate = await Candidate.findByEmail(email.trim());
-
-    if (!candidate) {
-      return res.status(404).json({ success: false, message: 'no account found with this email address' });
+    const { pendingSignup, error } = await verifyPendingSignupOtp({ role: 'candidate', email, otp });
+    if (error) {
+      return res.status(error === 'Invalid or expired OTP' ? 400 : 404).json({ success: false, message: error });
     }
 
-    if (candidate.phoneOTP !== otp || (candidate.phoneOTPExpires && candidate.phoneOTPExpires < Date.now())) {
-      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+    const existingUser = await checkEmailExists(pendingSignup.email);
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: 'Email already registered' });
     }
 
-    candidate.isPhoneVerified = true;
-    candidate.phoneOTP = undefined;
-    candidate.phoneOTPExpires = undefined;
-    await candidate.save();
+    const existingPhone = await Candidate.findOne({ phone: pendingSignup.phone });
+    if (existingPhone) {
+      return res.status(409).json({ success: false, field: 'mobile', message: 'This mobile number is already registered. Please use a different number.' });
+    }
+
+    const candidateData = {
+      ...pendingSignup.payload,
+      isPhoneVerified: true
+    };
+
+    const candidate = await Candidate.create(candidateData);
+
+    try {
+      const profileCandidateId = candidate._id || candidate.id;
+      if (!profileCandidateId || !mongoose.Types.ObjectId.isValid(String(profileCandidateId))) {
+        throw new Error('Candidate ID is invalid after creation');
+      }
+      await CandidateProfile.create({
+        candidateId: profileCandidateId,
+        firstName: candidate.firstName || '',
+        middleName: candidate.middleName || '',
+        lastName: candidate.lastName || ''
+      });
+    } catch (profileError) {
+      console.error('Profile creation failed:', profileError);
+      await Candidate.findByIdAndDelete(candidate._id);
+      throw new Error('Failed to create candidate profile. Registration rolled back.');
+    }
+
+    await deletePendingSignup(pendingSignup);
 
     // Send welcome email with password creation link only after OTP verification
     try {
@@ -1486,21 +1528,13 @@ exports.verifyMobileOTP = async (req, res) => {
 
 exports.resendMobileOTP = async (req, res) => {
   try {
-    const { email, phone } = req.body;
-    const candidate = await Candidate.findByEmail(email.trim());
-
-    if (!candidate) {
-      return res.status(404).json({ success: false, message: 'no account found with this email address' });
+    const { email } = req.body;
+    const { pendingSignup, error } = await resendPendingSignupOtp({ role: 'candidate', email });
+    if (error) {
+      return res.status(404).json({ success: false, message: error });
     }
 
-    // Generate new OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    candidate.phoneOTP = otp;
-    candidate.phoneOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-    await candidate.save();
-
-    // Send SMS OTP
-    await sendSMS(phone, otp, candidate.name);
+    await sendSMS(pendingSignup.phone, pendingSignup.phoneOTP, pendingSignup.name || pendingSignup.payload?.name || 'Candidate');
 
     res.json({ success: true, message: 'New OTP sent successfully' });
   } catch (error) {
