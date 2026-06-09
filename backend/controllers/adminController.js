@@ -1951,33 +1951,14 @@ exports.deleteEmployer = async (req, res) => {
 
 exports.getEmployerProfile = async (req, res) => {
   try {
-    const [profile, adminProfile] = await Promise.all([
-      EmployerProfile.findOne({ employerId: req.params.id })
-        .populate('employerId', 'name email phone companyName'),
-      EmployerAdminProfile.findOne({ employerId: req.params.id })
-    ]);
+    const profile = await EmployerProfile.findOne({ employerId: req.params.id })
+      .populate('employerId', 'name email phone companyName');
     
     if (!profile) {
       return res.status(404).json({ success: false, message: 'Employer profile not found' });
     }
 
-    const documentFields = [
-      'panCardImage', 'cinImage', 'gstImage', 'certificateOfIncorporation', 'companyIdCardPicture',
-      'panCardVerified', 'cinVerified', 'gstVerified', 'incorporationVerified', 'companyIdCardVerified',
-      'panCardReuploadedAt', 'cinReuploadedAt', 'gstReuploadedAt', 'incorporationReuploadedAt', 'companyIdCardReuploadedAt'
-    ];
-
-    const mergedProfile = profile.toObject();
-    if (adminProfile) {
-      const adminObj = adminProfile.toObject();
-      documentFields.forEach(field => {
-        if (adminObj[field] !== undefined && adminObj[field] !== null) {
-          mergedProfile[field] = adminObj[field];
-        }
-      });
-    }
-
-    res.json({ success: true, profile: mergedProfile });
+    res.json({ success: true, profile });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -1985,29 +1966,11 @@ exports.getEmployerProfile = async (req, res) => {
 
 exports.updateEmployerProfile = async (req, res) => {
   try {
-    const documentFields = [
-      'panCardVerified', 'cinVerified', 'gstVerified', 'incorporationVerified',
-      'authorizationVerified', 'companyIdCardVerified'
-    ];
-    const documentUpdate = {};
-    documentFields.forEach(field => {
-      if (req.body[field] !== undefined) documentUpdate[field] = req.body[field];
-    });
-
-    const [profile] = await Promise.all([
-      EmployerProfile.findOneAndUpdate(
-        { employerId: req.params.id },
-        req.body,
-        { new: true }
-      ).populate('employerId', 'name email phone companyName'),
-      Object.keys(documentUpdate).length > 0
-        ? EmployerAdminProfile.findOneAndUpdate(
-            { employerId: req.params.id },
-            documentUpdate,
-            { new: false }
-          )
-        : Promise.resolve(null)
-    ]);
+    const profile = await EmployerProfile.findOneAndUpdate(
+      { employerId: req.params.id },
+      req.body,
+      { new: true }
+    ).populate('employerId', 'name email phone companyName');
     
     if (!profile) {
       return res.status(404).json({ success: false, message: 'Employer profile not found' });
@@ -2043,6 +2006,7 @@ exports.updateEmployerProfile = async (req, res) => {
       }
     } catch (notificationError) {
       console.error('Error creating notification:', notificationError);
+      // Continue execution even if notification fails
     }
 
     res.json({ success: true, profile });
@@ -2154,7 +2118,9 @@ exports.viewDocument = async (req, res) => {
 
         res.setHeader('Content-Type', mimeType);
         res.setHeader('Content-Length', stats.size);
-        res.setHeader('Cache-Control', 'public, max-age=3600');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         res.setHeader('Access-Control-Allow-Origin', '*');
         
         if (mimeType === 'application/pdf') {
@@ -2198,7 +2164,9 @@ exports.viewDocument = async (req, res) => {
       // Set appropriate headers with CORS support
       res.setHeader('Content-Type', mimeType);
       res.setHeader('Content-Length', buffer.length);
-      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET');
       res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');

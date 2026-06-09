@@ -39,10 +39,13 @@ function EmployerDetails() {
         try {
             const token = localStorage.getItem('adminToken');
             const response = await fetch(`${API_BASE_URL}/admin/employers/${id}/profile`, {
-                headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
             if (data.success) {
+                
+                
+                // Set default verification status for existing profiles
                 const profileWithDefaults = {
                     ...data.profile,
                     panCardVerified: data.profile.panCardVerified || 'pending',
@@ -51,6 +54,7 @@ function EmployerDetails() {
                     incorporationVerified: data.profile.incorporationVerified || 'pending',
                     authorizationVerified: data.profile.authorizationVerified || 'pending'
                 };
+                
                 setProfile(profileWithDefaults);
             }
         } catch (error) {
@@ -193,16 +197,20 @@ function EmployerDetails() {
 
     const viewDocumentImage = async (employerId, documentType) => {
         try {
-            console.log(`Attempting to view document: ${documentType} for employer: ${employerId}`);
-            
+            // Revoke any existing blob URL to prevent stale document display
+            if (currentImage && currentImage.startsWith('blob:')) {
+                window.URL.revokeObjectURL(currentImage);
+            }
+            setCurrentImage('');
+
             const token = localStorage.getItem('adminToken');
             if (!token) {
                 showError('Authentication token not found. Please login again.');
                 return;
             }
 
-            const url = `${API_BASE_URL}/admin/employers/${employerId}/view-document/${documentType}`;
-            console.log(`Request URL: ${url}`);
+            // Append timestamp to bust any intermediate caches
+            const url = `${API_BASE_URL}/admin/employers/${employerId}/view-document/${documentType}?t=${Date.now()}`;
             
             const response = await fetch(url, {
                 headers: { 
@@ -211,13 +219,7 @@ function EmployerDetails() {
                 }
             });
             
-            console.log(`Response status: ${response.status}`);
-            console.log(`Response headers:`, Object.fromEntries(response.headers.entries()));
-            
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Response error:', errorText);
-                
                 if (response.status === 404) {
                     showError('Document not found or not uploaded yet.');
                 } else if (response.status === 401) {
@@ -231,10 +233,7 @@ function EmployerDetails() {
             }
 
             const contentType = response.headers.get('content-type');
-            console.log(`Content-Type: ${contentType}`);
-
             const blob = await response.blob();
-            console.log(`Blob created, size: ${blob.size} bytes, type: ${blob.type}`);
             
             if (blob.size === 0) {
                 showError('Document appears to be empty.');
@@ -242,19 +241,11 @@ function EmployerDetails() {
             }
 
             const imageUrl = window.URL.createObjectURL(blob);
-            console.log('Object URL created successfully:', imageUrl.substring(0, 50) + '...');
-            
             setCurrentImage(imageUrl);
-            // Better content type detection
-            if (contentType && contentType.includes('pdf')) {
+            if ((contentType && contentType.includes('pdf')) || (blob.type && blob.type.includes('pdf'))) {
                 setCurrentImageType('application/pdf');
-                console.log('Document detected as PDF');
-            } else if (blob.type && blob.type.includes('pdf')) {
-                setCurrentImageType('application/pdf');
-                console.log('Document detected as PDF from blob type');
             } else {
                 setCurrentImageType('image');
-                console.log('Document detected as image');
             }
             setCurrentPreviewName(documentType);
             setShowImageModal(true);
@@ -310,8 +301,6 @@ function EmployerDetails() {
             if (response.ok) {
                 setProfile(prev => ({ ...prev, [field]: status }));
                 showSuccess(`Document ${status} successfully`);
-                // Re-fetch to get the latest document paths after status update
-                await fetchEmployerProfile();
             } else {
                 showError('Failed to update document status');
             }
@@ -803,15 +792,6 @@ function EmployerDetails() {
                     {[panCardMeta, cinMeta, gstMeta, incorporationMeta, companyIdMeta].some(m => m.isResubmitted) && (
                         <span className="company-name-dot company-name-dot--resubmit" title="Document resubmitted" style={{marginLeft: '8px', verticalAlign: 'middle'}} aria-hidden="true"></span>
                     )}
-                    <button
-                        type="button"
-                        className="btn btn-outline-secondary btn-sm"
-                        style={{ marginLeft: '12px', fontSize: '12px', verticalAlign: 'middle' }}
-                        onClick={fetchEmployerProfile}
-                        title="Refresh documents"
-                    >
-                        <i className="fa fa-sync-alt me-1"></i>Refresh
-                    </button>
                 </h4>
                 <div className="table-responsive">
                     <table className="table documents-table">
