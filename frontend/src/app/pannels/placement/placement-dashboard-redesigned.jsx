@@ -1787,7 +1787,18 @@ function PlacementDashboardRedesigned() {
 
                                             {/* Action Buttons */}
                                             <div className="form-actions">
-                                                <button className="btn-cancel">Cancel</button>
+                                                <button className="btn-cancel" onClick={() => {
+                                                    setSelectedFile(null);
+                                                    setSelectedFileName('');
+                                                    setUploadError('');
+                                                    setCourseName('');
+                                                    setCourseNameOption('');
+                                                    setCourseSearch('');
+                                                    setUniversity('');
+                                                    setUniversityOption('');
+                                                    setUniversitySearch('');
+                                                    setBatch('');
+                                                }}>Cancel</button>
                                                 <button className="btn-upload" onClick={() => {
                                                     if (selectedFile) {
                                                         console.log('Manual upload triggered for:', selectedFileName);
