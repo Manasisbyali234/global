@@ -3110,9 +3110,11 @@ function CanStatusPage() {
 														{roundName}
 													</h6>
 													<div className="d-flex gap-2 align-items-center">
-														<span style={{fontSize: '13px', fontWeight: '600', padding: '6px 10px', minWidth: '84px', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1.2, borderRadius: '999px', ...getRoundStatusPillStyle(roundStatus.text)}}>
-															{roundStatus.text}
-														</span>
+														{normalizeStatusValue(roundStatus.text) !== 'pending' && (
+															<span style={{fontSize: '13px', fontWeight: '600', padding: '6px 10px', minWidth: '84px', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1.2, borderRadius: '999px', ...getRoundStatusPillStyle(roundStatus.text)}}>
+																{roundStatus.text}
+															</span>
+														)}
 													</div>
 												</div>
 												
