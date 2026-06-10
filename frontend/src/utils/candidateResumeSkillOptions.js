@@ -1960,7 +1960,74 @@ const additionalSkills = [
     "UI/UX Design", "Figma", "Adobe XD", "Sketch", "Photoshop", "Illustrator", "InDesign",
     "Digital Marketing", "SEO", "SEM", "Content Writing", "Social Media Marketing", "Email Marketing",
     "Project Management", "Product Management", "Business Analysis", "Financial Analysis",
-    "Communication", "Leadership", "Team Management", "Problem Solving", "Critical Thinking"
+    "Communication", "Leadership", "Team Management", "Problem Solving", "Critical Thinking",
+    // Frontend & Web
+    "Next.js", "Nuxt.js", "Svelte", "Remix", "Gatsby", "Tailwind CSS", "Bootstrap", "Material UI",
+    "Webpack", "Vite", "Babel", "ESLint", "Prettier", "Jest", "Cypress", "Storybook",
+    "WebSockets", "PWA", "Web Accessibility", "Responsive Design", "Cross-browser Compatibility",
+    // Backend & APIs
+    "FastAPI", "NestJS", "Laravel", "Ruby on Rails", "ASP.NET", "gRPC", "RabbitMQ", "Kafka",
+    "Nginx", "Apache", "Redis Cache", "Celery", "JWT", "OAuth 2.0", "OpenAPI",
+    // Mobile Development
+    "React Native", "Flutter", "Android Development", "iOS Development", "Xamarin", "Ionic",
+    // Databases & Data Engineering
+    "Elasticsearch", "Firebase", "DynamoDB", "BigQuery", "Snowflake", "Apache Spark",
+    "Apache Hadoop", "Apache Airflow", "dbt", "ETL", "Data Warehousing", "Data Modeling",
+    "Data Pipeline", "Data Governance", "Business Intelligence",
+    // AI/ML & Data Science
+    "Generative AI", "LLMs", "Prompt Engineering", "LangChain", "Hugging Face", "OpenAI API",
+    "Computer Vision", "NLP", "MLOps", "Feature Engineering", "Model Deployment",
+    "Scikit-learn", "XGBoost", "LightGBM", "BERT", "GPT",
+    "Matplotlib", "Seaborn", "Plotly", "Jupyter Notebook", "Google Colab",
+    // Cloud & DevOps
+    "AWS Lambda", "AWS S3", "AWS EC2", "AWS RDS", "AWS EKS",
+    "Azure DevOps", "Azure Functions", "GCP BigQuery", "GCP Pub/Sub",
+    "Terraform", "Ansible", "Chef", "Puppet", "Helm", "Istio",
+    "Prometheus", "Grafana", "ELK Stack", "Splunk", "Datadog",
+    "GitHub Actions", "CircleCI", "ArgoCD", "SonarQube",
+    // Cybersecurity
+    "OWASP", "Network Security", "Vulnerability Assessment", "SIEM", "Incident Response",
+    "Forensics", "Identity & Access Management", "Zero Trust Security", "SOC", "VAPT",
+    "Burp Suite", "Nessus", "Metasploit", "Kali Linux",
+    // Design & Creative
+    "Canva Pro", "After Effects", "Premiere Pro", "DaVinci Resolve", "Blender",
+    "3D Modeling", "Motion Graphics", "Video Editing", "Color Grading", "Branding",
+    "Logo Design", "Wireframing", "Prototyping", "User Research", "Usability Testing",
+    "Design Systems", "Accessibility Design",
+    // Marketing & Business
+    "Google Ads", "Meta Ads", "LinkedIn Ads", "Google Analytics", "HubSpot",
+    "Mailchimp", "Marketo", "Hootsuite", "Buffer", "Sprout Social",
+    "Conversion Rate Optimization", "Affiliate Marketing", "Influencer Marketing",
+    "E-commerce", "Shopify", "WooCommerce", "Amazon Seller Central",
+    "Market Research", "Competitive Analysis", "Brand Strategy",
+    // Finance & Accounting
+    "GST Filing", "Income Tax", "TDS", "Financial Modeling", "Valuation",
+    "Investment Analysis", "Portfolio Management", "Risk Management", "IFRS", "GAAP",
+    "SAP FICO", "QuickBooks", "Zoho Books", "Internal Audit", "Statutory Audit",
+    // HR & Management
+    "Talent Acquisition", "Employee Relations", "HR Analytics", "Compensation & Benefits",
+    "Learning & Development", "Organizational Development", "Diversity & Inclusion",
+    "Change Management", "Performance Appraisal", "Succession Planning",
+    "SAP HR", "Workday", "BambooHR", "Zoho People",
+    // Operations & Supply Chain
+    "Six Sigma", "Lean Management", "Kaizen", "5S", "Total Quality Management",
+    "ERP Implementation", "SAP MM", "SAP SD", "SAP WM",
+    "Demand Planning", "Forecasting", "Category Management", "Vendor Negotiation",
+    // Soft Skills & Professional
+    "Strategic Planning", "Decision Making", "Conflict Resolution", "Negotiation",
+    "Public Speaking", "Presentation Skills", "Stakeholder Management",
+    "Cross-functional Collaboration", "Mentoring", "Coaching",
+    "Time Management", "Adaptability", "Emotional Intelligence", "Creativity",
+    "Customer Service", "Client Management", "Account Management",
+    // Industry-specific
+    "Clinical Research", "Good Clinical Practice (GCP)", "Pharmacovigilance",
+    "Medical Coding", "ICD-10", "CPT Coding", "Healthcare IT",
+    "Real Estate", "Property Management", "RERA Compliance",
+    "Insurance", "Underwriting", "Claims Processing",
+    "Banking", "Trade Finance", "KYC", "AML", "Loan Processing",
+    "Teaching", "Curriculum Design", "E-learning", "EdTech",
+    "Mechanical Design", "Product Design", "Reverse Engineering",
+    "Quality Assurance", "ISO Standards", "CMMI", "IATF 16949"
 ];
 
 export const candidateResumeSkillOptions = degreeSkillCatalog.reduce((allSkills, degree) => {
