@@ -2019,24 +2019,6 @@ const StartAssessment = () => {
 							</div>
 						</div>
 						<div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "flex-end", alignItems: "stretch" }}>
-							<button
-								type="button"
-								onClick={showAssessmentCloseConfirmation}
-								disabled={isSubmitted}
-								style={{
-									border: "1px solid #dc2626",
-									background: "#fff",
-									color: "#dc2626",
-									borderRadius: "8px",
-									padding: "10px 14px",
-									fontWeight: "700",
-									fontSize: "13px",
-									cursor: isSubmitted ? "not-allowed" : "pointer",
-									opacity: isSubmitted ? 0.6 : 1
-								}}
-							>
-								Close Assessment
-							</button>
 							<div style={{
 								minWidth: "150px",
 								padding: "12px 14px",
