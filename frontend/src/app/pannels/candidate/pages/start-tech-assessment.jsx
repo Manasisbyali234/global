@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FaClock } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { api } from "../../../../utils/api";
+import { api, API_BASE_URL } from "../../../../utils/api";
 import { decodeAssessmentText } from "../../../../utils/assessmentContent";
 import TermsModal from "../components/TermsModal";
 import ViolationModal from "../components/ViolationModal";
@@ -333,6 +333,7 @@ const StartAssessment = () => {
     const cameraHealthMonitorRef = useRef(null);
     const deviceChangeListenerRef = useRef(null);
     const webcamFailureStreakRef = useRef(0);
+    const closeViolationSentRef = useRef(false);
     
     // Webcam capture refs and state
     const videoRef = useRef(null);
@@ -341,6 +342,7 @@ const StartAssessment = () => {
     const [captureCount, setCaptureCount] = useState(0);
     const captureCountRef = useRef(0);
     const attemptIdRef = useRef(attemptId);
+    const isSubmittedRef = useRef(isSubmitted);
     const [webcamStatus, setWebcamStatus] = useState('initializing'); // initializing, active, failed, disabled
     const [restrictionWarningCount, setRestrictionWarningCount] = useState(0);
     const webcamInitialized = useRef(false);
@@ -352,9 +354,14 @@ const StartAssessment = () => {
     }, [captureCount]);
 
     useEffect(() => {
+        isSubmittedRef.current = isSubmitted;
+    }, [isSubmitted]);
+
+    useEffect(() => {
         attemptIdRef.current = attemptId;
         if (!attemptId) {
             capturesStarted.current = false;
+            closeViolationSentRef.current = false;
         }
     }, [attemptId]);
 
@@ -375,6 +382,50 @@ const StartAssessment = () => {
             return null;
         }
     }, [attemptId, assessmentState]);
+
+    const reportAssessmentCloseViolation = useCallback((details = 'Candidate closed the assessment without submitting.', options = {}) => {
+        const activeAttemptId = attemptIdRef.current || attemptId;
+        if (!activeAttemptId || assessmentState !== 'in_progress' || isSubmittedRef.current || closeViolationSentRef.current) {
+            return null;
+        }
+
+        closeViolationSentRef.current = true;
+
+        const payload = {
+            attemptId: activeAttemptId,
+            type: 'assessment_close_confirmed',
+            details
+        };
+
+        if (options.keepalive) {
+            const token = localStorage.getItem('candidateToken');
+            try {
+                fetch(`${API_BASE_URL}/candidate/assessments/violation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {})
+                    },
+                    body: JSON.stringify(payload),
+                    keepalive: true
+                }).catch((error) => {
+                    console.error('Failed to report assessment close violation:', error);
+                });
+            } catch (error) {
+                closeViolationSentRef.current = false;
+                console.error('Failed to start assessment close violation request:', error);
+                return null;
+            }
+
+            return { success: true, pending: true };
+        }
+
+        return api.logAssessmentViolation(payload).catch((error) => {
+            closeViolationSentRef.current = false;
+            console.error('Failed to report assessment close violation:', error.message || error);
+            return null;
+        });
+    }, [assessmentState, attemptId]);
 
     const lockRestrictedKeys = useCallback(async () => {
         const keyboardApi = typeof navigator === 'undefined' ? null : navigator.keyboard;
@@ -1639,11 +1690,11 @@ const StartAssessment = () => {
 		}
 	}, [applicationId, assessment, attemptId, clearStoredAssessment, navigate, removeSecurityListeners, showSuccess]);
 
-	const handleConfirmedAssessmentClose = useCallback(async () => {
+	const handleAssessmentCloseWithoutSubmit = useCallback(async () => {
 		if (isSubmitted) return;
 
 		setIsSubmitted(true);
-		const response = await logViolation('assessment_close_confirmed', 'Candidate confirmed closing the assessment without submitting.');
+		const response = await reportAssessmentCloseViolation('Candidate closed the assessment without submitting.');
 
 		if (response?.success && response?.suspended) {
 			showError('Assessment suspended because it was closed without submitting.');
@@ -1653,40 +1704,7 @@ const StartAssessment = () => {
 
 		showError('Unable to suspend the assessment. Please try again before closing.');
 		setIsSubmitted(false);
-	}, [closeAssessmentWindow, isSubmitted, logViolation, showError]);
-
-	const showAssessmentCloseConfirmation = useCallback(() => {
-		if (assessmentState !== 'in_progress' || isSubmitted) {
-			return;
-		}
-
-		if (typeof window === 'undefined' || !window.bootstrap) {
-			return;
-		}
-
-		window.__assessmentCloseHandler = handleConfirmedAssessmentClose;
-		const modalElement = document.getElementById('assessment-close-confirm');
-		if (!modalElement) {
-			return;
-		}
-
-		const modal = window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement);
-		modal.show();
-	}, [assessmentState, handleConfirmedAssessmentClose, isSubmitted]);
-
-	useEffect(() => {
-		if (assessmentState !== 'in_progress') {
-			return undefined;
-		}
-
-		window.__assessmentCloseHandler = handleConfirmedAssessmentClose;
-
-		return () => {
-			if (window.__assessmentCloseHandler === handleConfirmedAssessmentClose) {
-				delete window.__assessmentCloseHandler;
-			}
-		};
-	}, [assessmentState, handleConfirmedAssessmentClose]);
+	}, [closeAssessmentWindow, isSubmitted, reportAssessmentCloseViolation, showError]);
 
 	useEffect(() => {
 		if (assessmentState !== 'in_progress' || typeof window === 'undefined') {
@@ -1697,7 +1715,7 @@ const StartAssessment = () => {
 
 		const handlePopState = () => {
 			window.history.pushState({ assessmentInProgress: true }, '', window.location.href);
-			showAssessmentCloseConfirmation();
+			handleAssessmentCloseWithoutSubmit();
 		};
 
 		window.addEventListener('popstate', handlePopState);
@@ -1705,7 +1723,25 @@ const StartAssessment = () => {
 		return () => {
 			window.removeEventListener('popstate', handlePopState);
 		};
-	}, [assessmentState, showAssessmentCloseConfirmation]);
+	}, [assessmentState, handleAssessmentCloseWithoutSubmit]);
+
+	useEffect(() => {
+		if (assessmentState !== 'in_progress' || typeof window === 'undefined') {
+			return undefined;
+		}
+
+		const reportClose = () => {
+			reportAssessmentCloseViolation('Candidate closed or left the assessment tab without submitting.', { keepalive: true });
+		};
+
+		window.addEventListener('pagehide', reportClose);
+		window.addEventListener('beforeunload', reportClose);
+
+		return () => {
+			window.removeEventListener('pagehide', reportClose);
+			window.removeEventListener('beforeunload', reportClose);
+		};
+	}, [assessmentState, reportAssessmentCloseViolation]);
 
 	const formatTime = (seconds) => {
 		const m = Math.floor(seconds / 60);
