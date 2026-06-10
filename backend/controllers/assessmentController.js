@@ -17,10 +17,12 @@ const RESTRICTED_WARNING_VIOLATIONS = new Set([
   'window_blur',
   'screen_capture',
   'fullscreen_exit',
-  'multi_screen'
+  'multi_screen',
+  'assessment_close_confirmed'
 ]);
 const IMMEDIATE_SUSPEND_VIOLATIONS = new Set([
-  'screen_capture'
+  'screen_capture',
+  'assessment_close_confirmed'
 ]);
 
 const AUTO_REJECT_ASSESSMENT_SESSION_EXPIRED_NOTE = 'Auto-updated: assessment session expired';
@@ -1824,12 +1826,16 @@ exports.recordViolation = async (req, res) => {
     
     console.log(`Violation recorded for attempt ${attemptId}: ${type}, total: ${attempt.violations.length}, warnings: ${warningCount}, suspended: ${suspended}`);
     
+    const suspensionMessage = type === 'assessment_close_confirmed'
+      ? 'Assessment closed without submission. Assessment suspended.'
+      : isImmediateSuspensionViolation
+        ? 'Screen capture or recording detected. Assessment suspended immediately.'
+        : 'Fifth rule violation detected. Assessment suspended.';
+
     res.json({ 
       success: true, 
       message: suspended
-        ? isImmediateSuspensionViolation
-          ? 'Screen capture or recording detected. Assessment suspended immediately.'
-          : 'Fifth rule violation detected. Assessment suspended.'
+        ? suspensionMessage
         : isRestrictedViolation
           ? `Violation recorded. Warning ${warningCount}/${RESTRICTION_WARNING_LIMIT}.`
           : 'Violation recorded',

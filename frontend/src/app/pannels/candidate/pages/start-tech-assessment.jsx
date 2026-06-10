@@ -1643,19 +1643,17 @@ const StartAssessment = () => {
 		if (isSubmitted) return;
 
 		setIsSubmitted(true);
-		await logViolation('assessment_close_confirmed', 'Candidate confirmed closing the assessment tab.');
-		const success = await submitAssessment({
-			redirectOnSuccess: false,
-			successMessage: 'Assessment submitted successfully.'
-		});
+		const response = await logViolation('assessment_close_confirmed', 'Candidate confirmed closing the assessment without submitting.');
 
-		if (success) {
+		if (response?.success && response?.suspended) {
+			showError('Assessment suspended because it was closed without submitting.');
 			window.setTimeout(closeAssessmentWindow, 700);
 			return;
 		}
 
+		showError('Unable to suspend the assessment. Please try again before closing.');
 		setIsSubmitted(false);
-	}, [closeAssessmentWindow, isSubmitted, logViolation, submitAssessment]);
+	}, [closeAssessmentWindow, isSubmitted, logViolation, showError]);
 
 	const showAssessmentCloseConfirmation = useCallback(() => {
 		if (assessmentState !== 'in_progress' || isSubmitted) {
