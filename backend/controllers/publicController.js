@@ -353,29 +353,35 @@ exports.getBlogById = async (req, res) => {
   }
 };
 
+const escapeHtml = (str) => String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
 // Contact Controller
 exports.submitContactForm = async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
-    const normalizedSubject = String(subject || '').trim() || 'Contact Us Submission';
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safePhone = escapeHtml(phone);
+    const normalizedSubject = escapeHtml(String(subject || '').trim()) || 'Contact Us Submission';
+    const safeMessage = escapeHtml(message);
 
     const [contact, supportTicket] = await Promise.all([
       Contact.create({
-        name,
-        email,
-        phone,
+        name: safeName,
+        email: safeEmail,
+        phone: safePhone,
         subject: normalizedSubject,
-        message
+        message: safeMessage
       }),
       Support.create({
-        name,
-        email,
-        phone,
+        name: safeName,
+        email: safeEmail,
+        phone: safePhone,
         userType: 'guest',
         subject: normalizedSubject,
         category: 'general',
         priority: 'medium',
-        message,
+        message: safeMessage,
         receiverRole: 'admin'
       })
     ]);
@@ -389,12 +395,12 @@ exports.submitContactForm = async (req, res) => {
           <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa;">
             <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
               <h2 style="color: #2c3e50;">New Contact Form Submission</h2>
-              <p><strong>Name:</strong> ${name}</p>
-              <p><strong>Email:</strong> ${email}</p>
-              <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+              <p><strong>Name:</strong> ${safeName}</p>
+              <p><strong>Email:</strong> ${safeEmail}</p>
+              <p><strong>Phone:</strong> ${safePhone || 'Not provided'}</p>
               <p><strong>Subject:</strong> ${normalizedSubject}</p>
               <p><strong>Message:</strong></p>
-              <p style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">${message}</p>
+              <p style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">${safeMessage}</p>
             </div>
           </div>
         `

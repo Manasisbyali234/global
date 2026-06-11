@@ -16,15 +16,26 @@ router.post('/register', [
         return true;
       }
       throw new Error('First name is required');
-    }),
+    })
+    .trim()
+    .isLength({ max: 50 }).withMessage('First name must be less than 50 characters')
+    .matches(/^[a-zA-Z\s]*$/).withMessage('First name can only contain letters and spaces'),
+  body('middleName')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 50 }).withMessage('Middle name must be less than 50 characters')
+    .matches(/^[a-zA-Z\s]*$/).withMessage('Middle name can only contain letters and spaces'),
   body('lastName')
     .custom((value, { req }) => {
       if ((value && String(value).trim()) || (req.body.name && String(req.body.name).trim())) {
         return true;
       }
       throw new Error('Last name is required');
-    }),
-  body('email').isEmail().withMessage('Valid email is required'),
+    })
+    .trim()
+    .isLength({ max: 50 }).withMessage('Last name must be less than 50 characters')
+    .matches(/^[a-zA-Z\s]*$/).withMessage('Last name can only contain letters and spaces'),
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
   ...mobileValidationRules()
 ], validateEmailMiddleware, handleValidationErrors, candidateController.registerCandidate);
 

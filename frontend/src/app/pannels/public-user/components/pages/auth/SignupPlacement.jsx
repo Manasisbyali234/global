@@ -38,6 +38,10 @@ function SignupPlacement() {
                 errors.name = 'Name is required';
             } else if (value.trim().length < 2) {
                 errors.name = 'Name must be at least 2 characters long';
+            } else if (value.trim().length > 100) {
+                errors.name = 'Name must be less than 100 characters';
+            } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+                errors.name = 'Name can only contain letters and spaces';
             } else {
                 delete errors.name;
             }
@@ -56,6 +60,10 @@ function SignupPlacement() {
                 errors.collegeName = 'College/University name is required';
             } else if (value.trim().length < 3) {
                 errors.collegeName = 'Name must be at least 3 characters long';
+            } else if (value.trim().length > 150) {
+                errors.collegeName = 'College name must be less than 150 characters';
+            } else if (!/^[a-zA-Z0-9\s\-&.,()]+$/.test(value.trim())) {
+                errors.collegeName = 'College name contains invalid characters';
             } else {
                 delete errors.collegeName;
             }
@@ -144,6 +152,8 @@ function SignupPlacement() {
         const newErrors = {};
         if (!placementData.name.trim()) newErrors.name = 'Name is required';
         else if (placementData.name.trim().length < 2) newErrors.name = 'Name must be at least 2 characters long';
+        else if (placementData.name.trim().length > 100) newErrors.name = 'Name must be less than 100 characters';
+        else if (!/^[a-zA-Z\s]+$/.test(placementData.name.trim())) newErrors.name = 'Name can only contain letters and spaces';
 
         if (!placementData.email.trim()) newErrors.email = 'Email is required';
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(placementData.email.trim())) newErrors.email = 'Please enter a valid email address';
@@ -152,6 +162,8 @@ function SignupPlacement() {
 
         if (!placementData.collegeName.trim()) newErrors.collegeName = 'College/University name is required';
         else if (placementData.collegeName.trim().length < 3) newErrors.collegeName = 'Name must be at least 3 characters long';
+        else if (placementData.collegeName.trim().length > 150) newErrors.collegeName = 'College name must be less than 150 characters';
+        else if (!/^[a-zA-Z0-9\s\-&.,()]+$/.test(placementData.collegeName.trim())) newErrors.collegeName = 'College name contains invalid characters';
 
         if (Object.keys(newErrors).length > 0) {
             setFieldErrors(newErrors);

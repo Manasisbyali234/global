@@ -1,6 +1,15 @@
 const express = require('express');
 const { body } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
+
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  message: { success: false, message: 'Too many submissions. Please try again after 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 const publicController = require('../controllers/publicController');
 const handleValidationErrors = require('../middlewares/validation');
 const { upload, uploadSupport } = require('../middlewares/upload');
@@ -22,10 +31,11 @@ router.get('/blogs', publicController.getBlogs);
 router.get('/blogs/:id', publicController.getBlogById);
 
 // Contact Route
-router.post('/contact', [
-  body('name').notEmpty().withMessage('Name is required'),
-  body('email').isEmail().withMessage('Valid email is required'),
-  body('message').notEmpty().withMessage('Message is required'),
+router.post('/contact', contactLimiter, [
+  body('name').notEmpty().trim().escape().withMessage('Name is required'),
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('subject').optional().trim().escape(),
+  body('message').notEmpty().trim().escape().withMessage('Message is required'),
   ...phoneValidationRules()
 ], handleValidationErrors, publicController.submitContactForm);
 

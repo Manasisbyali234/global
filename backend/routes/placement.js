@@ -37,9 +37,17 @@ const resolvePlacementDisplayCredits = ({ candidate, placementCandidate, fileCre
 
 // Registration route without file upload
 router.post('/register', [
-  body('name').notEmpty().withMessage('Name is required'),
-  body('email').isEmail().withMessage('Valid email is required'),
-  body('collegeName').notEmpty().withMessage('College name is required'),
+  body('name')
+    .notEmpty().withMessage('Name is required')
+    .trim()
+    .isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters')
+    .matches(/^[a-zA-Z\s]+$/).withMessage('Name can only contain letters and spaces'),
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('collegeName')
+    .notEmpty().withMessage('College name is required')
+    .trim()
+    .isLength({ min: 3, max: 150 }).withMessage('College name must be between 3 and 150 characters')
+    .matches(/^[a-zA-Z0-9\s\-&.,()]+$/).withMessage('College name contains invalid characters'),
   body('password')
     .optional()
     .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')

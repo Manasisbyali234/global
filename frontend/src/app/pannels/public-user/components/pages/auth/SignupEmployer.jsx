@@ -33,11 +33,16 @@ function SignupEmployer() {
 
     const validateField = (name, value) => {
         const errors = { ...fieldErrors };
+        const nameRegex = /^[a-zA-Z0-9\s\-&.,()]+$/;
         if (name === 'name') {
             if (!value || !value.trim()) {
                 errors.name = 'Company Name is required';
             } else if (value.trim().length < 2) {
                 errors.name = 'Name must be at least 2 characters long';
+            } else if (value.trim().length > 100) {
+                errors.name = 'Name must be less than 100 characters';
+            } else if (!nameRegex.test(value.trim())) {
+                errors.name = 'Name can only contain letters, numbers, spaces, and - & . , ( )';
             } else {
                 delete errors.name;
             }
@@ -89,6 +94,10 @@ function SignupEmployer() {
             errors.name = 'Company Name is required';
         } else if (employerData.name.trim().length < 2) {
             errors.name = 'Name must be at least 2 characters long';
+        } else if (employerData.name.trim().length > 100) {
+            errors.name = 'Name must be less than 100 characters';
+        } else if (!/^[a-zA-Z0-9\s\-&.,()]+$/.test(employerData.name.trim())) {
+            errors.name = 'Name can only contain letters, numbers, spaces, and - & . , ( )';
         }
         
         if (!employerData.email || !employerData.email.trim()) {

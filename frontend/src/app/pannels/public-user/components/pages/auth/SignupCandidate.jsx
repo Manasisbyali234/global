@@ -39,6 +39,8 @@ function SignupCandidate() {
                 errors.firstName = 'First name is required';
             } else if (value.trim().length < 1) {
                 errors.firstName = 'First name must be at least 1 character long';
+            } else if (value.trim().length > 50) {
+                errors.firstName = 'First name must be less than 50 characters';
             } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
                 errors.firstName = 'First name can only contain letters and spaces';
             } else {
@@ -46,7 +48,9 @@ function SignupCandidate() {
             }
         }
         if (name === 'middleName') {
-            if (value && value.trim() && !/^[a-zA-Z\s]+$/.test(value.trim())) {
+            if (value && value.trim() && value.trim().length > 50) {
+                errors.middleName = 'Middle name must be less than 50 characters';
+            } else if (value && value.trim() && !/^[a-zA-Z\s]+$/.test(value.trim())) {
                 errors.middleName = 'Middle name can only contain letters and spaces';
             } else {
                 delete errors.middleName;
@@ -55,6 +59,8 @@ function SignupCandidate() {
         if (name === 'lastName') {
             if (!value || !value.trim()) {
                 errors.lastName = 'Last name is required';
+            } else if (value.trim().length > 50) {
+                errors.lastName = 'Last name must be less than 50 characters';
             } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
                 errors.lastName = 'Last name can only contain letters and spaces';
             } else {
@@ -166,10 +172,17 @@ function SignupCandidate() {
         // Validate all required fields before submitting
         const newErrors = {};
         if (!candidateData.firstName.trim()) newErrors.firstName = 'First name is required';
+        else if (candidateData.firstName.trim().length > 50) newErrors.firstName = 'First name must be less than 50 characters';
         else if (!/^[a-zA-Z\s]+$/.test(candidateData.firstName.trim())) newErrors.firstName = 'First name can only contain letters and spaces';
 
         if (!candidateData.lastName.trim()) newErrors.lastName = 'Last name is required';
+        else if (candidateData.lastName.trim().length > 50) newErrors.lastName = 'Last name must be less than 50 characters';
         else if (!/^[a-zA-Z\s]+$/.test(candidateData.lastName.trim())) newErrors.lastName = 'Last name can only contain letters and spaces';
+
+        if (candidateData.middleName && candidateData.middleName.trim()) {
+            if (candidateData.middleName.trim().length > 50) newErrors.middleName = 'Middle name must be less than 50 characters';
+            else if (!/^[a-zA-Z\s]+$/.test(candidateData.middleName.trim())) newErrors.middleName = 'Middle name can only contain letters and spaces';
+        }
 
         if (!candidateData.email.trim()) newErrors.email = 'Email is required';
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidateData.email.trim())) newErrors.email = 'Please enter a valid email address';
