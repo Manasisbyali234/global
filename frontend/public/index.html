@@ -16,8 +16,20 @@
   <link rel="shortcut icon" type="image/x-icon" href="%PUBLIC_URL%/assets/images/favicon.png" />
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
 
+  <!-- EARLY CONNECTIONS AND CRITICAL ASSETS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link
+    rel="preload"
+    as="image"
+    href="%PUBLIC_URL%/assets/images/Resume-amico.svg"
+    type="image/svg+xml"
+    fetchpriority="high"
+  >
+
   <!-- GOOGLE FONTS -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -244,27 +256,27 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
 
-  <script src="%PUBLIC_URL%/assets/js/jquery-3.6.0.min.js"></script><!-- JQUERY.MIN JS -->
-  <script src="%PUBLIC_URL%/assets/js/popper.min.js"></script><!-- POPPER.MIN JS -->
-  <script src="%PUBLIC_URL%/assets/js/bootstrap.min.js"></script><!-- BOOTSTRAP.MIN JS -->
-  <script src="%PUBLIC_URL%/assets/js/magnific-popup.min.js"></script><!-- MAGNIFIC-POPUP JS -->
-  <script src="%PUBLIC_URL%/assets/js/waypoints.min.js"></script><!-- WAYPOINTS JS -->
-  <script src="%PUBLIC_URL%/assets/js/waypoints-sticky.min.js"></script><!-- STICKY HEADER -->
-  <script src="%PUBLIC_URL%/assets/js/isotope.pkgd.min.js"></script><!-- MASONRY  -->
-  <script src="%PUBLIC_URL%/assets/js/imagesloaded.pkgd.min.js"></script><!-- MASONRY  -->
-  <script src="%PUBLIC_URL%/assets/js/owl.carousel.min.js"></script><!-- OWL  SLIDER  -->
-  <script src="%PUBLIC_URL%/assets/js/jquery.owl-filter.js"></script>
-  <script src="%PUBLIC_URL%/assets/js/theia-sticky-sidebar.js"></script><!-- STICKY SIDEBAR  -->
-  <script src="%PUBLIC_URL%/assets/js/lc_lightbox.lite.js"></script><!-- IMAGE POPUP -->
-  <script src="%PUBLIC_URL%/assets/js/bootstrap-select.min.js"></script><!-- Form js -->
-  <script src="%PUBLIC_URL%/assets/js/jquery.scrollbar.js"></script><!-- scroller -->
-  <script src="%PUBLIC_URL%/assets/js/bootstrap-datepicker.js"></script><!-- scroller -->
-  <script src="%PUBLIC_URL%/assets/js/jquery.dataTables.min.js"></script><!-- Datatable -->
-  <script src="%PUBLIC_URL%/assets/js/dataTables.bootstrap5.min.js"></script><!-- Datatable -->
-  <script src="%PUBLIC_URL%/assets/js/bootstrap-slider.min.js"></script><!-- Price range slider -->
-  <script src="%PUBLIC_URL%/assets/js/swiper-bundle.min.js"></script><!-- Swiper JS -->
-  <script src="%PUBLIC_URL%/assets/js/custom.js"></script><!-- CUSTOM FUCTIONS  -->
-  <script src="%PUBLIC_URL%/assets/js/modal-fix.js"></script><!-- MODAL FIX  -->
+  <script defer src="%PUBLIC_URL%/assets/js/jquery-3.6.0.min.js"></script><!-- JQUERY.MIN JS -->
+  <script defer src="%PUBLIC_URL%/assets/js/popper.min.js"></script><!-- POPPER.MIN JS -->
+  <script defer src="%PUBLIC_URL%/assets/js/bootstrap.min.js"></script><!-- BOOTSTRAP.MIN JS -->
+  <script defer src="%PUBLIC_URL%/assets/js/magnific-popup.min.js"></script><!-- MAGNIFIC-POPUP JS -->
+  <script defer src="%PUBLIC_URL%/assets/js/waypoints.min.js"></script><!-- WAYPOINTS JS -->
+  <script defer src="%PUBLIC_URL%/assets/js/waypoints-sticky.min.js"></script><!-- STICKY HEADER -->
+  <script defer src="%PUBLIC_URL%/assets/js/isotope.pkgd.min.js"></script><!-- MASONRY  -->
+  <script defer src="%PUBLIC_URL%/assets/js/imagesloaded.pkgd.min.js"></script><!-- MASONRY  -->
+  <script defer src="%PUBLIC_URL%/assets/js/owl.carousel.min.js"></script><!-- OWL  SLIDER  -->
+  <script defer src="%PUBLIC_URL%/assets/js/jquery.owl-filter.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/theia-sticky-sidebar.js"></script><!-- STICKY SIDEBAR  -->
+  <script defer src="%PUBLIC_URL%/assets/js/lc_lightbox.lite.js"></script><!-- IMAGE POPUP -->
+  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-select.min.js"></script><!-- Form js -->
+  <script defer src="%PUBLIC_URL%/assets/js/jquery.scrollbar.js"></script><!-- scroller -->
+  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-datepicker.js"></script><!-- scroller -->
+  <script defer src="%PUBLIC_URL%/assets/js/jquery.dataTables.min.js"></script><!-- Datatable -->
+  <script defer src="%PUBLIC_URL%/assets/js/dataTables.bootstrap5.min.js"></script><!-- Datatable -->
+  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-slider.min.js"></script><!-- Price range slider -->
+  <script defer src="%PUBLIC_URL%/assets/js/swiper-bundle.min.js"></script><!-- Swiper JS -->
+  <script defer src="%PUBLIC_URL%/assets/js/custom.js"></script><!-- CUSTOM FUCTIONS  -->
+  <script defer src="%PUBLIC_URL%/assets/js/modal-fix.js"></script><!-- MODAL FIX  -->
 
 </body>
 

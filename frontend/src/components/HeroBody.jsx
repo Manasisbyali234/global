@@ -431,6 +431,11 @@ const HeroBody = ({ onSearch }) => {
               src="/assets/images/Resume-amico.svg" 
               alt="Find Job" 
               className="hero-image"
+              width="520"
+              height="520"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
             />
           </div>
         </div>

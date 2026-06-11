@@ -184,6 +184,10 @@ function Footer1() {
                                             id="skin_footer_light_logo"
                                             src="images/skins-logo/logo-skin-8.gif"
                                             alt=""
+                                            width={400}
+                                            height={200}
+                                            loading="lazy"
+                                            decoding="async"
                                             style={{ height: '160px', width: 'auto' }}
                                         />
                                     </NavLink>
