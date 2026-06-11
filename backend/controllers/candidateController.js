@@ -120,6 +120,16 @@ const shouldPreserveAssessmentStageStatus = (value = '') => {
   ].includes(normalizedStatus) && !isAssessmentAttemptDerivedStageStatus(normalizedStatus);
 };
 
+const isFinalAssessmentAttemptStatus = (value = '') => [
+  'completed',
+  'passed',
+  'failed',
+  'expired',
+  'suspended',
+  'session expired',
+  'no show'
+].includes(normalizeApplicationStatusValue(value));
+
 const isAssessmentEmployerDecisionStatus = (value = '') => {
   const normalizedStatus = normalizeApplicationStatusValue(value);
   if (!normalizedStatus) return false;
@@ -1857,7 +1867,11 @@ function buildCandidateInterviewRounds(application = {}, interviewProcess = null
     const assessmentAttempt = assessmentId ? assessmentAttemptsByAssessmentId[String(assessmentId)] : null;
     const attemptStatus = assessmentAttempt ? resolveAssessmentAttemptStageStatus(assessmentAttempt) : '';
     const trackedStatus = trackedProcess?.status || resolvedTrackedProcess?.status || stage?.status || '';
-    const status = isAssessment && (!trackedStatus || normalizeApplicationStatusValue(trackedStatus) === 'pending')
+    const status = isAssessment && (
+      isFinalAssessmentAttemptStatus(attemptStatus) ||
+      !trackedStatus ||
+      normalizeApplicationStatusValue(trackedStatus) === 'pending'
+    )
       ? (attemptStatus || trackedStatus || 'pending')
       : (trackedStatus || 'pending');
     const fromDate = dbRound?.fromdate || trackedProcess?.fromDate || stage?.fromDate || stage?.scheduledDate || details?.fromDate || details?.date || null;
@@ -3009,6 +3023,20 @@ exports.getApplicationInterviewDetails = async (req, res) => {
     const job = application.jobId;
     const InterviewRound = require('../models/InterviewRound');
     const dbRounds = await InterviewRound.find({ jobId: job._id }).lean();
+    const assessmentAttempts = await AssessmentAttempt.find({
+      applicationId: application._id,
+      candidateId: req.user._id
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const assessmentAttemptsByAssessmentId = assessmentAttempts.reduce((acc, attempt) => {
+      const key = attempt?.assessmentId ? String(attempt.assessmentId) : '';
+      if (key && !acc[key]) {
+        acc[key] = attempt;
+      }
+      return acc;
+    }, {});
     const normalizeRoundKey = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
     const roundAliasCounts = dbRounds.reduce((counts, round) => {
       const addAlias = (alias) => {
@@ -3060,6 +3088,16 @@ exports.getApplicationInterviewDetails = async (req, res) => {
         
         if (roundType === 'assessment' && job.assessmentId) {
           const assessmentSchedule = resolveAssessmentRoundSchedule(job, uniqueKey, dbRounds);
+          const assessmentAttempt = assessmentSchedule.assessmentId
+            ? assessmentAttemptsByAssessmentId[String(assessmentSchedule.assessmentId)] || null
+            : assessmentAttempts[0] || null;
+          const attemptStatus = assessmentAttempt ? resolveAssessmentAttemptStageStatus(assessmentAttempt) : '';
+          const trackedStatus = trackedProcess?.status || '';
+          const assessmentStatus = attemptStatus || (
+            isAssessmentEmployerDecisionStatus(trackedStatus) || shouldPreserveAssessmentStageStatus(trackedStatus)
+              ? trackedStatus
+              : application.assessmentStatus || trackedStatus || 'not_required'
+          );
           // Add assessment round with detailed info
           interviewDetails.rounds.push({
             type: 'Assessment',
@@ -3067,11 +3105,14 @@ exports.getApplicationInterviewDetails = async (req, res) => {
             fromDate: assessmentSchedule.fromDate,
             toDate: assessmentSchedule.toDate,
             time: 'Available 24/7 during the assessment period',
-            status: trackedProcess?.status || application.assessmentStatus || 'not_required',
+            status: assessmentStatus,
             processId: trackedProcess?.id || trackedProcess?._id || null,
             processRemarks: trackedProcess?.remarks || null,
             order: index + 1,
             assessmentId: assessmentSchedule.assessmentId,
+            assessmentAttemptId: assessmentAttempt?._id || null,
+            assessmentAttemptStatus: assessmentAttempt?.status || null,
+            assessmentResult: assessmentAttempt?.result || application.assessmentResult || null,
             isAssessment: true
           });
         } else if (roundType) {
