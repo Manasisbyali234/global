@@ -591,7 +591,7 @@ function EmpCandidatesPage() {
               Job Applications
             </h4>
             <p className="text-muted mb-0 mt-1">
-              Review and manage candidate applications
+              Track and Evaluate Candidates
             </p>
           </div>
         </div>
