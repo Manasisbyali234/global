@@ -244,9 +244,15 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
         const logoSrc = getJobDisplayLogo(job);
         const companyName = formatCompanyName(job.companyName || job.employerId?.companyName, "Company");
 
+        const handleCardClick = useCallback((e) => {
+            // Don't navigate if clicking a button
+            if (e.target.closest('button')) return;
+            navigate(`/job-detail/${job._id}`);
+        }, [job._id]);
+
         return (
             <Col key={job._id} lg={6} md={12} className="mb-2">
-                <div ref={cardRef} className="new-job-card" data-visible="true">
+                <div ref={cardRef} className="new-job-card" data-visible="true" onClick={handleCardClick} style={{cursor: 'pointer'}}>
                     {/* Top Row */}
                     <div className="job-card-header">
                         <div className="job-card-left">
