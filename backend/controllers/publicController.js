@@ -117,7 +117,7 @@ exports.getJobs = async (req, res) => {
 
     // Optimized query for better performance
     const jobs = await Job.find(query)
-      .select('title location jobType applicationLimit category ctc createdAt employerId companyName companyLogo companyBanner education educationSpecializations shift lastDateOfApplication lastDateOfApplicationTime vacancies')
+      .select('title location jobType applicationLimit category ctc createdAt employerId companyName companyLogo companyBanner education educationSpecializations shift lastDateOfApplication lastDateOfApplicationTime vacancies offerLetterDate')
       .sort(sortCriteria)
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))
@@ -155,26 +155,18 @@ exports.getJobs = async (req, res) => {
       applicationCountMap.set(item._id.toString(), item.count);
     });
 
+    const now = Date.now();
     const filteredJobs = jobs.filter(job => {
       const employer = employerMap.get(job.employerId.toString());
-      const applicationCount = applicationCountMap.get(job._id.toString()) || 0;
-      const applicationLimit = parseInt(job.applicationLimit, 10) || 0;
-      // Filter out jobs where applications have reached the limit (0 means closed)
-      const hasAvailableSlots = applicationCount < applicationLimit;
-      
-      // Filter out jobs past application deadline
-      const now = Date.now();
-      let isBeforeDeadline = true;
-      if (job.lastDateOfApplication) {
-        const deadline = buildUtcDateTimeFromIst(
-          job.lastDateOfApplication,
-          job.lastDateOfApplicationTime || '',
-          'end'
-        );
-        isBeforeDeadline = !deadline || now <= deadline.getTime();
+      if (!employer || employer.status !== 'active' || !employer.isApproved) return false;
+
+      // Hide job only when current date is past the Offer Letter Sent Date
+      if (job.offerLetterDate) {
+        const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, '', 'end');
+        if (offerLetterEnd && now > offerLetterEnd.getTime()) return false;
       }
-      
-      return employer && employer.status === 'active' && employer.isApproved && hasAvailableSlots && isBeforeDeadline;
+
+      return true;
     });
     
     const jobsWithProfiles = filteredJobs.map(job => {
@@ -1016,16 +1008,10 @@ exports.getJobFilterCounts = async (req, res) => {
       return res.json(cached);
     }
 
-    // Get only currently active (non-expired) jobs with approved employers
-    const todayStart = getStartOfCurrentIstDayUtc();
+    // Get active jobs with approved employers
     const jobs = await Job.find({
       status: 'active',
-      employerId: { $exists: true },
-      $or: [
-        { lastDateOfApplication: { $exists: false } },
-        { lastDateOfApplication: null },
-        { lastDateOfApplication: { $gte: todayStart } }
-      ]
+      employerId: { $exists: true }
     })
     .populate({
       path: 'employerId',

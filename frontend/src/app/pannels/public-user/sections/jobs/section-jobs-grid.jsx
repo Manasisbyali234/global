@@ -119,14 +119,9 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                 performanceMonitor.monitorAPICall(url, apiStartTime);
                 
                 if (data.success) {
-                    const jobList = (data.jobs || []).filter((job) => {
-                        const applicationCount = Number(job?.applicationCount || 0);
-                        const applicationLimit = Number(job?.applicationLimit || 0);
-                        return applicationCount < applicationLimit;
-                    });
+                    const jobList = data.jobs || [];
                     setJobs(jobList);
                     setTotalPages(data.totalPages || 1);
-                    // Show count of jobs on current page, not total
                     console.log('Jobs on current page:', jobList.length);
                     onTotalChange?.(jobList.length);
                 } else {
@@ -166,23 +161,15 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
 
     const JobCard = memo(({ job, index }) => {
         const cardRef = useRef(null);
-        const { limitReached, isExpired, isEnded } = useMemo(() => {
-            const applicationCount = Number(job?.applicationCount || 0);
-            const applicationLimit = Number(job?.applicationLimit || 0);
-            const limitReachedNow = applicationCount >= applicationLimit;
-            const now = Date.now();
-            const deadlineDate = job?.lastDateOfApplication
-                ? buildUtcDateTimeFromIst(job.lastDateOfApplication, job.lastDateOfApplicationTime || "", "end")
-                : null;
-            const isExpiredNow = !!deadlineDate && deadlineDate.getTime() < now;
-            const normalizedStatus = (job?.status || job?.jobStatus || job?.applicationStatus || "").toString().trim().toLowerCase();
-            const isClosedByStatus = normalizedStatus && normalizedStatus !== "active";
-            return {
-                limitReached: limitReachedNow,
-                isExpired: isExpiredNow,
-                isEnded: isClosedByStatus || limitReachedNow || isExpiredNow
-            };
-        }, [job]);
+        const isEnded = useMemo(() => {
+            if (!job) return false;
+            const limitReached = typeof job.applicationLimit === 'number' && job.applicationLimit > 0 && (job.applicationCount || 0) >= job.applicationLimit;
+            if (limitReached) return true;
+            if (job.status && job.status !== 'active') return true;
+            if (!job.offerLetterDate) return false;
+            const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, "", "end");
+            return !!offerLetterEnd && Date.now() > offerLetterEnd.getTime();
+        }, [job?.offerLetterDate, job?.applicationLimit, job?.applicationCount, job?.status]);
         
         // Intersection observer for lazy loading
         useEffect(() => {
@@ -353,7 +340,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                                 className="apply-now-btn"
                                 disabled
                                 style={{backgroundColor: '#6c757d', cursor: 'not-allowed'}}
-                                title={limitReached ? 'Application limit reached' : (isExpired ? 'Last date of application has passed' : 'Applications are closed for this job')}
+                                title="Applications are closed for this job"
                             >
                                 Application Closed
                             </button>
