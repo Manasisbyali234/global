@@ -81,31 +81,36 @@
 /* Contact Form Section */
 .contact-form-outer {
     background: #ffffff !important;
-    padding: 2.5rem !important;
+    padding: 1.2rem !important;
     border-radius: 16px !important;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
     border: 1px solid #f0f0f0 !important;
 }
 
 .contact-form-outer .section-head {
-    padding-bottom: 1.5rem !important;
-    margin-bottom: 1.5rem !important;
+    padding-bottom: 0.6rem !important;
+    margin-bottom: 0.6rem !important;
     border-bottom: 1px solid #f0f0f0 !important;
 }
 
 .contact-form-outer .section-head h2.wt-title {
     color: #0a1f44 !important;
-    font-size: 1.75rem !important;
+    font-size: 1.4rem !important;
     font-weight: 700 !important;
-    margin-bottom: 0.4rem !important;
+    margin-bottom: 0.2rem !important;
     letter-spacing: -0.3px !important;
 }
 
 .contact-form-outer .section-head p {
     color: #6c757d !important;
-    font-size: 0.95rem !important;
-    line-height: 1.5 !important;
+    font-size: 0.88rem !important;
+    line-height: 1.3 !important;
     margin-bottom: 0 !important;
+}
+
+/* Reduce spacing between form fields */
+.cons-contact-form .form-group.mb-3 {
+    margin-bottom: 0.1rem !important;
 }
 
 /* Labels */
@@ -113,7 +118,7 @@
     font-size: 0.85rem !important;
     font-weight: 600 !important;
     color: #374151 !important;
-    margin-bottom: 0.35rem !important;
+    margin-bottom: 0.08rem !important;
     display: block !important;
     letter-spacing: 0.2px !important;
 }
@@ -123,8 +128,8 @@
     background-color: #f9fafb !important;
     border: 1.5px solid #e5e7eb !important;
     border-radius: 10px !important;
-    padding: 0.7rem 1rem !important;
-    font-size: 0.95rem !important;
+    padding: 0.35rem 0.8rem !important;
+    font-size: 0.9rem !important;
     color: #111827 !important;
     transition: border-color 0.2s, box-shadow 0.2s !important;
 }

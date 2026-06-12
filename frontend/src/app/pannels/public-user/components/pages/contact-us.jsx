@@ -146,7 +146,7 @@ function ContactUsPage() {
                                                         {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                                                     </div>
                                                 </div>
-                                                <div className="col-lg-12 col-md-12">
+                                                <div className="col-lg-6 col-md-6">
                                                     <div className="form-group mb-3">
                                                         <label>Phone Number <span style={{color:'red'}}>*</span></label>
                                                         <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
@@ -179,7 +179,7 @@ function ContactUsPage() {
                                                     </div>
                                                 </div>
                                                 <div className="col-lg-12">
-                                                    <div className="form-group mb-3 contact-message-group">
+                                                    <div className="form-group mb-0 contact-message-group">
                                                         <label>Message <span style={{color:'red'}}>*</span></label>
                                                         <textarea 
                                                             name="message" 
@@ -192,7 +192,7 @@ function ContactUsPage() {
                                                         {errors.message && <div className="invalid-feedback">{errors.message}</div>}
                                                     </div>
                                                 </div>
-                                                <div className="col-md-12">
+                                                <div className="col-md-12" style={{paddingTop: '0px', marginTop: '-22px'}}>
                                                     <div className="contact-submit-row">
                                                         <p className="mandatory-note"><span style={{color:'red'}}>*</span> Required fields</p>
                                                         <button 
