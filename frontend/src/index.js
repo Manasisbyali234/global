@@ -4,12 +4,24 @@ import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
 
-// Suppress ResizeObserver error
+// Suppress known benign console errors
 const resizeObserverErr = window.console.error;
 window.console.error = (...args) => {
   if (args[0]?.includes?.('ResizeObserver loop')) return;
   resizeObserverErr(...args);
 };
+
+const _origWarn = window.console.warn;
+window.console.warn = (...args) => {
+  if (args[0]?.includes?.('message channel closed before a response was received')) return;
+  _origWarn(...args);
+};
+
+window.addEventListener('unhandledrejection', (e) => {
+  if (e.reason?.message?.includes?.('message channel closed before a response was received')) {
+    e.preventDefault();
+  }
+});
 
 window.addEventListener('error', e => {
   if (e.message?.includes('ResizeObserver loop')) {
