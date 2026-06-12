@@ -6,11 +6,22 @@ import { publicUser } from "../../../../../../globals/route-names";
 import PageLoader from "../../../../../../components/PageLoader";
 import { getJobDisplayLogo } from "../../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../../utils/jobTitleFormatter";
+import { buildUtcDateTimeFromIst } from "../../../../../../utils/timezoneUtils";
 import "../../../../../../new-job-card.css";
 
 function SectionAvailableJobsList({ employerId }) {
 	const [jobs, setJobs] = useState([]);
 	const [loading, setLoading] = useState(true);
+
+	const isJobClosed = (job) => {
+		if (!job) return false;
+		if (job.status && job.status !== 'active') return true;
+		const limitReached = typeof job.applicationLimit === 'number' && job.applicationLimit > 0 && (job.applicationCount || 0) >= job.applicationLimit;
+		if (limitReached) return true;
+		if (!job.offerLetterDate) return false;
+		const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, "", "end");
+		return !!offerLetterEnd && Date.now() > offerLetterEnd.getTime();
+	};
 
 	useEffect(() => {
 		if (employerId) {
@@ -21,7 +32,7 @@ function SectionAvailableJobsList({ employerId }) {
 	const fetchEmployerJobs = async () => {
 		try {
 			console.log('Fetching jobs for employer:', employerId);
-			const response = await fetch(`http://localhost:5000/api/public/jobs?employerId=${employerId}`);
+			const response = await fetch(`http://localhost:5000/api/public/jobs?employerId=${employerId}&limit=100`);
 			const data = await response.json();
 			
 			console.log('Jobs API response:', data);
@@ -188,12 +199,23 @@ function SectionAvailableJobsList({ employerId }) {
 											{getPostedByLabel(job)}
 										</div>
 									</div>
-									<button
-										className="apply-now-btn"
-										onClick={() => window.location.href = `/job-detail/${job._id}`}
-									>
-										View Details
-									</button>
+									{isJobClosed(job) ? (
+										<button
+											className="apply-now-btn"
+											disabled
+											style={{backgroundColor: '#6c757d', cursor: 'not-allowed'}}
+											title="Applications are closed for this job"
+										>
+											Application Closed
+										</button>
+									) : (
+										<button
+											className="apply-now-btn"
+											onClick={() => window.location.href = `/job-detail/${job._id}`}
+										>
+											View Details
+										</button>
+									)}
 								</div>
 							</div>
 						</div>

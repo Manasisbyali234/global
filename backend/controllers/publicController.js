@@ -54,8 +54,8 @@ exports.getJobs = async (req, res) => {
       } catch (e) {
         query.employerId = employerId;
       }
-      // Override status to only active when filtering by specific employer
-      query.status = 'active';
+      // Match job-grid: same status filter (active + pending)
+      // offerLetterDate filtering is skipped below for employerId queries
     }
     if (title) query.title = { $regex: title, $options: 'i' };
     if (location) query.location = { $regex: location, $options: 'i' };
@@ -160,8 +160,9 @@ exports.getJobs = async (req, res) => {
       const employer = employerMap.get(job.employerId.toString());
       if (!employer || employer.status !== 'active' || !employer.isApproved) return false;
 
-      // Hide job only when current date is past the Offer Letter Sent Date
-      if (job.offerLetterDate) {
+      // When browsing all jobs (no specific employer), hide expired jobs
+      // When viewing a specific employer's profile, show all their jobs (including closed)
+      if (!employerId && job.offerLetterDate) {
         const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, '', 'end');
         if (offerLetterEnd && now > offerLetterEnd.getTime()) return false;
       }
