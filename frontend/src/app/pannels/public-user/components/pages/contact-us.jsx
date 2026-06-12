@@ -107,8 +107,8 @@ function ContactUsPage() {
                                             </div>
                                         ) : (
                                             <div className="section-head left wt-small-separator-outer">
-                                                <h2 className="wt-title">Send Us a Message</h2>
-                                                <p>Feel free to contact us and we will get back to you as soon as we can.</p>
+                                                <h2 className="wt-title">Send Us Message</h2>
+                                                <p>We'd love to hear from you. Fill out the form below and our team will respond within 1–2 business days.</p>
                                             </div>
                                         )}
                                         {/* title="" END*/}
@@ -125,7 +125,7 @@ function ContactUsPage() {
                                                             name="name" 
                                                             type="text" 
                                                             className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-                                                            placeholder="Name" 
+                                                            placeholder="Enter your full name" 
                                                             value={formData.name}
                                                             onChange={handleChange}
                                                         />
@@ -139,7 +139,7 @@ function ContactUsPage() {
                                                             name="email" 
                                                             type="email" 
                                                             className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                                                            placeholder="Email" 
+                                                            placeholder="Enter your email address" 
                                                             value={formData.email}
                                                             onChange={handleChange}
                                                         />
@@ -155,7 +155,7 @@ function ContactUsPage() {
                                                                 name="phone" 
                                                                 type="tel" 
                                                                 className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
-                                                                placeholder="Phone Number" 
+                                                                placeholder="Enter your 10-digit mobile number" 
                                                                 value={formData.phone}
                                                                 onChange={handleChange}
                                                                 maxLength={10}
@@ -172,7 +172,7 @@ function ContactUsPage() {
                                                             name="subject" 
                                                             type="text" 
                                                             className="form-control" 
-                                                            placeholder="Subject" 
+                                                            placeholder="What is your enquiry about?" 
                                                             value={formData.subject}
                                                             onChange={handleChange}
                                                         />
@@ -185,7 +185,7 @@ function ContactUsPage() {
                                                             name="message" 
                                                             className={`form-control ${errors.message ? 'is-invalid' : ''}`}
                                                             rows={3} 
-                                                            placeholder="Message" 
+                                                            placeholder="Please describe how we can assist you..." 
                                                             value={formData.message}
                                                             onChange={handleChange}
                                                         />
