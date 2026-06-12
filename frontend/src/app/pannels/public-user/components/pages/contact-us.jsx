@@ -149,8 +149,8 @@ function ContactUsPage() {
                                                 <div className="col-lg-12 col-md-12">
                                                     <div className="form-group mb-3">
                                                         <label>Phone Number <span style={{color:'red'}}>*</span></label>
-                                                        <div style={{position: 'relative'}}>
-                                                            <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none' }}>{formData.phoneCountryCode}</span>
+                                                        <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
+                                                            <span style={{ position: 'absolute', left: '12px', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: '1' }}>{formData.phoneCountryCode}</span>
                                                             <input 
                                                                 name="phone" 
                                                                 type="tel" 

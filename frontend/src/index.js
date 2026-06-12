@@ -8,13 +8,8 @@ import axios from 'axios';
 const resizeObserverErr = window.console.error;
 window.console.error = (...args) => {
   if (args[0]?.includes?.('ResizeObserver loop')) return;
-  resizeObserverErr(...args);
-};
-
-const _origWarn = window.console.warn;
-window.console.warn = (...args) => {
   if (args[0]?.includes?.('message channel closed before a response was received')) return;
-  _origWarn(...args);
+  resizeObserverErr(...args);
 };
 
 window.addEventListener('unhandledrejection', (e) => {

@@ -147,7 +147,8 @@
 }
 
 .cons-contact-form input[name="phone"]::placeholder {
-    color: transparent !important;
+    color: #adb5bd !important;
+    font-size: 0.9rem !important;
 }
 
 .cons-contact-form input[name="phone"] {
