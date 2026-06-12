@@ -5,7 +5,7 @@ const router = express.Router();
 
 const contactLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
+  max: 10,
   message: { success: false, message: 'Too many submissions. Please try again after 15 minutes.' },
   standardHeaders: true,
   legacyHeaders: false

@@ -225,10 +225,47 @@ function HomeJobsList() {
 function Home1Page() {
     const [categories, setCategories] = useState([]);
 
-    useEffect(() => {
-        loadScript("js/custom.js");
-        fetchCategories();
-    }, []);
+    const normalizeCategoryName = (name) => {
+        const map = {
+            'it': 'Information Technology',
+            'programming': 'Information Technology',
+            'hr': 'Human Resources',
+            'content writing': 'Writing and Editing',
+            'content': 'Writing and Editing',
+            'finance': 'Finance and Accounting',
+            'marketing': 'Marketing and Sales',
+            'sales': 'Marketing and Sales',
+            'healthcare': 'Health Care',
+            'design': 'Arts and Design',
+        };
+        return map[name.toLowerCase()] || name;
+    };
+
+    const getCategoryIcon = (category) => {
+        const icons = {
+            'Information Technology': 'flaticon-coding',
+            'Human Resources': 'flaticon-hr',
+            'Writing and Editing': 'flaticon-note',
+            'Finance and Accounting': 'flaticon-money',
+            'Marketing and Sales': 'flaticon-bars',
+            'Health Care': 'flaticon-healthcare',
+            'Arts and Design': 'flaticon-computer',
+            'Legal': 'flaticon-dashboard',
+            'Engineering': 'flaticon-settings',
+            'Education': 'flaticon-note',
+            'Construction': 'flaticon-settings',
+            'Manufacturing': 'flaticon-settings',
+            'Agriculture': 'flaticon-dashboard',
+            'Customer Service': 'flaticon-user',
+            'Hospitality and Tourism': 'flaticon-dashboard',
+            'Media and Communications': 'flaticon-bars',
+            'Science and Research': 'flaticon-coding',
+            'Skilled Trades': 'flaticon-settings',
+            'Transportation and Logistics': 'flaticon-dashboard',
+            'Business and Management': 'flaticon-user',
+        };
+        return icons[category] || 'flaticon-dashboard';
+    };
 
     const fetchCategories = async () => {
         try {
@@ -236,13 +273,33 @@ function Home1Page() {
             const data = await response.json();
             
             if (data.success && data.counts && data.counts.categories) {
-                const categoryList = data.counts.categories.map(([name, count]) => ({
+                const merged = {};
+                data.counts.categories.forEach(([name, count]) => {
+                    const normalized = normalizeCategoryName(name);
+                    merged[normalized] = (merged[normalized] || 0) + count;
+                });
+                const categoryList = Object.entries(merged).map(([name, count]) => ({
                     name,
                     count,
                     icon: getCategoryIcon(name)
                 }));
-                
                 setCategories(categoryList);
+                // Reinitialize owl carousel after data loads
+                setTimeout(() => {
+                    if (window.jQuery) {
+                        const $carousel = window.jQuery('.job-categories-carousel');
+                        if ($carousel.hasClass('owl-loaded')) {
+                            $carousel.trigger('destroy.owl.carousel').removeClass('owl-loaded owl-drag');
+                        }
+                        $carousel.owlCarousel({
+                            loop: true,
+                            margin: 30,
+                            nav: true,
+                            dots: false,
+                            responsive: { 0: { items: 1 }, 600: { items: 2 }, 1000: { items: 4 } }
+                        });
+                    }
+                }, 100);
             }
         } catch (error) {
             
@@ -259,23 +316,10 @@ function Home1Page() {
         }
     };
 
-    const getCategoryIcon = (category) => {
-        const icons = {
-            'IT': 'flaticon-coding',
-            'Sales': 'flaticon-user',
-            'Marketing': 'flaticon-bars',
-            'Finance': 'flaticon-money',
-            'HR': 'flaticon-hr',
-            'Operations': 'flaticon-settings',
-            'Design': 'flaticon-computer',
-            'Content': 'flaticon-note',
-            'Healthcare': 'flaticon-healthcare',
-            'Other': 'flaticon-dashboard'
-        };
-        return icons[category] || 'flaticon-dashboard';
-    };
-
-
+    useEffect(() => {
+        loadScript("js/custom.js");
+        fetchCategories();
+    }, []);
 
     return (
         <div style={{fontFamily: '"Plus Jakarta Sans", sans-serif'}}>

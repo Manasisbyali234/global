@@ -120,6 +120,7 @@ function ContactUsPage() {
                                             <div className="row">
                                                 <div className="col-lg-6 col-md-6">
                                                     <div className="form-group mb-3">
+                                                        <label>Name <span style={{color:'red'}}>*</span></label>
                                                         <input 
                                                             name="name" 
                                                             type="text" 
@@ -133,6 +134,7 @@ function ContactUsPage() {
                                                 </div>
                                                 <div className="col-lg-6 col-md-6">
                                                     <div className="form-group mb-3">
+                                                        <label>Email <span style={{color:'red'}}>*</span></label>
                                                         <input 
                                                             name="email" 
                                                             type="email" 
@@ -146,8 +148,9 @@ function ContactUsPage() {
                                                 </div>
                                                 <div className="col-lg-12 col-md-12">
                                                     <div className="form-group mb-3">
-                                                        <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
-                                                            <span style={{ position: 'absolute', left: '12px', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none' }}>{formData.phoneCountryCode}</span>
+                                                        <label>Phone Number <span style={{color:'red'}}>*</span></label>
+                                                        <div style={{position: 'relative'}}>
+                                                            <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none' }}>{formData.phoneCountryCode}</span>
                                                             <input 
                                                                 name="phone" 
                                                                 type="tel" 
@@ -158,12 +161,13 @@ function ContactUsPage() {
                                                                 maxLength={10}
                                                                 style={{ paddingLeft: '50px' }}
                                                             />
-                                                            {errors.phone && <div className="invalid-feedback d-block">{errors.phone}</div>}
                                                         </div>
+                                                        {errors.phone && <div className="invalid-feedback" style={{display:'block'}}>{errors.phone}</div>}
                                                     </div>
                                                 </div>
                                                 <div className="col-lg-6 col-md-6">
                                                     <div className="form-group mb-3">
+                                                        <label>Subject</label>
                                                         <input 
                                                             name="subject" 
                                                             type="text" 
@@ -176,6 +180,7 @@ function ContactUsPage() {
                                                 </div>
                                                 <div className="col-lg-12">
                                                     <div className="form-group mb-3 contact-message-group">
+                                                        <label>Message <span style={{color:'red'}}>*</span></label>
                                                         <textarea 
                                                             name="message" 
                                                             className={`form-control ${errors.message ? 'is-invalid' : ''}`}
@@ -188,13 +193,16 @@ function ContactUsPage() {
                                                     </div>
                                                 </div>
                                                 <div className="col-md-12">
-                                                    <button 
-                                                        type="submit" 
-                                                        className="site-button"
-                                                        disabled={isSubmitting}
-                                                    >
-                                                        {isSubmitting ? 'Submitting...' : 'Submit Now'}
-                                                    </button>
+                                                    <div className="contact-submit-row">
+                                                        <p className="mandatory-note"><span style={{color:'red'}}>*</span> Required fields</p>
+                                                        <button 
+                                                            type="submit" 
+                                                            className="site-button"
+                                                            disabled={isSubmitting}
+                                                        >
+                                                            {isSubmitting ? 'Submitting...' : 'Submit Now'}
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </form>

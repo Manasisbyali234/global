@@ -9,11 +9,11 @@ function SectionJobCategories() {
     const [categoryCounts, setCategoryCounts] = useState({});
 
     const categories = [
-        { name: 'Programming', icon: 'flaticon-coding' },
-        { name: 'Content Writer', icon: 'flaticon-note' },
-        { name: 'Sales & Marketing', icon: 'flaticon-bars' },
-        { name: 'Healthcare', icon: 'flaticon-customer-support' },
-        { name: 'Human Resources', icon: 'flaticon-user', hideOnMobile: true }
+        { name: 'Information Technology', label: 'Programming', icon: 'flaticon-coding' },
+        { name: 'Writing and Editing', label: 'Content Writing', icon: 'flaticon-note' },
+        { name: 'Marketing and Sales', label: 'Sales & Marketing', icon: 'flaticon-bars' },
+        { name: 'Health Care', label: 'Healthcare', icon: 'flaticon-customer-support' },
+        { name: 'Human Resources', label: 'Human Resources', icon: 'flaticon-user', hideOnMobile: true }
     ];
 
     useEffect(() => {
@@ -22,22 +22,12 @@ function SectionJobCategories() {
 
     const fetchCategoryCounts = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/public/jobs');
+            const response = await fetch('http://localhost:5000/api/public/jobs/filter-counts');
             const data = await response.json();
-            if (data.success) {
+            if (data.success && data.counts && data.counts.categories) {
                 const counts = {};
-                data.jobs.forEach(job => {
-                    if (job.category) {
-                        // Normalize category name for matching
-                        const normalizedCategory = job.category.trim();
-                        // Find matching category from our list (case-insensitive)
-                        const matchingCategory = categories.find(cat => 
-                            cat.name.toLowerCase() === normalizedCategory.toLowerCase()
-                        );
-                        if (matchingCategory) {
-                            counts[matchingCategory.name] = (counts[matchingCategory.name] || 0) + 1;
-                        }
-                    }
+                data.counts.categories.forEach(([name, count]) => {
+                    counts[name] = count;
                 });
                 setCategoryCounts(counts);
             }
@@ -78,7 +68,7 @@ function SectionJobCategories() {
                                                     {categoryCounts[category.name] || 0} Jobs
                                                 </div>
                                                 <span style={{color: '#1967d2', textDecoration: 'none'}}>
-                                                    {category.name}
+                                                    {category.label}
                                                 </span>
                                             </div>
                                         </div>
