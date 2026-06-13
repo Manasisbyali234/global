@@ -177,6 +177,7 @@ InterviewProcessSchema.methods.updateProcessStatus = function() {
   const failedStages = this.stages.filter(stage =>
     stage.status === 'failed' ||
     stage.status === 'suspended' ||
+    stage.status === 'no show' ||
     (stage.status === 'expired' && stage.assessmentResult !== 'pass')
   ).length;
   

@@ -973,6 +973,9 @@ function EmpCandidateReviewPage() {
         const hasRejectedNonAssessmentStage = normalizedProcesses.some((process) =>
             !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
         );
+        const hasRejectedProcess = normalizedProcesses.some((process) =>
+            isRejectedLikeStatus(process?.status) || process?.derivedRejected
+        );
         const hasDerivedRejectedAssessmentStage = normalizedProcesses.some((process) => {
             if (!isAssessmentProcess(process)) return false;
             const assessmentDisplay = getAssessmentDisplayState(process, applicationData);
@@ -981,6 +984,7 @@ function EmpCandidateReviewPage() {
 
         if (
             sharedApplicationStatus === 'rejected' ||
+            hasRejectedProcess ||
             hasRejectedNonAssessmentStage ||
             hasDerivedRejectedAssessmentStage ||
             assessmentIsSuspended ||

@@ -925,8 +925,10 @@ function AdminOverviewPage() {
                             const presentations = rounds.map((round, roundIndex) =>
                               getRoundStatusPresentation(round, roundIndex, rounds.length)
                             );
-                            const hasNoShowRound = presentations.some((p) => p.label === 'No Show');
-                            if (hasNoShowRound) {
+                            const hasBlockingRound = presentations.some((presentation) =>
+                              isBlockingRoundPresentation(presentation)
+                            );
+                            if (hasBlockingRound) {
                               applicantStatusKey = 'rejected';
                             } else {
                             const hasPassedAssessment = rounds.some((round) => {

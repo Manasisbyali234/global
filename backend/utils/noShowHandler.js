@@ -7,7 +7,86 @@
  */
 
 const Application = require('../models/Application');
+const InterviewProcess = require('../models/InterviewProcess');
 const { buildUtcDateTimeFromIst } = require('./dateTime');
+
+const normalizeValue = (value = '') =>
+  String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ');
+
+const normalizeId = (value = '') => {
+  if (!value) return '';
+  if (typeof value === 'object') {
+    return String(value?._id || value?.id || '').trim();
+  }
+
+  return String(value).trim();
+};
+
+const shouldMarkAssessmentStageNoShow = (stage = {}) => {
+  const status = normalizeValue(stage?.status);
+  const result = normalizeValue(stage?.assessmentResult);
+
+  if (status === 'expired') {
+    return !['pass', 'pending'].includes(result);
+  }
+
+  return ![
+    'completed',
+    'passed',
+    'failed',
+    'suspended',
+    'cancelled',
+    'no show'
+  ].includes(status);
+};
+
+const markAssessmentStageNoShow = async (applicationId, options = {}) => {
+  const {
+    assessmentId = null,
+    notes = 'Candidate no-show / session expired',
+    changedAt = new Date()
+  } = options;
+
+  const interviewProcess = await InterviewProcess.findOne({ applicationId });
+  if (!interviewProcess?.stages?.length) {
+    return false;
+  }
+
+  const targetAssessmentId = normalizeId(assessmentId);
+  const assessmentStagesToUpdate = interviewProcess.stages.filter((stage) => (
+    stage?.stageType === 'assessment' &&
+    (!targetAssessmentId || normalizeId(stage.assessmentId) === targetAssessmentId) &&
+    shouldMarkAssessmentStageNoShow(stage)
+  ));
+
+  if (!targetAssessmentId && assessmentStagesToUpdate.length !== 1) {
+    return false;
+  }
+  if (assessmentStagesToUpdate.length === 0) {
+    return false;
+  }
+
+  assessmentStagesToUpdate.forEach((stage) => {
+    stage.status = 'no show';
+    stage.assessmentCompletedAt = stage.assessmentCompletedAt || changedAt;
+    stage.statusHistory = Array.isArray(stage.statusHistory) ? stage.statusHistory : [];
+    stage.statusHistory.push({
+      status: 'no show',
+      changedAt,
+      changedByModel: 'System',
+      notes
+    });
+  });
+
+  interviewProcess.markModified('stages');
+  interviewProcess.updateProcessStatus();
+  await interviewProcess.save();
+  return true;
+};
 
 /**
  * Atomically update an application to the no-show / expired state.
@@ -19,12 +98,16 @@ const { buildUtcDateTimeFromIst } = require('./dateTime');
 const applyNoShowRejection = async (applicationId, options = {}) => {
   const {
     expireInterviewInvite = true,
-    notes = 'Candidate no-show / session expired'
+    notes = 'Candidate no-show / session expired',
+    assessmentId = null,
+    updateAssessmentStage = true
   } = options;
 
+  const changedAt = new Date();
   const result = await Application.findOneAndUpdate(
     {
       _id: applicationId,
+      status: { $nin: ['accepted', 'hired', 'offer_sent'] },
       $or: [
         { status: { $ne: 'rejected' } },
         { assessmentStatus: { $ne: 'no_show' } }
@@ -40,14 +123,29 @@ const applyNoShowRejection = async (applicationId, options = {}) => {
         statusHistory: {
           status: 'rejected',
           notes,
-          changedAt: new Date()
+          changedAt
         }
       }
     },
     { new: false }
   );
 
-  return result !== null;
+  if (result === null) {
+    const existingApplication = await Application.findById(applicationId)
+      .select('status assessmentStatus')
+      .lean();
+    const existingStatus = normalizeValue(existingApplication?.status);
+
+    if (!existingApplication || ['accepted', 'hired', 'offer sent'].includes(existingStatus)) {
+      return false;
+    }
+  }
+
+  const stageUpdated = updateAssessmentStage
+    ? await markAssessmentStageNoShow(applicationId, { assessmentId, notes, changedAt })
+    : false;
+
+  return result !== null || stageUpdated;
 };
 
 /**

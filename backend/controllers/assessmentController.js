@@ -8,6 +8,7 @@ const InterviewProcess = require('../models/InterviewProcess');
 const { sendAssessmentResultPublishedEmail } = require('../utils/emailService');
 const { buildUtcDateTimeFromIst } = require('../utils/dateTime');
 const { normalizeTimeFormat } = require('../utils/timeUtils');
+const { applyNoShowRejection } = require('../utils/noShowHandler');
 
 const RESTRICTION_WARNING_LIMIT = 4;
 const RESTRICTION_SUSPEND_THRESHOLD = 5;
@@ -25,7 +26,7 @@ const IMMEDIATE_SUSPEND_VIOLATIONS = new Set([
   'assessment_close_confirmed'
 ]);
 
-const AUTO_REJECT_ASSESSMENT_SESSION_EXPIRED_NOTE = 'Auto-updated: assessment session expired';
+const AUTO_REJECT_ASSESSMENT_NO_SHOW_NOTE = 'Auto-updated: assessment no-show';
 const AUTO_REJECT_ASSESSMENT_SUSPENDED_NOTE = 'Auto-updated: assessment suspended';
 const AUTO_REJECT_ASSESSMENT_FAILED_NOTE = 'Auto-updated: assessment failed';
 
@@ -1195,6 +1196,12 @@ exports.startAssessment = async (req, res) => {
     }
 
     if (timingContext.isWindowClosed) {
+      await applyNoShowRejection(applicationId, {
+        expireInterviewInvite: false,
+        assessmentId,
+        notes: AUTO_REJECT_ASSESSMENT_NO_SHOW_NOTE
+      });
+
       return res.status(400).json({
         success: false,
         message: 'Assessment window has ended. You cannot start this assessment now.'
@@ -1255,6 +1262,12 @@ exports.startAssessment = async (req, res) => {
     });
 
     if (startedTiming.isWindowClosed || startedTiming.isExpired || startedTiming.remainingSeconds <= 0) {
+      await applyNoShowRejection(applicationId, {
+        expireInterviewInvite: false,
+        assessmentId,
+        notes: AUTO_REJECT_ASSESSMENT_NO_SHOW_NOTE
+      });
+
       return res.status(400).json({
         success: false,
         message: 'Assessment window has ended. You cannot start this assessment now.'
