@@ -690,6 +690,7 @@ function CanStatusPage() {
 		if (roundName === 'Assessment') {
 			const assessmentInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
 			const completionInfo = assessmentInfo?.completionInfo || {};
+			const windowInfo = getAssessmentWindowInfo(application?.jobId, roundDetails);
 			directStatuses.push(
 				assessmentInfo?.trackedDecisionStatus,
 				completionInfo.status,
@@ -701,6 +702,15 @@ function CanStatusPage() {
 				completionInfo.isNoShow ||
 				completionInfo.isExpired ||
 				completionInfo.isSuspended
+			) {
+				return 'rejected';
+			}
+
+			if (
+				windowInfo?.isAfterEnd &&
+				!completionInfo.isCompleted &&
+				!completionInfo.isInProgress &&
+				!completionInfo.isSuspended
 			) {
 				return 'rejected';
 			}
