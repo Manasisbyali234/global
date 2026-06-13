@@ -239,15 +239,12 @@ function EmpCandidateReviewPage() {
                 const hasRejectedBefore = sanitized.some((previousProcess) =>
                     isRejectedLikeStatus(previousProcess.status)
                 );
-                const allPreviousStagesShortlisted = sanitized.every((previousProcess) =>
-                    isShortlistedForNextRoundStatus(previousProcess.status)
-                );
-
-                if (hasRejectedBefore || !allPreviousStagesShortlisted) {
+                if (hasRejectedBefore) {
                     nextProcess = {
                         ...nextProcess,
-                        status: 'pending',
-                        isCompleted: false
+                        status: 'rejected',
+                        derivedRejected: true,
+                        isCompleted: true
                     };
                 }
             }
@@ -866,6 +863,7 @@ function EmpCandidateReviewPage() {
                 return {
                     ...process,
                     status: 'rejected',
+                    derivedRejected: true,
                     isCompleted: true
                 };
             }
@@ -1888,7 +1886,9 @@ function EmpCandidateReviewPage() {
                                                                         <div className="stage-header-block">
                                                                             <h5>{cleanProcessName(process.name)}</h5>
                                                                             <span className={`status-pill ${process.type === 'assessment' ? (assessmentDisplay.statusClass || 'pending') : (process.status || 'pending')}`}>
-                                                                                {process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired)
+                                                                                {process.derivedRejected
+                                                                                    ? 'Rejected'
+                                                                                    : process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired)
                                                                                     ? assessmentDisplay.statusLabel
                                                                                     : (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))}
                                                                             </span>

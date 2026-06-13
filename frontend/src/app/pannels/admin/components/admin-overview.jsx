@@ -319,6 +319,10 @@ function AdminOverviewPage() {
   ].includes(normalizeStatusValue(status));
 
   const getRoundStatusPresentation = (round = {}, index = -1, totalRounds = 0) => {
+    if (round?.derivedRejected) {
+      return { label: "Rejected", style: badgeStyles.danger };
+    }
+
     const normalizedStatus = normalizeStatusValue(round?.status);
     const isAssessmentRound =
       normalizeStatusValue(round?.type) === "assessment" ||
@@ -389,6 +393,41 @@ function AdminOverviewPage() {
       label: getInterviewRoundStatusLabel(round?.status || "pending", index, totalRounds),
       style: getInterviewRoundStatusStyle(round?.status || "pending")
     };
+  };
+
+  const isBlockingRoundPresentation = (presentation = {}) => {
+    const label = normalizeStatusValue(presentation?.label);
+    return [
+      "no show",
+      "rejected",
+      "fail",
+      "failed",
+      "suspended",
+      "not advanced to next stage",
+      "not advanced to next round"
+    ].includes(label);
+  };
+
+  const applyRoundStatusCascade = (rounds = []) => {
+    let hasBlockingRound = false;
+    const totalRounds = Array.isArray(rounds) ? rounds.length : 0;
+
+    return (Array.isArray(rounds) ? rounds : []).map((round, index) => {
+      if (hasBlockingRound) {
+        return {
+          ...round,
+          status: "rejected",
+          derivedRejected: true
+        };
+      }
+
+      const presentation = getRoundStatusPresentation(round, index, totalRounds);
+      if (isBlockingRoundPresentation(presentation)) {
+        hasBlockingRound = true;
+      }
+
+      return round;
+    });
   };
 
   const isRejectedAssessmentOutcome = (status = "", result = "") => {
@@ -876,9 +915,12 @@ function AdminOverviewPage() {
                     ) : (
                       visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant, index) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
+                        const displayRounds = Array.isArray(applicant.interviewRounds)
+                          ? applyRoundStatusCascade(applicant.interviewRounds)
+                          : [];
                         let applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
-                        if (Array.isArray(applicant.interviewRounds)) {
-                          const rounds = applicant.interviewRounds;
+                        if (displayRounds.length > 0) {
+                          const rounds = displayRounds;
                           if (applicantStatusKey !== 'rejected') {
                             const presentations = rounds.map((round, roundIndex) =>
                               getRoundStatusPresentation(round, roundIndex, rounds.length)
@@ -913,11 +955,11 @@ function AdminOverviewPage() {
                             <td>{formatDate(applicant.appliedAt)}</td>
                             <td>{applicant.interviewRoundsCount ?? 0}</td>
                             <td>
-                              {Array.isArray(applicant.interviewRounds) && applicant.interviewRounds.length > 0 ? (
+                              {displayRounds.length > 0 ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                                  {applicant.interviewRounds.map((round, index) => (
+                                  {displayRounds.map((round, index) => (
                                     (() => {
-                                      const roundStatus = getRoundStatusPresentation(round, index, applicant.interviewRounds.length);
+                                      const roundStatus = getRoundStatusPresentation(round, index, displayRounds.length);
                                       const assessmentResult = getAssessmentResultPresentation(round);
                                       const isAssessmentRound =
                                         normalizeStatusValue(round?.type) === "assessment" ||
