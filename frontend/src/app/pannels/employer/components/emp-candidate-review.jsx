@@ -897,6 +897,7 @@ function EmpCandidateReviewPage() {
             return 'pending';
         }
 
+        const sharedApplicationStatus = getApplicationStatusKey(applicationData, '');
         const baseStatus = String(applicationData?.status || '').trim().toLowerCase() || 'pending';
         if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
             return baseStatus;
@@ -931,9 +932,24 @@ function EmpCandidateReviewPage() {
         const hasRejectedNonAssessmentStage = normalizedProcesses.some((process) =>
             !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
         );
+        const hasDerivedRejectedAssessmentStage = normalizedProcesses.some((process) => {
+            if (!isAssessmentProcess(process)) return false;
+            const assessmentDisplay = getAssessmentDisplayState(process, applicationData);
+            return isRejectedLikeStatus(assessmentDisplay?.statusValue);
+        });
 
-        if (hasRejectedNonAssessmentStage || assessmentIsSuspended || assessmentIsFailed) {
+        if (
+            sharedApplicationStatus === 'rejected' ||
+            hasRejectedNonAssessmentStage ||
+            hasDerivedRejectedAssessmentStage ||
+            assessmentIsSuspended ||
+            assessmentIsFailed
+        ) {
             return 'rejected';
+        }
+
+        if (sharedApplicationStatus && sharedApplicationStatus !== 'pending') {
+            return sharedApplicationStatus;
         }
 
         if (pendingAssessmentEvaluation) {
