@@ -858,6 +858,42 @@ function EmpCandidateReviewPage() {
         };
     };
 
+    const applyDerivedRejectedProcessStatuses = (processes = [], applicationData = null) => {
+        let hasBlockingRejectedRound = false;
+
+        return (Array.isArray(processes) ? processes : []).map((process) => {
+            if (hasBlockingRejectedRound) {
+                return {
+                    ...process,
+                    status: 'rejected',
+                    isCompleted: true
+                };
+            }
+
+            const assessmentDisplay = isAssessmentProcess(process)
+                ? getAssessmentDisplayState(process, applicationData)
+                : null;
+            const derivedStatus = assessmentDisplay?.statusValue || process?.status || 'pending';
+            const isRejectedRound = isRejectedLikeStatus(derivedStatus);
+
+            if (isRejectedRound) {
+                hasBlockingRejectedRound = true;
+            }
+
+            if (assessmentDisplay && derivedStatus !== process?.status) {
+                return {
+                    ...process,
+                    status: derivedStatus,
+                    result: assessmentDisplay.resultValue || process.result,
+                    resultClass: assessmentDisplay.resultClass || process.resultClass,
+                    isCompleted: true
+                };
+            }
+
+            return process;
+        });
+    };
+
     const resolveAssessmentProcessStatus = (stageStatus, assessmentSummary) => {
         const rawStageStatus = String(stageStatus || '').trim().toLowerCase();
         const normalizedStageStatus = normalizeStatusValue(stageStatus);
@@ -1256,6 +1292,7 @@ function EmpCandidateReviewPage() {
                         });
                     }
                 }
+                processes = applyDerivedRejectedProcessStatuses(processes, data.application);
                 isInitialLoadRef.current = true;
                 processRemarksRef.current = initialRemarks;
                 interviewProcessesRef.current = processes;
