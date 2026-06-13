@@ -880,6 +880,13 @@ function AdminOverviewPage() {
                         if (Array.isArray(applicant.interviewRounds)) {
                           const rounds = applicant.interviewRounds;
                           if (applicantStatusKey !== 'rejected') {
+                            const presentations = rounds.map((round, roundIndex) =>
+                              getRoundStatusPresentation(round, roundIndex, rounds.length)
+                            );
+                            const hasNoShowRound = presentations.some((p) => p.label === 'No Show');
+                            if (hasNoShowRound) {
+                              applicantStatusKey = 'rejected';
+                            } else {
                             const hasPassedAssessment = rounds.some((round) => {
                               const isAssessment =
                                 normalizeStatusValue(round?.type) === 'assessment' ||
@@ -890,12 +897,7 @@ function AdminOverviewPage() {
                             });
                             if (hasPassedAssessment) {
                               applicantStatusKey = 'pending';
-                            } else {
-                              const presentations = rounds.map((round, roundIndex) =>
-                                getRoundStatusPresentation(round, roundIndex, rounds.length)
-                              );
-                              const hasNoShowRound = presentations.some((p) => p.label === 'No Show');
-                              if (hasNoShowRound) applicantStatusKey = 'rejected';
+                            }
                             }
                           }
                         }

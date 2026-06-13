@@ -80,6 +80,7 @@ const getAssessmentScheduleSource = (jobData = {}, assessmentId = '') => {
 
   if (requestedAssessmentId) {
     const matchedRoundKey = assessmentRoundKeys.find((roundKey) => (
+      normalizeAssessmentId(roundKey) === requestedAssessmentId ||
       normalizeAssessmentId(jobData?.interviewRoundDetails?.[roundKey]?.assessmentId) === requestedAssessmentId
     ));
 
@@ -685,6 +686,26 @@ const isAssessmentWindowClosed = (application = {}, assessmentId = '') => {
   return false;
 };
 
+const getAssessmentWindowIdentifiers = (application = {}) => {
+  const jobData = application?.jobId;
+  if (!jobData || typeof jobData !== 'object') {
+    return [];
+  }
+
+  const identifiers = [];
+  const assessmentRoundKeys = getAssessmentRoundOrderKeys(jobData);
+  assessmentRoundKeys.forEach((roundKey) => {
+    const roundAssessmentId = normalizeAssessmentId(jobData?.interviewRoundDetails?.[roundKey]?.assessmentId);
+    identifiers.push(roundAssessmentId || String(roundKey || '').trim());
+  });
+
+  if (identifiers.length === 0 && jobData?.assessmentId) {
+    identifiers.push(normalizeAssessmentId(jobData.assessmentId));
+  }
+
+  return [...new Set(identifiers.filter(Boolean))];
+};
+
 const hasManualAssessmentAttemptActivityRequiringReview = (application = {}, options = {}, assessmentId = '') => {
   const matchedAttempt = getAssessmentAttemptForWindow(application, options, assessmentId);
   if (!matchedAttempt) {
@@ -731,6 +752,13 @@ const hasExpiredAssessmentWindowWithoutActivity = (application = {}, options = {
     return false;
   }
 
+  const requestedAssessmentId = normalizeAssessmentId(assessmentId);
+  if (!requestedAssessmentId && !hasSingleAssessmentContext(application, options)) {
+    return getAssessmentWindowIdentifiers(application).some((identifier) =>
+      hasExpiredAssessmentWindowWithoutActivity(application, options, identifier)
+    );
+  }
+
   const matchedAttempt = getAssessmentAttemptForWindow(application, options, assessmentId);
   if (matchedAttempt) {
     const attemptResult = normalizeApplicationStatusValue(matchedAttempt?.result);
@@ -745,13 +773,15 @@ const hasExpiredAssessmentWindowWithoutActivity = (application = {}, options = {
       return false;
     }
   } else {
-    const applicationResult = normalizeApplicationStatusValue(application?.assessmentResult);
-    const applicationStatus = normalizeApplicationStatusValue(application?.assessmentStatus);
-    if (
-      ['pass', 'passed', 'fail', 'failed', 'pending'].includes(applicationResult) ||
-      ['completed', 'passed', 'failed', 'suspended', 'in progress'].includes(applicationStatus)
-    ) {
-      return false;
+    if (hasSingleAssessmentContext(application, options)) {
+      const applicationResult = normalizeApplicationStatusValue(application?.assessmentResult);
+      const applicationStatus = normalizeApplicationStatusValue(application?.assessmentStatus);
+      if (
+        ['pass', 'passed', 'fail', 'failed', 'pending'].includes(applicationResult) ||
+        ['completed', 'passed', 'failed', 'suspended', 'in progress'].includes(applicationStatus)
+      ) {
+        return false;
+      }
     }
   }
 
@@ -771,11 +801,11 @@ const hasExpiredAssessmentWindowWithoutActivity = (application = {}, options = {
     return false;
   }
 
-  if (application?.assessmentScore !== null && application?.assessmentScore !== undefined) {
+  if (hasSingleAssessmentContext(application, options) && application?.assessmentScore !== null && application?.assessmentScore !== undefined) {
     return false;
   }
 
-  if (application?.assessmentPercentage !== null && application?.assessmentPercentage !== undefined) {
+  if (hasSingleAssessmentContext(application, options) && application?.assessmentPercentage !== null && application?.assessmentPercentage !== undefined) {
     return false;
   }
 
@@ -829,6 +859,7 @@ const resolveTrackedProcessStatus = (process = {}, application = {}, options = {
 
   if (
     getCanonicalStatusKey(applicationOutcomeStatus, 'pending') === 'pending' &&
+    (processAssessmentId || singleAssessmentContext) &&
     hasExpiredAssessmentWindowWithoutActivity(application, options, processAssessmentId)
   ) {
     return 'no_show';
