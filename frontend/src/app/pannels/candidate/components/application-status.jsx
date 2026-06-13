@@ -330,6 +330,13 @@ function CanStatusPage() {
 		if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(rawStatus)) {
 			return rawStatus;
 		}
+		const rounds = getInterviewRounds(application?.jobId, application);
+		if (
+			Array.isArray(rounds) &&
+			rounds.some((round, roundIndex) => getBlockingRoundStatus(application, round, roundIndex, rounds))
+		) {
+			return 'rejected';
+		}
 		return rawStatus || 'pending';
 	};
 
