@@ -664,6 +664,67 @@ function CanStatusPage() {
 		};
 	};
 
+	const getBlockingRoundStatus = (application, round, roundIndex, roundsList = []) => {
+		const roundName = typeof round === 'string' ? round : round?.name;
+		const roundDetails = resolveRoundDetails(application, round, roundIndex, roundsList);
+		const directStatuses = [
+			typeof round === 'object' ? round?.status : '',
+			roundDetails?.__roundStatus
+		];
+
+		const relatedProcess = findRelatedInterviewProcess(application, {
+			uniqueKey: roundDetails?.__uniqueKey,
+			processId: roundDetails?.__processId,
+			roundType: roundDetails?.__roundType,
+			roundName,
+			index: roundIndex
+		});
+		const relatedStage = findRelatedInterviewStage(application, {
+			uniqueKey: roundDetails?.__uniqueKey,
+			roundType: roundDetails?.__roundType,
+			index: roundIndex
+		});
+
+		directStatuses.push(relatedProcess?.status, relatedStage?.status);
+
+		if (roundName === 'Assessment') {
+			const assessmentInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
+			const completionInfo = assessmentInfo?.completionInfo || {};
+			directStatuses.push(
+				assessmentInfo?.trackedDecisionStatus,
+				completionInfo.status,
+				completionInfo.result
+			);
+
+			if (
+				completionInfo.isFailed ||
+				completionInfo.isNoShow ||
+				completionInfo.isExpired ||
+				completionInfo.isSuspended
+			) {
+				return 'rejected';
+			}
+		}
+
+		return directStatuses.find((status) => isRejectedInterviewProcessStatus(status)) || '';
+	};
+
+	const hasRejectedPriorRound = (application, roundIndex, roundsList = null) => {
+		if (!application || roundIndex <= 0) return false;
+		const resolvedRounds =
+			Array.isArray(roundsList) && roundsList.length > 0
+				? roundsList
+				: getInterviewRounds(application?.jobId, application);
+
+		for (let index = 0; index < roundIndex; index += 1) {
+			if (getBlockingRoundStatus(application, resolvedRounds[index], index, resolvedRounds)) {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
 	const getRoundActivationState = (application, roundIndex, roundsList = null) => {
 		if (!application || roundIndex <= 0) {
 			return {
@@ -682,6 +743,13 @@ function CanStatusPage() {
 			return {
 				canStart: false,
 				previousAssessmentFailed: false
+			};
+		}
+
+		if (hasRejectedPriorRound(application, roundIndex, resolvedRounds)) {
+			return {
+				canStart: false,
+				previousAssessmentFailed: true
 			};
 		}
 
@@ -1890,6 +1958,10 @@ function CanStatusPage() {
 				: null;
 			// Note: returns null when no slot booked so callers can show 'Schedule' instead
 		};
+
+		if (roundIndex > 0 && hasRejectedPriorRound(application, roundIndex)) {
+			return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+		}
 
 		// Check assessment status for Assessment rounds
 		if (roundName === 'Assessment') {
