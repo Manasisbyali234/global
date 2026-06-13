@@ -745,6 +745,42 @@ function EmpCandidateReviewPage() {
             'scheduled',
             'not started'
         ]);
+        const fromDate =
+            process?.fromDate ||
+            process?.scheduledDate ||
+            applicationData?.jobId?.assessmentStartDate ||
+            null;
+        const toDate =
+            process?.toDate ||
+            process?.fromDate ||
+            process?.scheduledDate ||
+            applicationData?.jobId?.assessmentEndDate ||
+            fromDate;
+        const endTime =
+            process?.endTime ||
+            applicationData?.jobId?.assessmentEndTime ||
+            '';
+        const scheduledEnd = buildScheduleDateTime(toDate || fromDate, endTime, 'end');
+        const isPendingOrAutoStageStatus =
+            pendingStatuses.has(normalizedStatus) ||
+            isAutoAssessmentStageStatus(process?.status);
+        const isWindowExpired = Boolean(
+            !hasAssessmentData &&
+            isPendingOrAutoStageStatus &&
+            scheduledEnd &&
+            new Date() > scheduledEnd
+        );
+
+        if (isWindowExpired) {
+            return {
+                statusValue: 'no_show',
+                statusLabel: 'No Show',
+                statusClass: 'no_show',
+                resultValue: 'No Show',
+                resultClass: 'no_show',
+                isWindowExpired: true
+            };
+        }
 
         if (assessmentOutcome.isPassed) {
             return {
@@ -811,35 +847,6 @@ function EmpCandidateReviewPage() {
                 isWindowExpired: false
             };
         }
-
-        const fromDate =
-            process?.fromDate ||
-            process?.scheduledDate ||
-            applicationData?.jobId?.assessmentStartDate ||
-            null;
-        const toDate =
-            process?.toDate ||
-            process?.fromDate ||
-            process?.scheduledDate ||
-            applicationData?.jobId?.assessmentEndDate ||
-            fromDate;
-        const startTime =
-            process?.startTime ||
-            process?.scheduledTime ||
-            applicationData?.jobId?.assessmentStartTime ||
-            '';
-        const endTime =
-            process?.endTime ||
-            applicationData?.jobId?.assessmentEndTime ||
-            '';
-
-        const scheduledEnd = buildScheduleDateTime(toDate || fromDate, endTime, 'end');
-        const isWindowExpired = Boolean(
-            !hasAssessmentData &&
-            pendingStatuses.has(normalizedStatus) &&
-            scheduledEnd &&
-            new Date() > scheduledEnd
-        );
 
         return {
             statusValue: isWindowExpired ? 'no_show' : defaultStatusValue,
@@ -1843,7 +1850,7 @@ function EmpCandidateReviewPage() {
                                                                     <div className="stage-row-primary">
                                                                         <div className="stage-header-block">
                                                                             <h5>{cleanProcessName(process.name)}</h5>
-                                                                            <span className={`status-pill ${process.status || 'pending'}`}>
+                                                                            <span className={`status-pill ${process.type === 'assessment' ? (assessmentDisplay.statusClass || 'pending') : (process.status || 'pending')}`}>
                                                                                 {process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired)
                                                                                     ? assessmentDisplay.statusLabel
                                                                                     : (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))}
