@@ -19,8 +19,18 @@ header,
   z-index: 100 !important;
   position: sticky !important;
   top: 0 !important;
-  /* No will-change here — it creates a stacking context and promotes to its own layer
-     unnecessarily when the header is not animating, causing compositing overhead */
+}
+
+/* Transparent state (home page top) - background only, position stays sticky */
+.site-header.navbar-transparent {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Scrolled state - background fills in, position stays sticky */
+.site-header.navbar-scrolled {
+  background: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
 }
 
 /* Fix: Bootstrap navbar-collapse uses height animation (non-composited).
