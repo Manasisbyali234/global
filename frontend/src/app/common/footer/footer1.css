@@ -2,9 +2,13 @@
     display: block;
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
-    /* Reserve space so the footer doesn't cause a layout shift when it renders */
-    contain-intrinsic-size: 0 480px;
-    content-visibility: auto;
+    min-height: 480px;
+}
+
+@media (max-width: 768px) {
+    .site-footer-new {
+        min-height: 680px;
+    }
 }
 
 .site-footer-new__container {
