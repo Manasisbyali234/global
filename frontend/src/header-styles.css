@@ -29,6 +29,7 @@ header,
   z-index: unset !important;
   opacity: 1;
   transform: translateZ(0);
+  will-change: opacity;
 }
 
 #header-admin-wrap,
