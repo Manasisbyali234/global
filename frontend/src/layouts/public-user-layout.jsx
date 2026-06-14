@@ -48,7 +48,7 @@ function PublicUserLayout() {
 
     return (
         <>
-            <div className={layoutClassName}>
+            <div className={layoutClassName} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
                 {/* Header */}
                 {
                     showHeader(currentpath) &&
@@ -63,12 +63,11 @@ function PublicUserLayout() {
                     <PublicUserRoutes />
                 </div>
 
-                {/* Footer - always rendered to prevent CLS from footer appearing after hydration */}
-                <div style={{ flexShrink: 0 }}>
-                {
-                    showFooter(currentpath) &&
-                    setFooterType(currentpath)
-                }
+                {/* Footer: always in DOM, hidden via display:none when not needed.
+                    Conditional mounting causes CLS because the footer appears after
+                    first paint and pushes page-content upward. */}
+                <div style={{ flexShrink: 0, display: showFooter(currentpath) ? 'block' : 'none' }}>
+                    {setFooterType(currentpath)}
                 </div>
             </div>
         </>
