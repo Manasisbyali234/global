@@ -125,6 +125,15 @@ function Footer1() {
                 }
                 .footer-brand-logo {
                     margin-top: -40px;
+                    /* Reserve space to prevent CLS */
+                    min-height: 160px;
+                    display: block;
+                }
+                .footer-brand-logo img {
+                    display: block;
+                    width: 320px;
+                    height: 160px;
+                    object-fit: contain;
                 }
                 .social-icon-outline {
                     width: 36px;
@@ -154,12 +163,12 @@ function Footer1() {
                     }
                     .footer-brand-logo {
                         margin-top: 0;
+                        min-height: auto;
                     }
                     .footer-brand-logo img {
-                        display: block;
-                        max-width: 100%;
-                        height: auto !important;
-                        object-fit: contain;
+                        width: 100%;
+                        max-width: 320px;
+                        height: auto;
                     }
                 }
             `}</style>
@@ -183,12 +192,12 @@ function Footer1() {
                                         <JobZImage
                                             id="skin_footer_light_logo"
                                             src="images/skins-logo/logo-skin-8.gif"
-                                            alt=""
-                                            width={400}
-                                            height={200}
-                                            loading="lazy"
+                                            alt="TaleGlobal"
+                                            width={320}
+                                            height={160}
+                                            loading="eager"
                                             decoding="async"
-                                            style={{ height: '160px', width: 'auto' }}
+                                            style={{ width: '320px', height: '160px', display: 'block', objectFit: 'contain' }}
                                         />
                                     </NavLink>
                                 </div>
@@ -248,7 +257,6 @@ function Footer1() {
                                 <a href="https://www.youtube.com/@TaleGlobal" target="_blank" rel="noopener noreferrer" className="social-icon-outline" style={{ marginLeft: '0', marginRight: '12px' }}>
                                     <i className="feather-youtube"></i>
                                 </a>
-
                             </div>
                         </Col>
                     </Row>

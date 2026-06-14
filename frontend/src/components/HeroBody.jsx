@@ -403,14 +403,27 @@ const HeroBody = ({ onSearch }) => {
 
   return (
     <div className="hero-body" style={{
-      backgroundImage: "url('/assets/images/photo_2025-10-09_11-01-43.png')",
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-      minHeight: "500px"
+      position: 'relative',
+      minHeight: "500px",
+      overflow: 'hidden'
     }}>
+      {/* LCP image: discoverable from HTML, not hidden in CSS background */}
+      <img
+        src="/assets/images/photo_2025-10-09_11-01-43.png"
+        alt=""
+        aria-hidden="true"
+        fetchPriority="high"
+        loading="eager"
+        decoding="async"
+        style={{
+          position: 'absolute', top: 0, left: 0,
+          width: '100%', height: '100%',
+          objectFit: 'cover', objectPosition: 'center',
+          zIndex: 0
+        }}
+      />
       {/* Hero Section */}
-      <div className="hero-content">
+      <div className="hero-content" style={{ position: 'relative', zIndex: 1 }}>
         <div className="hero-layout">
           <div className="hero-text" style={{ flex: 1, textAlign: 'left' }}>
             <h1 className="hero-title">

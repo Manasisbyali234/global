@@ -16,178 +16,157 @@
   <link rel="shortcut icon" type="image/x-icon" href="%PUBLIC_URL%/assets/images/favicon.png" />
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
 
-  <!-- EARLY CONNECTIONS AND CRITICAL ASSETS -->
+  <!-- PRECONNECT TO EXTERNAL ORIGINS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-  <link
-    rel="preload"
-    as="image"
-    href="%PUBLIC_URL%/assets/images/Resume-amico.svg"
-    type="image/svg+xml"
-    fetchpriority="high"
-  >
 
-  <!-- GOOGLE FONTS -->
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- PRELOAD LCP IMAGE (hero background) -->
+  <link rel="preload" as="image" href="%PUBLIC_URL%/assets/images/photo_2025-10-09_11-01-43.png" fetchpriority="high">
 
-  <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+  <!-- GOOGLE FONTS - non-blocking -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&display=swap"></noscript>
+
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-  <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
   <title>TaleGlobal</title>
 
-  <!-- MOBILE SPECIFIC - COMPREHENSIVE RESPONSIVE SETUP -->
-  <!-- Viewport: iOS Safari optimized settings -->
+  <!-- MOBILE SPECIFIC -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
-  
-  <!-- Format Detection: Prevent auto-detection that might interfere -->
   <meta name="format-detection" content="telephone=no, email=no, address=no">
-  
-  <!-- iOS/Apple Settings - Enhanced for iOS compatibility -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="TaleGlobal">
   <meta name="apple-touch-fullscreen" content="yes">
-  
-  <!-- Android/Google Settings -->
   <meta name="theme-color" content="#fd7e14">
-  
-  <!-- Color Scheme: Force light mode to prevent dark auto-styling -->
   <meta name="color-scheme" content="light only">
   <meta name="supported-color-schemes" content="light">
+  <meta name="minimum-scale" content="1.0">
+
   <style>
     :root { color-scheme: light only !important; }
     html { color-scheme: light only !important; -webkit-text-size-adjust: 100%; }
     body { color-scheme: light only !important; background-color: #ffffff !important; color: #000000 !important; -webkit-touch-callout: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
     * { -webkit-overflow-scrolling: touch; touch-action: manipulation; }
+    /* font-display: swap for all @font-face */
+    @font-face { font-display: swap; }
   </style>
-  
-  <!-- Disable pinch-zoom on content scales (accessibility friendly) -->
-  <meta name="minimum-scale" content="1.0">
 
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/bootstrap.min.css"><!-- BOOTSTRAP STYLE SHEET -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/font-awesome.min.css">
-  <!-- FONTAWESOME STYLE SHEET -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- FONT AWESOME 6 CDN -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/feather.css"><!-- FEATHER ICON SHEET -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/owl.carousel.min.css">
-  <!-- OWL CAROUSEL STYLE SHEET -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/magnific-popup.min.css">
-  <!-- MAGNIFIC POPUP STYLE SHEET -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/lc_lightbox.css"><!-- Lc light box popup -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/bootstrap-select.min.css">
-  <!-- BOOTSTRAP SLECT BOX STYLE SHEET  -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/dataTables.bootstrap5.min.css">
-  <!-- DATA table STYLE SHEET  -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/select.bootstrap5.min.css">
-  <!-- DASHBOARD select bootstrap  STYLE SHEET  -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/dropzone.css"><!-- DROPZONE STYLE SHEET -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/scrollbar.css">
-  <!-- CUSTOM SCROLL BAR STYLE SHEET -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/datepicker.css"><!-- DATEPICKER STYLE SHEET -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/flaticon.css"> <!-- Flaticon -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/swiper-bundle.min.css"><!-- Swiper Slider -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/style.css"><!-- MAIN STYLE SHEET -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/home-job-cards.css"><!-- HOME JOB CARDS STYLE -->
+  <!-- CRITICAL CSS: Only Bootstrap is render-blocking (above the fold dependency) -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/bootstrap.min.css">
 
-  <!-- THEME COLOR CHANGE STYLE SHEET -->
-  <link id="skin_style" rel="stylesheet" class="skin" type="text/css"
-    href="%PUBLIC_URL%/assets/css/skins-type/skin-10-orange.css">
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/bootstrap-slider.min.css">
+  <!-- ALL NON-CRITICAL CSS: Deferred via preload trick to eliminate render-blocking -->
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/font-awesome.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/font-awesome.min.css"></noscript>
 
-  <!-- CONSOLIDATED MASTER STYLES - HIGHEST PRIORITY (must load AFTER all other CSS) -->
-  <!-- This file overrides ALL button styling globally across the entire application -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/consolidated-master-styles.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/feather.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/feather.css"></noscript>
 
-  <!-- MOBILE HAMBURGER MENU STYLES - Professional hamburger menu for mobile devices -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/mobile-hamburger-menu.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/owl.carousel.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/owl.carousel.min.css"></noscript>
 
-  <!-- COMPLETE MOBILE RESPONSIVE STYLES - Load after all other CSS -->
-  <!-- Comprehensive mobile responsiveness for all devices (320px to 1199px) -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/mobile-responsive-complete.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/magnific-popup.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/magnific-popup.min.css"></noscript>
 
-  <!-- REMOVE BUTTON HOVER EFFECTS - No color changes on button hover -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/remove-button-hover-effects.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/lc_lightbox.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/lc_lightbox.css"></noscript>
 
-  <!-- REMOVE CAROUSEL HOVER EFFECTS - No hover effects on carousels -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/remove-carousel-hover-effects.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/bootstrap-select.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/bootstrap-select.min.css"></noscript>
 
-  <!-- IMAGE MODAL HEADER FIX - Critical fix for popup modal headers -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/image-modal-header-fix.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/dataTables.bootstrap5.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/dataTables.bootstrap5.min.css"></noscript>
 
-  <!-- POPUP HEADER Z-INDEX FIX - Force header behind popup notifications -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/popup-header-fix.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/select.bootstrap5.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/select.bootstrap5.min.css"></noscript>
 
-  <!-- NOTIFICATION DROPDOWN ESCAPE - Breaks notification dropdown out of header stacking context -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/notification-dropdown-escape.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/dropzone.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/dropzone.css"></noscript>
 
-  <!-- HAMBURGER MENU Z-INDEX FIX - Ensures hamburger button always visible on mobile -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/hamburger-menu-zindex-fix.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/scrollbar.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/scrollbar.css"></noscript>
 
-  <!-- ROUND BADGES TEXT TRUNCATION FIX - Fix for assessment question type dropdowns -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/round-badges-fix.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/datepicker.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/datepicker.css"></noscript>
 
-  <!-- INTERVIEW TYPE BADGE MOBILE FIX - Fix for interview type badges getting cut off on mobile -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/interview-type-badge-mobile-fix.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/flaticon.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/flaticon.css"></noscript>
 
-  <!-- PROFILE INFO ICONS FIX - Fix for missing icons in Profile info card -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/profile-info-icons-fix.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/swiper-bundle.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/swiper-bundle.min.css"></noscript>
 
-  <!-- MODAL Z-INDEX FIX - Ensure modals appear above all headers -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/modal-zindex-fix.css">
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/style.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/style.css"></noscript>
 
-  <!-- Tailwind CSS removed - install locally for production -->
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/home-job-cards.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/home-job-cards.css"></noscript>
+
+  <link id="skin_style" rel="preload" as="style" class="skin" href="%PUBLIC_URL%/assets/css/skins-type/skin-10-orange.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/skins-type/skin-10-orange.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/bootstrap-slider.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/bootstrap-slider.min.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/consolidated-master-styles.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/consolidated-master-styles.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/mobile-hamburger-menu.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/mobile-hamburger-menu.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/mobile-responsive-complete.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/mobile-responsive-complete.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/remove-button-hover-effects.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/remove-button-hover-effects.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/remove-carousel-hover-effects.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/remove-carousel-hover-effects.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/image-modal-header-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/image-modal-header-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/popup-header-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/popup-header-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/notification-dropdown-escape.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/notification-dropdown-escape.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/hamburger-menu-zindex-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/hamburger-menu-zindex-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/round-badges-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/round-badges-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/interview-type-badge-mobile-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/interview-type-badge-mobile-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/profile-info-icons-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/profile-info-icons-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/modal-zindex-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/modal-zindex-fix.css"></noscript>
+
+  <!-- loadCSS rel=preload polyfill for older browsers -->
+  <script>!function(n){"use strict";n.loadCSS||(n.loadCSS=function(){});var o=loadCSS.relpreload={};o.support=function(){var e;try{e=n.document.createElement("link").relList.supports("preload")}catch(t){e=!1}return function(){return e}}();o.bindMediaToggle=function(t){var e=t.media||"all";function i(){t.addEventListener?t.removeEventListener("load",i):t.attachEvent&&t.detachEvent("onload",i),t.setAttribute("onload",null),t.media=e}t.addEventListener?t.addEventListener("load",i):t.attachEvent&&t.attachEvent("onload",i),setTimeout(function(){t.rel="stylesheet",t.media&&t.media!==e||(t.media=e)})};o.poly=function(){if(!o.support())for(var t=n.document.getElementsByTagName("link"),e=0;e<t.length;e++){var i=t[e];"preload"!==i.rel||"style"!==i.getAttribute("as")||i.getAttribute("data-loadcss")||(i.setAttribute("data-loadcss",!0),o.bindMediaToggle(i))}};if(!o.support()){o.poly();var t=n.setInterval(o.poly,500);n.addEventListener?n.addEventListener("load",function(){o.poly(),n.clearInterval(t)}):n.attachEvent&&n.attachEvent("onload",function(){o.poly(),n.clearInterval(t)})}("undefined"!=typeof exports?exports:n).loadCSS=loadCSS}(typeof global!=="undefined"?global:this);</script>
+
   <script>
-    // Configure Tailwind: disable preflight to prevent base resets clashing with existing CSS
-    // Note: Install Tailwind CSS locally for production use
-    
     // Force light mode immediately - iOS Safari compatible
     (function() {
-      // Override matchMedia to always return false for dark mode
       if (window.matchMedia) {
-        const originalMatchMedia = window.matchMedia;
+        var originalMatchMedia = window.matchMedia;
         window.matchMedia = function(query) {
           if (query.includes('prefers-color-scheme: dark')) {
-            return {
-              matches: false,
-              media: query,
-              onchange: null,
-              addListener: function() {},
-              removeListener: function() {},
-              addEventListener: function() {},
-              removeEventListener: function() {},
-              dispatchEvent: function() { return true; }
-            };
+            return { matches: false, media: query, onchange: null, addListener: function() {}, removeListener: function() {}, addEventListener: function() {}, removeEventListener: function() {}, dispatchEvent: function() { return true; } };
           }
           return originalMatchMedia.call(this, query);
         };
       }
-      
-      // Add class to enable transitions after forcing light mode
-      setTimeout(() => {
-        if (document.documentElement) {
-          document.documentElement.classList.add('light-mode-forced');
-        }
+      setTimeout(function() {
+        if (document.documentElement) document.documentElement.classList.add('light-mode-forced');
       }, 100);
-      
-      // iOS Safari specific fixes
       document.addEventListener('DOMContentLoaded', function() {
-        // Prevent iOS Safari zoom on input focus
-        const inputs = document.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
+        var inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(function(input) {
           input.addEventListener('focus', function() {
             if (window.innerWidth < 768) {
               document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
@@ -202,81 +181,51 @@
   </script>
   <script>
     (function () {
-      if (!('serviceWorker' in navigator)) {
-        return;
-      }
-
-      const cleanupKey = 'taleglobal-sw-cleanup-v1';
-
-      const runServiceWorkerCleanup = async function () {
+      if (!('serviceWorker' in navigator)) return;
+      var cleanupKey = 'taleglobal-sw-cleanup-v1';
+      var runServiceWorkerCleanup = async function () {
+        try { if (window.localStorage && localStorage.getItem(cleanupKey) === 'done') return; } catch (e) {}
         try {
-          if (window.localStorage && localStorage.getItem(cleanupKey) === 'done') {
-            return;
-          }
-        } catch (storageError) {
-          // Ignore storage access issues and continue with cleanup.
-        }
-
-        try {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(registrations.map((registration) => registration.unregister()));
-
+          var registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map(function(r) { return r.unregister(); }));
           if ('caches' in window) {
-            const cacheKeys = await caches.keys();
-            await Promise.all(cacheKeys.map((cacheKey) => caches.delete(cacheKey)));
+            var cacheKeys = await caches.keys();
+            await Promise.all(cacheKeys.map(function(k) { return caches.delete(k); }));
           }
-
-          if (window.localStorage) {
-            localStorage.setItem(cleanupKey, 'done');
-          }
-        } catch (cleanupError) {
-          console.warn('Service worker cleanup skipped:', cleanupError);
-        }
+          if (window.localStorage) localStorage.setItem(cleanupKey, 'done');
+        } catch (e) { console.warn('Service worker cleanup skipped:', e); }
       };
-
       window.addEventListener('load', runServiceWorkerCleanup);
     })();
   </script>
 </head>
 
-<!-- data-anm=".anm" is used by Homepage4 -->
-
 <body data-anm=".anm">
 
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
-  <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-
-  <script defer src="%PUBLIC_URL%/assets/js/jquery-3.6.0.min.js"></script><!-- JQUERY.MIN JS -->
-  <script defer src="%PUBLIC_URL%/assets/js/popper.min.js"></script><!-- POPPER.MIN JS -->
-  <script defer src="%PUBLIC_URL%/assets/js/bootstrap.min.js"></script><!-- BOOTSTRAP.MIN JS -->
-  <script defer src="%PUBLIC_URL%/assets/js/magnific-popup.min.js"></script><!-- MAGNIFIC-POPUP JS -->
-  <script defer src="%PUBLIC_URL%/assets/js/waypoints.min.js"></script><!-- WAYPOINTS JS -->
-  <script defer src="%PUBLIC_URL%/assets/js/waypoints-sticky.min.js"></script><!-- STICKY HEADER -->
-  <script defer src="%PUBLIC_URL%/assets/js/isotope.pkgd.min.js"></script><!-- MASONRY  -->
-  <script defer src="%PUBLIC_URL%/assets/js/imagesloaded.pkgd.min.js"></script><!-- MASONRY  -->
-  <script defer src="%PUBLIC_URL%/assets/js/owl.carousel.min.js"></script><!-- OWL  SLIDER  -->
+  <script defer src="%PUBLIC_URL%/assets/js/jquery-3.6.0.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/popper.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/bootstrap.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/magnific-popup.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/waypoints.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/waypoints-sticky.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/isotope.pkgd.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/imagesloaded.pkgd.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/owl.carousel.min.js"></script>
   <script defer src="%PUBLIC_URL%/assets/js/jquery.owl-filter.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/theia-sticky-sidebar.js"></script><!-- STICKY SIDEBAR  -->
-  <script defer src="%PUBLIC_URL%/assets/js/lc_lightbox.lite.js"></script><!-- IMAGE POPUP -->
-  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-select.min.js"></script><!-- Form js -->
-  <script defer src="%PUBLIC_URL%/assets/js/jquery.scrollbar.js"></script><!-- scroller -->
-  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-datepicker.js"></script><!-- scroller -->
-  <script defer src="%PUBLIC_URL%/assets/js/jquery.dataTables.min.js"></script><!-- Datatable -->
-  <script defer src="%PUBLIC_URL%/assets/js/dataTables.bootstrap5.min.js"></script><!-- Datatable -->
-  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-slider.min.js"></script><!-- Price range slider -->
-  <script defer src="%PUBLIC_URL%/assets/js/swiper-bundle.min.js"></script><!-- Swiper JS -->
-  <script defer src="%PUBLIC_URL%/assets/js/custom.js"></script><!-- CUSTOM FUCTIONS  -->
-  <script defer src="%PUBLIC_URL%/assets/js/modal-fix.js"></script><!-- MODAL FIX  -->
+  <script defer src="%PUBLIC_URL%/assets/js/theia-sticky-sidebar.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/lc_lightbox.lite.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-select.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/jquery.scrollbar.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-datepicker.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/jquery.dataTables.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/dataTables.bootstrap5.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-slider.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/swiper-bundle.min.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/custom.js"></script>
+  <script defer src="%PUBLIC_URL%/assets/js/modal-fix.js"></script>
 
 </body>
 
