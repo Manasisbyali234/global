@@ -153,7 +153,6 @@
 @media (max-width: 768px) {
     .site-footer-new {
         padding: 48px 0 0 !important;
-        contain-intrinsic-size: 0 680px;
     }
 
     .site-footer-new__container {

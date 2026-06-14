@@ -83,16 +83,12 @@
     .site-footer-new{min-height:480px}
   </style>
 
-  <!-- Bootstrap deferred - non-blocking -->
-  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/bootstrap.min.css" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/bootstrap.min.css"></noscript>
-
-  <!-- Icon fonts loaded blocking: feather + font-awesome render above fold in header/footer.
-       Loading them async causes icon glyph swap CLS after first paint. -->
+  <!-- Bootstrap + icon fonts: blocking so layout is stable before React hydrates -->
+  <link rel="stylesheet" href="%PUBLIC_URL%/assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="%PUBLIC_URL%/assets/css/font-awesome.min.css">
   <link rel="stylesheet" href="%PUBLIC_URL%/assets/css/feather.css">
 
-  <!-- ALL NON-CRITICAL CSS: Deferred via preload trick to eliminate render-blocking -->
+  <!-- ALL NON-CRITICAL CSS: Deferred -->
 
   <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/owl.carousel.min.css" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/owl.carousel.min.css"></noscript>
