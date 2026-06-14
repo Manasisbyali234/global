@@ -20,6 +20,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <!-- PRELOAD LCP hero background image -->
+  <link rel="preload" as="image" href="%PUBLIC_URL%/assets/images/photo_2025-10-09_11-01-43.png" fetchpriority="high" type="image/png">
+  <!-- PRELOAD LCP SVG illustration -->
   <link
     rel="preload"
     as="image"
@@ -82,9 +85,7 @@
 
   <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/bootstrap.min.css" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/bootstrap.min.css"></noscript>
-  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/font-awesome.min.css" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/font-awesome.min.css"></noscript>
-  <!-- FONT AWESOME 6 CDN -->
+  <!-- FONT AWESOME 6 CDN - font-display:swap applied via CSS override below -->
   <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
   <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/feather.css" onload="this.onload=null;this.rel='stylesheet'">
@@ -268,15 +269,33 @@
   <script defer src="%PUBLIC_URL%/assets/js/jquery.owl-filter.js"></script>
   <script defer src="%PUBLIC_URL%/assets/js/theia-sticky-sidebar.js"></script><!-- STICKY SIDEBAR  -->
   <script defer src="%PUBLIC_URL%/assets/js/lc_lightbox.lite.js"></script><!-- IMAGE POPUP -->
-  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-select.min.js"></script><!-- Form js -->
   <script defer src="%PUBLIC_URL%/assets/js/jquery.scrollbar.js"></script><!-- scroller -->
-  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-datepicker.js"></script><!-- scroller -->
-  <script defer src="%PUBLIC_URL%/assets/js/jquery.dataTables.min.js"></script><!-- Datatable -->
-  <script defer src="%PUBLIC_URL%/assets/js/dataTables.bootstrap5.min.js"></script><!-- Datatable -->
+  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-datepicker.js"></script><!-- datepicker -->
   <script defer src="%PUBLIC_URL%/assets/js/bootstrap-slider.min.js"></script><!-- Price range slider -->
   <script defer src="%PUBLIC_URL%/assets/js/swiper-bundle.min.js"></script><!-- Swiper JS -->
   <script defer src="%PUBLIC_URL%/assets/js/custom.js"></script><!-- CUSTOM FUCTIONS  -->
   <script defer src="%PUBLIC_URL%/assets/js/modal-fix.js"></script><!-- MODAL FIX  -->
+  <!-- DataTables + bootstrap-select loaded lazily only on dashboard pages -->
+  <script>
+    (function() {
+      var dashboardPaths = ['/employer', '/candidate', '/admin', '/placement', '/sub-admin'];
+      var isDashboard = dashboardPaths.some(function(p) { return window.location.pathname.startsWith(p); });
+      if (!isDashboard) return;
+      var scripts = [
+        '%PUBLIC_URL%/assets/js/bootstrap-select.min.js',
+        '%PUBLIC_URL%/assets/js/jquery.dataTables.min.js',
+        '%PUBLIC_URL%/assets/js/dataTables.bootstrap5.min.js'
+      ];
+      function loadNext(i) {
+        if (i >= scripts.length) return;
+        var s = document.createElement('script');
+        s.src = scripts[i];
+        s.onload = function() { loadNext(i + 1); };
+        document.body.appendChild(s);
+      }
+      window.addEventListener('load', function() { loadNext(0); });
+    })();
+  </script>
 
 </body>
 

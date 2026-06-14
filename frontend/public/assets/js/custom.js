@@ -904,6 +904,7 @@ All JavaScript fuctions Start
 
 	// Jobs Bookmark table function by = dataTables.bootstrap5.js
 	function jobs_bookmark_table() {
+		if (!jQuery.fn.DataTable) return;
 		jQuery('#jobs_bookmark_table').DataTable(
 			{
 				"aLengthMenu": [[3, 5, 10, -1], [3, 5, 10, "All"]],
@@ -915,6 +916,7 @@ All JavaScript fuctions Start
 
 	// candidate_data_table function by = dataTables.bootstrap5.js
 	function candidate_data_table() {
+		if (!jQuery.fn.DataTable) return;
 		jQuery('#candidate_data_table').DataTable(
 			{
 				"aLengthMenu": [[5, 8, 10, -1], [5, 8, 10, "All"]],
