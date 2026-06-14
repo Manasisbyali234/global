@@ -52,8 +52,17 @@
     @font-face { font-display: swap; }
   </style>
 
-  <!-- CRITICAL CSS: Only Bootstrap is render-blocking (above the fold dependency) -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/bootstrap.min.css">
+  <!-- CRITICAL inline styles to prevent FOUC before any CSS loads -->
+  <style>
+    .logo-header,.logo-header-inner{display:block;width:160px;height:80px}
+    #skin_header_logo,#skin_footer_light_logo{display:block}
+    .site-header{display:block}
+    .hero-body{min-height:500px;position:relative;overflow:hidden}
+  </style>
+
+  <!-- Bootstrap deferred - non-blocking -->
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/bootstrap.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/bootstrap.min.css"></noscript>
 
   <!-- ALL NON-CRITICAL CSS: Deferred via preload trick to eliminate render-blocking -->
   <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/font-awesome.min.css" onload="this.onload=null;this.rel='stylesheet'">
