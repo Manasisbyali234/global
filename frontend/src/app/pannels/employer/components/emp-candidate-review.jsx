@@ -103,6 +103,8 @@ function EmpCandidateReviewPage() {
             'suspended',
             'session expired',
             'no show',
+            'not advanced to next stage',
+            'not advanced to next round',
             'not eligibal for next round',
             'not eligible for next round'
         ].includes(normalized);
@@ -270,6 +272,27 @@ function EmpCandidateReviewPage() {
                 null;
 
             if (!savedProcess?.status) {
+                return process;
+            }
+
+            const processStatus = normalizeStatusValue(process?.status);
+            const savedStatus = normalizeStatusValue(savedProcess.status);
+            const pendingLikeStatuses = new Set([
+                '',
+                'pending',
+                'scheduled',
+                'available',
+                'not started'
+            ]);
+
+            if (
+                (process?.derivedRejected || isRejectedLikeStatus(process?.status)) &&
+                !isRejectedLikeStatus(savedProcess.status)
+            ) {
+                return process;
+            }
+
+            if (!pendingLikeStatuses.has(processStatus) && pendingLikeStatuses.has(savedStatus)) {
                 return process;
             }
 
@@ -976,6 +999,10 @@ function EmpCandidateReviewPage() {
         const hasRejectedProcess = normalizedProcesses.some((process) =>
             isRejectedLikeStatus(process?.status) || process?.derivedRejected
         );
+        const hasRejectedBackendStage = Array.isArray(applicationData?.interviewProcess?.stages) &&
+            applicationData.interviewProcess.stages.some((stage) =>
+                isRejectedLikeStatus(stage?.status)
+            );
         const hasDerivedRejectedAssessmentStage = normalizedProcesses.some((process) => {
             if (!isAssessmentProcess(process)) return false;
             const assessmentDisplay = getAssessmentDisplayState(process, applicationData);
@@ -985,6 +1012,7 @@ function EmpCandidateReviewPage() {
         if (
             sharedApplicationStatus === 'rejected' ||
             hasRejectedProcess ||
+            hasRejectedBackendStage ||
             hasRejectedNonAssessmentStage ||
             hasDerivedRejectedAssessmentStage ||
             assessmentIsSuspended ||

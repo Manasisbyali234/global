@@ -139,6 +139,23 @@ const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
   return attempt?.status || 'pending';
 };
 
+const isAssessmentEmployerDecisionStatus = (value = '') => {
+  const normalizedStatus = normalizeApplicationStatusValue(value);
+  if (!normalizedStatus) return false;
+
+  return [
+    'shortlisted for next round',
+    'shortlisted',
+    'selected',
+    'on hold',
+    'pending decision',
+    'no show',
+    'rejected',
+    'not advanced to next stage',
+    'not advanced to next round'
+  ].includes(normalizedStatus);
+};
+
 const AUTO_REJECT_EXPIRED_SESSION_NOTE = 'Auto-rejected after application session expired';
 
 const normalizeDateOnlyField = (value) => buildUtcDateTimeFromIst(value, '', 'start');
@@ -3434,6 +3451,12 @@ exports.getApplicationDetails = async (req, res) => {
             (assessmentKey && assessmentAttemptsByAssessmentId[assessmentKey]) ||
             singleAssessmentAttempt ||
             null;
+          const resolvedAttemptStatus = matchedAttempt
+            ? resolveAssessmentAttemptStageStatus(matchedAttempt)
+            : null;
+          const stageStatus = isAssessmentEmployerDecisionStatus(stage?.status)
+            ? stage.status
+            : resolvedAttemptStatus;
 
           if (!matchedAttempt) {
             return {
@@ -3445,7 +3468,7 @@ exports.getApplicationDetails = async (req, res) => {
           return {
             ...stage,
             assessmentId: resolvedAssessmentId || stage?.assessmentId || null,
-            status: resolveAssessmentAttemptStageStatus(matchedAttempt),
+            status: stageStatus,
             assessmentAttemptId: matchedAttempt._id,
             assessmentAttemptStatus: matchedAttempt.status,
             assessmentResult: matchedAttempt.result || stage.assessmentResult || null,
