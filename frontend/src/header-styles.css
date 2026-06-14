@@ -18,6 +18,8 @@ header,
 .admin-header {
   z-index: 100 !important;
   position: relative !important;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 #header-admin-wrap,
@@ -45,6 +47,18 @@ header,
 .logo-header img {
   max-width: 150px !important;
   height: auto !important;
+}
+
+/* Reserve logo space to prevent CLS */
+.logo-header {
+  min-width: 140px;
+  min-height: 50px;
+}
+
+.logo-header picture {
+  display: inline-block;
+  min-width: 140px;
+  min-height: 50px;
 }
 
 /* NAVIGATION LINKS */

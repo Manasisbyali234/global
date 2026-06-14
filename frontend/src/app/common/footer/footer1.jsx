@@ -178,7 +178,7 @@ function Footer1() {
                         {/* Column 1: Brand & Contact */}
                         <Col lg={4} md={6}>
                             <div className="footer-brand mb-4">
-                                <div className="logo-footer footer-brand-logo mb-3">
+                                <div className="logo-footer footer-brand-logo mb-3" style={{ minHeight: '70px', display: 'flex', alignItems: 'center' }}>
                                     <NavLink to={publicUser.INITIAL}>
                                         <JobZImage
                                             id="skin_footer_light_logo"
@@ -186,9 +186,9 @@ function Footer1() {
                                             alt="TaleGlobal"
                                             width={160}
                                             height={80}
-                                            loading="lazy"
+                                            loading="eager"
                                             decoding="async"
-                                            style={{ height: '70px', width: 'auto' }}
+                                            style={{ height: '70px', width: 'auto', display: 'block' }}
                                         />
                                     </NavLink>
                                 </div>
