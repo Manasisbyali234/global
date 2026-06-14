@@ -22,14 +22,13 @@ header,
   opacity: 1;
 }
 
-/* Override z-index from style.css with opacity-based compositing */
+/* Override z-index from style.css with compositor-eligible stacking */
 .header-style-3.site-header,
 .header-full-width.site-header,
 .header-style-light.site-header {
   z-index: unset !important;
-  opacity: 1;
-  transform: translateZ(0);
-  will-change: opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 #header-admin-wrap,

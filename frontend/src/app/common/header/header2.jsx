@@ -59,12 +59,12 @@ const Header2 = memo(function Header2({ _config }) {
                                         {
                                             _config.withBlackLogo
                                                 ?
-                                                <JobZImage src="images/skins-logo/logo-skin-8.gif" alt="TaleGlobal" width={160} height={80} style={{ height: '50px', width: 'auto', display: 'block' }} />
+                                                <JobZImage src="images/skins-logo/logo-skin-8.gif" alt="TaleGlobal" width={160} height={80} style={{ height: '50px', display: 'block' }} />
                                                 :
                                                 (
                                                     _config.withWhiteLogo
                                                         ?
-                                                        <JobZImage src="images/skins-logo/logo-skin-8.gif" alt="TaleGlobal" width={160} height={80} style={{ height: '50px', width: 'auto', display: 'block' }} />
+                                                        <JobZImage src="images/skins-logo/logo-skin-8.gif" alt="TaleGlobal" width={160} height={80} style={{ height: '50px', display: 'block' }} />
                                                         :
                                                         (
                                                             _config.withLightLogo ?
@@ -72,7 +72,7 @@ const Header2 = memo(function Header2({ _config }) {
                                                                     <JobZImage id="skin_header_logo_light" src="images/logo-light-3.png" alt="" className="default-scroll-show" />
                                                                     <JobZImage id="skin_header_logo" src="images/logo-dark.png" alt="" className="on-scroll-show" />
                                                                 </> :
-                                                                <JobZImage id="skin_header_logo" src="images/skins-logo/logo-skin-8.gif" alt="TaleGlobal" width={160} height={80} style={{ height: '50px', width: 'auto', display: 'block' }} />
+                                                                <JobZImage id="skin_header_logo" src="images/skins-logo/logo-skin-8.gif" alt="TaleGlobal" width={160} height={80} style={{ height: '50px', display: 'block' }} />
                                                         )
                                                 )
                                         }
