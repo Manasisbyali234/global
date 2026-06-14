@@ -2,13 +2,6 @@
     display: block;
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
-    min-height: 480px;
-}
-
-@media (max-width: 768px) {
-    .site-footer-new {
-        min-height: 680px;
-    }
 }
 
 .site-footer-new__container {

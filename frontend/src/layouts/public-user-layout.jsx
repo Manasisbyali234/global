@@ -55,7 +55,7 @@ function PublicUserLayout() {
                     setHeaderType(currentpath)
                 }
 
-                <div className="page-content public-page-content">
+                <div className="page-content public-page-content" style={{ flex: '1 0 auto' }}>
                     {
                         showBanner(currentpath) &&
                         <InnerPageBanner _data={setBanner(currentpath)} />
@@ -63,11 +63,13 @@ function PublicUserLayout() {
                     <PublicUserRoutes />
                 </div>
 
-                {/* Footer */}
+                {/* Footer - always rendered to prevent CLS from footer appearing after hydration */}
+                <div style={{ flexShrink: 0 }}>
                 {
                     showFooter(currentpath) &&
                     setFooterType(currentpath)
                 }
+                </div>
             </div>
         </>
     )
