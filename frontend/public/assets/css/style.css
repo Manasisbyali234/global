@@ -25627,12 +25627,7 @@ color: #f56523 !important;
     background-color: inherit !important;
     transform: none !important;
 }
-/* Remove all animations */
-* {
-    animation: none !important;
-    transition: none !important;
-}
-/* Home page background color for all sections except hero */
+/* Override Sign In/Sign Up button hover effects - Remove black background */
 .section-full:not(.twm-home1-banner-section),
 .twm-how-it-work-area2,
 .twm-job-categories-area,

@@ -53,6 +53,11 @@
     @font-face { font-family: 'Rubik'; src: local('Arial'); size-adjust: 100%; ascent-override: 95%; descent-override: 22%; line-gap-override: 0%; font-display: swap; }
     /* DM Serif Display fallback - Georgia is metrically similar */
     @font-face { font-family: 'DM Serif Display'; src: local('Georgia'); size-adjust: 97%; ascent-override: 90%; descent-override: 25%; line-gap-override: 0%; font-display: swap; }
+    /* Font Awesome icon fonts: use block so glyph space is reserved, preventing CLS when woff2 loads */
+    @font-face { font-family: 'Font Awesome 6 Free'; font-weight: 900; src: local(''); font-display: block; }
+    @font-face { font-family: 'Font Awesome 6 Free'; font-weight: 400; src: local(''); font-display: block; }
+    @font-face { font-family: 'Font Awesome 6 Brands'; font-weight: 400; src: local(''); font-display: block; }
+    @font-face { font-family: 'FontAwesome'; src: local(''); font-display: block; }
   </style>
 
   <!-- CRITICAL inline styles to prevent FOUC before any CSS loads -->
@@ -63,6 +68,10 @@
     .hero-body{min-height:500px;position:relative;overflow:hidden}
     /* Reserve space for page-content to prevent footer-induced CLS */
     .page-content.public-page-content{min-height:60vh}
+    /* Pre-establish stacking context on hero content so z-index doesn't cause reflow */
+    .twm-home1-banner-section,.twm-bnr-right-content,.hero-content{position:relative;z-index:1}
+    /* Lock footer logo dimensions before image loads */
+    #skin_footer_light_logo{width:160px;height:80px;display:block}
   </style>
 
   <!-- Bootstrap deferred - non-blocking -->

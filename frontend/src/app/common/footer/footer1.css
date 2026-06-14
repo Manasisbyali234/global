@@ -113,16 +113,16 @@
 
 .footer-brand-logo {
     margin-top: 0;
-    width: 320px;
-    height: 160px;
     display: block;
-    contain: strict;
+    /* Match the actual rendered img size to prevent layout shift */
+    width: 160px;
+    height: 80px;
 }
 
 .footer-brand-logo img {
     display: block;
-    width: 320px;
-    height: 160px;
+    width: 160px;
+    height: 80px;
     object-fit: contain;
 }
 
@@ -158,13 +158,13 @@
     }
 
     .footer-brand-logo {
-        width: 200px;
-        height: 100px;
+        width: 160px;
+        height: 80px;
     }
 
     .footer-brand-logo img {
-        width: 200px;
-        height: 100px;
+        width: 160px;
+        height: 80px;
     }
 
     .footer-contact-item {

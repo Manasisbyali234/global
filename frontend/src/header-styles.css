@@ -23,6 +23,23 @@ header,
      unnecessarily when the header is not animating, causing compositing overhead */
 }
 
+/* Fix: Bootstrap navbar-collapse uses height animation (non-composited).
+   Override to use opacity+transform only so it runs on the compositor thread. */
+.site-header .navbar-collapse {
+  transition: none !important;
+}
+.site-header .navbar-collapse.collapsing {
+  height: auto !important;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease !important;
+}
+.site-header .navbar-collapse.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 #header-admin-wrap,
 #header-admin {
   z-index: 100 !important;
