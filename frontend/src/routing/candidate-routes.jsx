@@ -1,28 +1,29 @@
 
 import { Route, Routes, Navigate } from "react-router-dom";
 import { candidate } from "../globals/route-names";
-import { useState, useEffect } from "react";
-import CanDashboardPage from "../app/pannels/candidate/components/can-dashboard";
-import CanNotificationsPage from "../app/pannels/candidate/components/can-notifications";
-import CanProfilePage from "../app/pannels/candidate/components/can-profile";
-import CanAppliedJobs from "../app/pannels/candidate/components/can-applied-jobs";
-import CanStatusPage from "../app/pannels/candidate/components/application-status";
-import CanInterviewsPage from "../app/pannels/candidate/components/can-interviews";
-import CanMyResumePage from "../app/pannels/candidate/components/can-resume";
-import CanSavedJobsPage from "../app/pannels/candidate/components/can-saved-jobs";
-import CanCVManagerPage from "../app/pannels/candidate/components/can-cv-manager";
-import CanJobAlertsPage from "../app/pannels/candidate/components/can-job-alerts";
-import CanChangePasswordPage from "../app/pannels/candidate/components/can-change-password";
-import CanChatPage from "../app/pannels/candidate/components/can-chat";
-import Error404Page from "../app/pannels/public-user/components/pages/error404";
-import TakeAssessment from "../app/pannels/candidate/components/take-assesment";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { BACKEND_URL } from "../utils/api";
+import PageLoader from "../components/PageLoader";
 
-import Stepper from "../app/pannels/candidate/components/step-by-step";
-import StartAssessment from "../app/pannels/candidate/pages/start-tech-assessment";
-import AssessmentResults from "../app/pannels/candidate/pages/assessment-result";
-import CanSupport from "../app/pannels/candidate/components/can-support";
-import CanTransactionsPage from "../app/pannels/candidate/components/can-transactions";
+const CanDashboardPage = lazy(() => import("../app/pannels/candidate/components/can-dashboard"));
+const CanNotificationsPage = lazy(() => import("../app/pannels/candidate/components/can-notifications"));
+const CanProfilePage = lazy(() => import("../app/pannels/candidate/components/can-profile"));
+const CanAppliedJobs = lazy(() => import("../app/pannels/candidate/components/can-applied-jobs"));
+const CanStatusPage = lazy(() => import("../app/pannels/candidate/components/application-status"));
+const CanInterviewsPage = lazy(() => import("../app/pannels/candidate/components/can-interviews"));
+const CanMyResumePage = lazy(() => import("../app/pannels/candidate/components/can-resume"));
+const CanSavedJobsPage = lazy(() => import("../app/pannels/candidate/components/can-saved-jobs"));
+const CanCVManagerPage = lazy(() => import("../app/pannels/candidate/components/can-cv-manager"));
+const CanJobAlertsPage = lazy(() => import("../app/pannels/candidate/components/can-job-alerts"));
+const CanChangePasswordPage = lazy(() => import("../app/pannels/candidate/components/can-change-password"));
+const CanChatPage = lazy(() => import("../app/pannels/candidate/components/can-chat"));
+const Error404Page = lazy(() => import("../app/pannels/public-user/components/pages/error404"));
+const TakeAssessment = lazy(() => import("../app/pannels/candidate/components/take-assesment"));
+const Stepper = lazy(() => import("../app/pannels/candidate/components/step-by-step"));
+const StartAssessment = lazy(() => import("../app/pannels/candidate/pages/start-tech-assessment"));
+const AssessmentResults = lazy(() => import("../app/pannels/candidate/pages/assessment-result"));
+const CanSupport = lazy(() => import("../app/pannels/candidate/components/can-support"));
+const CanTransactionsPage = lazy(() => import("../app/pannels/candidate/components/can-transactions"));
 
 // Component to protect transactions route from placement candidates
 function ProtectedTransactions() {
@@ -72,6 +73,7 @@ function ProtectedTransactions() {
 
 function CandidateRoutes() {
     return (
+			<Suspense fallback={<PageLoader pageName="Candidate" loadingText="Loading.." compact />}>
 			<Routes>
 				<Route path={candidate.INITIAL} element={<CanDashboardPage />} />
 				<Route path={candidate.DASHBOARD} element={<CanDashboardPage />} />
@@ -104,6 +106,7 @@ function CandidateRoutes() {
 				<Route path={candidate.TRANSACTIONS} element={<ProtectedTransactions />} />
 				<Route path="*" element={<Error404Page />} />
 			</Routes>
+			</Suspense>
 		);
 }
 

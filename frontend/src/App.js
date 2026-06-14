@@ -77,16 +77,18 @@ function App() {
   useEffect(() => {
     // Force light mode immediately
     const cleanup = forceLightMode();
-    
-    AOS.init({
-      duration: 300,
-      once: true,
-      offset: 50,
-    });
-    
+
     const timer = setTimeout(() => {
       setLoading(false);
     }, 50);
+
+    // Defer AOS init until after first paint to avoid blocking main thread
+    const initAOS = () => AOS.init({ duration: 300, once: true, offset: 50 });
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(initAOS);
+    } else {
+      setTimeout(initAOS, 200);
+    }
     
     return () => {
       clearTimeout(timer);

@@ -1,41 +1,42 @@
 
 import { Route, Routes } from "react-router-dom";
 import { admin } from "../globals/route-names";
-import ProtectedRoute from "../components/ProtectedRoute";
-import AdminDashboardPage from "../app/pannels/admin/components/admin-dashboard";
-import AdminOverviewPage from "../app/pannels/admin/components/admin-overview";
-import AdminJobsPostedPage from "../app/pannels/admin/components/admin-jobs-posted";
-import AdminCandidates from "../app/pannels/admin/components/admin-candidates";
-import AdminCandidateAddEdit from "../app/pannels/admin/components/admin-candidate-add";
-import AdminEmployerJobs from "../app/pannels/admin/components/admin-emp-jobs";
-import AdminJobs from "../app/pannels/admin/components/admin-jobs";
-import AdminCreditsPage from "../app/pannels/admin/components/admin-can-credit";
-import AdminBulkUploadPage from "../app/pannels/admin/components/admin-credit-bulkupload";
-import AdminEmployersAllRequest from "../app/pannels/admin/components/admin-emp-manage";
-import AdminEmployersApproved from "../app/pannels/admin/components/admin-emp-approve";
-import AdminEmployersRejected from "../app/pannels/admin/components/admin-emp-reject";
-import EmployerDetails from "../app/pannels/admin/components/adminEmployerDetails";
-import AdminPlacementOfficersAllRequest from "../app/pannels/admin/components/admin-placement-manage";
-import AdminPlacementOfficersApproved from "../app/pannels/admin/components/admin-placement-approve";
-import AdminPlacementOfficersRejected from "../app/pannels/admin/components/admin-placement-reject";
-import AdminPlacementOfficersTabs from "../app/pannels/admin/components/admin-placement-manage-tabs.jsx";
-import AdminBatchUploads from "../app/pannels/admin/components/admin-placement-batch-uploads";
-import AdminIndividualCredit from "../app/pannels/admin/components/admin-individual-credit";
-import AdminJobsSkills from "../app/pannels/admin/components/admin-jobs-skills";
-import PlacementDetails from "../app/pannels/admin/components/placement-details.jsx";
-import PlacementFileRecords from "../app/pannels/admin/components/placement-file-records.jsx";
-import AdminSubAdmin from "../app/pannels/admin/components/admin-sub-admin";
-import AdminSupportTickets from "../app/pannels/admin/components/admin-support-tickets";
-import AdminAddCandidate from "../app/pannels/admin/components/admin-add-candidate.jsx";
-import AdminExcelUploads from "../app/pannels/admin/components/admin-excel-uploads";
-import AdminTransactionsPage from "../app/pannels/admin/components/admin-transactions";
-import AdminNotificationsPage from "../app/pannels/admin/components/admin-notifications";
+import { lazy, Suspense } from "react";
+import PageLoader from "../components/PageLoader";
 
-import RegisteredCandidatesPage from "../app/pannels/admin/components/registered-candidates";
-import AdminCandidateReviewPage from "../app/pannels/admin/components/admin-candidate-review";
+const AdminDashboardPage = lazy(() => import("../app/pannels/admin/components/admin-dashboard"));
+const AdminOverviewPage = lazy(() => import("../app/pannels/admin/components/admin-overview"));
+const AdminJobsPostedPage = lazy(() => import("../app/pannels/admin/components/admin-jobs-posted"));
+const AdminCandidates = lazy(() => import("../app/pannels/admin/components/admin-candidates"));
+const AdminCandidateAddEdit = lazy(() => import("../app/pannels/admin/components/admin-candidate-add"));
+const AdminEmployerJobs = lazy(() => import("../app/pannels/admin/components/admin-emp-jobs"));
+const AdminJobs = lazy(() => import("../app/pannels/admin/components/admin-jobs"));
+const AdminCreditsPage = lazy(() => import("../app/pannels/admin/components/admin-can-credit"));
+const AdminBulkUploadPage = lazy(() => import("../app/pannels/admin/components/admin-credit-bulkupload"));
+const AdminEmployersAllRequest = lazy(() => import("../app/pannels/admin/components/admin-emp-manage"));
+const AdminEmployersApproved = lazy(() => import("../app/pannels/admin/components/admin-emp-approve"));
+const AdminEmployersRejected = lazy(() => import("../app/pannels/admin/components/admin-emp-reject"));
+const EmployerDetails = lazy(() => import("../app/pannels/admin/components/adminEmployerDetails"));
+const AdminPlacementOfficersApproved = lazy(() => import("../app/pannels/admin/components/admin-placement-approve"));
+const AdminPlacementOfficersRejected = lazy(() => import("../app/pannels/admin/components/admin-placement-reject"));
+const AdminPlacementOfficersTabs = lazy(() => import("../app/pannels/admin/components/admin-placement-manage-tabs.jsx"));
+const AdminBatchUploads = lazy(() => import("../app/pannels/admin/components/admin-placement-batch-uploads"));
+const AdminIndividualCredit = lazy(() => import("../app/pannels/admin/components/admin-individual-credit"));
+const AdminJobsSkills = lazy(() => import("../app/pannels/admin/components/admin-jobs-skills"));
+const PlacementDetails = lazy(() => import("../app/pannels/admin/components/placement-details.jsx"));
+const PlacementFileRecords = lazy(() => import("../app/pannels/admin/components/placement-file-records.jsx"));
+const AdminSubAdmin = lazy(() => import("../app/pannels/admin/components/admin-sub-admin"));
+const AdminSupportTickets = lazy(() => import("../app/pannels/admin/components/admin-support-tickets"));
+const AdminAddCandidate = lazy(() => import("../app/pannels/admin/components/admin-add-candidate.jsx"));
+const AdminExcelUploads = lazy(() => import("../app/pannels/admin/components/admin-excel-uploads"));
+const AdminTransactionsPage = lazy(() => import("../app/pannels/admin/components/admin-transactions"));
+const AdminNotificationsPage = lazy(() => import("../app/pannels/admin/components/admin-notifications"));
+const RegisteredCandidatesPage = lazy(() => import("../app/pannels/admin/components/registered-candidates"));
+const AdminCandidateReviewPage = lazy(() => import("../app/pannels/admin/components/admin-candidate-review"));
 
 function AdminRoutes() {
     return (
+			<Suspense fallback={<PageLoader pageName="Admin" loadingText="Loading.." compact />}>
 			<Routes>
 				<Route path={admin.DASHBOARD} element={<AdminDashboardPage />} />
 				<Route path={admin.NOTIFICATIONS} element={<AdminNotificationsPage />} />
@@ -74,6 +75,7 @@ function AdminRoutes() {
 				<Route path={admin.SUB_ADMIN} element={<AdminSubAdmin />} />
 				<Route path={admin.TRANSACTIONS} element={<AdminTransactionsPage />} />
 			</Routes>
+			</Suspense>
 		);
 }
 
