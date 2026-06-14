@@ -24,16 +24,16 @@ function Footer1() {
                         {/* Column 1: Brand & Contact */}
                         <Col lg={4} md={6}>
                             <div className="footer-brand mb-4">
-                                                <div className="logo-footer footer-brand-logo mb-3">
+                                <div className="logo-footer footer-brand-logo mb-3">
                                     <NavLink to={publicUser.INITIAL}>
                                         <img
-                                            id="skin_footer_light_logo"
                                             src={`${process.env.PUBLIC_URL}/assets/images/skins-logo/logo-skin-8.gif`}
                                             alt="TaleGlobal"
                                             width="160"
                                             height="80"
                                             loading="eager"
                                             decoding="async"
+                                            style={{ width: '160px', height: '80px', display: 'block', objectFit: 'contain' }}
                                         />
                                     </NavLink>
                                 </div>

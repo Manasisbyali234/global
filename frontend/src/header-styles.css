@@ -110,6 +110,22 @@ header,
   align-items: center !important;
 }
 
+/* Reserve fixed width/height for the auth button area to prevent CLS
+   when isAuthenticated() resolves and swaps Sign Up/In for Dashboard */
+.extra-nav.header-2-nav .extra-cell:first-child {
+  min-width: 180px;
+  min-height: 40px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+/* Pre-establish main-bar height so color-fill class added by custom.js
+   on scroll doesn't cause a layout reflow */
+.main-bar {
+  min-height: 70px;
+}
+
 .dashboard-link .btn {
   display: flex !important;
   align-items: center !important;

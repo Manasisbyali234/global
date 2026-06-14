@@ -69,18 +69,16 @@
   <!-- CRITICAL inline styles to prevent FOUC before any CSS loads -->
   <style>
     .logo-header,.logo-header-inner{display:block;width:160px;height:80px}
-    #skin_header_logo,#skin_footer_light_logo{display:block}
+    #skin_header_logo{display:block}
     .site-header{display:block;position:sticky;top:0;z-index:100}
+    .main-bar{min-height:70px}
     .hero-body{min-height:500px;position:relative;overflow:hidden}
-    /* Reserve full viewport height on the page wrapper so footer paint doesn't shift content */
     .page-wraper{min-height:100vh;display:flex;flex-direction:column}
     .page-content.public-page-content{flex:1 0 auto}
-    /* Pre-establish stacking context on hero content so z-index doesn't cause reflow */
     .twm-home1-banner-section,.twm-bnr-right-content,.hero-content{position:relative;z-index:1}
-    /* Lock footer logo dimensions before image loads */
-    #skin_footer_light_logo{width:160px;height:80px;display:block}
-    /* Footer min-height prevents layout shift when React renders it */
+    .footer-brand-logo img{width:160px;height:80px;display:block;object-fit:contain}
     .site-footer-new{min-height:480px}
+    .extra-nav.header-2-nav .extra-cell:first-child{min-width:180px;min-height:40px}
   </style>
 
   <!-- Bootstrap + icon fonts: blocking so layout is stable before React hydrates -->
