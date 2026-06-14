@@ -2976,6 +2976,17 @@ tbody .text-success {
 }
 
 /* ============================================================================
+ * PANEL HEADING - Remove gradient background
+ * ============================================================================ */
+
+.panel-heading,
+.wt-panel-heading {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: inherit !important;
+}
+
+/* ============================================================================
  * END OF CONSOLIDATED MASTER STYLES
  * ============================================================================
  */
