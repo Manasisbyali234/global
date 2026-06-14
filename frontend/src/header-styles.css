@@ -16,9 +16,8 @@ header,
 .emp-header,
 .can-header,
 .admin-header {
-  position: relative !important;
+  position: relative;
   isolation: isolate;
-  transform: translateZ(0);
   opacity: 1;
 }
 
@@ -27,7 +26,7 @@ header,
 .header-full-width.site-header,
 .header-style-light.site-header {
   z-index: unset !important;
-  transform: translate3d(0, 0, 0);
+  will-change: auto;
   backface-visibility: hidden;
 }
 

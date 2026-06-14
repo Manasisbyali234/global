@@ -16,9 +16,14 @@ function Footer1() {
                 background: '#F9FAFB',
                 padding: '64px 0 0',
                 color: '#000000',
-                fontFamily: 'Poppins, sans-serif'
+                fontFamily: 'Poppins, sans-serif',
+                contain: 'layout',
             }}>
                 <style>{`
+                @font-face {
+                    font-family: 'Poppins';
+                    font-display: optional;
+                }
                 .footer-col-title {
                     color: #0B1220;
                     font-size: 16px;

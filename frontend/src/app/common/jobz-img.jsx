@@ -6,7 +6,6 @@ function JobZImage({ src, alt, ...props }) {
         const webpSrc = fullSrc.replace(/\.gif$/i, '.webp');
         const w = props.width || 160;
         const h = props.height || 80;
-        // Compute explicit pixel width from the display height to avoid width:auto CLS
         const displayH = parseInt(props.style?.height) || h;
         const displayW = Math.round((w / h) * displayH);
         return (
@@ -16,9 +15,9 @@ function JobZImage({ src, alt, ...props }) {
                     {...props}
                     src={fullSrc}
                     alt={alt}
-                    width={w}
-                    height={h}
-                    style={{ ...props.style, height: displayH + 'px', width: displayW + 'px', display: 'block' }}
+                    width={displayW}
+                    height={displayH}
+                    style={{ height: displayH + 'px', width: displayW + 'px', display: 'block' }}
                 />
             </picture>
         );
