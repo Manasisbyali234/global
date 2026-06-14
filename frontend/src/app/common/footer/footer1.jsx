@@ -17,8 +17,9 @@ function Footer1() {
                 padding: '64px 0 0',
                 color: '#000000',
                 fontFamily: 'Poppins, sans-serif',
-                minHeight: '400px',
-                contain: 'layout'
+                minHeight: '420px',
+                contentVisibility: 'auto',
+                containIntrinsicSize: '0 420px'
             }}>
                 <style>{`
                 .site-footer-new__container {

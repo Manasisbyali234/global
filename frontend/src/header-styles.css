@@ -19,6 +19,16 @@ header,
   position: relative !important;
   isolation: isolate;
   transform: translateZ(0);
+  opacity: 1;
+}
+
+/* Override z-index from style.css with opacity-based compositing */
+.header-style-3.site-header,
+.header-full-width.site-header,
+.header-style-light.site-header {
+  z-index: unset !important;
+  opacity: 1;
+  transform: translateZ(0);
 }
 
 #header-admin-wrap,

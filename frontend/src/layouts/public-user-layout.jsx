@@ -55,7 +55,7 @@ function PublicUserLayout() {
                     setHeaderType(currentpath)
                 }
 
-                <div className="page-content public-page-content">
+                <div className="page-content public-page-content" style={{ minHeight: '60vh' }}>
                     {
                         showBanner(currentpath) &&
                         <InnerPageBanner _data={setBanner(currentpath)} />
