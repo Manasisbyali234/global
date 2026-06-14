@@ -928,6 +928,12 @@ const hadOfferSentInStatusHistory = (application = {}) =>
   });
 
 const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) => {
+  const rawBaseStatus = getCanonicalStatusKey(application?.status || '', '');
+  if (['accepted', 'hired', 'offer_sent'].includes(rawBaseStatus)) {
+    return rawBaseStatus;
+  }
+
+  const hasExpiredAssessmentNoShow = hasExpiredAssessmentWindowWithoutActivity(application, options);
   const explicitDisplayStatus = String(
     application?.applicationStatus ||
     application?.applicationDisplayStatus ||
@@ -935,7 +941,14 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     ''
   ).trim();
   if (explicitDisplayStatus) {
-    return getCanonicalStatusKey(explicitDisplayStatus);
+    const explicitStatusKey = getCanonicalStatusKey(explicitDisplayStatus);
+    return explicitStatusKey === 'pending' && hasExpiredAssessmentNoShow
+      ? 'rejected'
+      : explicitStatusKey;
+  }
+
+  if (hasExpiredAssessmentNoShow) {
+    return 'rejected';
   }
 
   // If the application was auto-rejected only because the assessment session expired
@@ -947,9 +960,6 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
 
   const baseStatus = getDisplayBaseStatus(application, options, 'pending');
   const fallbackBaseStatus = baseStatus === 'under_review' ? 'pending' : baseStatus;
-  if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
-    return baseStatus;
-  }
 
   // If candidate rejected an offer letter, always show as rejected
   if (baseStatus === 'rejected' && hadOfferSentInStatusHistory(application)) {
@@ -1014,7 +1024,7 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     return 'rejected';
   }
 
-  if (hasExpiredAssessmentWindowWithoutActivity(application, options)) {
+  if (hasExpiredAssessmentNoShow) {
     return 'rejected';
   }
 
@@ -1082,6 +1092,12 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
 };
 
 const getInterviewCurrentStatus = (application = {}, options = {}) => {
+  const rawBaseStatus = getCanonicalStatusKey(application?.status || '', '');
+  if (['accepted', 'hired', 'offer_sent'].includes(rawBaseStatus)) {
+    return rawBaseStatus;
+  }
+
+  const hasExpiredAssessmentNoShow = hasExpiredAssessmentWindowWithoutActivity(application, options);
   const explicitInterviewStatus = String(
     application?.interviewCurrentStatus ||
     application?.currentInterviewStatus ||
@@ -1089,7 +1105,14 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
     ''
   ).trim();
   if (explicitInterviewStatus) {
-    return getCanonicalStatusKey(explicitInterviewStatus);
+    const explicitStatusKey = getCanonicalStatusKey(explicitInterviewStatus);
+    return explicitStatusKey === 'pending' && hasExpiredAssessmentNoShow
+      ? 'no_show'
+      : explicitStatusKey;
+  }
+
+  if (hasExpiredAssessmentNoShow) {
+    return 'no_show';
   }
 
   // Same session-expiry guard as getEffectiveApplicationDisplayStatus
@@ -1098,9 +1121,6 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
   }
 
   const baseStatus = getDisplayBaseStatus(application, options, 'pending');
-  if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
-    return baseStatus;
-  }
 
   const rejectedInviteDisplayStatus = getRejectedInterviewInviteDisplayStatus(application, baseStatus);
   if (rejectedInviteDisplayStatus) {
@@ -1117,7 +1137,7 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
     return pendingEvaluationRecoveryStatus === 'shortlisted' ? 'pending' : pendingEvaluationRecoveryStatus;
   }
 
-  if (hasExpiredAssessmentWindowWithoutActivity(application, options)) {
+  if (hasExpiredAssessmentNoShow) {
     return 'no_show';
   }
 

@@ -15,7 +15,7 @@ import {
     getAssessmentOutcomeLabel,
     getAssessmentProcessStatus
 } from '../../../../utils/assessmentOutcome';
-import { getApplicationStatusKey, getInterviewCurrentStatusKey, getStatusLabel } from '../../../../utils/statusDisplay';
+import { getApplicationStatusKey, getCanonicalStatusKey, getInterviewCurrentStatusKey, getStatusLabel } from '../../../../utils/statusDisplay';
 import { formatDesignation, formatJobTitle } from '../../../../utils/jobTitleFormatter';
 import TermsModal from "../../../../components/TermsModal";
 
@@ -956,16 +956,28 @@ function EmpCandidateReviewPage() {
         );
 
     const getApplicationDisplayStatus = (applicationData, processes = []) => {
+        const baseStatus = String(applicationData?.status || '').trim().toLowerCase() || 'pending';
+        if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
+            return baseStatus;
+        }
+
+        const explicitBackendStatus = getCanonicalStatusKey(
+            applicationData?.applicationStatus ||
+            applicationData?.applicationDisplayStatus ||
+            applicationData?.displayStatus ||
+            '',
+            ''
+        );
+        if (explicitBackendStatus === 'rejected') {
+            return 'rejected';
+        }
+
         // If the only reason this is rejected is an expired browser session, treat as pending
         if (isAutoRejectedAfterExpiredSession(applicationData)) {
             return 'pending';
         }
 
         const sharedApplicationStatus = getApplicationStatusKey(applicationData, '');
-        const baseStatus = String(applicationData?.status || '').trim().toLowerCase() || 'pending';
-        if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
-            return baseStatus;
-        }
 
         // If candidate rejected an offer, always show as rejected
         if (baseStatus === 'rejected' && hadOfferSentInHistory(applicationData)) {

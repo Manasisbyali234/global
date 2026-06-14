@@ -171,16 +171,30 @@ const startNoShowScheduler = () => {
     if (isRunning || !dbConnected) return;
     isRunning = true;
     try {
-      // Find applications that have a sent interview invite and are still pending/shortlisted
+      // Find active candidates and old expired-session rejections that may need no-show repair.
       const candidates = await Application.find({
-        status: { $in: ['pending', 'shortlisted'] },
         $or: [
-          { 'interviewInvite.sentAt': { $exists: true } },
-          { assessmentStatus: { $in: ['not_required', 'pending', 'available'] } }
+          {
+            status: { $in: ['pending', 'shortlisted'] },
+            $or: [
+              { 'interviewInvite.sentAt': { $exists: true } },
+              { assessmentStatus: { $in: ['not_required', 'pending', 'available', 'completed', 'expired'] } }
+            ]
+          },
+          {
+            status: 'rejected',
+            assessmentStatus: { $ne: 'no_show' },
+            statusHistory: {
+              $elemMatch: {
+                status: 'rejected',
+                notes: 'Auto-rejected after application session expired'
+              }
+            }
+          }
         ]
       })
         .populate('jobId', 'assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime interviewRoundOrder interviewRoundTypes interviewRoundDetails')
-        .select('_id status interviewInvite assessmentStatus assessmentResult assessmentScore assessmentPercentage jobId')
+        .select('_id status interviewInvite assessmentStatus assessmentResult assessmentScore assessmentPercentage jobId statusHistory')
         .lean();
 
       const candidateIds = candidates.map((candidate) => candidate._id);
