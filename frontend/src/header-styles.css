@@ -16,9 +16,8 @@ header,
 .emp-header,
 .can-header,
 .admin-header {
-  z-index: 100 !important;
   position: relative !important;
-  will-change: transform;
+  isolation: isolate;
   transform: translateZ(0);
 }
 
