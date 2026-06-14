@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      // Check tokens in priority order for faster detection
       const tokens = {
         placement: localStorage.getItem('placementToken'),
         candidate: localStorage.getItem('candidateToken'),
@@ -48,43 +49,45 @@ export const AuthProvider = ({ children }) => {
         'sub-admin': localStorage.getItem('subAdminToken')
       };
 
+      // Find first valid token
       for (const [type, token] of Object.entries(tokens)) {
         if (token) {
           try {
             const userDataKey = type === 'sub-admin' ? 'subAdminData' : `${type}User`;
-            const userData = JSON.parse(localStorage.getItem(userDataKey) || '{}');
-
-            // Set auth state immediately from localStorage — no blocking fetch
+            let userData = JSON.parse(localStorage.getItem(userDataKey) || '{}');
+            
+            if (token) {
+              try {
+                let endpoint;
+                if (type === 'employer') endpoint = `${BACKEND_URL}/api/employer/profile`;
+                else if (type === 'candidate') endpoint = `${BACKEND_URL}/api/candidate/profile`;
+                else if (type === 'placement') endpoint = `${BACKEND_URL}/api/placement/profile`;
+                else if (type === 'admin') endpoint = `${BACKEND_URL}/api/admin/profile`;
+                
+                if (endpoint) {
+                  const response = await fetch(endpoint, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                  });
+                  const data = await response.json();
+                  if (data.success && data.profile) {
+                    // For candidates, merge candidateId data with profile data
+                    if (type === 'candidate' && data.profile.candidateId) {
+                      userData = { ...userData, ...data.profile, ...data.profile.candidateId };
+                    } else {
+                      userData = { ...userData, ...data.profile };
+                    }
+                    localStorage.setItem(userDataKey, JSON.stringify(userData));
+                  }
+                }
+              } catch (e) {}
+            }
+            
             setUser(userData);
             setUserType(type);
             setLoading(false);
-
-            // Refresh profile from API in background without blocking
-            let endpoint;
-            if (type === 'employer') endpoint = `${BACKEND_URL}/api/employer/profile`;
-            else if (type === 'candidate') endpoint = `${BACKEND_URL}/api/candidate/profile`;
-            else if (type === 'placement') endpoint = `${BACKEND_URL}/api/placement/profile`;
-            else if (type === 'admin') endpoint = `${BACKEND_URL}/api/admin/profile`;
-
-            if (endpoint) {
-              fetch(endpoint, { headers: { 'Authorization': `Bearer ${token}` } })
-                .then(r => r.json())
-                .then(data => {
-                  if (data.success && data.profile) {
-                    let fresh;
-                    if (type === 'candidate' && data.profile.candidateId) {
-                      fresh = { ...userData, ...data.profile, ...data.profile.candidateId };
-                    } else {
-                      fresh = { ...userData, ...data.profile };
-                    }
-                    localStorage.setItem(userDataKey, JSON.stringify(fresh));
-                    setUser(fresh);
-                  }
-                })
-                .catch(() => {});
-            }
             return;
           } catch (e) {
+            // Invalid user data, remove token
             const tokenKey = type === 'sub-admin' ? 'subAdminToken' : `${type}Token`;
             const userKey = type === 'sub-admin' ? 'subAdminData' : `${type}User`;
             localStorage.removeItem(tokenKey);
@@ -92,8 +95,10 @@ export const AuthProvider = ({ children }) => {
           }
         }
       }
-    } catch (error) {}
-
+    } catch (error) {
+      // Silent error handling
+    }
+    
     setLoading(false);
   };
 

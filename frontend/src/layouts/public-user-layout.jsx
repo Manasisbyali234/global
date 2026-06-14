@@ -48,14 +48,14 @@ function PublicUserLayout() {
 
     return (
         <>
-            <div className={layoutClassName} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <div className={layoutClassName}>
                 {/* Header */}
                 {
                     showHeader(currentpath) &&
                     setHeaderType(currentpath)
                 }
 
-                <div className="page-content public-page-content" style={{ flex: '1 0 auto' }}>
+                <div className="page-content public-page-content">
                     {
                         showBanner(currentpath) &&
                         <InnerPageBanner _data={setBanner(currentpath)} />
@@ -63,12 +63,11 @@ function PublicUserLayout() {
                     <PublicUserRoutes />
                 </div>
 
-                {/* Footer: always in DOM, hidden via display:none when not needed.
-                    Conditional mounting causes CLS because the footer appears after
-                    first paint and pushes page-content upward. */}
-                <div style={{ flexShrink: 0, display: showFooter(currentpath) ? 'block' : 'none' }}>
-                    {setFooterType(currentpath)}
-                </div>
+                {/* Footer */}
+                {
+                    showFooter(currentpath) &&
+                    setFooterType(currentpath)
+                }
             </div>
         </>
     )

@@ -131,13 +131,14 @@ function Home16Page() {
         fetchHomeData();
         fetchAppliedJobs();
         
-        // Initialize navbar as sticky - never use position:absolute which removes from flow
+        // Initialize navbar transparency
         setTimeout(() => {
-            const navbars = document.querySelectorAll('header, .site-header');
+            const navbars = document.querySelectorAll('header, .site-header, .navbar, .twm-header-style-1, .header-fixed, .main-header');
             navbars.forEach(navbar => {
                 navbar.classList.add('navbar-transparent');
+                navbar.style.cssText = 'background: transparent !important; background-color: transparent !important; box-shadow: none !important; position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; z-index: 10000 !important; transition: all 0.3s ease !important;';
             });
-        }, 0);
+        }, 100);
 
         // Add intersection observer for animations
         const observer = new IntersectionObserver((entries) => {
@@ -1738,22 +1739,20 @@ navbarStyle.textContent = `
 document.head.appendChild(navbarStyle);
 
 const handleNavbarScroll = () => {
-    const navbars = document.querySelectorAll('header, .site-header');
+    const navbars = document.querySelectorAll('header, .site-header, .navbar, .twm-header-style-1, .header-fixed, .main-header');
+    
     navbars.forEach(navbar => {
         if (window.scrollY > 50) {
             navbar.classList.remove('navbar-transparent');
             navbar.classList.add('navbar-scrolled');
-            // Only change background/shadow — never change position
-            navbar.style.background = '#fff';
-            navbar.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            navbar.style.cssText = 'background: #fff !important; background-color: #fff !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important; position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; z-index: 1000 !important; transition: all 0.3s ease !important;';
         } else {
             navbar.classList.remove('navbar-scrolled');
             navbar.classList.add('navbar-transparent');
-            navbar.style.background = 'transparent';
-            navbar.style.boxShadow = 'none';
+            navbar.style.cssText = 'background: transparent !important; background-color: transparent !important; box-shadow: none !important; position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; z-index: 1000 !important; transition: all 0.3s ease !important;';
         }
     });
 };
 
-window.addEventListener('scroll', handleNavbarScroll, { passive: true });
-setTimeout(handleNavbarScroll, 0);
+window.addEventListener('scroll', handleNavbarScroll);
+setTimeout(handleNavbarScroll, 100);

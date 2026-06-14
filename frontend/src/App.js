@@ -75,21 +75,22 @@ function App() {
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Force light mode immediately
     const cleanup = forceLightMode();
-
-    // Defer AOS off the critical path — runs after first paint is complete
-    const aosTimer = requestIdleCallback
-      ? requestIdleCallback(() => AOS.init({ duration: 300, once: true, offset: 50 }), { timeout: 2000 })
-      : setTimeout(() => AOS.init({ duration: 300, once: true, offset: 50 }), 200);
-
-    // Remove loader on next frame so first paint is not blocked
-    const frame = requestAnimationFrame(() => setLoading(false));
-
+    
+    AOS.init({
+      duration: 300,
+      once: true,
+      offset: 50,
+    });
+    
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 50);
+    
     return () => {
+      clearTimeout(timer);
       cleanup();
-      cancelAnimationFrame(frame);
-      if (requestIdleCallback && typeof aosTimer === 'number') cancelIdleCallback(aosTimer);
-      else clearTimeout(aosTimer);
     };
   }, []);
 

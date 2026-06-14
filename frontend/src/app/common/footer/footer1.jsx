@@ -1,8 +1,8 @@
+import { publicUrlFor } from "../../../globals/constants";
 import JobZImage from "../jobz-img";
 import { NavLink } from "react-router-dom";
 import { publicUser } from "../../../globals/route-names";
 import { Container, Row, Col } from "react-bootstrap";
-import "./footer1.css";
 
 function Footer1() {
     return (
@@ -18,22 +18,177 @@ function Footer1() {
                 color: '#000000',
                 fontFamily: 'Poppins, sans-serif'
             }}>
+                <style>{`
+                .site-footer-new__container {
+                    width: 100% !important;
+                    max-width: 1200px !important;
+                    margin: 0 auto !important;
+                    padding-left: clamp(16px, 4vw, 28px) !important;
+                    padding-right: clamp(16px, 4vw, 28px) !important;
+                }
+                .site-footer-new {
+                    display: block;
+                    margin-bottom: 0 !important;
+                    padding-bottom: 0 !important;
+                }
+                .footer-col-title {
+                    color: #0B1220;
+                    font-size: 16px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    margin-bottom: 24px;
+                    letter-spacing: 0.05em;
+                    padding-left: 0;
+                    margin-left: -10px;
+                }
+                .footer-link-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                .footer-link-list li {
+                    margin-bottom: 12px;
+                }
+                .footer-link-list a {
+                    color: #000000;
+                    text-decoration: none !important;
+                    font-size: 14px;
+                    transition: all 0.3s ease;
+                }
+                .footer-link-list a:hover {
+                    color: #FF6A3D;
+                }
+                .footer-contact-item {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                    margin-bottom: 10px;
+                    font-size: 14px;
+                    color: #000000;
+                    justify-content: flex-start;
+                }
+                .footer-contact-item i {
+                    flex-shrink: 0;
+                    margin-top: 5px;
+                    line-height: 1;
+                }
+                @media (max-width: 768px) {
+                    .footer-contact-item {
+                        justify-content: flex-start;
+                        text-align: left;
+                    }
+                    .contact-info {
+                        align-items: flex-start !important;
+                    }
+                }
+                .newsletter-input-group {
+                    display: flex;
+                    align-items: center;
+                    background: #fff;
+                    border: 1px solid #E5E7EB;
+                    border-radius: 999px;
+                    padding: 4px;
+                    transition: border-color 0.3s ease;
+                }
+                .newsletter-input-group:focus-within {
+                    border-color: #FF6A3D;
+                }
+                .newsletter-input-group input {
+                    border: none;
+                    padding: 8px 16px;
+                    flex: 1;
+                    font-size: 14px;
+                    outline: none;
+                    background: transparent;
+                }
+                .newsletter-submit-btn {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    background: #FF6A3D;
+                    border: none;
+                    color: #fff;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.3s ease;
+                    padding: 0;
+                }
+                .newsletter-submit-btn:hover {
+                    background: #e55a2f;
+                }
+                .footer-bottom-bar {
+                    border-top: 1px solid #E5E7EB;
+                    padding: 20px 0;
+                    margin-top: 64px;
+                    margin-bottom: 0 !important;
+                }
+                .footer-brand-logo {
+                    margin-top: -40px;
+                }
+                .social-icon-outline {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    border: 1px solid #E5E7EB;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #000000;
+                    margin-left: 12px;
+                    transition: all 0.3s ease;
+                    text-decoration: none !important;
+                }
+                .social-icon-outline:hover {
+                    border-color: #FF6A3D;
+                    color: #FF6A3D;
+                    background: rgba(255, 106, 61, 0.05);
+                }
+                @media (max-width: 768px) {
+                    .site-footer-new {
+                        padding: 48px 0 0 !important;
+                    }
+                    .site-footer-new__container {
+                        padding-left: 16px !important;
+                        padding-right: 16px !important;
+                    }
+                    .footer-brand-logo {
+                        margin-top: 0;
+                    }
+                    .footer-brand-logo img {
+                        display: block;
+                        max-width: 100%;
+                        height: auto !important;
+                        object-fit: contain;
+                    }
+                }
+            `}</style>
 
-                <Container className="site-footer-new__container">
+                <Container
+                    className="site-footer-new__container"
+                    style={{
+                        width: '100%',
+                        maxWidth: '1200px',
+                        margin: '0 auto',
+                        paddingLeft: 'clamp(16px, 4vw, 28px)',
+                        paddingRight: 'clamp(16px, 4vw, 28px)'
+                    }}
+                >
                     <Row className="g-4 gx-lg-5">
                         {/* Column 1: Brand & Contact */}
                         <Col lg={4} md={6}>
                             <div className="footer-brand mb-4">
                                 <div className="logo-footer footer-brand-logo mb-3">
                                     <NavLink to={publicUser.INITIAL}>
-                                        <img
-                                            src={`${process.env.PUBLIC_URL}/assets/images/skins-logo/logo-skin-8.webp`}
-                                            alt="TaleGlobal"
-                                            width="160"
-                                            height="80"
+                                        <JobZImage
+                                            id="skin_footer_light_logo"
+                                            src="images/skins-logo/logo-skin-8.gif"
+                                            alt=""
+                                            width={400}
+                                            height={200}
                                             loading="lazy"
                                             decoding="async"
-                                            style={{ width: '160px', height: '80px', display: 'block', objectFit: 'contain' }}
+                                            style={{ height: '160px', width: 'auto' }}
                                         />
                                     </NavLink>
                                 </div>
@@ -93,6 +248,7 @@ function Footer1() {
                                 <a href="https://www.youtube.com/@TaleGlobal" target="_blank" rel="noopener noreferrer" className="social-icon-outline" style={{ marginLeft: '0', marginRight: '12px' }}>
                                     <i className="feather-youtube"></i>
                                 </a>
+
                             </div>
                         </Col>
                     </Row>

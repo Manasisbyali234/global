@@ -17,37 +17,7 @@ header,
 .can-header,
 .admin-header {
   z-index: 100 !important;
-  position: sticky !important;
-  top: 0 !important;
-}
-
-/* Transparent state (home page top) - background only, position stays sticky */
-.site-header.navbar-transparent {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-/* Scrolled state - background fills in, position stays sticky */
-.site-header.navbar-scrolled {
-  background: #ffffff !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
-}
-
-/* Fix: Bootstrap navbar-collapse uses height animation (non-composited).
-   Override to use opacity+transform only so it runs on the compositor thread. */
-.site-header .navbar-collapse {
-  transition: none !important;
-}
-.site-header .navbar-collapse.collapsing {
-  height: auto !important;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 0.2s ease, transform 0.2s ease !important;
-}
-.site-header .navbar-collapse.show {
-  opacity: 1;
-  transform: translateY(0);
+  position: relative !important;
 }
 
 #header-admin-wrap,
@@ -120,22 +90,6 @@ header,
   align-items: center !important;
 }
 
-/* Reserve fixed width/height for the auth button area to prevent CLS
-   when isAuthenticated() resolves and swaps Sign Up/In for Dashboard */
-.extra-nav.header-2-nav .extra-cell:first-child {
-  min-width: 180px;
-  min-height: 40px;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-}
-
-/* Pre-establish main-bar height so color-fill class added by custom.js
-   on scroll doesn't cause a layout reflow */
-.main-bar {
-  min-height: 70px;
-}
-
 .dashboard-link .btn {
   display: flex !important;
   align-items: center !important;
@@ -166,23 +120,19 @@ header,
     visibility: hidden;
     margin-top: 10px;
     transform: translateY(10px);
-    /* Only animate composited properties: opacity + transform (no z-index, no width/height) */
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    transition: all 0.3s ease;
     border: 1px solid #FF7A00;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(255, 122, 0, 0.15);
     background-color: #ffffff !important;
     z-index: 9999 !important;
-    /* will-change declared here so the layer is promoted only for the dropdown, not the whole header */
-    will-change: opacity, transform;
   }
 
   .header-nav-btn-section .dropdown-item {
     color: #333;
     font-weight: 500;
     padding: 8px 20px;
-    /* Only transition composited/cheap properties */
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: all 0.2s ease;
   }
 
   .header-nav-btn-section .dropdown-item:hover {
