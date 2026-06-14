@@ -27,11 +27,11 @@ function Footer1() {
                                 <div className="logo-footer footer-brand-logo mb-3">
                                     <NavLink to={publicUser.INITIAL}>
                                         <img
-                                            src={`${process.env.PUBLIC_URL}/assets/images/skins-logo/logo-skin-8.gif`}
+                                            src={`${process.env.PUBLIC_URL}/assets/images/skins-logo/logo-skin-8.webp`}
                                             alt="TaleGlobal"
                                             width="160"
                                             height="80"
-                                            loading="eager"
+                                            loading="lazy"
                                             decoding="async"
                                             style={{ width: '160px', height: '80px', display: 'block', objectFit: 'contain' }}
                                         />

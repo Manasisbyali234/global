@@ -25,6 +25,9 @@
   <link rel="preload" as="font" type="font/woff2" href="%PUBLIC_URL%/assets/fonts/flaticon.woff2" crossorigin="anonymous">
   <link rel="preload" as="font" type="font/woff" href="%PUBLIC_URL%/assets/fonts/Feather.woff" crossorigin="anonymous">
 
+  <!-- PRELOAD LCP logo (WebP - 9KB vs 632KB GIF) -->
+  <link rel="preload" as="image" href="%PUBLIC_URL%/assets/images/skins-logo/logo-skin-8.webp" fetchpriority="high">
+
   <!-- PRELOAD LCP IMAGE (hero background) -->
   <link rel="preload" as="image" href="%PUBLIC_URL%/assets/images/photo_2025-10-09_11-01-43.png" fetchpriority="high">
 
@@ -80,10 +83,15 @@
     .extra-nav.header-2-nav .extra-cell:first-child{min-width:180px;min-height:40px}
   </style>
 
-  <!-- Bootstrap + icon fonts: blocking so layout is stable before React hydrates -->
-  <link rel="stylesheet" href="%PUBLIC_URL%/assets/css/bootstrap.min.css">
-  <link rel="stylesheet" href="%PUBLIC_URL%/assets/css/font-awesome.min.css">
-  <link rel="stylesheet" href="%PUBLIC_URL%/assets/css/feather.css">
+  <!-- ALL CSS deferred - critical layout handled via inline styles above -->
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/bootstrap.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/bootstrap.min.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/font-awesome.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/font-awesome.min.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/feather.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/feather.css"></noscript>
 
   <!-- ALL NON-CRITICAL CSS: Deferred -->
 
