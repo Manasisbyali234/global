@@ -55,7 +55,7 @@ function PublicUserLayout() {
                     setHeaderType(currentpath)
                 }
 
-                <div className="page-content public-page-content" style={{ minHeight: '60vh', contain: 'layout style' }}>
+                <div className="page-content public-page-content" style={{ minHeight: '60vh' }}>
                     {
                         showBanner(currentpath) &&
                         <InnerPageBanner _data={setBanner(currentpath)} />
@@ -64,10 +64,12 @@ function PublicUserLayout() {
                 </div>
 
                 {/* Footer */}
+                <div className="footer-slot" style={{ minHeight: '340px' }}>
                 {
                     showFooter(currentpath) &&
                     setFooterType(currentpath)
                 }
+                </div>
             </div>
         </>
     )

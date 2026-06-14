@@ -19,6 +19,8 @@ header,
   position: relative;
   isolation: isolate;
   opacity: 1;
+  /* Suppress z-index transition — non-composited, causes CLS warning */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease !important;
 }
 
 /* Override z-index from style.css with compositor-eligible stacking */
@@ -51,22 +53,23 @@ header,
   width: 100% !important;
 }
 
-/* LOGO */
-.logo-header img {
-  max-width: 150px !important;
-  height: auto !important;
+/* Reserve header height to prevent navbar-collapse CLS */
+.main-bar {
+  min-height: 70px;
 }
 
-/* Reserve logo space to prevent CLS */
-.logo-header {
-  min-width: 140px;
-  min-height: 50px;
+.header-style-3 .main-bar {
+  min-height: 70px;
 }
 
-.logo-header picture {
-  display: inline-block;
-  min-width: 140px;
-  min-height: 50px;
+/* LOGO - explicit sizing beats style.css overrides */
+.logo-header img,
+.logo-header-inner img,
+.header-style-3 .logo-header .logo-header-inner img {
+  width: 100px !important;
+  height: 50px !important;
+  max-width: none !important;
+  display: block !important;
 }
 
 /* NAVIGATION LINKS */
