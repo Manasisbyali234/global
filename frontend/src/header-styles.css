@@ -17,7 +17,10 @@ header,
 .can-header,
 .admin-header {
   z-index: 100 !important;
-  position: relative !important;
+  position: sticky !important;
+  top: 0 !important;
+  /* No will-change here — it creates a stacking context and promotes to its own layer
+     unnecessarily when the header is not animating, causing compositing overhead */
 }
 
 #header-admin-wrap,
@@ -120,19 +123,23 @@ header,
     visibility: hidden;
     margin-top: 10px;
     transform: translateY(10px);
-    transition: all 0.3s ease;
+    /* Only animate composited properties: opacity + transform (no z-index, no width/height) */
+    transition: opacity 0.25s ease, transform 0.25s ease;
     border: 1px solid #FF7A00;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(255, 122, 0, 0.15);
     background-color: #ffffff !important;
     z-index: 9999 !important;
+    /* will-change declared here so the layer is promoted only for the dropdown, not the whole header */
+    will-change: opacity, transform;
   }
 
   .header-nav-btn-section .dropdown-item {
     color: #333;
     font-weight: 500;
     padding: 8px 20px;
-    transition: all 0.2s ease;
+    /* Only transition composited/cheap properties */
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   .header-nav-btn-section .dropdown-item:hover {

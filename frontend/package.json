@@ -37,7 +37,9 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@playwright/test": "^1.56.1",
     "autoprefixer": "^10.4.23",
-    "postcss": "^8.5.6"
+    "postcss": "^8.5.6",
+    "sharp": "^0.35.1",
+    "terser": "^5.48.0"
   },
   "resolutions": {
     "source-map-loader": "3.0.0"
@@ -57,9 +59,12 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+      "last 2 Chrome versions",
+      "last 2 Firefox versions",
+      "last 2 Safari versions",
+      "last 2 Edge versions",
+      "not ie 11",
+      "not dead"
     ],
     "development": [
       "last 1 chrome version",

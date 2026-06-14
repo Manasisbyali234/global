@@ -457,6 +457,66 @@ app.use('/uploads', (req, res, next) => {
   next();
 }, express.static(path.join(__dirname, 'uploads')));
 
+// Serve React frontend build with cache headers
+const frontendBuild = path.join(__dirname, '../frontend/build');
+if (require('fs').existsSync(frontendBuild)) {
+  // Immutable cache for hashed static assets (JS/CSS chunks with content hash in filename)
+  app.use('/static', express.static(path.join(frontendBuild, 'static'), {
+    maxAge: '1y',
+    immutable: true,
+    etag: false,
+    lastModified: false
+  }));
+
+  // Long cache for public assets (versioned by filename where possible)
+  app.use('/assets', express.static(path.join(frontendBuild, 'assets'), {
+    maxAge: '1y',
+    immutable: true,
+    etag: true,
+    setHeaders(res, filePath) {
+      // HTML files must never be cached
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      }
+    }
+  }));
+
+  // Root-level CSS fix files served with long cache
+  const rootCssFiles = [
+    'hamburger-menu-zindex-fix.css', 'image-modal-header-fix.css',
+    'interview-type-badge-mobile-fix.css', 'modal-zindex-fix.css',
+    'notification-dropdown-escape.css', 'popup-header-fix.css',
+    'profile-info-icons-fix.css', 'round-badges-fix.css'
+  ];
+  rootCssFiles.forEach(file => {
+    app.get(`/${file}`, (req, res) => {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      res.setHeader('Content-Type', 'text/css');
+      res.sendFile(path.join(frontendBuild, file));
+    });
+  });
+
+  // Serve React app - index.html must never be cached
+  app.use(express.static(frontendBuild, {
+    maxAge: 0,
+    etag: true,
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      }
+    }
+  }));
+
+  // SPA fallback
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) return next();
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.sendFile(path.join(frontendBuild, 'index.html'));
+  });
+}
+
 // Enhanced preflight handling for iOS Safari
 app.use((req, res, next) => {
   // Set additional headers for iOS Safari compatibility

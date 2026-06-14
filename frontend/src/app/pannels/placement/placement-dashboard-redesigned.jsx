@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { formatDate } from '../../../utils/dateFormatter';
 import { api } from '../../../utils/api';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -1973,7 +1973,7 @@ function PlacementDashboardRedesigned() {
                                         </div>
                                         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "column" }}>
                                             <div style={{ color: "#6c757d", fontSize: "13px" }}>
-                                                Showing {filteredFileHistory.length === 0 ? 0 : (historyPage - 1) * HISTORY_PAGE_SIZE + 1}–{Math.min(historyPage * HISTORY_PAGE_SIZE, filteredFileHistory.length)} of {filteredFileHistory.length} record{filteredFileHistory.length !== 1 ? "s" : ""}
+                                                Showing {filteredFileHistory.length === 0 ? 0 : (historyPage - 1) * HISTORY_PAGE_SIZE + 1}�{Math.min(historyPage * HISTORY_PAGE_SIZE, filteredFileHistory.length)} of {filteredFileHistory.length} record{filteredFileHistory.length !== 1 ? "s" : ""}
                                             </div>
                                             {historyTotalPages > 1 && (
                                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>

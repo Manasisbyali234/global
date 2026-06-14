@@ -23,9 +23,9 @@
   <!-- PRELOAD LCP IMAGE (hero background) -->
   <link rel="preload" as="image" href="%PUBLIC_URL%/assets/images/photo_2025-10-09_11-01-43.png" fetchpriority="high">
 
-  <!-- GOOGLE FONTS - non-blocking -->
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&display=swap"></noscript>
+  <!-- GOOGLE FONTS - non-blocking with font-display=optional to eliminate swap CLS -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&display=optional" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&display=optional"></noscript>
 
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
   <title>TaleGlobal</title>
@@ -48,8 +48,11 @@
     html { color-scheme: light only !important; -webkit-text-size-adjust: 100%; }
     body { color-scheme: light only !important; background-color: #ffffff !important; color: #000000 !important; -webkit-touch-callout: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
     * { -webkit-overflow-scrolling: touch; touch-action: manipulation; }
-    /* font-display: swap for all @font-face */
-    @font-face { font-display: swap; }
+    /* Fallback fonts sized to match web fonts - prevents CLS from font swap */
+    @font-face { font-family: 'Poppins'; src: local('Arial'); size-adjust: 100%; ascent-override: 95%; descent-override: 22%; line-gap-override: 0%; font-display: swap; }
+    @font-face { font-family: 'Rubik'; src: local('Arial'); size-adjust: 100%; ascent-override: 95%; descent-override: 22%; line-gap-override: 0%; font-display: swap; }
+    /* DM Serif Display fallback - Georgia is metrically similar */
+    @font-face { font-family: 'DM Serif Display'; src: local('Georgia'); size-adjust: 97%; ascent-override: 90%; descent-override: 25%; line-gap-override: 0%; font-display: swap; }
   </style>
 
   <!-- CRITICAL inline styles to prevent FOUC before any CSS loads -->
@@ -58,6 +61,8 @@
     #skin_header_logo,#skin_footer_light_logo{display:block}
     .site-header{display:block}
     .hero-body{min-height:500px;position:relative;overflow:hidden}
+    /* Reserve space for page-content to prevent footer-induced CLS */
+    .page-content.public-page-content{min-height:60vh}
   </style>
 
   <!-- Bootstrap deferred - non-blocking -->
@@ -214,27 +219,68 @@
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
 
+  <!-- Core scripts: jQuery + Bootstrap needed synchronously by other scripts -->
   <script defer src="%PUBLIC_URL%/assets/js/jquery-3.6.0.min.js"></script>
   <script defer src="%PUBLIC_URL%/assets/js/popper.min.js"></script>
   <script defer src="%PUBLIC_URL%/assets/js/bootstrap.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/magnific-popup.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/waypoints.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/waypoints-sticky.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/isotope.pkgd.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/imagesloaded.pkgd.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/owl.carousel.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/jquery.owl-filter.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/theia-sticky-sidebar.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/lc_lightbox.lite.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-select.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/jquery.scrollbar.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-datepicker.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/jquery.dataTables.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/dataTables.bootstrap5.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/bootstrap-slider.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/swiper-bundle.min.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/custom.js"></script>
-  <script defer src="%PUBLIC_URL%/assets/js/modal-fix.js"></script>
+
+  <!-- Non-critical scripts: lazy-load after page interactive -->
+  <script>
+    function loadScriptsBatch(srcs) {
+      srcs.forEach(function(src) {
+        var s = document.createElement('script');
+        s.src = src; s.async = false; s.defer = true;
+        document.body.appendChild(s);
+      });
+    }
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(function() {
+        loadScriptsBatch([
+          '%PUBLIC_URL%/assets/js/magnific-popup.min.js',
+          '%PUBLIC_URL%/assets/js/waypoints.min.js',
+          '%PUBLIC_URL%/assets/js/waypoints-sticky.min.js',
+          '%PUBLIC_URL%/assets/js/isotope.pkgd.min.js',
+          '%PUBLIC_URL%/assets/js/imagesloaded.pkgd.min.js',
+          '%PUBLIC_URL%/assets/js/owl.carousel.min.js',
+          '%PUBLIC_URL%/assets/js/jquery.owl-filter.js',
+          '%PUBLIC_URL%/assets/js/theia-sticky-sidebar.js',
+          '%PUBLIC_URL%/assets/js/lc_lightbox.lite.js',
+          '%PUBLIC_URL%/assets/js/bootstrap-select.min.js',
+          '%PUBLIC_URL%/assets/js/jquery.scrollbar.js',
+          '%PUBLIC_URL%/assets/js/bootstrap-datepicker.js',
+          '%PUBLIC_URL%/assets/js/jquery.dataTables.min.js',
+          '%PUBLIC_URL%/assets/js/dataTables.bootstrap5.min.js',
+          '%PUBLIC_URL%/assets/js/bootstrap-slider.min.js',
+          '%PUBLIC_URL%/assets/js/swiper-bundle.min.js',
+          '%PUBLIC_URL%/assets/js/custom.js',
+          '%PUBLIC_URL%/assets/js/modal-fix.js'
+        ]);
+      }, { timeout: 2000 });
+    } else {
+      window.addEventListener('load', function() {
+        loadScriptsBatch([
+          '%PUBLIC_URL%/assets/js/magnific-popup.min.js',
+          '%PUBLIC_URL%/assets/js/waypoints.min.js',
+          '%PUBLIC_URL%/assets/js/waypoints-sticky.min.js',
+          '%PUBLIC_URL%/assets/js/isotope.pkgd.min.js',
+          '%PUBLIC_URL%/assets/js/imagesloaded.pkgd.min.js',
+          '%PUBLIC_URL%/assets/js/owl.carousel.min.js',
+          '%PUBLIC_URL%/assets/js/jquery.owl-filter.js',
+          '%PUBLIC_URL%/assets/js/theia-sticky-sidebar.js',
+          '%PUBLIC_URL%/assets/js/lc_lightbox.lite.js',
+          '%PUBLIC_URL%/assets/js/bootstrap-select.min.js',
+          '%PUBLIC_URL%/assets/js/jquery.scrollbar.js',
+          '%PUBLIC_URL%/assets/js/bootstrap-datepicker.js',
+          '%PUBLIC_URL%/assets/js/jquery.dataTables.min.js',
+          '%PUBLIC_URL%/assets/js/dataTables.bootstrap5.min.js',
+          '%PUBLIC_URL%/assets/js/bootstrap-slider.min.js',
+          '%PUBLIC_URL%/assets/js/swiper-bundle.min.js',
+          '%PUBLIC_URL%/assets/js/custom.js',
+          '%PUBLIC_URL%/assets/js/modal-fix.js'
+        ]);
+      });
+    }
+  </script>
 
 </body>
 
