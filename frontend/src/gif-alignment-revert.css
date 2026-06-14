@@ -23,7 +23,7 @@
 }
 
 /* GIF logo specific styling */
-.logo-header img[src*="logo-skin-8.gif"] {
+.logo-header img[src*="logo-skin-8"] {
   max-width: 200px !important;
   height: auto !important;
   max-height: 80px !important;
@@ -81,7 +81,7 @@
   margin-bottom: 24px !important;
 }
 
-.logo-footer img[src*="logo-skin-8.gif"] {
+.logo-footer img[src*="logo-skin-8"] {
   height: 75px !important;
   width: auto !important;
   max-width: 250px !important;
@@ -162,7 +162,7 @@
     margin-left: 0 !important;
   }
   
-  .logo-header img[src*="logo-skin-8.gif"] {
+  .logo-header img[src*="logo-skin-8"] {
     max-width: 100px !important;
     max-height: 40px !important;
   }
@@ -177,7 +177,7 @@
     padding: 40px 0 0 !important;
   }
   
-  .logo-footer img[src*="logo-skin-8.gif"] {
+  .logo-footer img[src*="logo-skin-8"] {
     height: 100px !important;
     max-width: 250px !important;
   }
@@ -198,12 +198,12 @@
 
 @media (max-width: 480px) {
   /* Small mobile fixes */
-  .logo-header img[src*="logo-skin-8.gif"] {
+  .logo-header img[src*="logo-skin-8"] {
     max-width: 80px !important;
     max-height: 32px !important;
   }
   
-  .logo-footer img[src*="logo-skin-8.gif"] {
+  .logo-footer img[src*="logo-skin-8"] {
     height: 75px !important;
     max-width: 250px !important;
   }
@@ -239,7 +239,7 @@
 }
 
 /* Ensure GIF backgrounds remain transparent */
-img[src*="logo-skin-8.gif"],
+img[src*="logo-skin-8"],
 img[src*="TaleGlobal-Logo.gif"] {
   background: transparent !important;
   background-color: transparent !important;

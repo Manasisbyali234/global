@@ -183,12 +183,12 @@ function Footer1() {
                                         <JobZImage
                                             id="skin_footer_light_logo"
                                             src="images/skins-logo/logo-skin-8.gif"
-                                            alt=""
-                                            width={400}
-                                            height={200}
+                                            alt="TaleGlobal"
+                                            width={160}
+                                            height={80}
                                             loading="lazy"
                                             decoding="async"
-                                            style={{ height: '160px', width: 'auto' }}
+                                            style={{ height: '70px', width: 'auto' }}
                                         />
                                     </NavLink>
                                 </div>

@@ -328,8 +328,8 @@ header,
     display: flex !important; 
   }
   
-  html body .logo-header img[src*="logo-skin-8.gif"],
-  html body .logo-header-inner img[src*="logo-skin-8.gif"] {
+  html body .logo-header img[src*="logo-skin-8"],
+  html body .logo-header-inner img[src*="logo-skin-8"] {
     max-width: 120px !important;
     max-height: 45px !important;
   }
@@ -362,8 +362,8 @@ header,
     width: auto !important;
   }
   
-  html body .logo-header img[src*="logo-skin-8.gif"],
-  html body .logo-header-inner img[src*="logo-skin-8.gif"] {
+  html body .logo-header img[src*="logo-skin-8"],
+  html body .logo-header-inner img[src*="logo-skin-8"] {
     max-width: 100px !important;
     max-height: 40px !important;
   }
