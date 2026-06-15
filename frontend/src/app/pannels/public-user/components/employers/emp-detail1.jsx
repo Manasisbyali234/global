@@ -19,6 +19,7 @@ import "../../../../../emp-detail-white-container.css";
 import "../../../../../emp-detail-typography-fix.css";
 import "../../../../../review-posted-alignment-fix.css";
 import PageLoader from "../../../../../components/PageLoader";
+import { getImageUrl, getLogoImageUrl, getCoverImageUrl } from "../../../../../utils/imageUtils";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 function EmployersDetail1Page() {
@@ -235,7 +236,7 @@ function EmployersDetail1Page() {
 													<div className="twm-media-bg">
 														{employer.coverImage ? (
 															<img 
-																src={employer.coverImage} 
+																src={getCoverImageUrl(employer.coverImage)} 
 																alt="Company Cover" 
 															/>
 														) : (
@@ -250,7 +251,7 @@ function EmployersDetail1Page() {
 														<div className="twm-media">
 															{employer.logo ? (
 																<img 
-																	src={employer.logo} 
+																	src={getLogoImageUrl(employer.logo)} 
 																	alt="Company Logo" 
 																/>
 															) : (
@@ -385,7 +386,7 @@ function EmployersDetail1Page() {
 														{employer.gallery.map((image, index) => (
 															<div key={image._id || index} className="gallery-item">
 																<img 
-																	src={image.url} 
+																	src={getImageUrl(image.url || image.fileName)} 
 																	alt={`Gallery ${index + 1}`}
 																	className="img-fluid rounded"
 																	style={{

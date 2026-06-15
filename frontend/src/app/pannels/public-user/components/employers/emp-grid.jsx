@@ -13,6 +13,7 @@ import "../../../../../job-grid-optimizations.css";
 import "../../../../../emp-grid-optimizations.css";
 import "../../../../../emp-grid-mobile-fix.css";
 import "../../../../../new-job-card.css";
+import { getLogoImageUrl } from "../../../../../utils/imageUtils";
 
 const INDUSTRY_LABELS = {
     "it": "IT",
@@ -259,7 +260,7 @@ const EmployersGridPage = memo(() => {
                     <div className="company-avatar-container">
                         <div className="company-avatar-circle">
                             {employer.profile?.logo ? (
-                                <img src={employer.profile.logo} alt={employer.companyName} className="company-avatar-img" />
+                                <img src={getLogoImageUrl(employer.profile.logo)} alt={employer.companyName} className="company-avatar-img" />
                             ) : (
                                 companyInitial
                             )}
