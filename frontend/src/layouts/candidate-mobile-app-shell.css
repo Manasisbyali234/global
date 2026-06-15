@@ -24,7 +24,6 @@
   #content.candidate-panel-layout.mobile-view .content-admin-main > .candidate-resume-page,
   #content.candidate-panel-layout.mobile-view .content-admin-main > .candidate-profile-page {
     margin-top: 0 !important;
-    padding-top: 0 !important;
   }
 
   #content.candidate-panel-layout.mobile-view .candidate-page-shell--header,
@@ -39,14 +38,12 @@
   #content.candidate-panel-layout.mobile-view .candidate-transactions-page .candidate-page-shell--header,
   #content.candidate-panel-layout.mobile-view .candidate-transactions-page .candidate-page-shell--content {
     margin-top: 0 !important;
-    padding-top: 0 !important;
   }
 
   #content.candidate-panel-layout.mobile-view .content-admin-main > .twm-right-section-panel,
   #content.candidate-panel-layout.mobile-view .content-admin-main > .role-notifications-page {
     padding-left: 0 !important;
     padding-right: 0 !important;
-    padding-top: 0 !important;
     padding-bottom: 0 !important;
   }
 

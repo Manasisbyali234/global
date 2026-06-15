@@ -7,8 +7,9 @@
         padding-top: 0 !important;
     }
 
-    #content.mobile-view .content-admin-main {
-        padding-top: 0 !important;
+    #content.mobile-view .content-admin-main,
+    #content.candidate-panel-layout.mobile-view .content-admin-main {
+        padding-top: 60px !important;
     }
 }
 
@@ -17,5 +18,10 @@
     .page-wraper {
         margin-top: 0 !important;
         padding-top: 0 !important;
+    }
+
+    #content.mobile-view .content-admin-main,
+    #content.candidate-panel-layout.mobile-view .content-admin-main {
+        padding-top: 56px !important;
     }
 }
