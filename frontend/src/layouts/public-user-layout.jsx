@@ -64,12 +64,9 @@ function PublicUserLayout() {
                     <PublicUserRoutes />
                 </div>
 
-                {/* Footer */}
-                <div className="footer-slot">
-                {
-                    showFooter(currentpath) &&
-                    setFooterType(currentpath)
-                }
+                {/* Footer — always rendered to prevent CLS from slot collapsing to 0 */}
+                <div className="footer-slot" style={showFooter(currentpath) ? {} : { visibility: 'hidden', position: 'absolute', pointerEvents: 'none' }}>
+                    {setFooterType(currentpath)}
                 </div>
             </div>
         </>

@@ -1,27 +1,42 @@
 /* ============================================================
- * CLS FIX — Desktop Cumulative Layout Shift reduction
- * Targets:
- *   1. footer-slot  (0.400 shift — largest culprit)
- *   2. hero-content (0.004 shift — web font FOUT)
- *   3. site-header  (non-composited z-index animation warning)
+ * CLS FIX — Cumulative Layout Shift reduction
  * ============================================================ */
 
 /* 1. FOOTER SLOT
- * Reserve the full footer height up-front so no shift occurs
- * when the footer component mounts. 420px matches the footer's
- * actual rendered height (minHeight set in footer1.jsx).
- * content-visibility:auto keeps it off-screen paint-efficient.
+ * Always reserve the full footer height so the slot never
+ * collapses to 0px before the footer component mounts.
+ * 420px matches footer1.jsx minHeight.
  * ------------------------------------------------------------ */
 .footer-slot {
   min-height: 420px;
-  contain: layout style;
-  content-visibility: auto;
-  contain-intrinsic-size: 0 420px;
 }
 
-/* 2. HERO CONTENT — font FOUT size-adjust fallback
- * Using a system-font fallback that matches Poppins metrics
- * prevents layout reflow when the web font swaps in.
+/* 2. HEADER — fix non-composited z-index animation
+ *
+ * consolidated-master-styles.css sets z-index:1030 on .main-bar,
+ * and style.css / waypoints-sticky.js animate the header's
+ * z-index as it scrolls, which Chrome flags as a non-composited
+ * animation causing CLS.
+ *
+ * Solution: give .site-header an explicit stacking context via
+ * isolation:isolate (compositor-safe) instead of animating
+ * z-index. Remove z-index from the transition entirely.
+ * ------------------------------------------------------------ */
+.site-header {
+  isolation: isolate;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+/* Neutralise the z-index:1030 on .main-bar that creates a new
+ * stacking context on every scroll tick via waypoints-sticky. */
+.main-bar {
+  z-index: auto !important;
+  isolation: isolate;
+}
+
+/* 3. FONT FOUT — size-adjust fallback for Poppins
+ * Matches Poppins metrics so the fallback font occupies the same
+ * space, preventing hero text reflow when the web font swaps in.
  * ------------------------------------------------------------ */
 @font-face {
   font-family: 'Poppins';
@@ -33,17 +48,4 @@
   ascent-override: 105%;
   descent-override: 35%;
   line-gap-override: 0%;
-}
-
-/* 3. HEADER — replace non-composited z-index animation
- * Chrome flags z-index in transition as non-composited (CLS + jank).
- * We keep only compositor-eligible properties (opacity, transform).
- * ------------------------------------------------------------ */
-.site-header.header-style-3,
-.site-header.navbar-transparent {
-  /* Remove z-index from transition — use will-change instead */
-  transition: background-color 0.3s ease, box-shadow 0.3s ease !important;
-  will-change: background-color;
-  /* Prevent stacking context changes from causing layout */
-  contain: layout style;
 }
