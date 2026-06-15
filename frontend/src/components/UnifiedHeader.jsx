@@ -68,7 +68,9 @@ function UnifiedHeader({ userRole, userData, onMenuToggle, isSidebarOpen }) {
                     <JobZImage 
                         id="unified_header_logo" 
                         src="images/skins-logo/logo-skin-8.gif" 
-                        alt="Logo" 
+                        alt="Logo"
+                        height={40}
+                        width={80}
                     />
                 </div>
 
