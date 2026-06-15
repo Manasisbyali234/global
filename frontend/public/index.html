@@ -150,20 +150,42 @@
   <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/mobile-responsive-complete.css" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/mobile-responsive-complete.css"></noscript>
 
-  <!-- ═══ CUSTOM OVERRIDE CSS: loaded SYNCHRONOUSLY (blocking) ═══════════════ -->
-  <!-- CRITICAL: These must load LAST and BLOCKING so they always win over style.css/skin.  -->
-  <!-- React's main.[hash].css injects into <head> at runtime and also loads after these.   -->
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/remove-button-hover-effects.css">
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/remove-carousel-hover-effects.css">
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/consolidated-master-styles.css">
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/image-modal-header-fix.css">
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/popup-header-fix.css">
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/notification-dropdown-escape.css">
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/hamburger-menu-zindex-fix.css">
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/round-badges-fix.css">
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/interview-type-badge-mobile-fix.css">
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/profile-info-icons-fix.css">
-  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/modal-zindex-fix.css">
+  <!-- ═══ CUSTOM OVERRIDE CSS: loaded ASYNC (non-blocking) ════════════════════ -->
+  <!-- These override files contain NO above-the-fold styles so they are safe   -->
+  <!-- to defer. React's main.[hash].css still loads after these at runtime.     -->
+  <!-- Using rel=preload + onload swap — same technique as vendor CSS above.     -->
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/remove-button-hover-effects.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/remove-button-hover-effects.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/remove-carousel-hover-effects.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/remove-carousel-hover-effects.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/consolidated-master-styles.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/consolidated-master-styles.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/image-modal-header-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/image-modal-header-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/popup-header-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/popup-header-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/notification-dropdown-escape.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/notification-dropdown-escape.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/hamburger-menu-zindex-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/hamburger-menu-zindex-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/round-badges-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/round-badges-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/interview-type-badge-mobile-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/interview-type-badge-mobile-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/profile-info-icons-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/profile-info-icons-fix.css"></noscript>
+
+  <link rel="preload" as="style" href="%PUBLIC_URL%/modal-zindex-fix.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/modal-zindex-fix.css"></noscript>
 
   <!-- loadCSS polyfill for browsers that don't support rel=preload -->
   <script>!function(n){"use strict";n.loadCSS||(n.loadCSS=function(){});var o=loadCSS.relpreload={};o.support=function(){var e;try{e=n.document.createElement("link").relList.supports("preload")}catch(t){e=!1}return function(){return e}}();o.bindMediaToggle=function(t){var e=t.media||"all";function i(){t.addEventListener?t.removeEventListener("load",i):t.attachEvent&&t.detachEvent("onload",i),t.setAttribute("onload",null),t.media=e}t.addEventListener?t.addEventListener("load",i):t.attachEvent&&t.attachEvent("onload",i),setTimeout(function(){t.rel="stylesheet",t.media&&t.media!==e||(t.media=e)})};o.poly=function(){if(!o.support())for(var t=n.document.getElementsByTagName("link"),e=0;e<t.length;e++){var i=t[e];"preload"!==i.rel||"style"!==i.getAttribute("as")||i.getAttribute("data-loadcss")||(i.setAttribute("data-loadcss",!0),o.bindMediaToggle(i))}};if(!o.support()){o.poly();var t=n.setInterval(o.poly,500);n.addEventListener?n.addEventListener("load",function(){o.poly(),n.clearInterval(t)}):n.attachEvent&&n.attachEvent("onload",function(){o.poly(),n.clearInterval(t)})}("undefined"!=typeof exports?exports:n).loadCSS=loadCSS}(typeof global!=="undefined"?global:this);</script>
