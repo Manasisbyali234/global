@@ -1,5 +1,6 @@
 
 import { useLocation } from "react-router-dom";
+import "../cls-fix.css";
 import PublicUserRoutes from "../routing/public-user-routes";
 import InnerPageBanner from "../app/common/inner-page-banner";
 import { showBanner, setBanner } from "../globals/banner-data";
@@ -64,7 +65,7 @@ function PublicUserLayout() {
                 </div>
 
                 {/* Footer */}
-                <div className="footer-slot" style={{ minHeight: '340px' }}>
+                <div className="footer-slot">
                 {
                     showFooter(currentpath) &&
                     setFooterType(currentpath)

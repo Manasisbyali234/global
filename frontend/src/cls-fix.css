@@ -1,0 +1,49 @@
+/* ============================================================
+ * CLS FIX — Desktop Cumulative Layout Shift reduction
+ * Targets:
+ *   1. footer-slot  (0.400 shift — largest culprit)
+ *   2. hero-content (0.004 shift — web font FOUT)
+ *   3. site-header  (non-composited z-index animation warning)
+ * ============================================================ */
+
+/* 1. FOOTER SLOT
+ * Reserve the full footer height up-front so no shift occurs
+ * when the footer component mounts. 420px matches the footer's
+ * actual rendered height (minHeight set in footer1.jsx).
+ * content-visibility:auto keeps it off-screen paint-efficient.
+ * ------------------------------------------------------------ */
+.footer-slot {
+  min-height: 420px;
+  contain: layout style;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 420px;
+}
+
+/* 2. HERO CONTENT — font FOUT size-adjust fallback
+ * Using a system-font fallback that matches Poppins metrics
+ * prevents layout reflow when the web font swaps in.
+ * ------------------------------------------------------------ */
+@font-face {
+  font-family: 'Poppins';
+  src: local('Arial');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: optional;
+  size-adjust: 100%;
+  ascent-override: 105%;
+  descent-override: 35%;
+  line-gap-override: 0%;
+}
+
+/* 3. HEADER — replace non-composited z-index animation
+ * Chrome flags z-index in transition as non-composited (CLS + jank).
+ * We keep only compositor-eligible properties (opacity, transform).
+ * ------------------------------------------------------------ */
+.site-header.header-style-3,
+.site-header.navbar-transparent {
+  /* Remove z-index from transition — use will-change instead */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease !important;
+  will-change: background-color;
+  /* Prevent stacking context changes from causing layout */
+  contain: layout style;
+}
