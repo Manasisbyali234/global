@@ -4,11 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
-<<<<<<< HEAD
 import { getCanonicalStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
-=======
-import { getStatusLabel } from "../../../../utils/statusDisplay";
->>>>>>> c1286c18789bfac89fb67996122562784e1f0aa1
 import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import './emp-candidates.css';
 
@@ -241,7 +237,6 @@ function EmpCandidatesPage() {
     }
   };
 
-<<<<<<< HEAD
   const getSharedApplicationDisplayStatus = (application = {}) =>
     getCanonicalStatusKey(
       application?.applicationStatus ||
@@ -251,17 +246,11 @@ function EmpCandidatesPage() {
         "pending"
     );
 
-=======
->>>>>>> c1286c18789bfac89fb67996122562784e1f0aa1
   const applicationsWithDisplayStatus = useMemo(
     () =>
       applications.map((application) => ({
         ...application,
-<<<<<<< HEAD
         displayStatus: getSharedApplicationDisplayStatus(application)
-=======
-        displayStatus: String(application?.status || 'pending').trim().toLowerCase()
->>>>>>> c1286c18789bfac89fb67996122562784e1f0aa1
       })),
     [applications]
   );

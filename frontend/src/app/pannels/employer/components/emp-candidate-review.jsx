@@ -169,6 +169,23 @@ function EmpCandidateReviewPage() {
         ].includes(normalized);
     };
 
+    const isAssessmentEmployerDecisionStatus = (value) => {
+        const normalized = normalizeStatusValue(value);
+        if (!normalized) return false;
+
+        return [
+            'shortlisted for next round',
+            'shortlisted',
+            'selected',
+            'on hold',
+            'pending decision',
+            'no show',
+            'rejected',
+            'not advanced to next stage',
+            'not advanced to next round'
+        ].includes(normalized);
+    };
+
     const AUTO_REJECT_SESSION_NOTE = 'Auto-rejected after application session expired';
 
     const isAutoRejectedAfterExpiredSession = (applicationData = {}) => {
@@ -800,6 +817,17 @@ function EmpCandidateReviewPage() {
                 resultValue: 'No Show',
                 resultClass: 'no_show',
                 isWindowExpired: true
+            };
+        }
+
+        if (isAssessmentEmployerDecisionStatus(process?.status)) {
+            return {
+                statusValue: defaultStatusValue,
+                statusLabel: formatStatusLabel(defaultStatusValue),
+                statusClass: defaultStatusValue,
+                resultValue: resolvedResultValue,
+                resultClass: getAssessmentResultClass(resolvedResultValue),
+                isWindowExpired: false
             };
         }
 
