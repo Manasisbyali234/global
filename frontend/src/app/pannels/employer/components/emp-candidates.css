@@ -29,14 +29,14 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   width: 100%;
 }
 
 .emp-candidates-toolbar__filters {
   display: flex;
   gap: 1rem;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: flex-end;
   flex: 0 0 auto;
 }
@@ -100,7 +100,8 @@
 
 .emp-candidates-toolbar__filters .page-toolbar__section {
   flex: 0 0 170px;
-  min-width: 170px;
+  min-width: 160px;
+  max-width: 200px;
 }
 
 .emp-candidates-filter-dropdown {
