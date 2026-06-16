@@ -805,7 +805,7 @@ function EmpCandidateReviewPage() {
         if (assessmentOutcome.isPassed) {
             return {
                 statusValue: 'passed',
-                statusLabel: 'Passed',
+                statusLabel: 'Pass',
                 statusClass: 'passed',
                 resultValue: resolvedResultValue,
                 resultClass: getAssessmentResultClass(resolvedResultValue),
@@ -816,7 +816,7 @@ function EmpCandidateReviewPage() {
         if (assessmentOutcome.isFailed) {
             return {
                 statusValue: 'failed',
-                statusLabel: 'Failed',
+                statusLabel: 'Fail',
                 statusClass: 'failed',
                 resultValue: resolvedResultValue,
                 resultClass: getAssessmentResultClass(resolvedResultValue),
@@ -1352,16 +1352,11 @@ function EmpCandidateReviewPage() {
         if (!dateString) return 'Not provided';
         try {
             const date = new Date(dateString);
-            // Check if the date is valid
-            if (isNaN(date.getTime())) {
-                return 'Not provided';
-            }
-            return date.toLocaleDateString('en-US', {
-                timeZone: 'Asia/Kolkata',
-                year: 'numeric',
-                month: 'numeric',
-                day: 'numeric'
-            });
+            if (isNaN(date.getTime())) return 'Not provided';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
         } catch (error) {
             return 'Not provided';
         }
@@ -1803,15 +1798,15 @@ function EmpCandidateReviewPage() {
 
     return (
         <div className="candidate-review-container emp-candidate-review-page">
-            <div className="candidate-review-header">
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    <i className="fas fa-arrow-left"></i>
-                    <span>Back to Applications</span>
-                </button>
+            <div className="candidate-review-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                 <div className="header-title">
                     <h2>Candidate Application Review</h2>
                     <p>Evaluating <strong style={{ color: '#f97316', fontWeight: '700' }}>{candidate.name}</strong> for <strong style={{ color: '#f97316', fontWeight: '700' }}>{formatJobTitle(application.jobId?.title)}</strong></p>
                 </div>
+                <button className="back-btn" onClick={() => navigate(-1)}>
+                    <i className="fas fa-arrow-left"></i>
+                    <span>Back to Applications</span>
+                </button>
             </div>
 
             <div className="profile-section">
@@ -1824,7 +1819,7 @@ function EmpCandidateReviewPage() {
                                 <i className="fas fa-user"></i>
                             </div>
                         )}
-                        <div className={`status-indicator ${applicationDisplayStatus === 'hired' || applicationDisplayStatus === 'accepted' ? 'active' : ''}`}></div>
+
                     </div>
                     <div className="profile-info">
                         <h3>{candidate.name}</h3>
@@ -2017,7 +2012,7 @@ function EmpCandidateReviewPage() {
                                                                             >
                                                                                 {!getStageStatusOptions(index).some((option) => option.value === (process.status || 'pending')) && (
                                                                                     <option value={process.status || 'pending'}>
-                                                                                        {(process.status || 'pending').replace(/_/g, ' ')}
+                                                                                        {process.status === 'passed' ? 'Pass' : process.status === 'failed' ? 'Fail' : (process.status || 'pending').replace(/_/g, ' ')}
                                                                                     </option>
                                                                                 )}
                                                                                 {getStageStatusOptions(index).map((option) => (

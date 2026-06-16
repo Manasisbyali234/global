@@ -350,7 +350,7 @@ function EmpTransactionsPage() {
                                         
                                         <div className="invoice-footer d-none d-print-block mt-5 pt-3 border-top text-center text-muted small">
                                             <p className="mb-1">© {new Date().getFullYear()} TaleGlobal Platform. All rights reserved.</p>
-                                            <p className="mb-0">www.taleglobal.com | Whitefield, Bengaluru, Karnataka 560066</p>
+                                            <p className="mb-0">www.taleglobal.net | Whitefield, Bengaluru, Karnataka 560066</p>
                                         </div>
                                     </div>
                                 )}
