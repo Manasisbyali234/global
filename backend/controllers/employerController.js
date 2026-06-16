@@ -7,6 +7,7 @@ const Job = require('../models/Job');
 const InterviewRound = require('../models/InterviewRound');
 const InterviewProcess = require('../models/InterviewProcess');
 const Application = require('../models/Application');
+const AssessmentAttempt = require('../models/AssessmentAttempt');
 const Message = require('../models/Message');
 const Notification = require('../models/Notification');
 const Subscription = require('../models/Subscription');
@@ -406,6 +407,71 @@ const decorateEmployerApplicationStatusFields = (application = null, options = {
       respectManualStageStatusForAutoReject: true
     })
   };
+};
+
+const normalizeStatusContextAssessmentId = (value = '') => {
+  if (!value) return '';
+  if (typeof value === 'object') {
+    return String(value?._id || value?.id || '').trim();
+  }
+
+  return String(value).trim();
+};
+
+const buildEmployerApplicationStatusContextMap = async (applications = []) => {
+  const applicationIds = applications
+    .map((application) => application?._id)
+    .filter(Boolean);
+  const contextByApplicationId = new Map(
+    applicationIds.map((applicationId) => [
+      String(applicationId),
+      {
+        assessmentAttemptsByAssessmentId: {},
+        interviewProcess: null
+      }
+    ])
+  );
+
+  if (applicationIds.length === 0) {
+    return contextByApplicationId;
+  }
+
+  const [assessmentAttempts, interviewProcesses] = await Promise.all([
+    AssessmentAttempt.find({ applicationId: { $in: applicationIds } })
+      .sort({ updatedAt: -1, createdAt: -1 })
+      .populate('assessmentId', 'questions.type')
+      .lean(),
+    InterviewProcess.find({ applicationId: { $in: applicationIds } }).lean()
+  ]);
+
+  assessmentAttempts.forEach((attempt) => {
+    const applicationKey = String(attempt?.applicationId || '').trim();
+    if (!applicationKey) return;
+
+    const context = contextByApplicationId.get(applicationKey) || {
+      assessmentAttemptsByAssessmentId: {},
+      interviewProcess: null
+    };
+    const assessmentKey = normalizeStatusContextAssessmentId(attempt?.assessmentId);
+    if (assessmentKey && !context.assessmentAttemptsByAssessmentId[assessmentKey]) {
+      context.assessmentAttemptsByAssessmentId[assessmentKey] = attempt;
+    }
+    contextByApplicationId.set(applicationKey, context);
+  });
+
+  interviewProcesses.forEach((interviewProcess) => {
+    const applicationKey = String(interviewProcess?.applicationId || '').trim();
+    if (!applicationKey) return;
+
+    const context = contextByApplicationId.get(applicationKey) || {
+      assessmentAttemptsByAssessmentId: {},
+      interviewProcess: null
+    };
+    context.interviewProcess = interviewProcess;
+    contextByApplicationId.set(applicationKey, context);
+  });
+
+  return contextByApplicationId;
 };
 
 const EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS = 2;
@@ -3254,15 +3320,17 @@ exports.getEmployerApplications = async (req, res) => {
       .populate('candidateId', 'name email phone')
       .populate('jobId', 'title location companyName lastDateOfApplication lastDateOfApplicationTime assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime interviewRoundTypes interviewRoundOrder interviewRoundDetails')
       .sort({ createdAt: -1 });
+    const statusContextByApplicationId = await buildEmployerApplicationStatusContextMap(applications);
 
     const applicationsWithProfiles = await Promise.all(
       applications.map(async (application) => {
         const normalizedApplication = await ensureExpiredApplicationRejected(application);
+        const statusContext = statusContextByApplicationId.get(String(application._id)) || {};
 
         // Handle guest applications that don't have candidateId
         if (!normalizedApplication.candidateId) {
           return {
-            ...decorateEmployerApplicationStatusFields(normalizedApplication),
+            ...decorateEmployerApplicationStatusFields(normalizedApplication, statusContext),
             candidateId: null
           };
         }
@@ -3270,7 +3338,7 @@ exports.getEmployerApplications = async (req, res) => {
         const candidateId = normalizedApplication.candidateId?._id || normalizedApplication.candidateId;
         const candidateProfile = await CandidateProfile.findOne({ candidateId });
         return {
-          ...decorateEmployerApplicationStatusFields(normalizedApplication),
+          ...decorateEmployerApplicationStatusFields(normalizedApplication, statusContext),
           candidateId: {
             ...normalizedApplication.candidateId,
             profilePicture: candidateProfile?.profilePicture,
@@ -3302,16 +3370,18 @@ exports.getJobApplications = async (req, res) => {
       .populate('candidateId', 'name email phone')
       .populate('jobId', 'title location companyName lastDateOfApplication lastDateOfApplicationTime assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime interviewRoundTypes interviewRoundOrder interviewRoundDetails')
       .sort({ createdAt: -1 });
+    const statusContextByApplicationId = await buildEmployerApplicationStatusContextMap(applications);
 
     // Add profile pictures to applications
     const applicationsWithProfiles = await Promise.all(
       applications.map(async (application) => {
         const normalizedApplication = await ensureExpiredApplicationRejected(application);
+        const statusContext = statusContextByApplicationId.get(String(application._id)) || {};
 
         // Handle guest applications that don't have candidateId
         if (!normalizedApplication.candidateId) {
           return {
-            ...decorateEmployerApplicationStatusFields(normalizedApplication),
+            ...decorateEmployerApplicationStatusFields(normalizedApplication, statusContext),
             candidateId: null
           };
         }
@@ -3319,7 +3389,7 @@ exports.getJobApplications = async (req, res) => {
         const candidateId = normalizedApplication.candidateId?._id || normalizedApplication.candidateId;
         const candidateProfile = await CandidateProfile.findOne({ candidateId });
         return {
-          ...decorateEmployerApplicationStatusFields(normalizedApplication),
+          ...decorateEmployerApplicationStatusFields(normalizedApplication, statusContext),
           candidateId: {
             ...normalizedApplication.candidateId,
             profilePicture: candidateProfile?.profilePicture,

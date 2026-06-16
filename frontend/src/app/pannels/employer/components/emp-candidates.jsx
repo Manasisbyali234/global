@@ -4,8 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
-import { getAssessmentOutcome, isAssessmentOutcomeRejected } from "../../../../utils/assessmentOutcome";
-import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
+import { getCanonicalStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import './emp-candidates.css';
 
@@ -150,7 +149,6 @@ function EmpCandidatesPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [designationFilter, setDesignationFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusClock, setStatusClock] = useState(() => Date.now());
   const PAGE_SIZE = 10;
 
   useEffect(() => {
@@ -164,14 +162,6 @@ function EmpCandidatesPage() {
   useEffect(() => {
     fetchApplications();
   }, [selectedCompany, jobId]);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setStatusClock(Date.now());
-    }, 30000);
-
-    return () => window.clearInterval(timer);
-  }, []);
 
   const fetchEmployerType = async () => {
     try {
@@ -240,6 +230,8 @@ function EmpCandidatesPage() {
         return "twm-bg-purple";
       case "accepted":
         return "twm-bg-green";
+      case "selected":
+        return "twm-bg-green";
       case "rejected":
         return "twm-bg-red";
       default:
@@ -247,232 +239,22 @@ function EmpCandidatesPage() {
     }
   };
 
-  const normalizeStatusValue = (value = "") =>
-    String(value || "")
-      .trim()
-      .toLowerCase()
-      .replace(/[_-]+/g, " ")
-      .replace(/\s+/g, " ");
-
-  const isRejectedLikeStatus = (value = "") => {
-    const normalized = normalizeStatusValue(value);
-    if (!normalized) return false;
-
-    return [
-      "rejected",
-      "failed",
-      "fail",
-      "field",
-      "expired",
-      "suspended",
-      "session expired",
-      "no show",
-      "not eligibal for next round",
-      "not eligible for next round"
-    ].includes(normalized);
-  };
-
-  const isAssessmentProcess = (process = {}) =>
-    normalizeStatusValue(process?.type) === "assessment";
-
-  const wasAutoRejectedFromStageStatus = (application = {}) =>
-    Array.isArray(application?.statusHistory) &&
-    application.statusHistory.some((entry) =>
-      normalizeStatusValue(entry?.status) === "rejected" &&
-      normalizeStatusValue(entry?.notes).includes("auto updated from interview stage status")
+  const getSharedApplicationDisplayStatus = (application = {}) =>
+    getCanonicalStatusKey(
+      application?.applicationStatus ||
+        application?.applicationDisplayStatus ||
+        application?.displayStatus ||
+        application?.status ||
+        "pending"
     );
-
-  const getAssessmentRoundOrderKeys = (job = {}) =>
-    (Array.isArray(job?.interviewRoundOrder) ? job.interviewRoundOrder : []).filter(
-      (key) => String(job?.interviewRoundTypes?.[key] || "").toLowerCase() === "assessment"
-    );
-
-  const getAssessmentScheduleSource = (job = {}) => {
-    const assessmentRoundKey = getAssessmentRoundOrderKeys(job)[0];
-    const roundDetails = assessmentRoundKey
-      ? job?.interviewRoundDetails?.[assessmentRoundKey] || null
-      : null;
-
-    return {
-      startDate: roundDetails?.fromDate || roundDetails?.date || job?.assessmentStartDate || null,
-      endDate: roundDetails?.toDate || roundDetails?.fromDate || roundDetails?.date || job?.assessmentEndDate || null,
-      startTime: roundDetails?.startTime || job?.assessmentStartTime || null,
-      endTime: roundDetails?.endTime || job?.assessmentEndTime || null
-    };
-  };
-
-  const getAssessmentWindowInfo = (job = {}, nowTimestamp = Date.now()) => {
-    const now = new Date(nowTimestamp);
-    const scheduleSource = getAssessmentScheduleSource(job);
-    const startRaw = scheduleSource.startDate ? new Date(scheduleSource.startDate) : null;
-    const endRaw = scheduleSource.endDate ? new Date(scheduleSource.endDate) : null;
-    const isValid = (date) => date instanceof Date && !Number.isNaN(date.getTime());
-    let startDate = isValid(startRaw) ? startRaw : null;
-    let endDate = isValid(endRaw) ? endRaw : null;
-
-    if (startDate && scheduleSource.startTime) {
-      const [hours, minutes] = String(scheduleSource.startTime).split(":").map(Number);
-      if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
-        startDate = new Date(startDate);
-        startDate.setHours(hours, minutes, 0, 0);
-      }
-    }
-
-    if (endDate && scheduleSource.endTime) {
-      const [hours, minutes] = String(scheduleSource.endTime).split(":").map(Number);
-      endDate = new Date(endDate);
-      if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
-        endDate.setHours(hours, minutes, 59, 999);
-      } else {
-        endDate.setHours(23, 59, 59, 999);
-      }
-    } else if (endDate) {
-      endDate = new Date(endDate);
-      endDate.setHours(23, 59, 59, 999);
-    }
-
-    return {
-      isAfterEnd: endDate ? now > endDate : false
-    };
-  };
-
-  const getAssessmentCompletionInfo = (application = {}, nowTimestamp = Date.now()) => {
-    const assessmentProcess = Array.isArray(application?.interviewProcesses)
-      ? application.interviewProcesses.find((process) => {
-          const normalizedType = normalizeStatusValue(process?.type);
-          const normalizedName = normalizeStatusValue(process?.name);
-          return normalizedType === "assessment" || normalizedName.includes("assessment");
-        }) || null
-      : null;
-
-    const primaryStatus = normalizeStatusValue(application?.assessmentStatus);
-    const processStatus = normalizeStatusValue(assessmentProcess?.status);
-    const effectiveStatus =
-      ((!primaryStatus || ["pending", "available", "not required", "not started", "scheduled"].includes(primaryStatus)) &&
-        processStatus)
-        ? processStatus
-        : primaryStatus;
-    const result = normalizeStatusValue(application?.assessmentResult || assessmentProcess?.result);
-    const outcome = getAssessmentOutcome({ status: effectiveStatus, result });
-
-    // Treat expired+pending (no attempt) as no-show when window has ended and no score exists
-    const hasAssessmentActivity =
-      outcome.isCompleted || outcome.isInProgress || outcome.isSuspended || outcome.isPassed || outcome.isFailed ||
-      (application?.assessmentScore !== null && application?.assessmentScore !== undefined) ||
-      (application?.assessmentPercentage !== null && application?.assessmentPercentage !== undefined);
-    const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, nowTimestamp);
-    const isNoShow =
-      outcome.isNoShow ||
-      (outcome.isPendingReview && assessmentWindowInfo.isAfterEnd && !hasAssessmentActivity) ||
-      (["expired", "session expired"].includes(effectiveStatus) && !hasAssessmentActivity);
-
-    return {
-      status: effectiveStatus,
-      isPassed: outcome.isPassed,
-      isFailed: outcome.isFailed,
-      isCompleted: outcome.isCompleted,
-      isNoShow,
-      isInProgress: outcome.isInProgress,
-      isSuspended: outcome.isSuspended
-    };
-  };
-
-  const hadOfferSentInHistory = (application = {}) =>
-    Array.isArray(application?.statusHistory) &&
-    application.statusHistory.some((entry) => {
-      const s = normalizeStatusValue(entry?.status);
-      return s === 'offer sent' || s === 'offer_sent';
-    });
-
-  const getApplicationDisplayStatus = (application = {}, nowTimestamp = Date.now()) => {
-    const baseStatus = String(application?.status || "").trim().toLowerCase() || "pending";
-    if (["accepted", "hired", "offer_sent"].includes(baseStatus)) {
-      return baseStatus;
-    }
-
-    // If candidate rejected an offer, always show as rejected
-    if (baseStatus === "rejected" && hadOfferSentInHistory(application)) {
-      return "rejected";
-    }
-
-    const processes = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
-    const hasAssessmentRound =
-      Boolean(application?.jobId?.assessmentId) ||
-      getAssessmentRoundOrderKeys(application?.jobId).length > 0 ||
-      processes.some((process) => isAssessmentProcess(process));
-
-    // For assessment stages, treat any rejected-like status as rejected
-    const hasRejectedAssessmentStage = processes.some(
-      (process) => isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
-    );
-    // For non-assessment stages, only treat as rejected if explicitly set to 'rejected'
-    const hasRejectedNonAssessmentStage = processes.some(
-      (process) => !isAssessmentProcess(process) && normalizeStatusValue(process?.status) === "rejected"
-    );
-
-    if (hasRejectedAssessmentStage || hasRejectedNonAssessmentStage) {
-      return "rejected";
-    }
-
-    // If application was directly rejected AND has no assessment round
-    if (baseStatus === "rejected" && !hasAssessmentRound) {
-      // If it was auto-rejected from a stage status, treat as pending; otherwise it's a direct employer rejection
-      return wasAutoRejectedFromStageStatus(application) ? "pending" : "rejected";
-    }
-
-    // If application was directly rejected (not auto from assessment expiry), show rejected
-    if (baseStatus === "rejected" && !wasAutoRejectedFromStageStatus(application)) {
-      return "rejected";
-    }
-
-    if (hasAssessmentRound) {
-      const completionInfo = getAssessmentCompletionInfo(application, nowTimestamp);
-      const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, nowTimestamp);
-      // Only treat as no-show if the assessment window has ended AND there is no assessment activity at all
-      const hasAssessmentActivity =
-        completionInfo?.isCompleted ||
-        completionInfo?.isInProgress ||
-        completionInfo?.isSuspended ||
-        completionInfo?.isPassed ||
-        completionInfo?.isFailed ||
-        completionInfo?.isNoShow ||
-        Boolean(application?.assessmentStatus && !['pending', 'available', 'not_required', 'not started', 'scheduled'].includes(normalizeStatusValue(application?.assessmentStatus)));
-      const assessmentNoShow =
-        Boolean(completionInfo?.isNoShow) ||
-        (Boolean(assessmentWindowInfo?.isAfterEnd) &&
-          !completionInfo?.isCompleted &&
-          !completionInfo?.isInProgress &&
-          !completionInfo?.isSuspended &&
-          !completionInfo?.isPassed &&
-          !completionInfo?.isFailed);
-
-      if (
-        completionInfo?.isFailed ||
-        completionInfo?.isSuspended ||
-        assessmentNoShow ||
-        isAssessmentOutcomeRejected({
-          status: application?.assessmentStatus,
-          result: application?.assessmentResult,
-        })
-      ) {
-        return "rejected";
-      }
-
-      if (baseStatus === "rejected" && wasAutoRejectedFromStageStatus(application)) {
-        return "pending";
-      }
-    }
-
-    return baseStatus;
-  };
 
   const applicationsWithDisplayStatus = useMemo(
     () =>
       applications.map((application) => ({
         ...application,
-        displayStatus: getApplicationStatusKey(application)
+        displayStatus: getSharedApplicationDisplayStatus(application)
       })),
-    [applications, statusClock]
+    [applications]
   );
 
   const emailSuggestions = useMemo(() => {
@@ -536,6 +318,7 @@ function EmpCandidatesPage() {
       { value: "", label: "All Status " },
       { value: "pending", label: "Pending" },
       { value: "shortlisted", label: "Shortlisted" },
+      { value: "selected", label: "Selected" },
       { value: "offer_sent", label: "Offer Letter Sent" },
       { value: "accepted", label: "Offer Accepted" },
       { value: "rejected", label: "Rejected" }

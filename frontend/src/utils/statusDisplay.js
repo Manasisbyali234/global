@@ -231,11 +231,16 @@ export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pendi
       '',
     ''
   );
+  const assessmentRejectedStatusKey = getAssessmentRejectedStatusKey(application);
+  if (assessmentRejectedStatusKey && assessmentRejectedStatusKey !== 'no_show') {
+    return assessmentRejectedStatusKey;
+  }
+
   if (explicitInterviewStatusKey) {
     return explicitInterviewStatusKey;
   }
 
-  return getAssessmentRejectedStatusKey(application) ||
+  return assessmentRejectedStatusKey ||
     getCanonicalStatusKey(
       application?.applicationStatus ||
         application?.applicationDisplayStatus ||
