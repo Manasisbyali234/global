@@ -1,8 +1,8 @@
-.admin-placement-manage-page .emp-table td:last-child {
+.admin-employer-manage-page .emp-table td:last-child {
     text-align: center !important;
 }
 
-html body .admin-placement-manage-page .action-buttons {
+html body .admin-employer-manage-page .action-buttons {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -11,7 +11,7 @@ html body .admin-placement-manage-page .action-buttons {
     flex-wrap: nowrap !important;
 }
 
-html body .admin-placement-manage-page .action-buttons .action-btn {
+html body .admin-employer-manage-page .action-buttons .action-btn {
     width: 86px !important;
     min-width: 86px !important;
     max-width: 86px !important;
@@ -33,7 +33,7 @@ html body .admin-placement-manage-page .action-buttons .action-btn {
     border: 1px solid #FF7A00 !important;
 }
 
-html body .admin-placement-manage-page .action-buttons .action-btn i {
+html body .admin-employer-manage-page .action-buttons .action-btn i {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -46,7 +46,7 @@ html body .admin-placement-manage-page .action-buttons .action-btn i {
 }
 
 @media (max-width: 768px) {
-    html body .admin-placement-manage-page .action-buttons {
+    html body .admin-employer-manage-page .action-buttons {
         flex-wrap: nowrap !important;
     }
 }

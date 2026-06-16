@@ -6,6 +6,7 @@ import 'aos/dist/aos.css';
 import './admin-emp-manage-styles.css';
 import './admin-search-styles.css';
 import './admin-header-mobile-fix.css';
+import './admin-emp-manage-actions.css';
 import SearchBar from '../../../../components/SearchBar';
 import PageLoader from '../../../../components/PageLoader';
 import { formatDate } from '../../../../utils/dateFormatter';
@@ -248,7 +249,7 @@ function AdminEmployersAllRequest() {
     }
 
     return (
-        <div className="admin-emp-manage-container">
+        <div className="admin-emp-manage-container admin-employer-manage-page">
             <div className="wt-admin-right-page-header clearfix">
                 <h2>Employers Details</h2>
             </div>
