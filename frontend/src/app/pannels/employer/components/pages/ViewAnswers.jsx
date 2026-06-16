@@ -156,7 +156,7 @@ export default function ViewAnswers() {
     });
 
     if (missingEvaluation) {
-      showError(`Enter awarded marks for question ${missingEvaluation.questionIndex + 1}.`);
+      showError(`Enter marks for question - ${String(missingEvaluation.questionIndex + 1).padStart(2, '0')}.`);
       return;
     }
 
@@ -848,7 +848,7 @@ export default function ViewAnswers() {
                           }}>
                             <div>
                               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', color: '#111827', marginBottom: '0.4rem' }}>
-                                Awarded Marks
+                                Enter marks for question
                               </label>
                               <input
                                 type="number"
@@ -898,7 +898,7 @@ export default function ViewAnswers() {
                     color: '#6b7280'
                   }}>
                     <span><strong style={{ color: '#111827' }}>Marks:</strong> {question.marks || 1}</span>
-                    {isManualQuestion && <span><strong style={{ color: '#111827' }}>Awarded Marks:</strong> {answer.awardedMarks ?? 0}</span>}
+                    {isManualQuestion && <span><strong style={{ color: '#111827' }}>Enter marks for question - {String(answer.questionIndex + 1).padStart(2, '0')}:</strong> {answer.awardedMarks ?? 0}</span>}
                   </div>
                 </div>
               );

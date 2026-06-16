@@ -25,7 +25,9 @@ function ContactUsPage() {
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = 'Email is invalid';
         }
-        if (formData.phone.trim()) {
+        if (!formData.phone.trim()) {
+            newErrors.phone = 'Phone number is required';
+        } else {
             const phoneValidation = validatePhoneNumber(formData.phone.trim());
             if (!phoneValidation.isValid) {
                 newErrors.phone = phoneValidation.message;
@@ -194,7 +196,6 @@ function ContactUsPage() {
                                                 </div>
                                                 <div className="col-md-12" style={{paddingTop: '0px', marginTop: '-22px'}}>
                                                     <div className="contact-submit-row">
-                                                        <p className="mandatory-note"><span style={{color:'red'}}>*</span> Required fields</p>
                                                         <button 
                                                             type="submit" 
                                                             className="site-button"
