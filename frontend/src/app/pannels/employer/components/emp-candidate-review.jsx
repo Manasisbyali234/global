@@ -49,6 +49,7 @@ function EmpCandidateReviewPage() {
     const [showNotAdvancedWarning, setShowNotAdvancedWarning] = useState(false);
     const [isFinalRoundRejection, setIsFinalRoundRejection] = useState(false);
     const pendingNotAdvancedRef = useRef(null);
+    const statusUpdateBtnRef = useRef(null);
     const stageStatusOptions = [
         { value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
         { value: 'on_hold', label: 'On Hold' },
@@ -1888,6 +1889,7 @@ function EmpCandidateReviewPage() {
                                                )}
                                           </div>
                                           <button
+                                            ref={statusUpdateBtnRef}
                                             type="button"
                                             className={`btn btn-sm ${statusUpdateUnlocked ? 'btn-success' : 'btn-primary'}`}
                                             onClick={handleOpenStatusUpdate}
@@ -2030,12 +2032,14 @@ function EmpCandidateReviewPage() {
                                                                                     Please award marks for manual questions before selecting a status.
                                                                                 </p>
                                                                             )}
-                                                                            {!statusUpdateUnlocked && (
                                                                                 <p style={{ fontSize: '12px', color: '#9aabcc', margin: '4px 0 0 0', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                                                                     <i className="fas fa-info-circle"></i>
-                                                                                    Click on Status Update button.
+                                                                                    Click on{' '}
+                                                                                    <span
+                                                                                        onClick={() => statusUpdateBtnRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                                                                                        style={{ color: '#f97316', cursor: 'pointer', textDecoration: 'underline', fontWeight: '600' }}
+                                                                                    >Status Update</span>{' '}button.
                                                                                 </p>
-                                                                            )}
                                                                         </div>
                                                                         <div className="control-remarks-wrapper">
                                                                             <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'block' }}>Stage Feedback</label>
