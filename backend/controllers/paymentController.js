@@ -22,6 +22,7 @@ const getRazorpay = () => {
 };
 
 const APPLICATION_FEE = 129; // Amount in INR
+const APPLICATION_LIMIT_REACHED_MESSAGE = 'Application limit reached for this job. This job is no longer accepting applications.';
 const CREDIT_ROW_FIELDS = [
   'Credits Assigned',
   'credits assigned',
@@ -32,6 +33,94 @@ const CREDIT_ROW_FIELDS = [
   'Credit',
   'credit'
 ];
+
+const getApplicationLimit = (job = {}) => {
+  const limit = Number(job.applicationLimit);
+  return Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : null;
+};
+
+const buildApplicationLimitError = (job = {}, applicationCount = null) => {
+  const error = new Error(APPLICATION_LIMIT_REACHED_MESSAGE);
+  error.code = 'APPLICATION_LIMIT_REACHED';
+  error.statusCode = 409;
+  error.applicationLimit = getApplicationLimit(job);
+  error.applicationCount = applicationCount;
+  return error;
+};
+
+const isApplicationLimitError = (error = {}) => error.code === 'APPLICATION_LIMIT_REACHED';
+
+const getPaidApplicationCount = (jobId) => Application.countDocuments({
+  jobId,
+  paymentStatus: 'paid'
+});
+
+const assertApplicationLimitAvailable = async (job = {}) => {
+  const applicationLimit = getApplicationLimit(job);
+  if (!applicationLimit) {
+    return { applicationLimit: null, applicationCount: null };
+  }
+
+  const applicationCount = await getPaidApplicationCount(job._id);
+  if (applicationCount >= applicationLimit) {
+    throw buildApplicationLimitError(job, applicationCount);
+  }
+
+  return { applicationLimit, applicationCount };
+};
+
+const reserveApplicationSlot = async (job = {}) => {
+  const applicationLimit = getApplicationLimit(job);
+  if (!applicationLimit) {
+    return { reserved: false, jobId: job._id, applicationLimit: null };
+  }
+
+  const paidApplicationCount = await getPaidApplicationCount(job._id);
+  if (paidApplicationCount >= applicationLimit) {
+    throw buildApplicationLimitError(job, paidApplicationCount);
+  }
+
+  // Keep the stored counter at least as high as the paid-application truth before reserving atomically.
+  await Job.updateOne(
+    { _id: job._id },
+    { $max: { applicationCount: paidApplicationCount } }
+  );
+
+  const reservedJob = await Job.findOneAndUpdate(
+    { _id: job._id, applicationCount: { $lt: applicationLimit } },
+    { $inc: { applicationCount: 1 } },
+    { new: true, select: 'applicationCount applicationLimit' }
+  );
+
+  if (!reservedJob) {
+    const latestApplicationCount = await getPaidApplicationCount(job._id);
+    throw buildApplicationLimitError(job, latestApplicationCount);
+  }
+
+  return {
+    reserved: true,
+    jobId: job._id,
+    applicationLimit,
+    applicationCount: reservedJob.applicationCount
+  };
+};
+
+const releaseApplicationSlot = async (reservation = null) => {
+  if (!reservation?.reserved || !reservation.jobId) return;
+
+  await Job.updateOne(
+    { _id: reservation.jobId, applicationCount: { $gt: 0 } },
+    { $inc: { applicationCount: -1 } }
+  );
+};
+
+const sendApplicationLimitResponse = (res, error) => res.status(error.statusCode || 409).json({
+  success: false,
+  message: error.message || APPLICATION_LIMIT_REACHED_MESSAGE,
+  code: error.code || 'APPLICATION_LIMIT_REACHED',
+  applicationLimit: error.applicationLimit,
+  applicationCount: error.applicationCount
+});
 
 const buildPlacementCandidateCreditUpdate = (credits = 0) => {
   const creditValue = Number.isFinite(Number(credits)) ? Number(credits) : 0;
@@ -104,8 +193,30 @@ exports.createOrder = async (req, res) => {
     }
 
     const { jobId, amount } = req.body;
+
+    if (jobId) {
+      const job = await Job.findById(jobId).select('applicationLimit applicationCount');
+      if (!job) {
+        return res.status(404).json({ success: false, message: 'Job not found' });
+      }
+
+      const existingPaidApplication = await Application.findOne({
+        jobId,
+        candidateId: req.user._id,
+        paymentStatus: 'paid'
+      }).select('_id').lean();
+
+      if (existingPaidApplication) {
+        return res.status(400).json({ success: false, message: 'Already applied to this job' });
+      }
+
+      await assertApplicationLimitAvailable(job);
+    }
     
-    const finalAmount = amount || APPLICATION_FEE;
+    const requestedAmount = Number(amount);
+    const finalAmount = jobId
+      ? APPLICATION_FEE
+      : (Number.isFinite(requestedAmount) && requestedAmount > 0 ? requestedAmount : APPLICATION_FEE);
 
     const options = {
       amount: finalAmount * 100, // amount in the smallest currency unit (paise)
@@ -116,12 +227,19 @@ exports.createOrder = async (req, res) => {
     const order = await razorpayInstance.orders.create(options);
     res.json({ success: true, order });
   } catch (error) {
+    if (isApplicationLimitError(error)) {
+      return sendApplicationLimitResponse(res, error);
+    }
+
     console.error('Error creating Razorpay order:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
 exports.verifyPayment = async (req, res) => {
+  let slotReservation = null;
+  let applicationPersisted = false;
+
   try {
     const {
       razorpay_order_id,
@@ -160,6 +278,8 @@ exports.verifyPayment = async (req, res) => {
         paymentStatus: { $ne: 'paid' }
       });
 
+      slotReservation = await reserveApplicationSlot(job);
+
       const profile = await CandidateProfile.findOne({ candidateId: req.user._id });
       
       const receiptSerial = existingUnpaidApplication?.receiptSerial || await getNextReceiptSerial();
@@ -187,10 +307,10 @@ exports.verifyPayment = async (req, res) => {
       if (existingUnpaidApplication) {
         Object.assign(existingUnpaidApplication, applicationData);
         application = await existingUnpaidApplication.save();
+        applicationPersisted = true;
       } else {
         application = await Application.create(applicationData);
-        // Update job application count only for brand new application
-        await Job.findByIdAndUpdate(jobId, { $inc: { applicationCount: 1 } });
+        applicationPersisted = true;
       }
 
       // Invalidate job cache
@@ -251,6 +371,18 @@ exports.verifyPayment = async (req, res) => {
       res.status(400).json({ success: false, message: 'Invalid signature' });
     }
   } catch (error) {
+    if (slotReservation?.reserved && !applicationPersisted) {
+      try {
+        await releaseApplicationSlot(slotReservation);
+      } catch (releaseError) {
+        console.error('Error releasing reserved application slot after payment failure:', releaseError);
+      }
+    }
+
+    if (isApplicationLimitError(error)) {
+      return sendApplicationLimitResponse(res, error);
+    }
+
     console.error('Error verifying payment:', error);
     res.status(500).json({ success: false, message: error.message });
   }
@@ -259,6 +391,7 @@ exports.verifyPayment = async (req, res) => {
 exports.applyWithCredits = async (req, res) => {
   let candidate = null;
   let applicationPersisted = false;
+  let slotReservation = null;
 
   try {
     const { jobId, coverLetter } = req.body;
@@ -293,7 +426,10 @@ exports.applyWithCredits = async (req, res) => {
       paymentStatus: { $ne: 'paid' }
     });
 
-    // 4. Deduct one credit atomically so concurrent applies cannot overspend
+    // 4. Reserve one application slot before deducting a credit.
+    slotReservation = await reserveApplicationSlot(job);
+
+    // 5. Deduct one credit atomically so concurrent applies cannot overspend
     candidate = await Candidate.findOneAndUpdate(
       { _id: candidateId, credits: { $gt: 0 } },
       { $inc: { credits: -1 } },
@@ -301,13 +437,16 @@ exports.applyWithCredits = async (req, res) => {
     );
 
     if (!candidate) {
+      await releaseApplicationSlot(slotReservation);
+      slotReservation = null;
+
       return res.status(400).json({
         success: false,
         message: 'Insufficient credits. Please contact your Placement Dean or pay using Razorpay.'
       });
     }
 
-    // 5. Create application
+    // 6. Create application
     const profile = await CandidateProfile.findOne({ candidateId });
     
     const receiptSerial = existingUnpaidApplication?.receiptSerial || await getNextReceiptSerial();
@@ -340,8 +479,6 @@ exports.applyWithCredits = async (req, res) => {
     } else {
       application = await Application.create(applicationData);
       applicationPersisted = true;
-      // 6. Update job application count only for brand new application
-      await Job.findByIdAndUpdate(jobId, { $inc: { applicationCount: 1 } });
     }
 
     await syncPlacementCandidateCreditsForCandidate(candidate, candidate.credits);
@@ -405,6 +542,14 @@ exports.applyWithCredits = async (req, res) => {
       remainingCredits: candidate.credits
     });
   } catch (error) {
+    if (slotReservation?.reserved && !applicationPersisted) {
+      try {
+        await releaseApplicationSlot(slotReservation);
+      } catch (releaseError) {
+        console.error('Error releasing reserved application slot after credit application failure:', releaseError);
+      }
+    }
+
     if (candidate?._id && !applicationPersisted) {
       try {
         const restoredCandidate = await Candidate.findByIdAndUpdate(
@@ -419,6 +564,10 @@ exports.applyWithCredits = async (req, res) => {
       } catch (rollbackError) {
         console.error('Error rolling back deducted credit after failed application:', rollbackError);
       }
+    }
+
+    if (isApplicationLimitError(error)) {
+      return sendApplicationLimitResponse(res, error);
     }
 
     console.error('Error applying with credits:', error);

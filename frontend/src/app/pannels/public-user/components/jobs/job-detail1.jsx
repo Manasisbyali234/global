@@ -293,6 +293,11 @@ function JobDetail1Page() {
             } else {
                 console.warn('Apply with credits failed:', data.message);
                 showError(data.message || 'Failed to apply using credits');
+                if (data.code === 'APPLICATION_LIMIT_REACHED') {
+                    await fetchJobDetails();
+                    return;
+                }
+
                 // Fallback to payment if credit application fails for some reason
                 handlePayment();
             }

@@ -11,6 +11,7 @@ import useDebounce from "../../../../../utils/useDebounce";
 import { formatJobEducationDisplay } from "../../../../../utils/jobEducationOptions";
 import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
+import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
 import { SkeletonContainer, JobCardSkeleton, StatsSkeleton, RecruiterSkeleton } from "../../../../../components/SkeletonLoader";
 import "../../../../../new-job-card.css";
 import "../../../../../home-responsive.css";
@@ -49,6 +50,22 @@ const ErrorBoundary = ({ children }) => {
     
     return children;
 };
+
+const isJobApplicationClosed = (job) => {
+    if (!job) return false;
+
+    const limitReached = typeof job.applicationLimit === 'number' &&
+        job.applicationLimit > 0 &&
+        (job.applicationCount || 0) >= job.applicationLimit;
+
+    if (limitReached) return true;
+    if (job.status && job.status !== 'active') return true;
+    if (!job.offerLetterDate) return false;
+
+    const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, "", "end");
+    return !!offerLetterEnd && Date.now() > offerLetterEnd.getTime();
+};
+
 function Home16Page() {
     const getPostedByLabel = (job) => {
         const rawPostedBy = job?.postedBy || job?.employerId?.employerType || job?.employerType;
@@ -982,7 +999,12 @@ function Home16Page() {
                             <div style={{background: 'transparent', width: '100%', margin: '0'}}>
                                 <Row style={{'--bs-gutter-x': '20px'}}>
                                 {jobs.length > 0 ? (
-                                    jobs.map((job) => (
+                                    jobs.map((job) => {
+                                        const hasAppliedToJob = appliedJobs.has(job._id);
+                                        const isApplicationClosed = isJobApplicationClosed(job);
+                                        const isButtonDisabled = hasAppliedToJob || isApplicationClosed;
+
+                                        return (
                                         <Col lg={6} md={6} sm={12} xs={12} key={job._id} className="mb-2">
                                             <div className="new-job-card">
                                                 {/* Top Row */}
@@ -1068,12 +1090,13 @@ function Home16Page() {
                                                     <button
                                                         className="apply-now-btn"
                                                         style={{
-                                                            backgroundColor: appliedJobs.has(job._id) ? '#6c757d' : '',
-                                                            cursor: appliedJobs.has(job._id) ? 'not-allowed' : 'pointer'
+                                                            backgroundColor: isButtonDisabled ? '#6c757d' : '',
+                                                            cursor: isButtonDisabled ? 'not-allowed' : 'pointer'
                                                         }}
-                                                        disabled={appliedJobs.has(job._id)}
+                                                        disabled={isButtonDisabled}
+                                                        title={isApplicationClosed ? 'Applications are closed for this job' : undefined}
                                                         onClick={() => {
-                                                            if (appliedJobs.has(job._id)) return;
+                                                            if (isButtonDisabled) return;
                                                             if (job._id && String(job._id).trim()) {
                                                                 const sanitizedJobId = String(job._id).replace(/[^a-zA-Z0-9]/g, '');
                                                                 if (sanitizedJobId) {
@@ -1086,12 +1109,13 @@ function Home16Page() {
                                                             }
                                                         }}
                                                     >
-                                                        {appliedJobs.has(job._id) ? 'Already Applied' : 'Apply Now'}
+                                                        {hasAppliedToJob ? 'Already Applied' : isApplicationClosed ? 'Application Closed' : 'Apply Now'}
                                                     </button>
                                                 </div>
                                             </div>
                                         </Col>
-                                    ))
+                                        );
+                                    })
                                 ) : (
                                     <Col xs={12} className="text-center">
                                         <p>
