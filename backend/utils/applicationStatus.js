@@ -927,6 +927,119 @@ const hadOfferSentInStatusHistory = (application = {}) =>
     return normalized === 'offer sent' || normalized === 'offer_sent';
   });
 
+const isAutomaticRejectionHistoryEntry = (entry = {}) => {
+  if (normalizeApplicationStatusValue(entry?.status) !== 'rejected') {
+    return false;
+  }
+
+  const notes = normalizeApplicationStatusValue(entry?.notes);
+  return [
+    'auto rejected after application session expired',
+    'auto updated',
+    'candidate no show / session expired',
+    'candidate no show / assessment window expired'
+  ].some((fragment) => notes.includes(fragment));
+};
+
+const isLatestManualApplicationRejection = (application = {}) => {
+  if (normalizeApplicationStatusValue(application?.status) !== 'rejected') {
+    return false;
+  }
+
+  const latestStatusEntry = getLatestApplicationStatusHistoryEntry(application);
+  if (!latestStatusEntry) {
+    return true;
+  }
+
+  return normalizeApplicationStatusValue(latestStatusEntry?.status) === 'rejected'
+    && !isAutomaticRejectionHistoryEntry(latestStatusEntry);
+};
+
+const isAssessmentNoShowAutoRejection = (application = {}) => {
+  const latestStatusEntry = getLatestApplicationStatusHistoryEntry(application);
+  if (!isAutomaticRejectionHistoryEntry(latestStatusEntry)) {
+    return false;
+  }
+
+  const notes = normalizeApplicationStatusValue(latestStatusEntry?.notes);
+  return notes.includes('assessment no show') || notes.includes('assessment window expired');
+};
+
+const isPendingLikeTrackedStatus = (value = '') => {
+  const normalizedStatus = normalizeApplicationStatusValue(value);
+  const statusKey = getCanonicalStatusKey(value, '');
+
+  return PENDING_LIKE_INTERVIEW_STATUSES.has(normalizedStatus) ||
+    PENDING_LIKE_INTERVIEW_STATUSES.has(normalizeApplicationStatusValue(statusKey));
+};
+
+const isNonAssessmentTrackedProcess = (process = {}) => {
+  const processType = normalizeApplicationStatusValue(process?.type || process?.stageType);
+  return Boolean(processType) && processType !== 'assessment';
+};
+
+const isPositiveTrackedProgressStatus = (value = '') => {
+  const statusKey = getCanonicalStatusKey(value, '');
+  return [
+    'completed',
+    'passed',
+    'selected',
+    'shortlisted',
+    'shortlisted_for_next_round'
+  ].includes(statusKey);
+};
+
+const hasHardRejectedAssessmentOutcome = (application = {}) => {
+  const assessmentStatus = getCanonicalStatusKey(application?.assessmentStatus || '', '');
+  const assessmentResult = getCanonicalStatusKey(application?.assessmentResult || '', '');
+
+  if (assessmentStatus === 'suspended') return true;
+  if (assessmentStatus === 'failed' || assessmentResult === 'failed') return true;
+  if (['no_show', 'session_expired'].includes(assessmentStatus) && isAssessmentNoShowAutoRejection(application)) {
+    return true;
+  }
+
+  const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
+  return Object.values(attemptsByAssessmentId).some((attempt) => {
+    const attemptStatus = getCanonicalStatusKey(attempt?.status || '', '');
+    const attemptResult = getCanonicalStatusKey(attempt?.result || '', '');
+
+    return attemptStatus === 'suspended' ||
+      attemptStatus === 'failed' ||
+      attemptResult === 'failed' ||
+      ['no_show', 'session_expired'].includes(attemptStatus);
+  });
+};
+
+const hasPendingFinalNonAssessmentRoundAfterProgress = (trackedProcesses = []) => {
+  if (!Array.isArray(trackedProcesses) || trackedProcesses.length === 0) {
+    return false;
+  }
+
+  const finalProcess = trackedProcesses[trackedProcesses.length - 1];
+  if (
+    !isNonAssessmentTrackedProcess(finalProcess) ||
+    !isPendingLikeTrackedStatus(finalProcess?.status)
+  ) {
+    return false;
+  }
+
+  return trackedProcesses
+    .slice(0, -1)
+    .some((process) => isPositiveTrackedProgressStatus(process?.status));
+};
+
+const shouldHoldForPendingFinalNonAssessmentRound = (
+  application = {},
+  trackedProcesses = [],
+  hasRejectedProcess = false
+) => (
+  hasPendingFinalNonAssessmentRoundAfterProgress(trackedProcesses) &&
+  !hasRejectedProcess &&
+  !isLatestManualApplicationRejection(application) &&
+  !hasHardRejectedAssessmentOutcome(application)
+);
+
 const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) => {
   const rawBaseStatus = getCanonicalStatusKey(application?.status || '', '');
   if (['accepted', 'hired', 'offer_sent'].includes(rawBaseStatus)) {
@@ -960,10 +1073,23 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
 
   const baseStatus = getDisplayBaseStatus(application, options, 'pending');
   const fallbackBaseStatus = baseStatus === 'under_review' ? 'pending' : baseStatus;
+  const trackedProcesses = getResolvedTrackedProcesses(application, options);
+  const hasRejectedProcess = trackedProcesses.some((process) =>
+    isRejectedInterviewProcessStatus(process?.status)
+  );
+  const holdForPendingFinalNonAssessmentRound = shouldHoldForPendingFinalNonAssessmentRound(
+    application,
+    trackedProcesses,
+    hasRejectedProcess
+  );
 
   // If candidate rejected an offer letter, always show as rejected
   if (baseStatus === 'rejected' && hadOfferSentInStatusHistory(application)) {
     return 'rejected';
+  }
+
+  if (holdForPendingFinalNonAssessmentRound) {
+    return 'pending';
   }
 
   if (getRejectedInterviewInviteDisplayStatus(application, baseStatus)) {
@@ -980,10 +1106,6 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     return pendingEvaluationRecoveryStatus;
   }
 
-  const trackedProcesses = getResolvedTrackedProcesses(application, options);
-  const hasRejectedProcess = trackedProcesses.some((process) =>
-    isRejectedInterviewProcessStatus(process?.status)
-  );
   if (hasRejectedProcess) {
     return 'rejected';
   }
@@ -1063,7 +1185,10 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
       getCanonicalStatusKey(lastRoundWithMeaningfulStatus.process?.status || '', '') === 'selected';
 
     if (isFinalRoundSelected) {
-      return fallbackBaseStatus === 'shortlisted' ? 'shortlisted' : 'pending';
+      return 'selected';
+    }
+    if (!isFinalRound && ['passed', 'completed', 'shortlisted', 'shortlisted_for_next_round', 'selected'].includes(latestTrackedStatus)) {
+      return 'pending';
     }
     if (['shortlisted', 'shortlisted_for_next_round', 'on_hold', 'pending_decision', 'under_review', 'selected'].includes(latestTrackedStatus)) {
       return latestTrackedStatus;
@@ -1079,7 +1204,7 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     }
     // Candidate passed a non-final round and next round not started yet.
     // Prevent the raw rejected base status from bleeding through.
-    if (!isFinalRound && (latestTrackedStatus === 'passed' || latestTrackedStatus === 'shortlisted' || latestTrackedStatus === 'shortlisted_for_next_round')) {
+    if (!isFinalRound && (latestTrackedStatus === 'passed' || latestTrackedStatus === 'completed' || latestTrackedStatus === 'shortlisted' || latestTrackedStatus === 'shortlisted_for_next_round')) {
       return 'pending';
     }
   }

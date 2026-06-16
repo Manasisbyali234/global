@@ -222,11 +222,10 @@ const getStatusBeforeExpiredSessionAutoReject = (application = {}) => {
   return application?.status || 'pending';
 };
 
-const getCandidateVisibleApplicationStatus = (application = {}) => (
-  isAutoRejectedAfterExpiredSession(application)
-    ? getStatusBeforeExpiredSessionAutoReject(application)
-    : (application?.status || 'pending')
-);
+const getCandidateVisibleApplicationStatus = (application = {}, options = {}) => {
+  const normalizedApplication = normalizeCandidateVisibleApplication(application);
+  return buildSharedApplicationStatusSnapshot(normalizedApplication, options).applicationStatus;
+};
 
 const normalizeCandidateVisibleApplication = (application = null) => {
   if (!application) return application;
@@ -3075,7 +3074,9 @@ exports.getApplicationInterviewDetails = async (req, res) => {
       applicationId: application._id,
       jobTitle: job.title,
       companyName: application.employerId?.companyName,
-      applicationStatus: getCandidateVisibleApplicationStatus(application),
+      applicationStatus: getCandidateVisibleApplicationStatus(application, {
+        assessmentAttemptsByAssessmentId
+      }),
       appliedDate: application.createdAt || application.appliedAt,
       rounds: []
     };

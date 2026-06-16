@@ -194,7 +194,7 @@ const startNoShowScheduler = () => {
         ]
       })
         .populate('jobId', 'assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime interviewRoundOrder interviewRoundTypes interviewRoundDetails')
-        .select('_id status interviewInvite assessmentStatus assessmentResult assessmentScore assessmentPercentage jobId statusHistory')
+        .select('_id status interviewInvite interviewProcesses assessmentStatus assessmentResult assessmentScore assessmentPercentage jobId statusHistory')
         .lean();
 
       const candidateIds = candidates.map((candidate) => candidate._id);

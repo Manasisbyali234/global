@@ -26,6 +26,34 @@ const normalizeId = (value = '') => {
   return String(value).trim();
 };
 
+const isNonAssessmentRoundType = (value = '') => {
+  const normalizedType = normalizeValue(value);
+  return Boolean(normalizedType) && normalizedType !== 'assessment';
+};
+
+const hasNonAssessmentInterviewRound = (application = {}) => {
+  const trackedProcesses = Array.isArray(application?.interviewProcesses)
+    ? application.interviewProcesses
+    : [];
+  if (trackedProcesses.some((process) => isNonAssessmentRoundType(process?.type || process?.stageType))) {
+    return true;
+  }
+
+  const stages = Array.isArray(application?.interviewProcess?.stages)
+    ? application.interviewProcess.stages
+    : [];
+  if (stages.some((stage) => isNonAssessmentRoundType(stage?.stageType || stage?.type))) {
+    return true;
+  }
+
+  const roundTypes = application?.jobId?.interviewRoundTypes;
+  if (roundTypes && typeof roundTypes === 'object') {
+    return Object.values(roundTypes).some((roundType) => isNonAssessmentRoundType(roundType));
+  }
+
+  return false;
+};
+
 const shouldMarkAssessmentStageNoShow = (stage = {}) => {
   const status = normalizeValue(stage?.status);
   const result = normalizeValue(stage?.assessmentResult);
@@ -162,6 +190,8 @@ const applyNoShowRejection = async (applicationId, options = {}) => {
 const isNoShowCandidate = (application) => {
   const safeStatus = String(application?.status || '').toLowerCase();
   if (!['pending', 'shortlisted'].includes(safeStatus)) return false;
+
+  if (hasNonAssessmentInterviewRound(application)) return false;
 
   const invite = application?.interviewInvite;
   if (!invite?.sentAt) return false;

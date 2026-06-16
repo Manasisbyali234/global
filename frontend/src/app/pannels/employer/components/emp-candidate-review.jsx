@@ -1033,6 +1033,10 @@ function EmpCandidateReviewPage() {
             return 'rejected';
         }
 
+        if (sharedApplicationStatus === 'pending' && baseStatus === 'rejected') {
+            return 'pending';
+        }
+
         if (sharedApplicationStatus && sharedApplicationStatus !== 'pending') {
             return sharedApplicationStatus;
         }

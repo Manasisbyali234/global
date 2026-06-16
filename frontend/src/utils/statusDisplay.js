@@ -150,7 +150,6 @@ const normalizeApplicationDisplayStatusKey = (statusKey = 'pending') => {
     case 'pending_decision':
     case 'on_hold':
       return 'pending';
-    case 'selected':
     case 'shortlisted_for_next_round':
       return 'shortlisted';
     case 'no_show':
@@ -186,14 +185,15 @@ export const isPositiveInterviewStatusKey = (value = '') => {
 };
 
 export const getApplicationStatusKey = (application = {}, fallback = 'pending') => {
-  const rawStatusKey = getCanonicalStatusKey(
+  const explicitApplicationStatusKey = getCanonicalStatusKey(
     application?.applicationStatus ||
       application?.applicationDisplayStatus ||
       application?.displayStatus ||
-      application?.status ||
-      fallback,
-    fallback
+      '',
+    ''
   );
+  const rawStatusKey = explicitApplicationStatusKey ||
+    getCanonicalStatusKey(application?.status || fallback, fallback);
 
   // If the raw DB status is a positive terminal state, honour it before normalizing
   const baseStatusKey = getCanonicalStatusKey(application?.status || '', '');
@@ -211,6 +211,10 @@ export const getApplicationStatusKey = (application = {}, fallback = 'pending') 
     return applicationStatusKey;
   }
 
+  if (explicitApplicationStatusKey) {
+    return applicationStatusKey;
+  }
+
   const interviewStatusKey = getInterviewCurrentStatusKey(application, '');
   if (isRejectedStatusKey(interviewStatusKey)) {
     return 'rejected';
@@ -219,19 +223,28 @@ export const getApplicationStatusKey = (application = {}, fallback = 'pending') 
   return applicationStatusKey;
 };
 
-export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pending') =>
-  getAssessmentRejectedStatusKey(application) ||
-  getCanonicalStatusKey(
+export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pending') => {
+  const explicitInterviewStatusKey = getCanonicalStatusKey(
     application?.interviewCurrentStatus ||
       application?.currentInterviewStatus ||
       application?.interviewStatus ||
-      application?.applicationStatus ||
-      application?.applicationDisplayStatus ||
-      application?.displayStatus ||
-      application?.status ||
-      fallback,
-    fallback
+      '',
+    ''
   );
+  if (explicitInterviewStatusKey) {
+    return explicitInterviewStatusKey;
+  }
+
+  return getAssessmentRejectedStatusKey(application) ||
+    getCanonicalStatusKey(
+      application?.applicationStatus ||
+        application?.applicationDisplayStatus ||
+        application?.displayStatus ||
+        application?.status ||
+        fallback,
+      fallback
+    );
+};
 
 export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pending') => {
   const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];

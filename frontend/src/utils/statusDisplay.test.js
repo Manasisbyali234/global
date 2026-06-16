@@ -93,3 +93,28 @@ test('candidate application status preserves shortlisted for next round', () => 
     })
   ).toBe('shortlisted_for_next_round');
 });
+
+test('candidate application status trusts resolved pending over stale rejected no-show fields', () => {
+  const application = {
+    status: 'rejected',
+    applicationStatus: 'pending',
+    applicationDisplayStatus: 'pending',
+    displayStatus: 'pending',
+    interviewCurrentStatus: 'pending',
+    assessmentStatus: 'no_show',
+  };
+
+  expect(getApplicationStatusKey(application)).toBe('pending');
+  expect(getInterviewCurrentStatusKey(application)).toBe('pending');
+});
+
+test('candidate application status preserves final selected status', () => {
+  expect(
+    getApplicationStatusKey({
+      status: 'pending',
+      applicationStatus: 'selected',
+      applicationDisplayStatus: 'selected',
+      interviewCurrentStatus: 'selected',
+    })
+  ).toBe('selected');
+});

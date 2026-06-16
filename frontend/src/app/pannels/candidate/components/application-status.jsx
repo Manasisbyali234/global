@@ -327,7 +327,20 @@ function CanStatusPage() {
 
 	const getApplicationOnlyStatus = (application = {}) => {
 		const rawStatus = getCanonicalStatusKey(application?.status || 'pending');
-		if (['accepted', 'hired', 'offer_sent', 'rejected'].includes(rawStatus)) {
+		if (['accepted', 'hired', 'offer_sent'].includes(rawStatus)) {
+			return rawStatus;
+		}
+		const derivedStatus = getCanonicalStatusKey(
+			application?.applicationStatus ||
+				application?.applicationDisplayStatus ||
+				application?.displayStatus ||
+				'',
+			''
+		);
+		if (derivedStatus) {
+			return derivedStatus;
+		}
+		if (rawStatus === 'rejected') {
 			return rawStatus;
 		}
 		const rounds = getInterviewRounds(application?.jobId, application);
