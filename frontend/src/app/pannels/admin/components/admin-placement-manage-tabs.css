@@ -1,0 +1,45 @@
+.admin-placement-manage-page .emp-table td:last-child {
+    text-align: center !important;
+}
+
+html body .admin-placement-manage-page .action-buttons {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+}
+
+html body .admin-placement-manage-page .action-buttons .action-btn {
+    width: 86px !important;
+    min-width: 86px !important;
+    max-width: 86px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    padding: 0 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+html body .admin-placement-manage-page .action-buttons .action-btn i {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    font-size: 11px !important;
+}
+
+@media (max-width: 768px) {
+    html body .admin-placement-manage-page .action-buttons {
+        flex-wrap: wrap !important;
+    }
+}

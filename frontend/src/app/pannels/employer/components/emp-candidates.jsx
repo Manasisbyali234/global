@@ -246,10 +246,6 @@ function EmpCandidatesPage() {
         "pending"
     );
 
-<<<<<<< HEAD
-=======
-
->>>>>>> a6ddf9f0bfd13136fe09a436bd770bf3747353ce
   const applicationsWithDisplayStatus = useMemo(
     () =>
       applications.map((application) => ({

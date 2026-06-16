@@ -5,6 +5,7 @@ import SearchBar from '../../../../components/SearchBar';
 import PageLoader from '../../../../components/PageLoader';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+import './admin-placement-manage-tabs.css';
 function AdminPlacementOfficersTabs() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('pending');
@@ -115,7 +116,7 @@ function AdminPlacementOfficersTabs() {
     }
 
     return (
-        <div className="dashboard-content">
+        <div className="dashboard-content admin-placement-manage-page">
             <div className="wt-admin-right-page-header">
                 <h2>Placement Dean Management</h2>
                 <p>Manage Placement Dean applications and uploads</p>

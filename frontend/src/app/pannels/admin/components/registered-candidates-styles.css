@@ -231,7 +231,7 @@
 }
 
 .candidates-table thead th i {
-    color: #232323;
+    color: #FF7A00;
     margin-right: 6px;
     font-size: 0.8rem;
 }
@@ -260,7 +260,7 @@
 }
 
 .candidates-table tbody td i {
-    color: #6c757d;
+    color: #FF7A00;
     margin-right: 4px;
     font-size: 0.7rem;
 }
@@ -320,14 +320,6 @@
     color: white !important;
 }
 
-.status-badge {
-    color: white !important;
-}
-
-.status-badge * {
-    color: white !important;
-}
-
 .badge-selected {
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white !important;
@@ -355,6 +347,36 @@
     color: white !important;
     min-width: 80px !important;
     padding: 8px 10px !important;
+}
+
+.badge-shortlisted,
+.badge-shortlisted i,
+.badge-not-shortlisted,
+.badge-not-shortlisted i,
+.badge-selected,
+.badge-selected i,
+.badge-rejected,
+.badge-rejected i,
+.badge-pending,
+.badge-pending i,
+.badge-total-paid,
+.badge-total-paid i {
+    color: white !important;
+}
+
+.candidates-table .badge-total-apps,
+.candidates-table .badge-completed,
+.candidates-table .badge-incomplete {
+    background: rgba(255, 122, 0, 0.08) !important;
+    color: #FF7A00 !important;
+    border: 1px solid #FF7A00;
+    box-shadow: none;
+}
+
+.candidates-table .badge-total-apps i,
+.candidates-table .badge-completed i,
+.candidates-table .badge-incomplete i {
+    color: #FF7A00 !important;
 }
 
 .action-btn {
@@ -390,7 +412,7 @@
 }
 
 .btn-view i {
-    color: #000000 !important;
+    color: #FF7A00 !important;
 }
 
 .loading-container {
