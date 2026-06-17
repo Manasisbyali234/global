@@ -38,7 +38,10 @@
   gap: 1rem;
   flex-wrap: wrap;
   align-items: flex-end;
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .emp-candidates-search-control {
@@ -99,14 +102,17 @@
 }
 
 .emp-candidates-toolbar__filters .page-toolbar__section {
-  flex: 0 0 170px;
-  min-width: 160px;
+  flex: 1 1 0;
+  min-width: 0;
   max-width: 200px;
+  overflow: hidden;
 }
 
 .emp-candidates-filter-dropdown {
   position: relative;
   width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .emp-candidates-filter-dropdown__trigger {
