@@ -13,7 +13,8 @@ function SearchableFilterDropdown({
   options = [],
   placeholder = "",
   searchPlaceholder = "Search...",
-  onChange
+  onChange,
+  onOpenChange
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,6 +35,7 @@ function SearchableFilterDropdown({
     const handleOutsideClick = (event) => {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
         setIsOpen(false);
+        onOpenChange?.(false);
         setSearchTerm("");
       }
     };
@@ -41,6 +43,7 @@ function SearchableFilterDropdown({
     const handleEscape = (event) => {
       if (event.key === "Escape") {
         setIsOpen(false);
+        onOpenChange?.(false);
         setSearchTerm("");
       }
     };
@@ -65,13 +68,18 @@ function SearchableFilterDropdown({
   }, [isOpen]);
 
   const handleToggle = () => {
-    setIsOpen((prev) => !prev);
+    setIsOpen((prev) => {
+      const next = !prev;
+      onOpenChange?.(next);
+      return next;
+    });
     setSearchTerm("");
   };
 
   const handleSelect = (nextValue) => {
     onChange(nextValue);
     setIsOpen(false);
+    onOpenChange?.(false);
     setSearchTerm("");
   };
 
@@ -148,6 +156,7 @@ function EmpCandidatesPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
   const [designationFilter, setDesignationFilter] = useState("");
+  const [openDropdown, setOpenDropdown] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
 
@@ -439,7 +448,7 @@ function EmpCandidatesPage() {
                       </select>
                     </div>
                   )}
-                  <div className="page-toolbar__section">
+                  <div className="page-toolbar__section" style={{ zIndex: openDropdown === 'designation' ? 200 : 1 }}>
                     <label className="page-toolbar__label">
                       <i className="fa fa-briefcase"></i> Designation
                     </label>
@@ -449,9 +458,10 @@ function EmpCandidatesPage() {
                       placeholder="All Designation"
                       searchPlaceholder="Search designation"
                       onChange={setDesignationFilter}
+                      onOpenChange={(open) => setOpenDropdown(open ? 'designation' : null)}
                     />
                   </div>
-                  <div className="page-toolbar__section">
+                  <div className="page-toolbar__section" style={{ zIndex: openDropdown === 'status' ? 200 : 1 }}>
                     <label className="page-toolbar__label">
                       <i className="fa fa-filter"></i> Application Status
                     </label>
@@ -461,6 +471,7 @@ function EmpCandidatesPage() {
                       placeholder="All Status "
                       searchPlaceholder="Search status"
                       onChange={setStatusFilter}
+                      onOpenChange={(open) => setOpenDropdown(open ? 'status' : null)}
                     />
                   </div>
               </div>
