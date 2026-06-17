@@ -114,6 +114,8 @@
   align-items: center;
   width: 100%;
   user-select: none;
+  overflow: hidden !important;
+  min-width: 0;
 }
 
 .emp-candidates-page .emp-candidates-filter-dropdown .emp-candidates-filter-dropdown__trigger[role="button"] {
@@ -124,15 +126,23 @@
   font-size: 14px !important;
   font-weight: 500 !important;
   letter-spacing: normal !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  flex-wrap: nowrap !important;
 }
 
 .emp-candidates-filter-dropdown__trigger-text {
   display: block;
   width: 100%;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
   color: inherit;
 }
 
