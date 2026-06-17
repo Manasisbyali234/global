@@ -18,10 +18,17 @@
     font-size: 14px;
     font-weight: 600;
     color: #334155;
+    height: auto !important;
+    min-height: unset !important;
+    max-height: unset !important;
+    overflow: visible !important;
+    position: static !important;
+    z-index: auto !important;
 }
 
 .review-form .ls-inputicon-box {
     position: relative;
+    overflow: visible;
 }
 
 .review-form .fs-input-icon {
@@ -33,6 +40,9 @@
     font-size: 16px;
     pointer-events: none;
     z-index: 1;
+    height: auto !important;
+    width: auto !important;
+    max-width: unset !important;
 }
 
 .review-form .review-textarea-box .fs-input-icon {
