@@ -423,7 +423,7 @@ function EmpCandidatesPage() {
               </div>
                 <div className="emp-candidates-toolbar__filters">
                   {employerType === "consultant" && !jobId && (
-                    <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
+                    <div className="page-toolbar__section">
                       <label className="page-toolbar__label">
                         <i className="fa fa-building"></i> Company
                       </label>
@@ -439,7 +439,7 @@ function EmpCandidatesPage() {
                       </select>
                     </div>
                   )}
-                  <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
+                  <div className="page-toolbar__section">
                     <label className="page-toolbar__label">
                       <i className="fa fa-briefcase"></i> Designation
                     </label>
@@ -451,7 +451,7 @@ function EmpCandidatesPage() {
                       onChange={setDesignationFilter}
                     />
                   </div>
-                  <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
+                  <div className="page-toolbar__section">
                     <label className="page-toolbar__label">
                       <i className="fa fa-filter"></i> Application Status
                     </label>
