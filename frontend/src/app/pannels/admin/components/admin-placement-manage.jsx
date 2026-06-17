@@ -235,88 +235,38 @@ function AdminPlacementOfficersAllRequest() {
                                                 </span>
                                             </td>
                                             <td style={{textAlign: 'center'}}>
-                                                <div style={{display: 'flex', justifyContent: 'center', gap: '4px'}}>
+                                                <div className="action-buttons" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '7px', padding: '6px 4px'}}>
                                                     {(placement.status === 'pending' || (!placement.status && !placement.isApproved)) && (
                                                         <>
                                                             <button
+                                                                className="placement-action-btn btn-approve"
                                                                 disabled={processingId === placement._id}
-                                                                style={{
-                                                                    all: 'unset',
-                                                                    backgroundColor: processingId === placement._id ? 'rgba(200, 200, 200, 0.5)' : 'rgba(255, 122, 0, 0.08)',
-                                                                    color: processingId === placement._id ? '#999' : '#FF7A00',
-                                                                    border: processingId === placement._id ? '1px solid #ccc' : '1px solid #FF7A00',
-                                                                    borderRadius: '6px',
-                                                                    width: '70px',
-                                                                    height: '28px',
-                                                                    fontSize: '0.7rem',
-                                                                    fontWeight: '600',
-                                                                    cursor: processingId === placement._id ? 'not-allowed' : 'pointer',
-                                                                    display: 'inline-block',
-                                                                    textAlign: 'center',
-                                                                    lineHeight: '26px',
-                                                                    transition: 'all 0.2s'
-                                                                }}
                                                                 onClick={() => handleApprove(placement._id)}
                                                             >
                                                                 {processingId === placement._id ? (
-                                                                    <>
-                                                                        <i className="fa fa-spinner fa-spin" style={{marginRight: '4px'}}></i>
-                                                                        Processing...
-                                                                    </>
+                                                                    <><i className="fa fa-spinner fa-spin"></i> Wait...</>
                                                                 ) : (
-                                                                    'Approve'
+                                                                    <><i className="fa fa-check"></i> Approve</>
                                                                 )}
                                                             </button>
                                                             <button
+                                                                className="placement-action-btn btn-reject"
                                                                 disabled={processingId === placement._id}
-                                                                style={{
-                                                                    all: 'unset',
-                                                                    backgroundColor: processingId === placement._id ? 'rgba(200, 200, 200, 0.5)' : 'rgba(255, 122, 0, 0.08)',
-                                                                    color: processingId === placement._id ? '#999' : '#FF7A00',
-                                                                    border: processingId === placement._id ? '1px solid #ccc' : '1px solid #FF7A00',
-                                                                    borderRadius: '6px',
-                                                                    width: '70px',
-                                                                    height: '28px',
-                                                                    fontSize: '0.7rem',
-                                                                    fontWeight: '600',
-                                                                    cursor: processingId === placement._id ? 'not-allowed' : 'pointer',
-                                                                    display: 'inline-block',
-                                                                    textAlign: 'center',
-                                                                    lineHeight: '26px',
-                                                                    transition: 'all 0.2s'
-                                                                }}
                                                                 onClick={() => handleReject(placement._id)}
                                                             >
                                                                 {processingId === placement._id ? (
-                                                                    <>
-                                                                        <i className="fa fa-spinner fa-spin" style={{marginRight: '4px'}}></i>
-                                                                        Processing...
-                                                                    </>
+                                                                    <><i className="fa fa-spinner fa-spin"></i> Wait...</>
                                                                 ) : (
-                                                                    'Reject'
+                                                                    <><i className="fa fa-times"></i> Reject</>
                                                                 )}
                                                             </button>
                                                         </>
                                                     )}
                                                     <button
-                                                        style={{
-                                                            all: 'unset',
-                                                            backgroundColor: 'rgba(255, 122, 0, 0.08)',
-                                                            color: '#FF7A00',
-                                                            border: '1px solid #FF7A00',
-                                                            borderRadius: '6px',
-                                                            width: '70px',
-                                                            height: '28px',
-                                                            fontSize: '0.7rem',
-                                                            fontWeight: '600',
-                                                            cursor: 'pointer',
-                                                            display: 'inline-block',
-                                                            textAlign: 'center',
-                                                            lineHeight: '26px'
-                                                        }}
+                                                        className="placement-action-btn btn-view"
                                                         onClick={() => navigate(`/admin/placement-details/${placement._id}`)}
                                                     >
-                                                        View
+                                                        <i className="fa fa-eye"></i> View
                                                     </button>
                                                 </div>
                                             </td>

@@ -135,17 +135,24 @@
 
 .candidates-filters {
     display: grid;
-    grid-template-columns: minmax(320px, 450px) minmax(200px, 220px);
+    grid-template-columns: minmax(0, 1fr) minmax(160px, 200px);
     align-items: end;
     gap: 16px;
+    min-width: 0;
 }
 
 .candidates-filters .search-bar-container {
     margin-bottom: 0;
+    min-width: 0;
+}
+
+.candidates-filters .search-input-wrapper {
+    max-width: none !important;
+    width: 100%;
 }
 
 .profile-status-filter-section {
-    min-width: 200px;
+    min-width: 0;
 }
 
 .profile-status-filter {
@@ -578,19 +585,20 @@
         justify-content: center !important;
         text-align: center !important;
     }
+
+    .candidates-filters {
+        grid-template-columns: minmax(0, 1fr) minmax(140px, 180px);
+    }
 }
 
 @media (max-width: 768px) {
     .candidates-filters {
-        width: 100%;
         grid-template-columns: 1fr;
+        width: 100%;
         align-items: stretch;
     }
 
-    .profile-status-filter-section {
-        width: 100%;
-    }
-
+    .profile-status-filter-section,
     .profile-status-filter {
         width: 100%;
     }
@@ -598,27 +606,27 @@
     .candidates-header h2 {
         font-size: 1.8rem;
     }
-    
+
     .candidates-table-container {
         margin: 0 -10px;
     }
-    
+
     .candidates-table-responsive {
         font-size: 0.85rem;
     }
-    
+
     .action-btn {
         width: 100%;
         justify-content: center;
     }
-    
+
     .btn-view {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         text-align: center !important;
     }
-    
+
     .candidates-stats-card {
         margin-bottom: 20px;
     }

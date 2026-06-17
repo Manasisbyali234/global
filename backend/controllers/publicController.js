@@ -358,26 +358,13 @@ exports.submitContactForm = async (req, res) => {
     const normalizedSubject = escapeHtml(String(subject || '').trim()) || 'Contact Us Submission';
     const safeMessage = escapeHtml(message);
 
-    const [contact, supportTicket] = await Promise.all([
-      Contact.create({
-        name: safeName,
-        email: safeEmail,
-        phone: safePhone,
-        subject: normalizedSubject,
-        message: safeMessage
-      }),
-      Support.create({
-        name: safeName,
-        email: safeEmail,
-        phone: safePhone,
-        userType: 'guest',
-        subject: normalizedSubject,
-        category: 'general',
-        priority: 'medium',
-        message: safeMessage,
-        receiverRole: 'admin'
-      })
-    ]);
+    const contact = await Contact.create({
+      name: safeName,
+      email: safeEmail,
+      phone: safePhone,
+      subject: normalizedSubject,
+      message: safeMessage
+    });
 
     try {
       const transporter = createTransport();
@@ -405,8 +392,7 @@ exports.submitContactForm = async (req, res) => {
     res.status(201).json({ 
       success: true, 
       message: 'Contact form submitted successfully',
-      contact,
-      ticketId: supportTicket._id
+      contact
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

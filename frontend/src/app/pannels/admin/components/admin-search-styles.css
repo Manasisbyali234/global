@@ -2,7 +2,8 @@
 .employer-search .search-input-wrapper,
 .candidates-search .search-input-wrapper,
 .placement-search .search-input-wrapper {
-    max-width: 450px;
+    max-width: 100%;
+    width: 100%;
     position: relative;
 }
 
@@ -44,11 +45,10 @@
         align-items: flex-start !important;
         gap: 10px !important;
     }
-    
+
     .employer-search .search-input-wrapper,
     .candidates-search .search-input-wrapper,
     .placement-search .search-input-wrapper {
-        max-width: 100%;
         width: 100%;
     }
 }

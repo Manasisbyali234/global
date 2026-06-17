@@ -16,9 +16,11 @@
 
 .page-toolbar__title {
     flex: 1 1 auto;
-    min-width: 160px;
+    min-width: 0;
     margin: 0;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .page-toolbar__controls {
@@ -33,7 +35,7 @@
 }
 
 .page-toolbar__controls--dual {
-    grid-template-columns: minmax(180px, 220px) minmax(260px, 320px);
+    grid-template-columns: minmax(0, 1fr) minmax(140px, 200px);
 }
 
 .page-toolbar__controls--triple {
