@@ -49,6 +49,7 @@ header,
 .can-header,
 .admin-header {
   z-index: 100 !important;
+  isolation: auto !important;
 }
 
 /* Mobile menu toggle */
@@ -134,7 +135,7 @@ a,
 input,
 select,
 textarea {
-  position: relative !important;
+  position: static;
 }
 
 /* Fix for any sticky elements */
