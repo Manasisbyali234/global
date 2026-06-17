@@ -39,39 +39,17 @@ html body .admin-placement-manage-page .action-buttons .action-btn {
     transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease !important;
 }
 
-/* ── Approve ── */
-html body .admin-placement-manage-page .action-buttons .action-btn.btn-approve {
-    background: #22c55e !important;
-    color: #fff !important;
-    border: 1px solid #16a34a !important;
-    box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3) !important;
-}
-html body .admin-placement-manage-page .action-buttons .action-btn.btn-approve:hover:not(:disabled) {
-    background: #16a34a !important;
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.45) !important;
-    transform: translateY(-1px) !important;
-}
-
-/* ── Reject ── */
-html body .admin-placement-manage-page .action-buttons .action-btn.btn-reject {
-    background: #ef4444 !important;
-    color: #fff !important;
-    border: 1px solid #dc2626 !important;
-    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3) !important;
-}
-html body .admin-placement-manage-page .action-buttons .action-btn.btn-reject:hover:not(:disabled) {
-    background: #dc2626 !important;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.45) !important;
-    transform: translateY(-1px) !important;
-}
-
-/* ── View ── */
+/* ── Approve / Reject / View — uniform style matching View ── */
+html body .admin-placement-manage-page .action-buttons .action-btn.btn-approve,
+html body .admin-placement-manage-page .action-buttons .action-btn.btn-reject,
 html body .admin-placement-manage-page .action-buttons .action-btn.btn-view {
     background: #fff !important;
     color: #FF7A00 !important;
     border: 1.5px solid #FF7A00 !important;
     box-shadow: 0 1px 4px rgba(255, 122, 0, 0.15) !important;
 }
+html body .admin-placement-manage-page .action-buttons .action-btn.btn-approve:hover:not(:disabled),
+html body .admin-placement-manage-page .action-buttons .action-btn.btn-reject:hover:not(:disabled),
 html body .admin-placement-manage-page .action-buttons .action-btn.btn-view:hover {
     background: #fff7ed !important;
     box-shadow: 0 4px 10px rgba(255, 122, 0, 0.3) !important;
