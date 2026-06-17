@@ -3,7 +3,7 @@ import { FaClock } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { api, API_BASE_URL } from "../../../../utils/api";
-import { decodeAssessmentText } from "../../../../utils/assessmentContent";
+import { decodeAssessmentText, formatAssessmentContent } from "../../../../utils/assessmentContent";
 import TermsModal from "../components/TermsModal";
 import ViolationModal from "../components/ViolationModal";
 import AssessmentTerminated from "../components/AssessmentTerminated";
@@ -1895,15 +1895,6 @@ const StartAssessment = () => {
 
 	const question = assessment.questions[currentQuestionIndex];
 	const instructionsRaw = assessment?.instructions || assessment?.description || '';
-	const instructionsText = decodeAssessmentText(
-		String(instructionsRaw || '')
-			.replace(/<br\s*\/?>/gi, '\n')
-			.replace(/<\/li>/gi, '\n')
-			.replace(/<li[^>]*>/gi, '• ')
-			.replace(/<\/(p|div|ul|ol)>/gi, '\n')
-			.replace(/<[^>]*>/g, ''),
-		{ preserveWhitespace: true }
-	);
 
 	return (
 		<>
@@ -2121,21 +2112,22 @@ const StartAssessment = () => {
 					</div>
 				</div>
 
-				{instructionsText && (
+				{instructionsRaw && (
 					<div
 						style={{
 							background: "#fff",
-							padding: "16px 20px",
+							padding: "20px",
 							borderRadius: "8px",
-							boxShadow: "0px 2px 5px rgba(0,0,0,0.08)",
+							boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
 							marginBottom: "15px",
-							borderLeft: "4px solid #3b82f6"
 						}}
 					>
-						<div style={{ fontWeight: "600", color: "#1f2937", marginBottom: "8px" }}>Instructions</div>
-						<div style={{ color: "#374151", lineHeight: "1.7", whiteSpace: "pre-wrap" }}>
-							{instructionsText}
-						</div>
+						<div style={{ marginBottom: "10px", fontSize: "15px", fontWeight: "bold", color: "#1f2937" }}>Instructions</div>
+						<div
+							className="assessment-preview-instructions"
+							style={{ fontSize: "14px", color: "#4b5563", lineHeight: "1.7" }}
+							dangerouslySetInnerHTML={{ __html: formatAssessmentContent(instructionsRaw) }}
+						/>
 					</div>
 				)}
 
@@ -2148,14 +2140,65 @@ const StartAssessment = () => {
 						boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
 					}}
 				>
+					<style>{`
+						.assessment-preview-instructions ol {
+							padding-left: 28px;
+							margin-left: 0;
+							list-style-position: outside;
+						}
+						.assessment-preview-instructions li {
+							word-break: break-word;
+							overflow-wrap: break-word;
+							margin-bottom: 6px;
+						}
+						.assessment-preview-instructions {
+							overflow-x: hidden;
+						}
+						.assessment-question-content ol {
+							padding-left: 28px;
+							margin-left: 0;
+							list-style-position: outside;
+						}
+						.assessment-question-content li {
+							word-break: break-word;
+							overflow-wrap: break-word;
+							margin-bottom: 6px;
+						}
+						.assessment-question-content pre,
+						.assessment-question-content code {
+							background: #f1f5f9;
+							border: 1px solid #e2e8f0;
+							border-radius: 4px;
+							padding: 2px 6px;
+							font-family: monospace;
+							font-size: 13px;
+							color: #1e293b;
+							white-space: pre-wrap;
+							word-break: break-word;
+						}
+						.assessment-question-content pre {
+							display: block;
+							padding: 10px 14px;
+							margin: 8px 0;
+						}
+						.assessment-question-content {
+							overflow-x: hidden;
+						}
+					`}</style>
 					<div
 						style={{
-							marginBottom: "10px",
+							marginBottom: "15px",
 							fontSize: "16px",
 							fontWeight: "bold",
+							lineHeight: "1.5"
 						}}
 					>
-						{currentQuestionIndex + 1}. {decodeAssessmentText(String(question.question || '').replace(/<[^>]*>/g, ''))}
+						<span style={{ marginRight: "10px" }}>{currentQuestionIndex + 1}.</span>
+						<div
+							className="assessment-question-content"
+							style={{ display: "inline-block", verticalAlign: "top", width: "calc(100% - 40px)" }}
+							dangerouslySetInnerHTML={{ __html: formatAssessmentContent(question.question || (question.type === 'image-mcq' ? 'Image-based question' : 'Untitled Question')) }}
+						/>
 					</div>
 					{question.imageUrl && (
 						<div style={{ marginBottom: "15px", textAlign: "center" }}>

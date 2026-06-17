@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { BACKEND_URL } from '../../../../../utils/api';
-import { decodeAssessmentText } from '../../../../../utils/assessmentContent';
+import { decodeAssessmentText, formatAssessmentContent } from '../../../../../utils/assessmentContent';
 import { getAssessmentOutcomeLabel } from '../../../../../utils/assessmentOutcome';
 import { showError, showSuccess } from '../../../../../utils/popupNotification';
 
@@ -474,14 +474,17 @@ export default function ViewAnswers() {
                       </span>
                     )}
                   </div>
-                  <h3 style={{ 
-                    fontSize: '1.25rem', 
-                    fontWeight: '600', 
-                    color: '#111827', 
-                    marginBottom: '1rem' 
-                  }}>
-                    {question.question ? decodeAssessmentText(question.question.replace(/<[^>]*>/g, '')) : 'Image-based question'}
-                  </h3>
+                  <style>{`
+                    .va-question-content ol{padding-left:28px;margin-left:0;list-style-position:outside}
+                    .va-question-content li{word-break:break-word;overflow-wrap:break-word;margin-bottom:6px}
+                    .va-question-content pre,.va-question-content code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:2px 6px;font-family:monospace;font-size:13px;color:#1e293b;white-space:pre-wrap;word-break:break-word}
+                    .va-question-content pre{display:block;padding:10px 14px;margin:8px 0}
+                    .va-question-content{overflow-x:hidden;font-size:1rem;font-weight:600;color:#111827;line-height:1.6;margin-bottom:1rem}
+                  `}</style>
+                  <div
+                    className="va-question-content"
+                    dangerouslySetInnerHTML={{ __html: formatAssessmentContent(question.question || (question.type === 'image-mcq' ? 'Image-based question' : 'Untitled Question')) }}
+                  />
                   {question.imageUrl && (
                     <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
                       <img 
