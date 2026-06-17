@@ -48,11 +48,11 @@ function AdminCandidateReviewPage() {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Not provided';
-            return date.toLocaleDateString('en-US', {
+            return date.toLocaleDateString('en-GB', {
                 timeZone: 'Asia/Kolkata',
                 year: 'numeric',
-                month: 'numeric',
-                day: 'numeric'
+                month: '2-digit',
+                day: '2-digit'
             });
         } catch (error) {
             return 'Not provided';
