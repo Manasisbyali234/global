@@ -15,7 +15,9 @@
 }
 
 .admin-emp-manage-container .wt-admin-right-page-header {
-    margin-bottom: 50px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
 }
 
 .admin-emp-manage-container > .wt-admin-right-page-header + .panel {
@@ -941,6 +943,9 @@
     display: flex;
     gap: 20px;
     margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
+    margin-top: 24px;
 }
 
 .approved-stat-card {

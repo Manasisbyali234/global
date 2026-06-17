@@ -891,6 +891,16 @@ a.site-text-primary:hover {
   padding-bottom: 2px !important;
 }
 
+.twm-job-hilites {
+  margin-bottom: 16px !important;
+  padding-bottom: 0px !important;
+}
+
+.twm-job-hilites2 {
+  margin-top: 0px !important;
+  padding-top: 0px !important;
+}
+
 .twm-s-info-inner {
   margin-bottom: 2px !important;
   padding-bottom: 2px !important;

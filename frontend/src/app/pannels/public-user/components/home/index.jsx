@@ -9,6 +9,7 @@ import HomeJobCard from "../../../../../components/HomeJobCard";
 import { formatDate } from "../../../../../utils/dateFormatter";
 import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
+import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
 // CSS is now in public/assets/css/home-job-cards.css
 import "../../../../../categories-mobile-grid-fix.css";
 import "../../../../../remove-carousel-hover-effects.css";
@@ -32,10 +33,14 @@ const getPostedByLabel = (job) => {
     return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 };
 
-const isJobWithinApplicationLimit = (job) => {
+const isJobActive = (job) => {
     const applicationCount = Number(job?.applicationCount || 0);
     const applicationLimit = Number(job?.applicationLimit || 0);
-    return applicationCount < applicationLimit;
+    if (applicationCount >= applicationLimit) return false;
+    if (job?.status && job.status !== 'active') return false;
+    if (!job?.offerLetterDate) return true;
+    const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, "", "end");
+    return !offerLetterEnd || Date.now() <= offerLetterEnd.getTime();
 };
 
 function TopRecruitersSection() {
@@ -52,7 +57,7 @@ function TopRecruitersSection() {
             const data = await response.json();
             
             if (data.success) {
-                setJobs((data.jobs || []).filter(isJobWithinApplicationLimit));
+                setJobs((data.jobs || []).filter(isJobActive));
             }
         } catch (error) {
             
@@ -117,7 +122,7 @@ function HomeJobsList() {
             const response = await fetch('http://localhost:5000/api/public/jobs?limit=5');
             const data = await response.json();
             if (data.success) {
-                const filteredJobs = (data.jobs || []).filter(isJobWithinApplicationLimit);
+                const filteredJobs = (data.jobs || []).filter(isJobActive);
                 setJobs(filteredJobs.slice(0, 5));
             }
         } catch (error) {
