@@ -1,5 +1,10 @@
 /* Mobile Fixes for Admin Sub-Admin Management Page */
 
+/* Ensure panel body has proper inner padding */
+.admin-sub-admin-page .wt-panel-body {
+  padding: 24px !important;
+}
+
 .mobile-scroll-instruction {
   display: none;
 }

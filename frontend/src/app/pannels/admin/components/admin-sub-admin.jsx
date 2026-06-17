@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import SearchBar from "../../../../components/SearchBar";
+import './admin-emp-manage-styles.css';
 import './admin-sub-admin-permission-cards-fix.css';
 import './admin-sub-admin-mobile-fix.css';
 
