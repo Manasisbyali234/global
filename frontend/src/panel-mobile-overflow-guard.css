@@ -40,4 +40,15 @@
     flex-wrap: wrap !important;
     gap: 6px !important;
   }
+
+  /* Override the white-space reset for dropdown triggers */
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .emp-candidates-filter-dropdown__trigger,
+  :is(#content.candidate-panel-layout.mobile-view, #content.employer-panel-layout.mobile-view) .content-admin-main .emp-candidates-filter-dropdown__trigger-text {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+  }
 }
