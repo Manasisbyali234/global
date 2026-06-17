@@ -266,13 +266,13 @@ function AdminCandidateReviewPage() {
         <div className="candidate-review-container admin-candidate-review-page">
             {/* Header Section */}
             <div className="candidate-review-header">
+                <div className="header-title">
+                    <h2>Candidate Profile Review</h2>
+                </div>
                 <button className="back-btn" onClick={() => navigate(-1)}>
                     <i className="fas fa-arrow-left"></i>
                     <span>Back to Candidates</span>
                 </button>
-                <div className="header-title">
-                    <h2>Candidate Profile Review</h2>
-                </div>
             </div>
 
             {/* Profile Card */}
