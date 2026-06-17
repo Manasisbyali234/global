@@ -1,3 +1,133 @@
+.admin-emp-manage-container.admin-placement-manage-page {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    min-height: calc(100vh - 90px);
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .admin-emp-header {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffffff 100%);
+    border-radius: 12px;
+    border: 1px solid #ffe0b3;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 25px;
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .admin-emp-header h2 {
+    color: #232323;
+    font-weight: 700;
+    font-size: 28px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .admin-emp-subtitle {
+    color: #666;
+    font-size: 16px;
+    margin-top: 8px;
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .panel {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    background: white;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .panel-heading {
+    background: white;
+    border-bottom: 2px solid #ff6b35;
+    padding: 20px 25px;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .panel-tittle {
+    color: #232323;
+    font-weight: 600;
+    font-size: 18px;
+    margin: 0;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .status-badge {
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 90px !important;
+    height: 28px !important;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .status-pending {
+    background-color: #fff7ed !important;
+    color: #c2410c !important;
+    border: 1px solid #fdba74 !important;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .status-approved {
+    background-color: #f0fdf4 !important;
+    color: #15803d !important;
+    border: 1px solid #86efac !important;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .emp-table {
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .emp-table thead th {
+    background: #fff5e6 !important;
+    color: #000 !important;
+    font-weight: 700;
+    padding: 18px 20px;
+    border: none;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    text-align: center !important;
+    border-bottom: 2px solid #ffe0b3 !important;
+    white-space: nowrap;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .emp-table tbody tr {
+    border-bottom: 1px solid #f8f9fa;
+    background: #ffffff;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .emp-table tbody td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    border: none;
+    font-size: 0.9rem;
+    color: #495057;
+    border-right: 1px solid #f8f9fa;
+    white-space: nowrap;
+}
+
+.admin-emp-manage-container.admin-placement-manage-page .emp-table tbody td:last-child {
+    border-right: none;
+}
+
+@media (max-width: 768px) {
+    .admin-emp-manage-container.admin-placement-manage-page {
+        padding: 10px;
+    }
+}
+
 .admin-placement-manage-page .emp-table td:last-child {
     text-align: center !important;
 }

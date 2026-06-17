@@ -112,14 +112,14 @@ function AdminPlacementOfficersTabs() {
     };
 
     if (loading) {
-        return <div className="dashboard-content"><PageLoader pageName="Placement Management" /></div>;
+        return <div className="admin-emp-manage-container"><PageLoader pageName="Placement Management" /></div>;
     }
 
     return (
-        <div className="dashboard-content admin-placement-manage-page">
-            <div className="wt-admin-right-page-header">
-                <h2>Placement Dean Management</h2>
-                <p>Manage Placement Dean applications and uploads</p>
+        <div className="admin-emp-manage-container admin-placement-manage-page">
+            <div className="admin-emp-header">
+                <h2><i className="fa fa-graduation-cap me-3" style={{color: '#fd7e14'}}></i>Placement Dean Management</h2>
+                <p className="admin-emp-subtitle">Manage Placement Dean applications and uploads</p>
             </div>
 
             <div className="panel panel-default site-bg-white">

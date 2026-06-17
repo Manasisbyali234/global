@@ -250,8 +250,9 @@ function AdminEmployersAllRequest() {
 
     return (
         <div className="admin-emp-manage-container admin-employer-manage-page">
-            <div className="wt-admin-right-page-header clearfix">
-                <h2>Employers Details</h2>
+            <div className="admin-emp-header">
+                <h2><i className="fa fa-building me-3" style={{color: '#fd7e14'}}></i>Employers Details</h2>
+                <p className="admin-emp-subtitle">Manage and review employer registrations</p>
             </div>
 
                 <div className="panel panel-default site-bg-white">
