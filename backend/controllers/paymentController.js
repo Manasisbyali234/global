@@ -8,6 +8,28 @@ const CandidateProfile = require('../models/CandidateProfile');
 const PlacementCandidate = require('../models/PlacementCandidate');
 const { sendJobApplicationConfirmationEmail } = require('../utils/emailService');
 const { emitCreditUpdate } = require('../utils/websocket');
+const { calculateProfileCompletion } = require('../utils/profileCompletion');
+
+const INCOMPLETE_PROFILE_MESSAGE = 'Please complete your profile to 100% before applying for jobs.';
+
+const assertProfileComplete = async (candidateId) => {
+  const profile = await CandidateProfile.findOne({ candidateId }).lean();
+  const completion = calculateProfileCompletion(profile);
+  if (completion < 100) {
+    const error = new Error(INCOMPLETE_PROFILE_MESSAGE);
+    error.code = 'PROFILE_INCOMPLETE';
+    error.statusCode = 403;
+    throw error;
+  }
+};
+
+const isProfileIncompleteError = (error = {}) => error.code === 'PROFILE_INCOMPLETE';
+
+const sendProfileIncompleteResponse = (res) => res.status(403).json({
+  success: false,
+  message: INCOMPLETE_PROFILE_MESSAGE,
+  code: 'PROFILE_INCOMPLETE'
+});
 
 // Initialize Razorpay only when needed
 let razorpay = null;
@@ -195,6 +217,15 @@ exports.createOrder = async (req, res) => {
     const { jobId, amount } = req.body;
 
     if (jobId) {
+      try {
+        await assertProfileComplete(req.user._id);
+      } catch (profileError) {
+        if (isProfileIncompleteError(profileError)) {
+          return sendProfileIncompleteResponse(res);
+        }
+        throw profileError;
+      }
+
       const job = await Job.findById(jobId).select('applicationLimit applicationCount');
       if (!job) {
         return res.status(404).json({ success: false, message: 'Job not found' });
@@ -256,6 +287,16 @@ exports.verifyPayment = async (req, res) => {
       .digest('hex');
 
     if (expectedSignature === razorpay_signature) {
+      // Validate profile completion before creating any application record
+      try {
+        await assertProfileComplete(req.user._id);
+      } catch (profileError) {
+        if (isProfileIncompleteError(profileError)) {
+          return sendProfileIncompleteResponse(res);
+        }
+        throw profileError;
+      }
+
       // Payment verified, now apply for the job
       const job = await Job.findById(jobId).populate('employerId', 'companyName');
       if (!job) {
@@ -401,6 +442,16 @@ exports.applyWithCredits = async (req, res) => {
     const existingCandidate = await Candidate.findById(candidateId).select('_id');
     if (!existingCandidate) {
       return res.status(404).json({ success: false, message: 'Candidate not found' });
+    }
+
+    // 1a. Validate profile completion before proceeding
+    try {
+      await assertProfileComplete(candidateId);
+    } catch (profileError) {
+      if (isProfileIncompleteError(profileError)) {
+        return sendProfileIncompleteResponse(res);
+      }
+      throw profileError;
     }
 
     // 2. Fetch job
@@ -564,6 +615,10 @@ exports.applyWithCredits = async (req, res) => {
       } catch (rollbackError) {
         console.error('Error rolling back deducted credit after failed application:', rollbackError);
       }
+    }
+
+    if (isProfileIncompleteError(error)) {
+      return sendProfileIncompleteResponse(res);
     }
 
     if (isApplicationLimitError(error)) {
