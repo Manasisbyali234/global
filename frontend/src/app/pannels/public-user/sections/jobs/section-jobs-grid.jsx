@@ -8,7 +8,6 @@ import { requestCache } from "../../../../../utils/requestCache";
 import { performanceMonitor } from "../../../../../utils/performanceMonitor";
 import { formatCompanyName, getJobDisplayLogo } from "../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
-import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
 import { API_BASE_URL } from "../../../../../utils/api";
 import "../../../../../new-job-card.css";
 
@@ -44,17 +43,14 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
     const fetchJobs = useCallback(async () => {
         if (!filters) return;
         
-        // Cancel previous request
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
         }
         
-        // Clear previous debounce
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
         
-        // Debounce API calls
         debounceTimerRef.current = setTimeout(async () => {
             setLoading(true);
             abortControllerRef.current = new AbortController();
@@ -64,7 +60,6 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
             try {
                 const params = new URLSearchParams();
                 
-                // Optimized parameter building
                 const paramMap = {
                     search: filters.search,
                     keyword: filters.keyword,
@@ -77,7 +72,6 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                     page: currentPage.toString()
                 };
                 
-                // Add exact match flag for more precise search
                 if (filters.search) {
                     params.append('searchType', 'title');
                 }
@@ -116,7 +110,6 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                 const data = await response.json();
                 console.log('Jobs API response:', data);
                 
-                // Monitor API performance
                 performanceMonitor.monitorAPICall(url, apiStartTime);
                 
                 if (data.success) {
@@ -140,14 +133,13 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                 setLoading(false);
                 setIsFirstLoad(false);
             }
-        }, 300); // 300ms debounce
+        }, 300);
     }, [filters, onTotalChange, currentPage]);
 
     useEffect(() => {
         fetchAppliedJobs();
         fetchJobs();
         
-        // Cleanup on unmount
         return () => {
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
@@ -162,15 +154,12 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
 
     const JobCard = memo(({ job, index }) => {
         const cardRef = useRef(null);
-        const isEnded = useMemo(() => {
-            if (!job) return false;
-            if (job.status && job.status !== 'active') return true;
-            if (!job.offerLetterDate) return false;
-            const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, "", "end");
-            return !!offerLetterEnd && Date.now() > offerLetterEnd.getTime();
+
+        const isLimitReached = useMemo(() => {
+            if (!job || !job.applicationLimit) return false;
+            return (job.applicationCount || 0) >= job.applicationLimit;
         }, [job]);
         
-        // Intersection observer for lazy loading
         useEffect(() => {
             const observer = performanceMonitor.setupIntersectionObserver(
                 (entries) => {
@@ -195,6 +184,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                 }
             };
         }, []);
+
         const handleApplyClick = useCallback((e) => {
             e.preventDefault();
             navigate(`/job-detail/${job._id}`);
@@ -227,11 +217,11 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
             }
             return 'Not specified';
         }, [job.ctc]);
+
         const logoSrc = getJobDisplayLogo(job);
         const companyName = formatCompanyName(job.companyName || job.employerId?.companyName, "Company");
 
         const handleCardClick = useCallback((e) => {
-            // Don't navigate if clicking a button
             if (e.target.closest('button')) return;
             navigate(`/job-detail/${job._id}`);
         }, [job._id]);
@@ -239,15 +229,11 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
         return (
             <Col key={job._id} lg={6} md={12} className="mb-2">
                 <div ref={cardRef} className="new-job-card" data-visible="true" onClick={handleCardClick} style={{cursor: 'pointer'}}>
-                    {/* Top Row */}
                     <div className="job-card-header">
                         <div className="job-card-left">
                             <div className="company-logo">
                                 {logoSrc ? (
-                                    <img
-                                        src={logoSrc}
-                                        alt="Company Logo"
-                                    />
+                                    <img src={logoSrc} alt="Company Logo" />
                                 ) : (
                                     <div className="logo-placeholder">
                                         {companyName.charAt(0).toUpperCase()}
@@ -296,7 +282,6 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                         </div>
                     </div>
 
-                    {/* Middle Row */}
                     <div className="job-card-middle">
                         <div className="ctc-info">
                             {job.ctc && typeof job.ctc === "object" && job.ctc.min > 0 && job.ctc.max > 0 ? (
@@ -316,16 +301,15 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                         </div>
                     </div>
 
-                    {/* Bottom Row */}
-                        <div className="job-card-footer">
-                            <div className="company-info">
-                                <div className="posted-by-label">Posted by:</div>
-                                <div className="company-name">
-                                    {job.postedBy === "Consultant"
-                                        ? "Consultant"
-                                        : companyName}
-                                </div>
+                    <div className="job-card-footer">
+                        <div className="company-info">
+                            <div className="posted-by-label">Posted by:</div>
+                            <div className="company-name">
+                                {job.postedBy === "Consultant"
+                                    ? "Consultant"
+                                    : companyName}
                             </div>
+                        </div>
                         {appliedJobs.has(job._id) ? (
                             <button
                                 className="apply-now-btn"
@@ -334,7 +318,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                             >
                                 Already Applied
                             </button>
-                        ) : isEnded ? (
+                        ) : isLimitReached ? (
                             <button
                                 className="apply-now-btn"
                                 disabled

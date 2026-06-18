@@ -6,7 +6,7 @@ import { publicUser } from "../../../../../../globals/route-names";
 import PageLoader from "../../../../../../components/PageLoader";
 import { getJobDisplayLogo } from "../../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../../utils/jobTitleFormatter";
-import { buildUtcDateTimeFromIst } from "../../../../../../utils/timezoneUtils";
+
 import { API_BASE_URL } from "../../../../../../utils/api";
 import "../../../../../../new-job-card.css";
 
@@ -15,11 +15,8 @@ function SectionAvailableJobsList({ employerId }) {
 	const [loading, setLoading] = useState(true);
 
 	const isJobClosed = (job) => {
-		if (!job) return false;
-		if (job.status && job.status !== 'active') return true;
-		if (!job.offerLetterDate) return false;
-		const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, "", "end");
-		return !!offerLetterEnd && Date.now() > offerLetterEnd.getTime();
+		if (!job || !job.applicationLimit) return false;
+		return (job.applicationCount || 0) >= job.applicationLimit;
 	};
 
 	useEffect(() => {
