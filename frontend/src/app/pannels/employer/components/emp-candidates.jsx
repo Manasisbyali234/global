@@ -93,7 +93,7 @@ function SearchableFilterDropdown({
   return (
     <div ref={containerRef} className="emp-candidates-filter-dropdown">
       <div
-        className={`form-select page-toolbar__select emp-candidates-filter-dropdown__trigger${isOpen ? " is-open" : ""}`}
+        className={`emp-candidates-filter-dropdown__trigger${isOpen ? " is-open" : ""}`}
         role="button"
         tabIndex={0}
         aria-haspopup="listbox"

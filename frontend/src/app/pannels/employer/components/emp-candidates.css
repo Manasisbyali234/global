@@ -41,6 +41,7 @@
   flex: 0 0 auto;
   min-width: 0;
   max-width: 100%;
+  overflow: visible;
 }
 
 .emp-candidates-search-control {
@@ -115,56 +116,37 @@
 }
 
 .emp-candidates-filter-dropdown__trigger {
-  display: flex;
-  align-items: center;
+  position: relative;
+  display: block;
   width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden !important;
-  user-select: none;
+  height: 44px;
+  padding: 0 2.25rem 0 0.75rem;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
   box-sizing: border-box;
-  contain: inline-size;
-}
-
-.emp-candidates-page .emp-candidates-filter-dropdown .emp-candidates-filter-dropdown__trigger[role="button"],
-#content .emp-candidates-page .emp-candidates-filter-dropdown .emp-candidates-filter-dropdown__trigger[role="button"] {
-  background-color: #ffffff !important;
-  color: #374151 !important;
-  border: 1px solid #d1d5db !important;
-  box-shadow: none !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  letter-spacing: normal !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-  text-overflow: ellipsis !important;
-  word-break: normal !important;
-  overflow-wrap: normal !important;
-  flex-wrap: nowrap !important;
-  hyphens: none !important;
+  user-select: none;
 }
 
 .emp-candidates-filter-dropdown__trigger-text {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-  word-break: normal !important;
-  overflow-wrap: normal !important;
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  right: 2.25rem;
+  transform: translateY(-50%);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: inherit;
-}
-
-/* Defeat the panel-mobile-overflow-guard white-space:normal reset */
-#content .emp-candidates-filter-dropdown__trigger,
-#content .emp-candidates-filter-dropdown__trigger-text {
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  word-break: normal !important;
-  overflow-wrap: normal !important;
-  hyphens: none !important;
+  pointer-events: none;
 }
 
 .emp-candidates-filter-dropdown__trigger-text.is-placeholder {
