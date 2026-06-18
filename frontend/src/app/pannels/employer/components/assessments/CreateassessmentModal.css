@@ -93,11 +93,14 @@
 
 /* Fix MCQ dropdown width on desktop */
 .position-fixed .bg-white.rounded-3 .form-select-sm {
-  width: 140px !important;
-  max-width: 140px !important;
+  width: 200px !important;
+  max-width: 200px !important;
   white-space: nowrap !important;
   overflow: visible !important;
   text-overflow: ellipsis !important;
+  font-size: 14px !important;
+  padding: 6px 10px !important;
+  height: 38px !important;
 }
 
 /* Increase width of Assessment Title dropdown */

@@ -729,7 +729,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 										className="form-select form-select-sm"
 										value={q.type}
 										onChange={(e) => handleQuestionChange(qIndex, "type", e.target.value)}
-										style={{ minWidth: "140px", fontSize: "12px", whiteSpace: "nowrap" }}
+										style={{ minWidth: "200px", fontSize: "14px", whiteSpace: "nowrap" }}
 									>
 										<option value="mcq">MCQ</option>
 										<option value="subjective">Subjective</option>
@@ -1056,17 +1056,17 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							</button>
 							<button
 								type="button"
-								className="btn btn-secondary"
-								onClick={() => { enableBodyScroll(); onClose(); }}
-							>
-								Cancel
-							</button>
-							<button
-								type="button"
 								className="btn btn-primary"
 								onClick={() => handleSubmit(false)}
 							>
 								{editData ? 'Update Assessment' : 'Create Assessment'}
+							</button>
+							<button
+								type="button"
+								className="btn btn-secondary"
+								onClick={() => { enableBodyScroll(); onClose(); }}
+							>
+								Cancel
 							</button>
 						</>
 					)}
