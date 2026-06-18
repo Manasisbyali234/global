@@ -59,6 +59,7 @@ function PublicUserLayout() {
                 <div className="page-content public-page-content" style={{ minHeight: '60vh' }}>
                     {
                         showBanner(currentpath) &&
+                        setBanner(currentpath)?.title &&
                         <InnerPageBanner _data={setBanner(currentpath)} />
                     }
                     <PublicUserRoutes />

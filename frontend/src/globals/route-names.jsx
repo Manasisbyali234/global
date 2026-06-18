@@ -12,7 +12,6 @@ export const base = {
 
 export const publicUser = {
     INITIAL: "/",
-    HOME: "/:slug?",
 
     jobs: {
         GRID: "/job-grid/:slug?",

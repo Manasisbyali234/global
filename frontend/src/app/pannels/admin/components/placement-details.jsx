@@ -603,7 +603,7 @@ function PlacementDetails() {
             {/* Header */}
             <div className="modern-card mb-4 p-4">
                 <div className="d-flex justify-content-between align-items-center">
-                    <h2 className="mb-0" style={{color: '#2c3e50', fontWeight: '600'}}>
+                    <h2 className="mb-0" style={{color: '#2c3e50', fontWeight: '600', fontSize: '1.5rem'}}>
                         <i className="fa fa-user-circle me-2"></i>
                         Placement Dean Details
                     </h2>

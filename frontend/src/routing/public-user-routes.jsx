@@ -54,7 +54,6 @@ function PublicUserRoutes() {
         <Suspense fallback={<PageLoader pageName="Public Page" loadingText="Loading.." compact />}>
             <Routes>
             <Route path={publicUser.INITIAL} element={<Home16Page />} />
-            <Route path={publicUser.HOME} element={<Home16Page />} />
 
             <Route path={publicUser.jobs.GRID} element={<JobsGridPage />} />
             <Route path={publicUser.jobs.GRID_MAP} element={<JobsGridMapPage />} />

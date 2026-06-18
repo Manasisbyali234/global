@@ -1,0 +1,1 @@
+const openBannerResizer = (imageSrc, onSave) =, BANNER_RESIZE_CONFIG, onSave); 
