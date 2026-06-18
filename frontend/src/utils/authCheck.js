@@ -8,13 +8,13 @@ export const checkAuthAndRedirect = (userType = 'candidate') => {
     
     // Redirect to appropriate login page
     const loginPaths = {
-      candidate: '/login',
-      employer: '/login?tab=employer', 
+      candidate: '/login-candidate',
+      employer: '/login-employer',
       admin: '/admin-login',
-      placement: '/login?tab=placement'
+      placement: '/login-placement'
     };
     
-    window.location.href = loginPaths[userType] || '/login';
+    window.location.href = loginPaths[userType] || '/login-candidate';
     return false;
   }
   

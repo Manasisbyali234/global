@@ -34,7 +34,6 @@ export const publicUser = {
         CONTACT:        "/contact-us",
         MAINTENANCE:    "/under-maintenance",
         COMING:         "/coming-soon",
-        LOGIN:          "/login",
         LOGIN_CANDIDATE: "/login-candidate",
         LOGIN_EMPLOYER: "/login-employer",
         LOGIN_PLACEMENT: "/login-placement",

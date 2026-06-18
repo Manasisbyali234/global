@@ -69,7 +69,7 @@ function Footer2() {
                                         <div className="widget widget_services ftr-list-center">
                                             <h3 className="widget-title">For Candidate</h3>
                                             <ul>
-                                                <li><NavLink to={publicUser.pages.LOGIN}>User Dashboard</NavLink></li>
+                                                <li><NavLink to={publicUser.pages.LOGIN_CANDIDATE}>User Dashboard</NavLink></li>
                                                 <li><NavLink to={publicUser.candidate.GRID}>Candidates</NavLink></li>
                                                 <li><NavLink to={publicUser.blog.LIST}>Blog List</NavLink></li>
                                                 <li><NavLink to={publicUser.blog.DETAIL}>Blog single</NavLink></li>
@@ -92,7 +92,7 @@ function Footer2() {
                                             <h3 className="widget-title">Helpful Resources</h3>
                                             <ul>
                                                 <li><NavLink to={publicUser.pages.FAQ}>FAQs</NavLink></li>
-                                                <li><NavLink to={publicUser.pages.LOGIN}>Profile</NavLink></li>
+                                                <li><NavLink to={publicUser.pages.LOGIN_CANDIDATE}>Profile</NavLink></li>
                                                 <li><NavLink to={publicUser.pages.ERROR404}>404 Page</NavLink></li>
                                                 <li><NavLink to={publicUser.pages.PRICING}>Pricing</NavLink></li>
                                             </ul>

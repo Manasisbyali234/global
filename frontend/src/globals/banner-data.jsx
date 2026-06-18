@@ -145,7 +145,6 @@ export function showBanner(currentpath) {
         currentpath === publicUser.pages.ERROR404 ||
         currentpath === publicUser.pages.MAINTENANCE ||
         currentpath === publicUser.pages.COMING ||
-        currentpath === publicUser.pages.LOGIN ||
         currentpath === publicUser.pages.LOGIN_CANDIDATE ||
         currentpath === publicUser.pages.LOGIN_EMPLOYER ||
         currentpath === publicUser.pages.LOGIN_PLACEMENT ||

@@ -23,7 +23,6 @@ const FaqPage = lazy(() => import("../app/pannels/public-user/components/pages/f
 const ContactUsPage = lazy(() => import("../app/pannels/public-user/components/pages/contact-us"));
 const UnderMaintenancePage = lazy(() => import("../app/pannels/public-user/components/pages/under-maintenance"));
 const ComingSoonPage = lazy(() => import("../app/pannels/public-user/components/pages/coming-soon"));
-const LoginPage = lazy(() => import("../app/pannels/public-user/components/pages/login"));
 const LoginCandidatePage = lazy(() => import("../app/pannels/public-user/components/pages/auth/LoginCandidate"));
 const LoginEmployerPage = lazy(() => import("../app/pannels/public-user/components/pages/auth/LoginEmployer"));
 const LoginPlacementPage = lazy(() => import("../app/pannels/public-user/components/pages/auth/LoginPlacement"));
@@ -76,7 +75,6 @@ function PublicUserRoutes() {
             <Route path={publicUser.pages.CONTACT} element={<ContactUsPage />} />
             <Route path={publicUser.pages.MAINTENANCE} element={<UnderMaintenancePage />} />
             <Route path={publicUser.pages.COMING} element={<ComingSoonPage />} />
-            <Route path={publicUser.pages.LOGIN} element={<LoginPage />} />
             <Route path={publicUser.pages.LOGIN_CANDIDATE} element={<LoginCandidatePage />} />
             <Route path={publicUser.pages.LOGIN_EMPLOYER} element={<LoginEmployerPage />} />
             <Route path={publicUser.pages.LOGIN_PLACEMENT} element={<LoginPlacementPage />} />

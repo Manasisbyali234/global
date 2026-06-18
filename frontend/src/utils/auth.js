@@ -28,5 +28,5 @@ export const logout = () => {
 };
 
 export const redirectToLogin = (navigate, from = null) => {
-    navigate('/login', { state: { from } });
+    navigate('/login-candidate', { state: { from } });
 };
