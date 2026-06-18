@@ -66,10 +66,6 @@ exports.getJobs = async (req, res) => {
       } catch (e) {
         query.employerId = employerId;
       }
-      // Match job-grid: same status filter (active + pending)
-      // offerLetterDate filtering is skipped below for employerId queries
-    } else {
-      addAndCondition(query, getPublicJobDateCondition());
     }
     if (title) query.title = { $regex: title, $options: 'i' };
     if (location) query.location = { $regex: location, $options: 'i' };
@@ -131,7 +127,7 @@ exports.getJobs = async (req, res) => {
 
     // Optimized query for better performance
     const jobs = await Job.find(query)
-      .select('title location jobType applicationLimit category ctc createdAt employerId companyName companyLogo companyBanner education educationSpecializations shift lastDateOfApplication lastDateOfApplicationTime vacancies offerLetterDate')
+      .select('title location jobType applicationLimit category ctc createdAt employerId companyName companyLogo companyBanner education educationSpecializations shift lastDateOfApplication lastDateOfApplicationTime vacancies offerLetterDate status')
       .sort(sortCriteria)
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))
