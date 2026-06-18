@@ -1324,7 +1324,7 @@ function Home16Page() {
             </div>
 
             {/* HOW IT WORK FOR EMPLOYERS SECTION START */}
-            <div className="section-full redesign-section animate-on-scroll" style={{background: '#F9FAFB'}}>
+            <div className="section-full redesign-section animate-on-scroll" style={{background: '#F9FAFB', paddingBottom: '20px'}}>
                 <Container>
                     <div className="section-head center wt-small-separator-outer mb-5 text-center">
                         <h2 className="section-title-large">How It Works for Employers</h2>
@@ -1372,6 +1372,56 @@ function Home16Page() {
                 </Container>
             </div>
             {/* HOW IT WORK FOR EMPLOYERS SECTION END */}
+
+            {/* HOW IT WORKS FOR PLACEMENT DEAN SECTION START */}
+            <div className="section-full redesign-section animate-on-scroll" style={{background: '#F0FDF4', paddingTop: '20px'}}>
+                <Container>
+                    <div className="section-head center wt-small-separator-outer mb-5 text-center">
+                        <h2 className="section-title-large">How It Works for Placement Dean</h2>
+                        <p className="section-subtitle">Effortlessly connect your students with top employers</p>
+                    </div>
+
+                    <Row className="g-4">
+                        <Col lg={3} md={6}>
+                            <div className="process-card-light process-card-light--employer">
+                                <div className="process-icon-circle" style={{background: 'rgba(16, 185, 129, 0.1)'}}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"></path><path d="M5 21V7l8-4 6 4v14"></path><path d="M9 9h.01"></path><path d="M9 12h.01"></path><path d="M9 15h.01"></path><path d="M13 9h.01"></path><path d="M13 12h.01"></path><path d="M13 15h.01"></path></svg>
+                                </div>
+                                <h4>Register Your Institution</h4>
+                                <p>Create a placement dean account and set up your college profile to connect with top recruiters.</p>
+                            </div>
+                        </Col>
+                        <Col lg={3} md={6}>
+                            <div className="process-card-light process-card-light--employer">
+                                <div className="process-icon-circle" style={{background: 'rgba(59, 130, 246, 0.1)'}}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                </div>
+                                <h4>Add Your Students</h4>
+                                <p>Upload and manage your students' profiles so employers can discover and shortlist the best candidates.</p>
+                            </div>
+                        </Col>
+                        <Col lg={3} md={6}>
+                            <div className="process-card-light process-card-light--employer">
+                                <div className="process-icon-circle" style={{background: 'rgba(168, 85, 247, 0.1)'}}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A855F7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                </div>
+                                <h4>Manage Drive Schedule</h4>
+                                <p>Coordinate campus placement drives, manage interview slots and track student application statuses.</p>
+                            </div>
+                        </Col>
+                        <Col lg={3} md={6}>
+                            <div className="process-card-light process-card-light--employer">
+                                <div className="process-icon-circle" style={{background: 'rgba(255, 106, 61, 0.1)'}}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6A3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                                </div>
+                                <h4>Track Placement Success</h4>
+                                <p>Monitor placement outcomes, generate reports and celebrate your students' career achievements.</p>
+                            </div>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+            {/* HOW IT WORKS FOR PLACEMENT DEAN SECTION END */}
 
             {/* SECTION 3 & 4: Recruit Smarter & Workflow Illustrations */}
             <div className="section-full redesign-section workflow-section animate-on-scroll">
