@@ -14,6 +14,7 @@ import { formatJobEducationDisplay } from '../../../../../utils/jobEducationOpti
 import { formatCompanyName, getJobDisplayBanner, getJobDisplayLogo, isConsultantJobPost } from "../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
+import { API_BASE_URL } from "../../../../../utils/api";
 import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
 import "../../../../../job-detail-section-spacing.css";
@@ -45,21 +46,20 @@ function JobDetail1Page() {
         return { token, candidateId: storedCandidateId, isLoggedIn: !!token };
     }, [localStorage.getItem('candidateToken'), localStorage.getItem('candidateId')]);
 
-    const { limitReached, isEnded, isExpired } = useMemo(() => {
-        if (!job) return { limitReached: false, isEnded: false, isExpired: false };
-        const limitReached = typeof job.applicationLimit === 'number' && job.applicationLimit > 0 && (job.applicationCount || 0) >= job.applicationLimit;
+    const { isEnded, isExpired } = useMemo(() => {
+        if (!job) return { isEnded: false, isExpired: false };
         const now = Date.now();
-        const deadlineDate = job.lastDateOfApplication
-            ? buildUtcDateTimeFromIst(job.lastDateOfApplication, job.lastDateOfApplicationTime || '', 'end')
+        const offerLetterEnd = job.offerLetterDate
+            ? buildUtcDateTimeFromIst(job.offerLetterDate, '', 'end')
             : null;
-        const isExpired = !!deadlineDate && deadlineDate.getTime() < now;
-        const isEnded = (job.status && job.status !== 'active') || limitReached || isExpired;
-        return { limitReached, isEnded, isExpired };
+        const isExpired = !!offerLetterEnd && offerLetterEnd.getTime() < now;
+        const isEnded = (job.status && job.status !== 'active') || isExpired;
+        return { isEnded, isExpired };
     }, [job]);
 
     const fetchJobDetails = useCallback(async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/public/jobs/${jobId}`);
+            const response = await fetch(`${API_BASE_URL}/public/jobs/${jobId}`);
             const data = await response.json();
             if (data.success) {
                 setJob(data.job);

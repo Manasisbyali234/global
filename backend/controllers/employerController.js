@@ -2807,10 +2807,7 @@ exports.getEmployerJobs = async (req, res) => {
       {
         employerId: req.user._id,
         status: 'active',
-        $or: [
-          { lastDateOfApplication: { $lt: today } },
-          { offerLetterDate: { $lt: today } }
-        ]
+        offerLetterDate: { $lt: today }
       },
       {
         $set: { status: 'closed' }

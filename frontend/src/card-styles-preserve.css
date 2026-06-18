@@ -308,7 +308,7 @@
 
 .new-job-card {
     background: white !important;
-    border-radius: 4px !important;
+    border-radius: 20px !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
     padding: 20px !important;
     transition: all 0.3s ease !important;
@@ -645,8 +645,16 @@ html body .home-job-card,
 html body .job-card,
 html body .new-job-card {
     background: #ffffff !important;
-    border-radius: inherit !important;
-    box-shadow: inherit !important;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
+}
+
+html body .home-job-card,
+html body .new-job-card {
+    border-radius: 20px !important;
+}
+
+html body .job-card {
+    border-radius: 8px !important;
 }
 
 /* Ensure grid layouts work in all hosting environments */

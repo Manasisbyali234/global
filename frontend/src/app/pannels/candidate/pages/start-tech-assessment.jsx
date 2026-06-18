@@ -20,6 +20,7 @@ const LOCKED_CAPTURE_KEYS = ['PrintScreen', 'MetaLeft', 'MetaRight', 'ShiftLeft'
 const CAMERA_START_REQUIRED_MESSAGE = 'Camera access is required before the assessment can begin.';
 const CAMERA_RESUME_REQUIRED_MESSAGE = 'Camera access is required to continue this assessment.';
 const CAMERA_HELP_MESSAGE = 'Allow camera access in your browser and close any other app that may be using the webcam.';
+const ASSESSMENT_CLOSE_AUTO_SUBMIT_MESSAGE = 'Closing the assessment tab is a violation. Your assessment has been submitted automatically.';
 
 const getStoredAttemptId = () => {
     if (typeof window === 'undefined' || !window.sessionStorage) {
@@ -1696,15 +1697,24 @@ const StartAssessment = () => {
 		setIsSubmitted(true);
 		const response = await reportAssessmentCloseViolation('Candidate closed the assessment without submitting.');
 
+		if (response?.success && response?.autoSubmitted) {
+			setAssessmentState('completed');
+			removeSecurityListeners();
+			clearStoredAssessment();
+			showWarning(response.message || ASSESSMENT_CLOSE_AUTO_SUBMIT_MESSAGE);
+			window.setTimeout(closeAssessmentWindow, 900);
+			return;
+		}
+
 		if (response?.success && response?.suspended) {
 			showError('Assessment suspended because it was closed without submitting.');
 			window.setTimeout(closeAssessmentWindow, 700);
 			return;
 		}
 
-		showError('Unable to suspend the assessment. Please try again before closing.');
+		showError('Unable to submit the assessment automatically. Please try again before closing.');
 		setIsSubmitted(false);
-	}, [closeAssessmentWindow, isSubmitted, reportAssessmentCloseViolation, showError]);
+	}, [clearStoredAssessment, closeAssessmentWindow, isSubmitted, removeSecurityListeners, reportAssessmentCloseViolation, showError, showWarning]);
 
 	useEffect(() => {
 		if (assessmentState !== 'in_progress' || typeof window === 'undefined') {

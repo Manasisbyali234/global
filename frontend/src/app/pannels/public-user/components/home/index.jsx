@@ -10,6 +10,7 @@ import { formatDate } from "../../../../../utils/dateFormatter";
 import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
+import { api } from "../../../../../utils/api";
 // CSS is now in public/assets/css/home-job-cards.css
 import "../../../../../categories-mobile-grid-fix.css";
 import "../../../../../remove-carousel-hover-effects.css";
@@ -34,9 +35,6 @@ const getPostedByLabel = (job) => {
 };
 
 const isJobActive = (job) => {
-    const applicationCount = Number(job?.applicationCount || 0);
-    const applicationLimit = Number(job?.applicationLimit || 0);
-    if (applicationCount >= applicationLimit) return false;
     if (job?.status && job.status !== 'active') return false;
     if (!job?.offerLetterDate) return true;
     const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, "", "end");
@@ -53,8 +51,7 @@ function TopRecruitersSection() {
 
     const fetchTopJobs = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/public/jobs?limit=8');
-            const data = await response.json();
+            const data = await api.getJobs({ limit: 8 });
             
             if (data.success) {
                 setJobs((data.jobs || []).filter(isJobActive));
@@ -119,8 +116,7 @@ function HomeJobsList() {
 
     const fetchJobs = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/public/jobs?limit=5');
-            const data = await response.json();
+            const data = await api.getJobs({ limit: 5 });
             if (data.success) {
                 const filteredJobs = (data.jobs || []).filter(isJobActive);
                 setJobs(filteredJobs.slice(0, 5));
@@ -274,8 +270,7 @@ function Home1Page() {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/public/jobs/filter-counts');
-            const data = await response.json();
+            const data = await api.getJobFilterCounts();
             
             if (data.success && data.counts && data.counts.categories) {
                 const merged = {};

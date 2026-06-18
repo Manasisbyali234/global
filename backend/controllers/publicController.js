@@ -12,7 +12,7 @@ const Review = require('../models/Review');
 const { cache } = require('../utils/cache');
 const { isDBConnected } = require('../config/database');
 const { createTransport, sendMailWithGreeting } = require('../utils/emailService');
-const { buildUtcDateTimeFromIst, getStartOfCurrentIstDayUtc } = require('../utils/dateTime');
+const { getStartOfCurrentIstDayUtc } = require('../utils/dateTime');
 const { lookupIndianPincode } = require('../utils/pincodeLookup');
 
 const resolveEmployerPostingType = (employer, profile) => {
@@ -30,6 +30,18 @@ const resolveEmployerPostingType = (employer, profile) => {
     employerType: 'company',
     postedBy: 'Company'
   };
+};
+
+const getPublicJobDateCondition = () => ({
+  $or: [
+    { offerLetterDate: { $exists: false } },
+    { offerLetterDate: null },
+    { offerLetterDate: { $gte: getStartOfCurrentIstDayUtc() } }
+  ]
+});
+
+const addAndCondition = (query, condition) => {
+  query.$and = [...(query.$and || []), condition];
 };
 
 // Job Controllers
@@ -56,6 +68,8 @@ exports.getJobs = async (req, res) => {
       }
       // Match job-grid: same status filter (active + pending)
       // offerLetterDate filtering is skipped below for employerId queries
+    } else {
+      addAndCondition(query, getPublicJobDateCondition());
     }
     if (title) query.title = { $regex: title, $options: 'i' };
     if (location) query.location = { $regex: location, $options: 'i' };
@@ -155,17 +169,9 @@ exports.getJobs = async (req, res) => {
       applicationCountMap.set(item._id.toString(), item.count);
     });
 
-    const now = Date.now();
     const filteredJobs = jobs.filter(job => {
       const employer = employerMap.get(job.employerId.toString());
       if (!employer || employer.status !== 'active' || !employer.isApproved) return false;
-
-      // When browsing all jobs (no specific employer), hide expired jobs
-      // When viewing a specific employer's profile, show all their jobs (including closed)
-      if (!employerId && job.offerLetterDate) {
-        const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, '', 'end');
-        if (offerLetterEnd && now > offerLetterEnd.getTime()) return false;
-      }
 
       return true;
     });
@@ -988,7 +994,7 @@ exports.getJobFilterCounts = async (req, res) => {
       });
     }
 
-    const cacheKey = 'job_filter_counts_v2_active_only';
+    const cacheKey = 'job_filter_counts_v3_offer_date_visible';
     const cached = cache.get(cacheKey);
     
     if (cached) {
@@ -998,7 +1004,8 @@ exports.getJobFilterCounts = async (req, res) => {
     // Get active jobs with approved employers
     const jobs = await Job.find({
       status: 'active',
-      employerId: { $exists: true }
+      employerId: { $exists: true },
+      $and: [getPublicJobDateCondition()]
     })
     .populate({
       path: 'employerId',

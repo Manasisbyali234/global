@@ -18,12 +18,14 @@ const RESTRICTED_WARNING_VIOLATIONS = new Set([
   'window_blur',
   'screen_capture',
   'fullscreen_exit',
-  'multi_screen',
-  'assessment_close_confirmed'
+  'multi_screen'
 ]);
 const IMMEDIATE_SUSPEND_VIOLATIONS = new Set([
-  'screen_capture',
-  'assessment_close_confirmed'
+  'screen_capture'
+]);
+const AUTO_SUBMIT_CLOSE_VIOLATIONS = new Set([
+  'assessment_close_confirmed',
+  'tab_close'
 ]);
 
 const AUTO_REJECT_ASSESSMENT_NO_SHOW_NOTE = 'Auto-updated: assessment no-show';
@@ -1763,8 +1765,10 @@ exports.getAssessmentResult = async (req, res) => {
 exports.recordViolation = async (req, res) => {
   try {
     const { attemptId, type, details } = req.body;
+    const violationType = String(type || '').trim().toLowerCase();
+    const isCloseAutoSubmitViolation = AUTO_SUBMIT_CLOSE_VIOLATIONS.has(violationType);
     
-    if (!attemptId || !type) {
+    if (!attemptId || !violationType) {
       return res.status(400).json({ success: false, message: 'Attempt ID and violation type are required' });
     }
     
@@ -1778,18 +1782,52 @@ exports.recordViolation = async (req, res) => {
     }
     
     if (attempt.status !== 'in_progress') {
+      if (isCloseAutoSubmitViolation && ['completed', 'expired'].includes(attempt.status)) {
+        return res.json({
+          success: true,
+          message: 'Closing the assessment tab is a violation. Your assessment has already been submitted automatically.',
+          autoSubmitted: true,
+          status: attempt.status,
+          violationCount: Array.isArray(attempt.violations) ? attempt.violations.length : 0,
+          suspended: false
+        });
+      }
+
       return res.status(400).json({ success: false, message: 'Assessment is not in progress' });
     }
 
-    const assessment = await Assessment.findById(attempt.assessmentId).select('timer');
+    const assessment = await Assessment.findById(attempt.assessmentId);
     if (!assessment) {
       return res.status(404).json({ success: false, message: 'Assessment not found' });
     }
 
     const timing = await resolveAttemptTiming({ attempt, assessment });
     if (timing.isExpired) {
+      if (isCloseAutoSubmitViolation) {
+        if (!attempt.violations) {
+          attempt.violations = [];
+        }
+
+        attempt.violations.push({
+          type: violationType,
+          timestamp: new Date(),
+          details: details || 'Candidate closed the assessment tab. Assessment submitted automatically.'
+        });
+        attempt.markModified('violations');
+        await attempt.save();
+      }
+
       await expireAttemptAndPersist(attempt, timing.deadlineAt || new Date());
-      return res.status(400).json({ success: false, message: 'Assessment time expired' });
+      return res.status(isCloseAutoSubmitViolation ? 200 : 400).json({
+        success: isCloseAutoSubmitViolation,
+        message: isCloseAutoSubmitViolation
+          ? 'Closing the assessment tab is a violation. Your assessment has been submitted automatically.'
+          : 'Assessment time expired',
+        autoSubmitted: isCloseAutoSubmitViolation,
+        status: 'expired',
+        violationCount: Array.isArray(attempt.violations) ? attempt.violations.length : 0,
+        suspended: false
+      });
     }
     
     if (!attempt.violations) {
@@ -1797,15 +1835,54 @@ exports.recordViolation = async (req, res) => {
     }
     
     attempt.violations.push({
-      type,
+      type: violationType,
       timestamp: new Date(),
-      details: details || `${type} violation detected`
+      details: details || `${violationType} violation detected`
     });
+
+    if (isCloseAutoSubmitViolation) {
+      attempt.status = 'completed';
+      attempt.endTime = new Date();
+      attempt.timeRemaining = Math.max(0, Number(timing.remainingSeconds || 0));
+      attempt.markModified('violations');
+
+      const evaluation = await persistAssessmentOutcome({ attempt, assessment });
+
+      console.log(`Assessment auto-submitted after close-tab violation for attempt ${attemptId}:`, {
+        score: evaluation.score,
+        totalMarks: evaluation.totalMarks,
+        percentage: evaluation.percentage,
+        result: evaluation.result,
+        violationCount: attempt.violations.length
+      });
+
+      return res.json({
+        success: true,
+        message: 'Closing the assessment tab is a violation. Your assessment has been submitted automatically.',
+        autoSubmitted: true,
+        status: attempt.status,
+        result: {
+          score: evaluation.score,
+          totalMarks: evaluation.totalMarks,
+          percentage: evaluation.percentage,
+          result: evaluation.result,
+          correctAnswers: evaluation.correctAnswers,
+          totalQuestions: assessment.totalQuestions,
+          totalAnswered: evaluation.totalAnswered,
+          unanswered: assessment.totalQuestions - evaluation.totalAnswered,
+          manualEvaluationPendingCount: evaluation.manualEvaluationPendingCount,
+          attemptId: attempt._id
+        },
+        violationCount: attempt.violations.length,
+        warningCount: attempt.restrictionWarningCount || 0,
+        suspended: false
+      });
+    }
 
     let suspended = false;
     let warningCount = attempt.restrictionWarningCount || 0;
-    const isRestrictedViolation = RESTRICTED_WARNING_VIOLATIONS.has(type);
-    const isImmediateSuspensionViolation = IMMEDIATE_SUSPEND_VIOLATIONS.has(type);
+    const isRestrictedViolation = RESTRICTED_WARNING_VIOLATIONS.has(violationType);
+    const isImmediateSuspensionViolation = IMMEDIATE_SUSPEND_VIOLATIONS.has(violationType);
 
     if (isRestrictedViolation) {
       warningCount += 1;
@@ -1815,7 +1892,7 @@ exports.recordViolation = async (req, res) => {
         suspended = true;
         attempt.status = 'suspended';
         attempt.suspendedAt = new Date();
-        attempt.suspensionReason = type;
+        attempt.suspensionReason = violationType;
 
         await Application.findByIdAndUpdate(attempt.applicationId, {
           assessmentStatus: 'suspended',
@@ -1837,13 +1914,11 @@ exports.recordViolation = async (req, res) => {
     attempt.markModified('violations');
     await attempt.save();
     
-    console.log(`Violation recorded for attempt ${attemptId}: ${type}, total: ${attempt.violations.length}, warnings: ${warningCount}, suspended: ${suspended}`);
+    console.log(`Violation recorded for attempt ${attemptId}: ${violationType}, total: ${attempt.violations.length}, warnings: ${warningCount}, suspended: ${suspended}`);
     
-    const suspensionMessage = type === 'assessment_close_confirmed'
-      ? 'Assessment closed without submission. Assessment suspended.'
-      : isImmediateSuspensionViolation
-        ? 'Screen capture or recording detected. Assessment suspended immediately.'
-        : 'Fifth rule violation detected. Assessment suspended.';
+    const suspensionMessage = isImmediateSuspensionViolation
+      ? 'Screen capture or recording detected. Assessment suspended immediately.'
+      : 'Fifth rule violation detected. Assessment suspended.';
 
     res.json({ 
       success: true, 

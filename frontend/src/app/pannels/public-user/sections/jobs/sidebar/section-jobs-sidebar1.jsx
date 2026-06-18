@@ -3,6 +3,7 @@ import { publicUser } from "../../../../../../globals/route-names";
 import SectionSideAdvert from "./section-side-advert";
 import { useState, useEffect } from "react";
 import { formatJobTitle } from "../../../../../../utils/jobTitleFormatter";
+import { API_BASE_URL } from "../../../../../../utils/api";
 import "../../../../../../custom-tags.css";
 import "../../../../../../remove-tag-hover.css";
 import "../../../../../../circular-checkbox.css";
@@ -121,7 +122,7 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/public/jobs?limit=1000');
+            const response = await fetch(`${API_BASE_URL}/public/jobs?limit=1000`);
             const data = await response.json();
             if (data.success && data.jobs && data.jobs.length > 0) {
                 const categoryCounts = {};
@@ -143,7 +144,7 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
 
     const fetchLocations = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/public/jobs?limit=1000');
+            const response = await fetch(`${API_BASE_URL}/public/jobs?limit=1000`);
             const data = await response.json();
             if (data.success && data.jobs && data.jobs.length > 0) {
                 const allLocations = [];
@@ -186,7 +187,7 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
 
     const fetchJobTypes = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/public/jobs?limit=1000');
+            const response = await fetch(`${API_BASE_URL}/public/jobs?limit=1000`);
             const data = await response.json();
             if (data.success && data.jobs && data.jobs.length > 0) {
                 // Count job types
@@ -208,7 +209,7 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
 
     const fetchJobTitles = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/public/jobs?limit=1000');
+            const response = await fetch(`${API_BASE_URL}/public/jobs?limit=1000`);
             const data = await response.json();
             if (data.success && data.jobs && data.jobs.length > 0) {
                 const allKeywords = new Set();

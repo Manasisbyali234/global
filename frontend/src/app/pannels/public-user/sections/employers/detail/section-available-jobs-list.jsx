@@ -7,6 +7,7 @@ import PageLoader from "../../../../../../components/PageLoader";
 import { getJobDisplayLogo } from "../../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../../utils/jobTitleFormatter";
 import { buildUtcDateTimeFromIst } from "../../../../../../utils/timezoneUtils";
+import { API_BASE_URL } from "../../../../../../utils/api";
 import "../../../../../../new-job-card.css";
 
 function SectionAvailableJobsList({ employerId }) {
@@ -16,8 +17,6 @@ function SectionAvailableJobsList({ employerId }) {
 	const isJobClosed = (job) => {
 		if (!job) return false;
 		if (job.status && job.status !== 'active') return true;
-		const limitReached = typeof job.applicationLimit === 'number' && job.applicationLimit > 0 && (job.applicationCount || 0) >= job.applicationLimit;
-		if (limitReached) return true;
 		if (!job.offerLetterDate) return false;
 		const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, "", "end");
 		return !!offerLetterEnd && Date.now() > offerLetterEnd.getTime();
@@ -32,7 +31,7 @@ function SectionAvailableJobsList({ employerId }) {
 	const fetchEmployerJobs = async () => {
 		try {
 			console.log('Fetching jobs for employer:', employerId);
-			const response = await fetch(`http://localhost:5000/api/public/jobs?employerId=${employerId}&limit=100`);
+			const response = await fetch(`${API_BASE_URL}/public/jobs?employerId=${employerId}&limit=100`);
 			const data = await response.json();
 			
 			console.log('Jobs API response:', data);

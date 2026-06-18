@@ -131,15 +131,12 @@ const startJobDeactivationScheduler = () => {
     try {
       const today = getStartOfCurrentIstDayUtc();
       
-      // Close jobs once either the application deadline or offer-letter date has passed.
+      // Close jobs once the offer-letter date has passed.
       // We use 'today' to ensure jobs stay open throughout the configured final date.
       const result = await Job.updateMany(
         {
           status: 'active',
-          $or: [
-            { lastDateOfApplication: { $lt: today } },
-            { offerLetterDate: { $lt: today } }
-          ]
+          offerLetterDate: { $lt: today }
         },
         { 
           $set: { status: 'closed' } 
@@ -147,7 +144,7 @@ const startJobDeactivationScheduler = () => {
       );
 
       if (result.modifiedCount > 0) {
-        console.log(`[Job Scheduler] Auto-closed ${result.modifiedCount} jobs due to passed application or offer-letter dates.`);
+        console.log(`[Job Scheduler] Auto-closed ${result.modifiedCount} jobs due to passed offer-letter dates.`);
       }
     } catch (error) {
       console.error('[Job Scheduler] Error:', error);

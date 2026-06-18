@@ -9,6 +9,7 @@ import { performanceMonitor } from "../../../../../utils/performanceMonitor";
 import { formatCompanyName, getJobDisplayLogo } from "../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
+import { API_BASE_URL } from "../../../../../utils/api";
 import "../../../../../new-job-card.css";
 
 const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
@@ -27,7 +28,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
         if (!token) return;
         
         try {
-            const response = await fetch('http://localhost:5000/api/candidate/applications', {
+            const response = await fetch(`${API_BASE_URL}/candidate/applications`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -101,7 +102,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                     filters.education.forEach(edu => params.append('education', edu));
                 }
 
-                const url = `http://localhost:5000/api/public/jobs?${params.toString()}`;
+                const url = `${API_BASE_URL}/public/jobs?${params.toString()}`;
                 console.log('Fetching jobs with URL:', url);
                 
                 const response = await fetch(url, {
@@ -163,13 +164,11 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
         const cardRef = useRef(null);
         const isEnded = useMemo(() => {
             if (!job) return false;
-            const limitReached = typeof job.applicationLimit === 'number' && job.applicationLimit > 0 && (job.applicationCount || 0) >= job.applicationLimit;
-            if (limitReached) return true;
             if (job.status && job.status !== 'active') return true;
             if (!job.offerLetterDate) return false;
             const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, "", "end");
             return !!offerLetterEnd && Date.now() > offerLetterEnd.getTime();
-        }, [job?.offerLetterDate, job?.applicationLimit, job?.applicationCount, job?.status]);
+        }, [job]);
         
         // Intersection observer for lazy loading
         useEffect(() => {

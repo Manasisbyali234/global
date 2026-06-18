@@ -43,7 +43,7 @@ const AssessmentAttemptSchema = new mongoose.Schema({
   suspendedAt: { type: Date },
   suspensionReason: { type: String },
   violations: [{
-    type: { type: String, enum: ['tab_switch', 'window_minimize', 'window_blur', 'copy_paste', 'copy_attempt', 'right_click', 'time_expired', 'screen_capture', 'fullscreen_exit', 'multi_screen'] },
+    type: { type: String, enum: ['tab_switch', 'window_minimize', 'window_blur', 'copy_paste', 'copy_attempt', 'right_click', 'time_expired', 'screen_capture', 'fullscreen_exit', 'multi_screen', 'assessment_close_confirmed', 'tab_close'] },
     timestamp: { type: Date },
     details: { type: String }
   }],

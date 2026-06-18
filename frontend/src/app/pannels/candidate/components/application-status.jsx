@@ -31,6 +31,15 @@ const APPLICATION_STATUS_FILTER_OPTIONS = [
 	{ value: 'pending', label: 'Pending' },
 ];
 
+const ASSESSMENT_CLOSE_AUTO_SUBMIT_MESSAGE = 'Closing the assessment tab is a violation. Your assessment has been submitted automatically.';
+const ASSESSMENT_CLOSE_VIOLATION_TYPES = new Set(['assessment_close_confirmed', 'tab_close']);
+
+const hasAssessmentCloseAutoSubmitViolation = (attempt = {}) =>
+	Array.isArray(attempt?.violations) &&
+	attempt.violations.some((violation) =>
+		ASSESSMENT_CLOSE_VIOLATION_TYPES.has(String(violation?.type || '').trim().toLowerCase())
+	);
+
 function CanStatusPage() {
 	const navigate = useNavigate();
 	const { applicationId } = useParams();
@@ -2294,6 +2303,13 @@ function CanStatusPage() {
 				return;
 			}
 		}
+
+		const assessmentRoundInfo = getAssessmentRoundInfo(application, 'Assessment', roundDetails);
+		if (hasAssessmentCloseAutoSubmitViolation(assessmentRoundInfo?.attempt)) {
+			showWarning(ASSESSMENT_CLOSE_AUTO_SUBMIT_MESSAGE, 6000);
+			return;
+		}
+
 		showInfo(' ALL THE BEST ...', 3000);
 		console.log('=== HANDLE START ASSESSMENT CALLED ===');
 		const job = application.jobId;
@@ -3294,6 +3310,7 @@ function CanStatusPage() {
 																const hasFinalAssessmentResult = assessmentInfo.isCompleted || isSubjectiveAutoSubmitted;
 																const assessmentWindowClosed = assessmentWindowInfo?.isAfterEnd && !isSubjectiveAutoSubmitted;
 																const isAssessmentLockedByPreviousRound = roundIndex > 0 && !activationState.canStart && !assessmentInfo.isInProgress;
+																const wasAutoSubmittedAfterTabClose = hasAssessmentCloseAutoSubmitViolation(assessmentRoundInfo?.attempt);
 
 																if (hasFinalAssessmentResult) {
 																	return (
@@ -3363,6 +3380,27 @@ function CanStatusPage() {
 																			This assessment was suspended after repeated rule violations and cannot be resumed.
 																		</div>
 																		</>
+																	);
+																}
+
+																if (assessmentInfo.isInProgress && wasAutoSubmittedAfterTabClose) {
+																	return (
+																	<div>
+																		<button 
+																		type="button"
+																		className="btn btn-sm btn-warning"
+																		aria-disabled="true"
+																		onClick={() => showWarning(ASSESSMENT_CLOSE_AUTO_SUBMIT_MESSAGE, 6000)}
+																		style={{borderRadius: '6px', cursor: 'not-allowed'}}
+																	>
+																		<i className="fa fa-exclamation-triangle me-1"></i>
+																		Continue Assessment
+																	</button>
+																		<div className="alert alert-warning mt-2 mb-0" style={{fontSize: '13px', padding: '8px 12px'}}>
+																			<i className="fa fa-exclamation-triangle me-1"></i>
+																			{ASSESSMENT_CLOSE_AUTO_SUBMIT_MESSAGE}
+																		</div>
+																	</div>
 																	);
 																}
 
