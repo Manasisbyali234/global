@@ -448,7 +448,7 @@ function EmpCandidatesPage() {
                       </select>
                     </div>
                   )}
-                  <div className="page-toolbar__section" style={{ zIndex: openDropdown === 'designation' ? 200 : 1 }}>
+                  <div className="page-toolbar__section" style={{ zIndex: openDropdown === 'designation' ? 200 : 1, width: '180px', minWidth: 0, maxWidth: '180px', flex: '0 0 180px' }}>
                     <label className="page-toolbar__label">
                       <i className="fa fa-briefcase"></i> Designation
                     </label>
@@ -461,7 +461,7 @@ function EmpCandidatesPage() {
                       onOpenChange={(open) => setOpenDropdown(open ? 'designation' : null)}
                     />
                   </div>
-                  <div className="page-toolbar__section" style={{ zIndex: openDropdown === 'status' ? 200 : 1 }}>
+                  <div className="page-toolbar__section" style={{ zIndex: openDropdown === 'status' ? 200 : 1, width: '180px', minWidth: 0, maxWidth: '180px', flex: '0 0 180px' }}>
                     <label className="page-toolbar__label">
                       <i className="fa fa-filter"></i> Application Status
                     </label>

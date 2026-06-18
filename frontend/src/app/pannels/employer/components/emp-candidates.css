@@ -106,23 +106,23 @@
   min-width: 0;
   max-width: 180px;
   position: relative;
-  overflow: hidden;
 }
 
 .emp-candidates-filter-dropdown {
   position: relative;
   width: 100%;
   min-width: 0;
-  overflow: hidden;
 }
 
 .emp-candidates-filter-dropdown__trigger {
   display: flex;
   align-items: center;
   width: 100%;
-  user-select: none;
-  overflow: hidden !important;
+  max-width: 100%;
   min-width: 0;
+  overflow: hidden !important;
+  user-select: none;
+  box-sizing: border-box;
 }
 
 .emp-candidates-page .emp-candidates-filter-dropdown .emp-candidates-filter-dropdown__trigger[role="button"],
