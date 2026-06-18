@@ -118,11 +118,12 @@
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 100%;
   min-width: 0;
+  max-width: 100%;
   overflow: hidden !important;
   user-select: none;
   box-sizing: border-box;
+  contain: inline-size;
 }
 
 .emp-candidates-page .emp-candidates-filter-dropdown .emp-candidates-filter-dropdown__trigger[role="button"],
