@@ -111,13 +111,31 @@ function AdminAddCandidate() {
     };
 
     return (
-        <div className="dashboard-content">
-            <div className="wt-admin-right-page-header">
-                <h2>Add New Candidate</h2>
-                <p>Create a new candidate account and assign credits</p>
+        <div className="admin-dashboard-container">
+            <div className="wt-admin-right-page-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                <div>
+                    <h2>Add New Candidate</h2>
+                    <p>Create a new candidate account and assign credits</p>
+                </div>
+                <button
+                    onClick={() => navigate('/admin/placement-credits')}
+                    style={{
+                        backgroundColor: '#6c757d',
+                        color: 'white',
+                        padding: '8px 16px',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                    }}
+                >
+                    <i className="fa fa-arrow-left"></i> Back
+                </button>
             </div>
 
-            <div className="panel panel-default site-bg-white">
+            <div className="panel panel-default site-bg-white" style={{marginTop: '24px'}}>
                 <div className="panel-heading wt-panel-heading p-a20">
                     <h4 className="panel-tittle m-a0">Candidate Information</h4>
                 </div>
@@ -194,23 +212,7 @@ function AdminAddCandidate() {
 
                         </div>
 
-                        <div className="mt-4" style={{display: 'flex', gap: '10px'}}>
-                            <button
-                                type="submit"
-                                className="site-button"
-                                disabled={loading}
-                                style={{
-                                    backgroundColor: '#fd7e14',
-                                    color: 'white',
-                                    padding: '10px 30px',
-                                    border: 'none',
-                                    borderRadius: '5px',
-                                    cursor: loading ? 'not-allowed' : 'pointer',
-                                    opacity: loading ? 0.6 : 1
-                                }}
-                            >
-                                {loading ? 'Creating...' : 'Create Candidate'}
-                            </button>
+                        <div className="mt-4" style={{display: 'flex', gap: '10px', justifyContent: 'center'}}>
                             <button
                                 type="button"
                                 className="site-button"
@@ -225,6 +227,19 @@ function AdminAddCandidate() {
                                 }}
                             >
                                 Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="site-button"
+                                disabled={loading}
+                                style={{
+                                    backgroundColor: '#fd7e14',
+                                    color: 'white',
+                                    padding: '10px 20px',
+                                    opacity: loading ? 0.6 : 1
+                                }}
+                            >
+                                {loading ? 'Creating...' : 'Create Candidate'}
                             </button>
                         </div>
                     </form>

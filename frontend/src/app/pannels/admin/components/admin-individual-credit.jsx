@@ -66,7 +66,7 @@ function AdminIndividualCredit() {
     });
 
     return (
-        <div className="dashboard-content">
+        <div className="admin-dashboard-container">
             <div className="wt-admin-right-page-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 <div>
                     <h2>Individual Candidate Credit Upload</h2>
