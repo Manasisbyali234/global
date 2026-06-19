@@ -741,13 +741,19 @@ function CanStatusPage() {
 				return 'rejected';
 			}
 
+			// Only mark as rejected due to expired window if this round was actually reachable
+			// (i.e. no prior round blocked the candidate). A subsequent round with a past window
+			// and no attempt should not block further rounds if the candidate never reached it.
 			if (
 				windowInfo?.isAfterEnd &&
 				!completionInfo.isCompleted &&
 				!completionInfo.isInProgress &&
 				!completionInfo.isSuspended
 			) {
-				return 'rejected';
+				const wasEligible = roundIndex === 0 || !hasRejectedPriorRound(application, roundIndex, roundsList);
+				if (wasEligible) {
+					return 'rejected';
+				}
 			}
 		}
 
