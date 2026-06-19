@@ -136,6 +136,8 @@ const applyNoShowRejection = async (applicationId, options = {}) => {
     {
       _id: applicationId,
       status: { $nin: ['accepted', 'hired', 'offer_sent'] },
+      // Do not overwrite applications where the assessment was already submitted
+      assessmentStatus: { $nin: ['completed', 'passed', 'failed'] },
       $or: [
         { status: { $ne: 'rejected' } },
         { assessmentStatus: { $ne: 'no_show' } }
