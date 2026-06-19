@@ -753,7 +753,25 @@ function CanStatusPage() {
 				!completionInfo.isInProgress &&
 				!completionInfo.isSuspended
 			) {
-				const wasEligible = roundIndex === 0 || !hasRejectedPriorRound(application, roundIndex, roundsList);
+				// Also treat a prior round as blocking if its window has ended and it was
+				// never completed (pending review / no attempt) — the candidate never reached this round.
+				const priorRoundBlocking = roundIndex > 0 && (() => {
+					for (let i = 0; i < roundIndex; i++) {
+						const priorRound = roundsList[i];
+						if (!priorRound) continue;
+						const priorRoundName = typeof priorRound === 'string' ? priorRound : priorRound?.name;
+						if (priorRoundName !== 'Assessment') continue;
+						const priorRoundDetails = resolveRoundDetails(application, priorRound, i, roundsList);
+						const priorWindowInfo = getAssessmentWindowInfo(application?.jobId, priorRoundDetails);
+						if (!priorWindowInfo?.isAfterEnd) continue;
+						const priorAssessmentInfo = getAssessmentRoundInfo(application, priorRoundName, priorRoundDetails);
+						const priorCompletion = priorAssessmentInfo?.completionInfo || {};
+						// If the prior round's window ended and the candidate never passed it, this round is unreachable
+						if (!priorCompletion.isPassed) return true;
+					}
+					return false;
+				})();
+				const wasEligible = roundIndex === 0 || (!hasRejectedPriorRound(application, roundIndex, roundsList) && !priorRoundBlocking);
 				if (wasEligible) {
 					return 'rejected';
 				}
@@ -2057,6 +2075,28 @@ function CanStatusPage() {
 				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
 			if ((isNoShow || isExpired || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
+				// If the prior assessment round's window also ended without a pass,
+				// the candidate never reached this round — show Pending, not No Show / Rejected.
+				if (roundIndex > 0) {
+					const rounds = getInterviewRounds(application?.jobId, application);
+					const priorBlockedByUnreachedRound = (() => {
+						for (let i = 0; i < roundIndex; i++) {
+							const priorRound = rounds[i];
+							if (!priorRound) continue;
+							const priorRoundName = typeof priorRound === 'string' ? priorRound : priorRound?.name;
+							if (priorRoundName !== 'Assessment') continue;
+							const priorRoundDetails = resolveRoundDetails(application, priorRound, i, rounds);
+							const priorWindowInfo = getAssessmentWindowInfo(application?.jobId, priorRoundDetails);
+							if (!priorWindowInfo?.isAfterEnd) continue;
+							const priorAssessmentInfo = getAssessmentRoundInfo(application, priorRoundName, priorRoundDetails);
+							if (!priorAssessmentInfo?.completionInfo?.isPassed) return true;
+						}
+						return false;
+					})();
+					if (priorBlockedByUnreachedRound) {
+						return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
+					}
+				}
 				// If expired but result is pending (subjective awaiting evaluation), show Completed
 				const assessmentResult = String(assessmentRoundInfo?.attempt?.result || '').toLowerCase();
 				if (isExpired && assessmentResult === 'pending') {
