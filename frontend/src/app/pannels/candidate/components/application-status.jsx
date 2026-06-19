@@ -2782,9 +2782,11 @@ function CanStatusPage() {
 																			? getAssessmentRoundInfo(app, roundName, roundDetails)
 																			: null;
 																			let roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
-																			// If the application itself is rejected and this round still shows Pending, show Rejected.
+																			// Only override pending->rejected if THIS round itself has a blocking status.
 																			if (applicationDisplayStatus === 'rejected' && normalizeStatusValue(roundStatus?.text) === 'pending') {
-																				roundStatus = { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+																				if (getBlockingRoundStatus(app, round, roundIndex, interviewRounds)) {
+																					roundStatus = { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+																				}
 																			}
 																			const assessmentSchedule = roundName === 'Assessment'
 																				? getAssessmentScheduleSource(app.jobId, roundDetails)
@@ -3194,9 +3196,11 @@ function CanStatusPage() {
 											? getAssessmentRoundInfo(selectedApplication, roundName, roundDetails)
 											: null;
 										let roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName, true, roundDetails);
-										// If overall app is rejected and this round still shows Pending, show Rejected
+										// Only override pending->rejected if THIS round itself has a blocking status.
 										if (selectedAppDisplayStatus === 'rejected' && normalizeStatusValue(roundStatus?.text) === 'pending') {
-											roundStatus = { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+											if (getBlockingRoundStatus(selectedApplication, round, roundIndex, roundsList)) {
+												roundStatus = { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+											}
 										}
 										const assessmentSchedule = roundName === 'Assessment'
 											? getAssessmentScheduleSource(selectedApplication.jobId, roundDetails)
