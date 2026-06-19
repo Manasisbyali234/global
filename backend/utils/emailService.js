@@ -886,6 +886,9 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
         <h3 style="color: #721c24; margin: 0 0 20px 0; font-size: 18px;">📋 Terms & Conditions:</h3>
         <div style="color: #721c24; line-height: 1.6; font-size: 14px;">
           <div style="margin-bottom: 12px;">
+          <strong>📱 Assessment Access:</strong> Assessments are not available on mobile devices (Android/iPhone). Candidates must use a Desktop, Laptop, or Tablet to complete the assessment.
+          </div>
+          <div style="margin-bottom: 12px;">
             <strong>🎯 Round Progression:</strong> Candidates must successfully pass each round to proceed to the next stage.
           </div>
           <div style="margin-bottom: 12px;">
