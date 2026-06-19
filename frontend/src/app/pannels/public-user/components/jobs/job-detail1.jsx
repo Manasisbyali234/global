@@ -46,15 +46,16 @@ function JobDetail1Page() {
         return { token, candidateId: storedCandidateId, isLoggedIn: !!token };
     }, [localStorage.getItem('candidateToken'), localStorage.getItem('candidateId')]);
 
-    const { isEnded, isExpired } = useMemo(() => {
-        if (!job) return { isEnded: false, isExpired: false };
+    const { isEnded, isExpired, isLimitReached } = useMemo(() => {
+        if (!job) return { isEnded: false, isExpired: false, isLimitReached: false };
         const now = Date.now();
         const offerLetterEnd = job.offerLetterDate
             ? buildUtcDateTimeFromIst(job.offerLetterDate, '', 'end')
             : null;
         const isExpired = !!offerLetterEnd && offerLetterEnd.getTime() < now;
         const isEnded = (job.status && job.status !== 'active') || isExpired;
-        return { isEnded, isExpired };
+        const isLimitReached = !!(job.applicationLimit && (job.applicationCount || 0) >= job.applicationLimit);
+        return { isEnded, isExpired, isLimitReached };
     }, [job]);
 
     const fetchJobDetails = useCallback(async () => {
@@ -464,7 +465,7 @@ function JobDetail1Page() {
     };
 
     const handleApplyClick = async () => {
-        if (isEnded) return;
+        if (isEnded || isLimitReached) return;
         if (!isLoggedIn) {
             showWarning('Please sign in or create an account to apply for this job');
             localStorage.setItem('redirectAfterLogin', window.location.pathname);
@@ -714,11 +715,12 @@ function JobDetail1Page() {
 
                                                     <div className="twm-job-self-bottom job-detail-apply-wrap" style={{marginTop: '40px', paddingTop: '20px', textAlign: 'right'}}>
                                                         <button
-                                                            className={`btn btn-outline-primary ${(hasApplied || isEnded) ? 'disabled' : ''}`}
+                                                            className={`btn btn-outline-primary ${(hasApplied || isEnded || isLimitReached) ? 'disabled' : ''}`}
                                                             onClick={handleApplyClick}
-                                                            disabled={hasApplied || isEnded}
+                                                            disabled={hasApplied || isEnded || isLimitReached}
                                                         >
-                                                            {hasApplied ? 'Already Applied' : 
+                                                            {hasApplied ? 'Already Applied' :
+                                                             isLimitReached ? 'Application Closed' :
                                                              isExpired ? 'Application Closed' : 
                                                              isEnded ? 'Application Closed' : 
                                                              'Apply Now'}
