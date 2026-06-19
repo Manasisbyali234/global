@@ -720,27 +720,28 @@ function CanStatusPage() {
 			const assessmentInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
 			const completionInfo = assessmentInfo?.completionInfo || {};
 			const windowInfo = getAssessmentWindowInfo(application?.jobId, roundDetails);
+
+			// isPassed takes priority — expired+pass (auto-submitted) is NOT a rejection
+			if (completionInfo.isPassed) {
+				return '';
+			}
+
 			directStatuses.push(
 				assessmentInfo?.trackedDecisionStatus,
 				completionInfo.status,
 				completionInfo.result
 			);
 
-			// isPassed takes priority — expired+pass (auto-submitted) is NOT a rejection
 			if (
-				!completionInfo.isPassed &&
-				(
-					completionInfo.isFailed ||
-					completionInfo.isNoShow ||
-					completionInfo.isExpired ||
-					completionInfo.isSuspended
-				)
+				completionInfo.isFailed ||
+				completionInfo.isNoShow ||
+				completionInfo.isExpired ||
+				completionInfo.isSuspended
 			) {
 				return 'rejected';
 			}
 
 			if (
-				!completionInfo.isPassed &&
 				windowInfo?.isAfterEnd &&
 				!completionInfo.isCompleted &&
 				!completionInfo.isInProgress &&
