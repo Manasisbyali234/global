@@ -516,13 +516,13 @@ function EmpJobReviewPage() {
                         <div className="document-modal-header" onClick={() => interviewModal.isMinimized && setInterviewModal(prev => ({ ...prev, isMinimized: false }))}>
                             <h3>{interviewModal.title}</h3>
                             <div style={{ display: 'flex', gap: 8 }}>
-                                <button onClick={() => setInterviewModal(prev => ({ ...prev, isMinimized: !prev.isMinimized }))} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 16 }}>
+                                <button onClick={() => setInterviewModal(prev => ({ ...prev, isMinimized: !prev.isMinimized }))} style={{ background: 'none', border: 'none', color: '#f97316', cursor: 'pointer', fontSize: 16 }}>
                                     <i className={`fas ${interviewModal.isMinimized ? 'fa-window-restore' : 'fa-minus'}`}></i>
                                 </button>
-                                <button onClick={() => setInterviewModal(prev => ({ ...prev, isMaximized: !prev.isMaximized }))} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 16 }}>
+                                <button onClick={() => setInterviewModal(prev => ({ ...prev, isMaximized: !prev.isMaximized }))} style={{ background: 'none', border: 'none', color: '#f97316', cursor: 'pointer', fontSize: 16 }}>
                                     <i className={`fas ${interviewModal.isMaximized ? 'fa-compress' : 'fa-expand'}`}></i>
                                 </button>
-                                <button onClick={() => setInterviewModal({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false })} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 16 }}>
+                                <button onClick={() => setInterviewModal({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false })} style={{ background: 'none', border: 'none', color: '#f97316', cursor: 'pointer', fontSize: 16 }}>
                                     <i className="fas fa-times"></i>
                                 </button>
                             </div>
