@@ -754,8 +754,14 @@ function CanStatusPage() {
 				!completionInfo.isInProgress &&
 				!completionInfo.isSuspended
 			) {
-				// Also treat a prior round as blocking if its window has ended and it was
-				// never completed (pending review / no attempt) — the candidate never reached this round.
+				// If the application-level assessmentStatus is expired+pending (subjective awaiting evaluation),
+				// this round should not be treated as a rejection even when shouldUseApplicationFallback is false.
+				const appLevelStatus = String(application?.assessmentStatus || '').toLowerCase();
+				const appLevelResult = String(application?.assessmentResult || '').toLowerCase();
+				const appLevelIsPendingReview = ['expired', 'completed'].includes(appLevelStatus) && appLevelResult === 'pending';
+				if (appLevelIsPendingReview || completionInfo.isPendingReview) {
+					return '';
+				}
 				const priorRoundBlocking = roundIndex > 0 && (() => {
 					for (let i = 0; i < roundIndex; i++) {
 						const priorRound = roundsList[i];
