@@ -492,7 +492,8 @@ function CanStatusPage() {
 			isCompleted: outcome.isCompleted,
 			isExpired: outcome.isExpired,
 			isInProgress: outcome.isInProgress,
-			isSuspended: outcome.isSuspended
+			isSuspended: outcome.isSuspended,
+			isPendingReview: outcome.isPendingReview
 		};
 	};
 
@@ -738,7 +739,7 @@ function CanStatusPage() {
 			if (
 				completionInfo.isFailed ||
 				completionInfo.isNoShow ||
-				completionInfo.isExpired ||
+				(completionInfo.isExpired && !completionInfo.isPendingReview) ||
 				completionInfo.isSuspended
 			) {
 				return 'rejected';
@@ -2074,7 +2075,7 @@ function CanStatusPage() {
 			) {
 				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
-			if ((isNoShow || isExpired || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
+			if ((isNoShow || (isExpired && !assessmentRoundInfo.completionInfo?.isPendingReview) || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
 				// If the prior assessment round's window also ended without a pass,
 				// the candidate never reached this round — show Pending, not No Show / Rejected.
 				if (roundIndex > 0) {
@@ -2140,7 +2141,9 @@ function CanStatusPage() {
 				'no_show': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'session_expired': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'session expired': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
-				'expired': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
+				'expired': assessmentRoundInfo.completionInfo?.isPendingReview
+					? { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' }
+					: { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'suspended': { text: 'Suspended', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'pending': { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
 				'not_required': windowInfo.isBeforeStart
