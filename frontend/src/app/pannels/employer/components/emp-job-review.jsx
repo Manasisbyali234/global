@@ -10,10 +10,6 @@ import "./emp-job-review.css";
 function EmpJobReviewPage() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const API_BASE_URL = process.env.REACT_APP_API_URL
-        || (window.location.hostname === 'localhost'
-            ? 'http://localhost:5000/api'
-            : `${window.location.origin}/api`);
     const [jobDetails, setJobDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [interviewModal, setInterviewModal] = useState({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false });
@@ -26,7 +22,7 @@ function EmpJobReviewPage() {
     const fetchJobDetails = async () => {
         try {
             const token = localStorage.getItem('employerToken');
-            const response = await fetch(`${API_BASE_URL}/employer/jobs/${id}`, {
+            const response = await fetch(`http://localhost:5000/api/employer/jobs/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
