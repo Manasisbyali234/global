@@ -238,7 +238,13 @@ function EmpJobReviewPage() {
                                                     {round.roundId && !round.isAssessment && !isPastEndDate(round.toDate || round.fromDate) && (
                                                         <button
                                                             className="btn site-button-secondry btn-sm interview-open-btn"
-                                                            onClick={() => setInterviewModal({ isOpen: true, url: `https://schedule.taleglobal.net/rounds/${round.roundId}`, title: `Schedule Interview - ${round.displayName}`, isMaximized: false, isMinimized: false })}
+                                                            onClick={() => setInterviewModal(prev => ({
+                                                                isOpen: true,
+                                                                url: `https://schedule.taleglobal.net/rounds/${round.roundId}`,
+                                                                title: `Schedule Interview - ${round.displayName}`,
+                                                                isMaximized: prev.isOpen && prev.url === `https://schedule.taleglobal.net/rounds/${round.roundId}` ? prev.isMaximized : false,
+                                                                isMinimized: false
+                                                            }))}
                                                         >
                                                             Join Now
                                                         </button>

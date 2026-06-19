@@ -512,3 +512,12 @@
 .document-modal-container.minimized .document-modal-footer {
   display: none;
 }
+
+/* Allow clicks to pass through the overlay when modal is minimized */
+.document-modal-overlay.minimized-overlay {
+  pointer-events: none;
+}
+
+.document-modal-overlay.minimized-overlay .document-modal-container {
+  pointer-events: all;
+}
