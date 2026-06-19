@@ -1,5 +1,10 @@
 /* Employer Grid Performance & Responsive Optimizations */
 
+/* Fix navbar overlap: compensate for fixed header height on desktop */
+.employer-grid-active .page-content {
+  padding-top: 70px;
+}
+
 .emp-grid-page {
   contain: layout style paint;
   transform: translateZ(0);

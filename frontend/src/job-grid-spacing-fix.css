@@ -109,9 +109,9 @@
     padding: 0 !important;
   }
   
-  .page-content {
-    margin-top: 90px !important;
+  .job-grid-banner-active .page-content {
     padding-top: 0 !important;
+    margin-top: 90px !important;
     padding-left: 15px !important;
     padding-right: 15px !important;
   }

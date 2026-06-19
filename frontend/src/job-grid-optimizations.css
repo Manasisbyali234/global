@@ -1,5 +1,10 @@
 /* Job Grid Performance Optimizations */
 
+/* Fix navbar overlap: compensate for fixed header height on desktop */
+.job-grid-banner-active .page-content {
+  padding-top: 70px;
+}
+
 /* Remove white background from Sort By text */
 .woocommerce-result-count {
   background: transparent !important;

@@ -26,10 +26,10 @@
     position: absolute !important;
   }
   
-  /* Fix header overlap */
-  .page-content {
-    margin-top: 90px !important;
+  /* Fix header overlap on mobile */
+  .employer-grid-active .page-content {
     padding-top: 0 !important;
+    margin-top: 90px !important;
     padding-left: 15px !important;
     padding-right: 15px !important;
   }
