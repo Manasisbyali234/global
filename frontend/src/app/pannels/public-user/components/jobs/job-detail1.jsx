@@ -764,13 +764,13 @@ function JobDetail1Page() {
                                                         key={index} 
                                                         className="skill-tag" 
                                                         style={{
-                                                            backgroundColor: '#e8f4fd',
-                                                            color: '#2980b9',
+                                                            backgroundColor: '#f0f0f0',
+                                                            color: '#333',
                                                             padding: '8px 16px',
                                                             borderRadius: '20px',
                                                             fontSize: '14px',
                                                             fontWeight: '500',
-                                                            border: '1px solid #bde0ff',
+                                                            border: '1px solid #ccc',
                                                             display: 'inline-block'
                                                         }}
                                                     >

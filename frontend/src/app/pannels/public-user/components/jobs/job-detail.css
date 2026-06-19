@@ -656,9 +656,9 @@ a.site-text-primary:hover {
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-    color: #1976d2;
-    border: 1px solid #90caf9;
+    background: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
     border-radius: 20px;
     font-size: 14px;
     font-weight: 500;
@@ -676,9 +676,9 @@ a.site-text-primary:hover {
 
 .skill-tag:hover {
     transform: translateY(-2px) scale(1.05);
-    background: linear-gradient(135deg, #1976d2, #1565c0);
-    color: white;
-    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+    background: #e0e0e0;
+    color: #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .skill-tag i {
