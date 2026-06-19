@@ -422,11 +422,14 @@ function EmployerSupportTickets() {
     }
 
     return (
-        <div className="dashboard-content employer-support-tickets-page employer-page-shell employer-page-shell--content">
-            <div className="wt-admin-right-page-header employer-page-header-card">
-                <h2>Candidate Support Tickets</h2>
-                <p>Monitor and respond to candidate support requests</p>
+        <div className="dashboard-content employer-support-tickets-page">
+            <div className="employer-page-shell employer-page-shell--header">
+                <div className="wt-admin-right-page-header employer-page-header-card">
+                    <h2>Candidate Support Tickets</h2>
+                    <p>Monitor and respond to candidate support requests</p>
+                </div>
             </div>
+            <div className="employer-page-shell employer-page-shell--content">
             <Container fluid>
                 <div className="stats-grid">
                     <div className="stats-card stats-card--total">
@@ -647,6 +650,7 @@ function EmployerSupportTickets() {
                     </Col>
                 </Row>
             </Container>
+            </div>
 
             <Modal 
                 id="support-ticket-modal"

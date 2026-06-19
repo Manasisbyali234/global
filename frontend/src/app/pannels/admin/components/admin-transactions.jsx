@@ -20,6 +20,7 @@ function AdminTransactionsPage() {
     const [paymentDetails, setPaymentDetails] = useState(null);
     const [fetchingDetails, setFetchingDetails] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [exporting, setExporting] = useState(false);
     const PAGE_SIZE = 10;
 
     useEffect(() => {
@@ -147,7 +148,9 @@ function AdminTransactionsPage() {
 
     useEffect(() => { setCurrentPage(1); }, [searchText, companySearch, fromDate, toDate]);
 
-    const exportToExcel = () => {
+    const exportToExcel = async () => {
+        setExporting(true);
+        await new Promise(resolve => setTimeout(resolve, 600));
         const headers = ['Date', 'Time', 'Candidate Name', 'Candidate Email', 'Company', 'Company Email', 'Job Role', 'Payment ID', 'Amount (INR)'];
         const rows = filteredTransactions.map((t) => [
             formatDate(t.createdAt),
@@ -168,6 +171,7 @@ function AdminTransactionsPage() {
         a.download = `transactions_${new Date().toISOString().slice(0, 10)}.csv`;
         a.click();
         URL.revokeObjectURL(url);
+        setExporting(false);
     };
 
     const getReceiptAmountBreakdown = (amount) => {
@@ -205,13 +209,18 @@ function AdminTransactionsPage() {
                         <button
                             className="btn btn-success d-flex align-items-center gap-2"
                             onClick={exportToExcel}
+                            disabled={exporting}
                             title="Export to Excel"
                         >
-                            <Download size={16} /> Export to Excel
+                            {exporting ? (
+                                <><span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Exporting...</>
+                            ) : (
+                                <><Download size={16} /> Export to Excel</>
+                            )}
                         </button>
                     </div>
 
-                    <div className="page-toolbar mb-4">
+                    <div className="page-toolbar mb-2">
                         <div className="page-toolbar__controls page-toolbar__controls--single">
                         <div className="page-toolbar__section">
                             <label className="page-toolbar__label">
