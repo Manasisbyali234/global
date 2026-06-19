@@ -337,8 +337,8 @@ export default function EmpPostedJobs() {
                                     aria-label="Select job date field to filter"
                                 >
                                     <option value="createdAt">Posted Date</option>
-                                    <option value="lastDateOfApplication">Last Application Date</option>
-                                    <option value="offerLetterDate">Offer Date</option>
+                                    <option value="lastDateOfApplication">Last Date of Application</option>
+                                    <option value="offerLetterDate">Offer Letter Date</option>
                                 </select>
                                 <input
                                     type="date"

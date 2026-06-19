@@ -1574,7 +1574,7 @@ function EmpCandidateReviewPage() {
             });
             
             if (response.ok) {
-                showSuccess(`Status updated to ${status.replace('_', ' ')}`);
+                showSuccess(`Status updated to ${status === 'offer_sent' ? 'offer letter sent' : status.replace('_', ' ')}`);
                 const data = await response.json().catch(() => ({}));
                 setApplication(prev => mergeApplicationStatusFields(prev, data?.application || { status }));
             } else {
