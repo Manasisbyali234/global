@@ -726,16 +726,21 @@ function CanStatusPage() {
 				completionInfo.result
 			);
 
+			// isPassed takes priority — expired+pass (auto-submitted) is NOT a rejection
 			if (
-				completionInfo.isFailed ||
-				completionInfo.isNoShow ||
-				completionInfo.isExpired ||
-				completionInfo.isSuspended
+				!completionInfo.isPassed &&
+				(
+					completionInfo.isFailed ||
+					completionInfo.isNoShow ||
+					completionInfo.isExpired ||
+					completionInfo.isSuspended
+				)
 			) {
 				return 'rejected';
 			}
 
 			if (
+				!completionInfo.isPassed &&
 				windowInfo?.isAfterEnd &&
 				!completionInfo.isCompleted &&
 				!completionInfo.isInProgress &&
