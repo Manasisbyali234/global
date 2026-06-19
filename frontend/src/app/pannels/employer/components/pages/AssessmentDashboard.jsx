@@ -339,7 +339,7 @@ export default function AssessmentDashboard() {
 			</div>
 
 			{/* Assessment Selector */}
-			<div className="employer-page-shell">
+			<div className="employer-page-shell" style={{marginTop: '1.5rem'}}>
 				<div className={`d-flex flex-wrap gap-3 align-items-end employer-page-content-card assessment-selector-row${isConsultantEmployer ? ' assessment-selector-row--consultant' : ''}`} style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
 					<div className="assessment-filter-group assessment-filter-group--assessment">
 						<label className="form-label mb-0 fw-semibold assessment-selector-label">Select Assessment</label>
@@ -463,7 +463,7 @@ export default function AssessmentDashboard() {
 			</div>
 
 			{/* Content */}
-			<div className="employer-page-shell employer-page-shell--content">
+			<div className="employer-page-shell employer-page-shell--content" style={{marginTop: '1.5rem'}}>
 				<div className="panel panel-default site-bg-white p-3 employer-page-content-card" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
 					{assessments.length === 0 ? (
 						<div className="text-center py-5">

@@ -279,7 +279,7 @@ export default function EmpPostedJobs() {
 			</div>
 
 			{/* Content */}
-			<div className="employer-page-shell employer-page-shell--content">
+			<div className="employer-page-shell employer-page-shell--content" style={{marginTop: '1.5rem'}}>
 				<div className="panel panel-default site-bg-white p-3 employer-page-content-card" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
 				<div className="panel-heading wt-panel-heading mb-3 d-flex justify-content-between">
                     <div>

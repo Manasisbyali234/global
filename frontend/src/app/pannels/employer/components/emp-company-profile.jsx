@@ -1579,7 +1579,7 @@ function EmpCompanyProfilePage() {
             </div>
 
             {/*Logo and Cover image*/}
-            <div className="employer-page-shell employer-page-shell--content employer-company-profile-content">
+            <div className="employer-page-shell employer-page-shell--content employer-company-profile-content" style={{marginTop: '1.5rem'}}>
             <div className="panel panel-default">
                 <div className="panel-heading wt-panel-heading p-a20">
                     <h4 className="panel-tittle m-a0"><ImageIcon size={18} className="me-2" /> Logo and Cover image</h4>
