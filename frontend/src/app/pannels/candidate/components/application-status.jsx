@@ -1,4 +1,4 @@
-import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
+﻿import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { formatInterviewTime } from '../../../../utils/timeUtils';
 import { formatTimeToAMPM } from '../../../../utils/dateFormatter';
@@ -350,6 +350,9 @@ function CanStatusPage() {
 			return derivedStatus;
 		}
 		if (rawStatus === 'rejected') {
+			const s = normalizeStatusValue(application?.assessmentStatus || '');
+			const r = normalizeStatusValue(application?.assessmentResult || '');
+			if (['completed', 'expired'].includes(s) && r === 'pending') return 'pending';
 			return rawStatus;
 		}
 		const rounds = getInterviewRounds(application?.jobId, application);
