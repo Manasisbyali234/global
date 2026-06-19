@@ -249,7 +249,10 @@ const normalizeCandidateVisibleApplication = (application = null) => {
     // Also check assessment status - no_show/failed/suspended should keep rejected status
     const assessmentStatus = String(applicationObject?.assessmentStatus || '').toLowerCase();
     const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired', 'failed', 'fail'];
-    const hasRejectedAssessmentStatus = rejectedAssessmentStatuses.includes(assessmentStatus);
+    const assessmentResult = String(applicationObject?.assessmentResult || '').toLowerCase();
+    // If assessment was auto-submitted with pending manual evaluation, do not treat as rejected
+    const hasRejectedAssessmentStatus = rejectedAssessmentStatuses.includes(assessmentStatus) &&
+      !(assessmentResult === 'pending' && ['no_show', 'no show', 'expired', 'completed'].includes(assessmentStatus));
 
     if (interviewProcesses.length === 0 || hasRejectedInterviewProcess || hasRejectedAssessmentStatus) {
       return applicationObject;
