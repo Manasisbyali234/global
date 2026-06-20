@@ -716,6 +716,7 @@ function CanStatusPage() {
 
 		// Check direct round status first — if it's already a rejected-like status, return immediately
 		const directRoundStatus = typeof round === 'object' ? round?.status : '';
+		console.log('[getBlockingRoundStatus] roundIndex:', roundIndex, 'directRoundStatus:', directRoundStatus, 'isRejected:', directRoundStatus && isRejectedInterviewProcessStatus(directRoundStatus));
 		if (directRoundStatus && isRejectedInterviewProcessStatus(directRoundStatus)) {
 			return 'rejected';
 		}
@@ -2074,7 +2075,9 @@ function CanStatusPage() {
 			// Note: returns null when no slot booked so callers can show 'Schedule' instead
 		};
 
-		if (roundIndex > 0 && hasRejectedPriorRound(application, roundIndex)) {
+		const priorRejected = roundIndex > 0 && hasRejectedPriorRound(application, roundIndex);
+		console.log('[getRoundStatus] roundIndex:', roundIndex, 'roundName:', roundName, 'priorRejected:', priorRejected, 'round.status:', typeof round === 'object' ? round?.status : '');
+		if (priorRejected) {
 			return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 		}
 
