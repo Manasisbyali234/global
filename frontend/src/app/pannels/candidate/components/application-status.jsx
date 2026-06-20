@@ -714,6 +714,12 @@ function CanStatusPage() {
 			roundDetails?.__roundStatus
 		];
 
+		// Check direct round status first — if it's already a rejected-like status, return immediately
+		const directRoundStatus = typeof round === 'object' ? round?.status : '';
+		if (directRoundStatus && isRejectedInterviewProcessStatus(directRoundStatus)) {
+			return 'rejected';
+		}
+
 		const relatedProcess = findRelatedInterviewProcess(application, {
 			uniqueKey: roundDetails?.__uniqueKey,
 			processId: roundDetails?.__processId,
