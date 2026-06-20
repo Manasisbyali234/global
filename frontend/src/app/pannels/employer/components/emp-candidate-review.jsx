@@ -1960,7 +1960,7 @@ function EmpCandidateReviewPage() {
                                                                         <div className="stage-header-block">
                                                                             <h5>{cleanProcessName(process.name)}</h5>
                                                                             <span className={`status-pill ${process.type === 'assessment' ? (assessmentDisplay.statusClass || 'pending') : (process.status || 'pending')}`}>
-                                                                                {process.derivedRejected
+                                                                                {(process.derivedRejected || (index > 0 && interviewProcesses.slice(0, index).some(p => isRejectedLikeStatus(p.status))))
                                                                                     ? 'Rejected'
                                                                                     : process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired)
                                                                                     ? assessmentDisplay.statusLabel
