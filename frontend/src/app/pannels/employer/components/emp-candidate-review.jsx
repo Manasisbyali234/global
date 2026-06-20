@@ -1938,7 +1938,14 @@ function EmpCandidateReviewPage() {
                                                         const assessmentDisplay = getAssessmentDisplayState(process, application);
                                                         const isPreviousRejected = interviewProcesses
                                                             .slice(0, index)
-                                                            .some((previousProcess) => isRejectedLikeStatus(previousProcess.status));
+                                                            .some((previousProcess) => {
+                                                                if (isRejectedLikeStatus(previousProcess.status)) return true;
+                                                                if (isAssessmentProcess(previousProcess)) {
+                                                                    const prevDisplay = getAssessmentDisplayState(previousProcess, application);
+                                                                    return isRejectedLikeStatus(prevDisplay.statusValue) || prevDisplay.isWindowExpired;
+                                                                }
+                                                                return false;
+                                                            });
                                                         const isPreviousIncomplete = index > 0 && !interviewProcesses
                                                             .slice(0, index)
                                                             .every((previousProcess) => isShortlistedForNextRoundStatus(previousProcess.status));
@@ -1960,7 +1967,14 @@ function EmpCandidateReviewPage() {
                                                                         <div className="stage-header-block">
                                                                             <h5>{cleanProcessName(process.name)}</h5>
                                                                             <span className={`status-pill ${process.type === 'assessment' ? (assessmentDisplay.statusClass || 'pending') : (process.status || 'pending')}`}>
-                                                                                {(process.derivedRejected || (index > 0 && interviewProcesses.slice(0, index).some(p => isRejectedLikeStatus(p.status))))
+                                                                                {(process.derivedRejected || (index > 0 && interviewProcesses.slice(0, index).some(p => {
+                                                                                    if (isRejectedLikeStatus(p.status)) return true;
+                                                                                    if (isAssessmentProcess(p)) {
+                                                                                        const pd = getAssessmentDisplayState(p, application);
+                                                                                        return isRejectedLikeStatus(pd.statusValue) || pd.isWindowExpired;
+                                                                                    }
+                                                                                    return false;
+                                                                                })))
                                                                                     ? 'Rejected'
                                                                                     : process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired)
                                                                                     ? assessmentDisplay.statusLabel
