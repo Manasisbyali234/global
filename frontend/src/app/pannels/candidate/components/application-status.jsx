@@ -1990,8 +1990,8 @@ function CanStatusPage() {
 				on_hold: 'On Hold',
 				selected: 'Selected',
 				pending_decision: 'Pending Decision',
-				no_show: 'No Show',
-				rejected: 'Not Advanced to Next Stage'
+				no_show: 'Rejected',
+				rejected: 'Rejected'
 			};
 			if (labels[status]) return labels[status];
 			return String(rawStatus || '').replace(/_/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase());
@@ -2011,13 +2011,13 @@ function CanStatusPage() {
 				interview_scheduled: { text: 'Interview Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info' },
 				interview_completed: { text: 'Interview Completed', class: 'bg-success bg-opacity-10 text-success border border-success' },
 				selected: { text: 'Selected', class: 'bg-success bg-opacity-10 text-success border border-success' },
-				no_show: { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
+				no_show: { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
 				rejected: {
-					text: isFinalStage ? 'Rejected' : 'Not Advanced to Next Stage',
+					text: 'Rejected',
 					class: 'bg-danger bg-opacity-10 text-danger border border-danger'
 				},
-				not_advanced_to_next_stage: { text: 'Not Advanced to Next Stage', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
-				not_advanced_to_next_round: { text: 'Not Advanced to Next Stage', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
+				not_advanced_to_next_stage: { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
+				not_advanced_to_next_round: { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
 				on_hold: { text: 'On Hold', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' },
 				scheduled: { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info' },
 				in_progress: { text: 'In Progress', class: 'bg-warning bg-opacity-10 text-warning border border-warning' },
@@ -2152,7 +2152,7 @@ function CanStatusPage() {
 				if (isExpired && assessmentResult === 'pending') {
 					return { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
 				}
-				return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+				return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 
 			if (
@@ -2187,12 +2187,12 @@ function CanStatusPage() {
 				'available': windowInfo.isBeforeStart
 					? { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
 					: { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
-				'no_show': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
-				'session_expired': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
-				'session expired': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
+				'no_show': { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
+				'session_expired': { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
+				'session expired': { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'expired': assessmentRoundInfo.completionInfo?.isPendingReview
 					? { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' }
-					: { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
+					: { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'suspended': { text: 'Suspended', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'pending': { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
 				'not_required': windowInfo.isBeforeStart
