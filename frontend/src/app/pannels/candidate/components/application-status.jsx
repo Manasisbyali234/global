@@ -346,7 +346,10 @@ function CanStatusPage() {
 				'',
 			''
 		);
-		if (derivedStatus) {
+		// Only use derivedStatus if it's a terminal/final state that shouldn't be overridden by round-level rejections.
+		// Non-terminal statuses like 'shortlisted' must still be checked against blocking rounds.
+		const terminalDerivedStatuses = ['accepted', 'hired', 'offer_sent', 'rejected', 'interviewed'];
+		if (derivedStatus && terminalDerivedStatuses.includes(derivedStatus)) {
 			return derivedStatus;
 		}
 		if (rawStatus === 'rejected') {
