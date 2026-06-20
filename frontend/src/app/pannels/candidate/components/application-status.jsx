@@ -2744,7 +2744,8 @@ function CanStatusPage() {
 											) : (
 												paginatedApplications.map((app, index) => {
 													const interviewRounds = getInterviewRounds(app.jobId, app);
-													const applicationDisplayStatus = getCanonicalStatusKey(app.status || 'pending');
+													const _rawStatus = getCanonicalStatusKey(app.status || 'pending');
+													const applicationDisplayStatus = ['not_advanced_to_next_round','not_advanced_to_next_stage','no_show','session_expired'].includes(_rawStatus) ? 'rejected' : _rawStatus;
 													const isShortlisted = applicationDisplayStatus === 'shortlisted';
 													const shouldHighlightRow = highlightShortlisted && isShortlisted;
 													return (
@@ -3164,7 +3165,8 @@ function CanStatusPage() {
 										</div>
 										<div className="col-md-12 mb-2">
 											{(() => {
-												const selectedApplicationDisplayStatus = getCanonicalStatusKey(selectedApplication.status || 'pending');
+												const _rawSelStatus = getCanonicalStatusKey(selectedApplication.status || 'pending');
+												const selectedApplicationDisplayStatus = ['not_advanced_to_next_round','not_advanced_to_next_stage','no_show','session_expired'].includes(_rawSelStatus) ? 'rejected' : _rawSelStatus;
 												const hasRejectedOffer = selectedApplication.statusHistory?.some((history) => history?.status === 'offer_sent') && selectedApplicationDisplayStatus === 'rejected';
 
 												return (
@@ -3208,7 +3210,8 @@ function CanStatusPage() {
 									</h6>
 									{(() => {
 										const roundsList = getInterviewRounds(selectedApplication.jobId, selectedApplication);
-										const selectedAppDisplayStatus = getCanonicalStatusKey(selectedApplication.status || 'pending');
+										const _rawAppStatus = getCanonicalStatusKey(selectedApplication.status || 'pending');
+										const selectedAppDisplayStatus = ['not_advanced_to_next_round','not_advanced_to_next_stage','no_show','session_expired'].includes(_rawAppStatus) ? 'rejected' : _rawAppStatus;
 										return roundsList.map((round, roundIndex) => {
 										let roundName = typeof round === 'string' ? round : round.name;
 										const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round.uniqueKey;
