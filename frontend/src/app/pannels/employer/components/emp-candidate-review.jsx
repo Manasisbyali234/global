@@ -317,6 +317,7 @@ function EmpCandidateReviewPage() {
             return normalizeTrackedProcessState({
                 ...process,
                 status: savedProcess.status,
+                derivedRejected: process?.derivedRejected || false,
                 result: process.type === 'assessment'
                     ? process.result || null
                     : (savedProcess.result || process.result || null)
