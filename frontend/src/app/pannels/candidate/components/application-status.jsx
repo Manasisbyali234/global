@@ -2078,7 +2078,7 @@ function CanStatusPage() {
 		const priorRejected = roundIndex > 0 && hasRejectedPriorRound(application, roundIndex);
 		console.log('[getRoundStatus] roundIndex:', roundIndex, 'roundName:', roundName, 'priorRejected:', priorRejected, 'round.status:', typeof roundDetails?.__roundStatus === 'string' ? roundDetails.__roundStatus : '');
 		if (priorRejected) {
-			return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+			return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 		}
 
 		// Check assessment status for Assessment rounds
@@ -2095,7 +2095,7 @@ function CanStatusPage() {
 			if (trackedDecisionStatus) {
 				const isCascadeRejected = isRejectedInterviewProcessStatus(trackedDecisionStatus) && roundIndex > 0 && hasRejectedPriorRound(application, roundIndex);
 				if (isCascadeRejected) {
-					return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+					return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 				}
 				const mappedDecision = mapProcessStatusToBadge(trackedDecisionStatus, {
 					isFinalStage: false
@@ -2152,7 +2152,7 @@ function CanStatusPage() {
 				if (isExpired && assessmentResult === 'pending') {
 					return { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
 				}
-				return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+				return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 
 			if (
@@ -2299,7 +2299,7 @@ function CanStatusPage() {
 					return bookedSlotStatus || scheduleSlotStatus;
 				}
 				if (isRejectedInterviewProcessStatus(trackedStatus) && hasRejectedPriorRound(application, roundIndex)) {
-					return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+					return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 				}
 				const mapped = mapProcessStatusToBadge(trackedStatus, {
 					isFinalStage: isFinalTrackedStage,
@@ -2353,7 +2353,7 @@ function CanStatusPage() {
 		} else if (status === 'hired') {
 			return { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
 		} else if (status === 'rejected') {
-			return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+			return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 		} else if (status === 'pending') {
 			return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 		}
