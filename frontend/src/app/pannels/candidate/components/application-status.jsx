@@ -761,9 +761,9 @@ function CanStatusPage() {
 
 			// When completionInfo has no data (multi-assessment, no attempt records),
 			// check application-level assessmentStatus as a direct fallback.
-			const appLevelStatusDirect = String(application?.assessmentStatus || '').toLowerCase().replace(/_/g, ' ');
+			const appLevelStatusDirect = normalizeStatusValue(application?.assessmentStatus || '');
 			if (appLevelStatusDirect && isRejectedInterviewProcessStatus(appLevelStatusDirect)) {
-				const appLevelResultDirect = String(application?.assessmentResult || '').toLowerCase();
+				const appLevelResultDirect = normalizeStatusValue(application?.assessmentResult || '');
 				const isPendingReviewDirect = ['expired', 'completed'].includes(appLevelStatusDirect) && appLevelResultDirect === 'pending';
 				if (!isPendingReviewDirect) {
 					return 'rejected';
@@ -780,11 +780,11 @@ function CanStatusPage() {
 				!completionInfo.isSuspended
 			) {
 				// Check application-level status as fallback when completionInfo has no data
-				const appLevelStatus = String(application?.assessmentStatus || '').toLowerCase();
-				const appLevelResult = String(application?.assessmentResult || '').toLowerCase();
+				const appLevelStatus = normalizeStatusValue(application?.assessmentStatus || '');
+				const appLevelResult = normalizeStatusValue(application?.assessmentResult || '');
 				const appLevelIsPendingReview = ['expired', 'completed'].includes(appLevelStatus) && appLevelResult === 'pending';
 				// A true no_show/expired at application level means this round IS a rejection — don't skip it
-				const appLevelIsRejected = ['no_show', 'no show', 'expired', 'session_expired', 'session expired', 'failed', 'fail', 'suspended', 'rejected', 'not_advanced_to_next_stage', 'not advanced to next stage', 'not_advanced_to_next_round', 'not advanced to next round', 'not eligible for next round', 'not eligibal for next round'].includes(appLevelStatus) && !appLevelIsPendingReview;
+				const appLevelIsRejected = ['no show', 'expired', 'session expired', 'failed', 'fail', 'suspended', 'rejected', 'not advanced to next stage', 'not advanced to next round', 'not eligible for next round', 'not eligibal for next round'].includes(appLevelStatus) && !appLevelIsPendingReview;
 				if (appLevelIsRejected) {
 					return 'rejected';
 				}
