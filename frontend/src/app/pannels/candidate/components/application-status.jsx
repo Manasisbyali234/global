@@ -2084,6 +2084,10 @@ function CanStatusPage() {
 					: ''
 			);
 			if (trackedDecisionStatus) {
+				const isCascadeRejected = isRejectedInterviewProcessStatus(trackedDecisionStatus) && roundIndex > 0 && hasRejectedPriorRound(application, roundIndex);
+				if (isCascadeRejected) {
+					return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+				}
 				const mappedDecision = mapProcessStatusToBadge(trackedDecisionStatus, {
 					isFinalStage: false
 				});
@@ -2284,6 +2288,9 @@ function CanStatusPage() {
 			if (trackedStatus && normalizedTrackedStatus !== 'pending') {
 				if (isSlotBookingStatus(trackedStatus)) {
 					return bookedSlotStatus || scheduleSlotStatus;
+				}
+				if (isRejectedInterviewProcessStatus(trackedStatus) && hasRejectedPriorRound(application, roundIndex)) {
+					return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 				}
 				const mapped = mapProcessStatusToBadge(trackedStatus, {
 					isFinalStage: isFinalTrackedStage,
