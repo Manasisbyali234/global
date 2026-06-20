@@ -468,7 +468,15 @@ function CanStatusPage() {
 			return assessmentProcesses[assessmentOrderIndex];
 		}
 
-		return assessmentProcesses.length === 1 ? assessmentProcesses[0] : null;
+		// For single assessment processes, use the only one available
+		if (assessmentProcesses.length === 1) return assessmentProcesses[0];
+
+		// Last resort: if roundIndex matches a tracked process of assessment type, use it
+		if (roundIndex !== null && assessmentProcesses[roundIndex]) {
+			return assessmentProcesses[roundIndex];
+		}
+
+		return null;
 	};
 
 	const getTrackedAssessmentDecisionStatus = (application = {}, roundDetails = null) => {
@@ -730,8 +738,14 @@ function CanStatusPage() {
 				return '';
 			}
 
+			// Employer decision status takes highest priority after pass
+			const trackedDecisionStatus = assessmentInfo?.trackedDecisionStatus || '';
+			if (trackedDecisionStatus) {
+				return isRejectedInterviewProcessStatus(trackedDecisionStatus) ? 'rejected' : '';
+			}
+
 			directStatuses.push(
-				assessmentInfo?.trackedDecisionStatus,
+				trackedDecisionStatus,
 				completionInfo.status,
 				completionInfo.result
 			);
