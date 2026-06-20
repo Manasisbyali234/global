@@ -754,11 +754,15 @@ function CanStatusPage() {
 				!completionInfo.isInProgress &&
 				!completionInfo.isSuspended
 			) {
-				// If the application-level assessmentStatus is expired+pending (subjective awaiting evaluation),
-				// this round should not be treated as a rejection even when shouldUseApplicationFallback is false.
+				// Check application-level status as fallback when completionInfo has no data
 				const appLevelStatus = String(application?.assessmentStatus || '').toLowerCase();
 				const appLevelResult = String(application?.assessmentResult || '').toLowerCase();
 				const appLevelIsPendingReview = ['expired', 'completed'].includes(appLevelStatus) && appLevelResult === 'pending';
+				// A true no_show/expired at application level means this round IS a rejection — don't skip it
+				const appLevelIsRejected = ['no_show', 'no show', 'expired', 'session_expired', 'session expired'].includes(appLevelStatus) && !appLevelIsPendingReview;
+				if (appLevelIsRejected) {
+					return 'rejected';
+				}
 				if (appLevelIsPendingReview || completionInfo.isPendingReview) {
 					return '';
 				}
