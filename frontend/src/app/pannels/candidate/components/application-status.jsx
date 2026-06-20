@@ -436,9 +436,10 @@ function CanStatusPage() {
 			? roundDetails.__assessmentOrderIndex
 			: null;
 		const assessmentProcesses = trackedProcesses.filter((process) => {
-			const normalizedType = normalizeStatusValue(process?.type);
-			const normalizedName = normalizeStatusValue(process?.name);
-			return normalizedType === 'assessment' || normalizedName.includes('assessment');
+			const normalizedType = normalizeStatusValue(process?.type || '');
+			const normalizedName = normalizeStatusValue(process?.name || '');
+			const baseType = String(process?.type || '').split('_')[0].toLowerCase();
+			return normalizedType === 'assessment' || normalizedName.includes('assessment') || baseType === 'assessment';
 		});
 
 		if (requestedAssessmentId) {
@@ -468,7 +469,7 @@ function CanStatusPage() {
 			return assessmentProcesses[assessmentOrderIndex];
 		}
 
-		// For single assessment processes, use the only one available
+		// If only one assessment process exists, use it regardless of how many assessment rounds are configured
 		if (assessmentProcesses.length === 1) return assessmentProcesses[0];
 
 		// Last resort: if roundIndex matches a tracked process of assessment type, use it

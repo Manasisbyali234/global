@@ -4455,7 +4455,10 @@ exports.saveInterviewReview = async (req, res) => {
         let nextStatus = incomingStatus;
 
         if (index > 0) {
-          if (hasRejectedBefore || !allPreviousStagesShortlisted) {
+          if (hasRejectedBefore) {
+            // Previous round was rejected — cascade rejection to this round
+            nextStatus = 'rejected';
+          } else if (!allPreviousStagesShortlisted) {
             // Previous round is not completed with a progression status — lock this round to pending
             nextStatus = 'pending';
           } else if (incomingStatus === existingStatus || incomingStatus === 'pending') {
