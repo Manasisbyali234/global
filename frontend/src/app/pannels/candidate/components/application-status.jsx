@@ -2076,7 +2076,7 @@ function CanStatusPage() {
 		};
 
 		const priorRejected = roundIndex > 0 && hasRejectedPriorRound(application, roundIndex);
-		console.log('[getRoundStatus] roundIndex:', roundIndex, 'roundName:', roundName, 'priorRejected:', priorRejected, 'round.status:', typeof round === 'object' ? round?.status : '');
+		console.log('[getRoundStatus] roundIndex:', roundIndex, 'roundName:', roundName, 'priorRejected:', priorRejected, 'round.status:', typeof roundDetails?.__roundStatus === 'string' ? roundDetails.__roundStatus : '');
 		if (priorRejected) {
 			return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 		}
