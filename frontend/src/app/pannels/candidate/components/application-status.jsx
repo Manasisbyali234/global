@@ -2748,7 +2748,7 @@ function CanStatusPage() {
 											) : (
 												paginatedApplications.map((app, index) => {
 													const interviewRounds = getInterviewRounds(app.jobId, app);
-													const applicationDisplayStatus = getApplicationOnlyStatus(app);
+													const applicationDisplayStatus = getCanonicalStatusKey(app.status || 'pending');
 													const isShortlisted = applicationDisplayStatus === 'shortlisted';
 													const shouldHighlightRow = highlightShortlisted && isShortlisted;
 													return (
@@ -3168,7 +3168,7 @@ function CanStatusPage() {
 										</div>
 										<div className="col-md-12 mb-2">
 											{(() => {
-												const selectedApplicationDisplayStatus = getApplicationOnlyStatus(selectedApplication);
+												const selectedApplicationDisplayStatus = getCanonicalStatusKey(selectedApplication.status || 'pending');
 												const hasRejectedOffer = selectedApplication.statusHistory?.some((history) => history?.status === 'offer_sent') && selectedApplicationDisplayStatus === 'rejected';
 
 												return (
@@ -3212,7 +3212,7 @@ function CanStatusPage() {
 									</h6>
 									{(() => {
 										const roundsList = getInterviewRounds(selectedApplication.jobId, selectedApplication);
-										const selectedAppDisplayStatus = getApplicationOnlyStatus(selectedApplication);
+										const selectedAppDisplayStatus = getCanonicalStatusKey(selectedApplication.status || 'pending');
 										return roundsList.map((round, roundIndex) => {
 										let roundName = typeof round === 'string' ? round : round.name;
 										const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round.uniqueKey;
