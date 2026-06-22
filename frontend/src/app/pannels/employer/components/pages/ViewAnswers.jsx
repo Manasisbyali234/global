@@ -177,8 +177,8 @@ export default function ViewAnswers() {
 
     showConfirmation(
       computedResult === 'Pass'
-        ? 'Are you sure you want to mark this assessment as pass? Once updated, this action cannot be edited, deleted'
-        : 'Are you sure you want to mark this assessment as fail? Once updated, this action cannot be edited, deleted',
+        ? (<span>Are you sure you want to mark this assessment as <span style={{ color: '#16a34a', fontWeight: '700' }}>pass</span>? Once updated, this action cannot be edited, deleted</span>)
+        : (<span>Are you sure you want to mark this assessment as <span style={{ color: '#dc2626', fontWeight: '700' }}>fail</span>? Once updated, this action cannot be edited, deleted</span>),
       () => performSave(),
       null,
       'warning'
