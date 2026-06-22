@@ -176,7 +176,9 @@ export default function ViewAnswers() {
     })();
 
     showConfirmation(
-      `Are you sure you want to ${computedResult} this Assessment?`,
+      computedResult === 'Pass'
+        ? 'Are you sure you want to mark this assessment as pass? Once updated, this action cannot be edited, deleted'
+        : `Are you sure you want to ${computedResult} this Assessment?`,
       () => performSave(),
       null,
       'warning'
