@@ -2029,13 +2029,26 @@ function EmpCandidateReviewPage() {
                                                                     })()}
 
                                                                     <div className="stage-row-secondary">
-                                                                        <div className="control-select-wrapper" style={{ position: 'relative' }}>
+                                                                        <div
+                                                                            className="control-select-wrapper"
+                                                                            style={{ position: 'relative' }}
+                                                                            onMouseEnter={(e) => {
+                                                                                if (index > 0 && isPreviousIncomplete && !isPreviousRejected) {
+                                                                                    const tooltip = e.currentTarget.querySelector('.stage-order-tooltip');
+                                                                                    if (tooltip) tooltip.style.display = 'block';
+                                                                                }
+                                                                            }}
+                                                                            onMouseLeave={(e) => {
+                                                                                const tooltip = e.currentTarget.querySelector('.stage-order-tooltip');
+                                                                                if (tooltip) tooltip.style.display = 'none';
+                                                                            }}
+                                                                        >
                                                                             <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'block' }}>Candidate Status</label>
                                                                             {index > 0 && isPreviousIncomplete && !isPreviousRejected && (
                                                                                 <div className="stage-order-tooltip" style={{
                                                                                     display: 'none',
                                                                                     position: 'absolute',
-                                                                                    bottom: '100%',
+                                                                                    top: '100%',
                                                                                     left: '0',
                                                                                     background: '#1f2937',
                                                                                     color: '#fff',
@@ -2043,26 +2056,16 @@ function EmpCandidateReviewPage() {
                                                                                     borderRadius: '6px',
                                                                                     fontSize: '12px',
                                                                                     whiteSpace: 'nowrap',
-                                                                                    zIndex: 10,
-                                                                                    marginBottom: '4px',
+                                                                                    zIndex: 100,
+                                                                                    marginTop: '4px',
                                                                                     pointerEvents: 'none'
                                                                                 }}>
-                                                                                    Please update Stage {index} then update Stage {index + 1}
+                                                                                    ⚠️ Please update Stage {index} first, then update Stage {index + 1}
                                                                                 </div>
                                                                             )}
                                                                             <select
                                                                                 className="form-select"
                                                                                 value={process.status || 'pending'}
-                                                                                onMouseEnter={(e) => {
-                                                                                    if (index > 0 && isPreviousIncomplete && !isPreviousRejected) {
-                                                                                        const tooltip = e.currentTarget.parentElement.querySelector('.stage-order-tooltip');
-                                                                                        if (tooltip) tooltip.style.display = 'block';
-                                                                                    }
-                                                                                }}
-                                                                                onMouseLeave={(e) => {
-                                                                                    const tooltip = e.currentTarget.parentElement.querySelector('.stage-order-tooltip');
-                                                                                    if (tooltip) tooltip.style.display = 'none';
-                                                                                }}
                                                                                 onChange={(e) => {
                                                                                     if (!statusUpdateUnlocked) return;
                                                                                     const newStatus = e.target.value;

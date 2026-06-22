@@ -178,7 +178,7 @@ export default function ViewAnswers() {
     showConfirmation(
       computedResult === 'Pass'
         ? 'Are you sure you want to mark this assessment as pass? Once updated, this action cannot be edited, deleted'
-        : `Are you sure you want to ${computedResult} this Assessment?`,
+        : 'Are you sure you want to mark this assessment as fail? Once updated, this action cannot be edited, deleted',
       () => performSave(),
       null,
       'warning'
