@@ -2057,7 +2057,7 @@ function EmpCandidateReviewPage() {
                                                                                         return updated;
                                                                                     });
                                                                                 }}
-                                                                                disabled={!statusUpdateUnlocked || isCurrentDisabled}
+                                                                                disabled={!statusUpdateUnlocked || isCurrentDisabled || (process.type === 'assessment' && isPendingAssessmentEvaluationProcess(process))}
                                                                             >
                                                                                 {!getStageStatusOptions(index).some((option) => option.value === (process.status || 'pending')) && (
                                                                                     <option value={process.status || 'pending'}>

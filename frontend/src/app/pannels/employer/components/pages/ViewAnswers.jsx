@@ -4,7 +4,7 @@ import axios from 'axios';
 import { BACKEND_URL } from '../../../../../utils/api';
 import { decodeAssessmentText, formatAssessmentContent } from '../../../../../utils/assessmentContent';
 import { getAssessmentOutcomeLabel } from '../../../../../utils/assessmentOutcome';
-import { showError, showSuccess } from '../../../../../utils/popupNotification';
+import { showError, showSuccess, showConfirmation } from '../../../../../utils/popupNotification';
 
 export default function ViewAnswers() {
   const { attemptId } = useParams();
@@ -159,6 +159,35 @@ export default function ViewAnswers() {
       showError(`Enter marks for question - ${String(missingEvaluation.questionIndex + 1).padStart(2, '0')}.`);
       return;
     }
+
+    const computedResult = (() => {
+      const totalManualMarks = manualAnswersToEvaluate.reduce((sum, answer) => {
+        const draft = evaluationDrafts?.[answer.questionIndex];
+        return sum + (draft ? Number(draft.awardedMarks) || 0 : 0);
+      }, 0);
+      const objectiveScore = Number(attempt.score || 0) - (attempt.answers || []).reduce((sum, ans) => {
+        const q = assessment.questions?.[ans.questionIndex];
+        return sum + (q && isManualQuestionType(q.type) ? Number(ans.awardedMarks || 0) : 0);
+      }, 0);
+      const projectedScore = objectiveScore + totalManualMarks;
+      const projectedPct = attempt.totalMarks > 0 ? (projectedScore / Number(attempt.totalMarks)) * 100 : 0;
+      const passing = Number(assessment?.passingPercentage ?? 60);
+      return projectedPct >= passing ? 'Pass' : 'Fail';
+    })();
+
+    showConfirmation(
+      `Are you sure you want to ${computedResult} this Assessment?`,
+      () => performSave(),
+      null,
+      'warning'
+    );
+  };
+
+  const performSave = async () => {
+    const manualAnswersToEvaluate = (attempt.answers || []).filter((answer) => {
+      const question = assessment.questions?.[answer.questionIndex];
+      return question && isManualQuestionType(question.type) && hasManualResponse(answer);
+    });
 
     try {
       setSavingEvaluation(true);
