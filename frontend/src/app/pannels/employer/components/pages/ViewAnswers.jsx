@@ -195,13 +195,21 @@ export default function ViewAnswers() {
           </span>
         )
         : (<span>Are you sure you want to mark this assessment as <span style={{ color: '#dc2626', fontWeight: '700' }}>Fail</span>? Once updated, this action cannot be edited, deleted</span>),
-      () => performSave(),
+      () => {
+        if (computedResult === 'Pass') {
+          const appId = attempt?.applicationId?._id || attempt?.applicationId;
+          performSave(appId ? () => navigate(`/employer/emp-candidate-review/${appId}#manual-stage-tracking`) : null);
+        } else {
+          performSave();
+        }
+      },
       null,
-      'warning'
+      'warning',
+      computedResult === 'Pass' ? { confirmText: 'Shortlisted for Next Round' } : {}
     );
   };
 
-  const performSave = async () => {
+  const performSave = async (onSuccess = null) => {
     const manualAnswersToEvaluate = (attempt.answers || []).filter((answer) => {
       const question = assessment.questions?.[answer.questionIndex];
       return question && isManualQuestionType(question.type) && hasManualResponse(answer);
@@ -226,6 +234,7 @@ export default function ViewAnswers() {
         setAssessment(response.data.attempt.assessmentId);
         setEvaluationDrafts(buildEvaluationDrafts(response.data.attempt));
         showSuccess('Manual evaluation saved successfully.');
+        if (onSuccess) onSuccess();
         return;
       }
 
