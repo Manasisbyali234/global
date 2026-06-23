@@ -40,8 +40,8 @@
   position: fixed !important;
   top: 0 !important;
   right: 0 !important;
-  width: min(280px, calc(100vw - 16px)) !important;
-  max-width: 100vw !important;
+  width: 50vw !important;
+  max-width: 300px !important;
   height: 100vh !important;
   height: 100dvh !important;
   background: #fff !important;
@@ -326,8 +326,8 @@ html body .hamburger-menu .close-btn {
 
 @media (max-width: 480px) {
   .hamburger-menu {
-    width: min(260px, calc(100vw - 12px)) !important;
-    max-width: 100vw !important;
+    width: 75vw !important;
+    max-width: 280px !important;
   }
 }
 
