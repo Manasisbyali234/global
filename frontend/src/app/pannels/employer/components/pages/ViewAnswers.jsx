@@ -181,7 +181,16 @@ export default function ViewAnswers() {
           <span>
             Are you sure you want to mark this assessment as <span style={{ color: '#16a34a', fontWeight: '700' }}>Pass</span>? Once updated, this action cannot be edited, deleted
             <div style={{ marginTop: '10px', padding: '8px 12px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '6px', color: '#166534', fontSize: '0.85rem' }}>
-              <strong>Note:</strong> Once the assessment is marked as Pass, you must update the candidate status to <strong>Shortlisted for Next Round</strong> under Candidate Status.
+              <strong>Note:</strong> Once the assessment is marked as Pass, you must update the candidate status to{' '}
+              <span
+                onClick={() => {
+                  const appId = attempt?.applicationId?._id || attempt?.applicationId;
+                  if (appId) navigate(`/employer/emp-candidate-review/${appId}`);
+                }}
+                style={{ color: '#15803d', fontWeight: '700', textDecoration: 'underline', cursor: 'pointer' }}
+              >
+                Shortlisted for Next Round
+              </span>{' '}under Candidate Status.
             </div>
           </span>
         )
