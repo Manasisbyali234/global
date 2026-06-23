@@ -422,9 +422,8 @@ function SectionCandidateOverview() {
 			label: "Applied",
 			clickable: true,
 			onClick: () => {
-				// Set flag to highlight company and position columns
 				sessionStorage.setItem('highlightCompanyPosition', 'true');
-				navigate('/candidate/status');
+				navigate('/candidate/status?filter=applied');
 			}
 		},
 		{
@@ -434,7 +433,7 @@ function SectionCandidateOverview() {
 			count: stats.inProgress,
 			label: "In Progress",
 			clickable: true,
-			onClick: () => navigate('/candidate/status')
+			onClick: () => navigate('/candidate/status?filter=inProgress')
 		},
 		{
 			bg: "#ffffff",

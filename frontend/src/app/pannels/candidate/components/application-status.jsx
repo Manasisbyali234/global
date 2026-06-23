@@ -22,6 +22,8 @@ import "../../../../table-overflow-fix.css";
 
 const APPLICATION_STATUS_FILTER_OPTIONS = [
 	{ value: 'all', label: 'All Status' },
+	{ value: 'applied', label: 'All Applied' },
+	{ value: 'inProgress', label: 'In Progress' },
 	{ value: 'shortlisted', label: 'Shortlisted' },
 	{ value: 'interviewed', label: 'Interviewed' },
 	{ value: 'offer_sent', label: 'Offer Letter Sent' },
@@ -46,7 +48,9 @@ function CanStatusPage() {
 	const isInterviewDetailsPage = !!applicationId;
 	const [applications, setApplications] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [selectedStatus, setSelectedStatus] = useState('all');
+	const _filterParam = new URLSearchParams(window.location.search).get('filter');
+	const initialStatus = _filterParam === 'inProgress' ? 'inProgress' : _filterParam === 'applied' ? 'applied' : 'all';
+	const [selectedStatus, setSelectedStatus] = useState(initialStatus);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [positionQuery, setPositionQuery] = useState('');
 	const [activeTab, setActiveTab] = useState('applications');
@@ -2549,13 +2553,15 @@ function CanStatusPage() {
 	};
 
 	const filteredApplications = useMemo(() => {
-		let result = selectedStatus === 'all'
+		let result = selectedStatus === 'all' || selectedStatus === 'applied'
 			? applications
-			: applications.filter((application) => {
-				if (getApplicationFilterStatus(application) === selectedStatus) return true;
-				const roundStatuses = getInterviewRoundStatuses(application);
-				return roundStatuses.some((s) => s === normalizeStatusValue(selectedStatus));
-			});
+			: selectedStatus === 'inProgress'
+				? applications.filter((application) => ['pending', 'interviewed'].includes(getApplicationFilterStatus(application)))
+				: applications.filter((application) => {
+					if (getApplicationFilterStatus(application) === selectedStatus) return true;
+					const roundStatuses = getInterviewRoundStatuses(application);
+					return roundStatuses.some((s) => s === normalizeStatusValue(selectedStatus));
+				});
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.trim().toLowerCase();
