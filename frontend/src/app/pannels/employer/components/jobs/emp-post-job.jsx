@@ -4916,13 +4916,15 @@ export default function EmpPostJob({ onNext }) {
 													placeholder="Please specify the interview round type (e.g., Coding Challenge, Portfolio Review, Case Study, etc.)"
 													value={formData.interviewRoundDetails[othersKey]?.customType || ''}
 													onChange={(e) => {
+														const val = e.target.value;
+														const capitalized = val.length > 0 ? val.charAt(0).toUpperCase() + val.slice(1) : val;
 														setFormData(prev => ({
 															...prev,
 															interviewRoundDetails: {
 																...prev.interviewRoundDetails,
 																[othersKey]: {
 																	...prev.interviewRoundDetails[othersKey],
-																	customType: e.target.value
+																	customType: capitalized
 																}
 															}
 														}));
