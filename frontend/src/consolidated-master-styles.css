@@ -2446,6 +2446,27 @@ img[src*="logo-skin-8"] {
   .modal {
     -webkit-backdrop-filter: blur(2px) !important;
   }
+
+  /* Fix placeholder vertical alignment on iOS */
+  input,
+  select,
+  textarea,
+  .form-control,
+  .form-select {
+    display: flex !important;
+    align-items: center !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: normal !important;
+  }
+
+  textarea,
+  textarea.form-control {
+    display: block !important;
+    align-items: unset !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
 }
 
 /* ============================================================================

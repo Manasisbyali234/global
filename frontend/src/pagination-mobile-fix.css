@@ -1,0 +1,109 @@
+/* Pagination Mobile Responsive Fix */
+
+/* Ensure pagination stays in single row on mobile */
+.pagination-outer {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  min-width: 0;
+}
+
+.pagination-outer .pagination-style1 {
+  position: relative;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.pagination-outer .pagination-style1 ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination-outer .pagination-style1 ul li {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  display: inline-flex !important;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Reset btn overrides from consolidated styles for pagination buttons */
+.pagination-outer .pagination-style1 ul li button.btn,
+.pagination-outer .pagination-style1 ul li.prev button.btn,
+.pagination-outer .pagination-style1 ul li.next button.btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  max-width: 36px !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  border-radius: 6px !important;
+  border: 1px solid #d1d5db !important;
+  background: #fff !important;
+  color: #374151 !important;
+  line-height: 1 !important;
+}
+
+.pagination-outer .pagination-style1 ul li.active button.btn {
+  background: #FF6A00 !important;
+  color: #fff !important;
+  border-color: #FF6A00 !important;
+}
+
+.pagination-outer .pagination-style1 ul li.disabled button.btn {
+  opacity: 0.4 !important;
+  pointer-events: none !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 576px) {
+  .pagination-outer .pagination-style1 ul li button.btn,
+  .pagination-outer .pagination-style1 ul li.prev button.btn,
+  .pagination-outer .pagination-style1 ul li.next button.btn {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    min-height: 30px !important;
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .pagination-outer .pagination-style1 ul {
+    gap: 2px !important;
+  }
+
+  .pagination-outer .pagination-style1 ul li button.btn,
+  .pagination-outer .pagination-style1 ul li.prev button.btn,
+  .pagination-outer .pagination-style1 ul li.next button.btn {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    max-width: 26px !important;
+    min-height: 26px !important;
+    font-size: 11px !important;
+  }
+}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import '../../../../../pagination-mobile-fix.css';
 
 function SectionPagination({ currentPage = 1, totalPages = 1, onPageChange }) {
     const [page, setPage] = useState(currentPage);
