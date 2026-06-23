@@ -114,7 +114,7 @@ function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
             </li>
             <li className={setMenuActive(currentpath, canRoute(candidate.STATUS))}>
               <NavLink to={canRoute(candidate.STATUS)} onClick={handleLinkClick}>
-                <i className="fa fa-user-tie" />
+                <i className="fa-file-signature" />
                 <span className="admin-nav-text">My Applications</span>
               </NavLink>
             </li>

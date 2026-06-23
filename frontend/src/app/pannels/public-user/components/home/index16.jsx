@@ -1485,7 +1485,7 @@ Leverage advanced filtering capabilities to identify qualified professionals.</p
                         <span className="badge-orange mb-3">Get Started</span>
                         <h2 className="cta-heading text-center mb-4">Ready to find your next great hire?</h2>
                         <div className="d-flex justify-content-center gap-3 mb-3 flex-wrap">
-                            <NavLink to="/login?tab=employer" className="btn-orange-pill">
+                            <NavLink to="/signup-employer" className="btn-orange-pill">
                                 Post a Job for Free
                             </NavLink>
                             <NavLink to="/contact-us" className="btn-outline-pill">
