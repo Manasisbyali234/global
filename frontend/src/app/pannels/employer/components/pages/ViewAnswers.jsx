@@ -205,7 +205,7 @@ export default function ViewAnswers() {
       },
       null,
       'warning',
-      computedResult === 'Pass' ? { confirmText: 'Shortlisted for Next Round' } : {}
+      {}
     );
   };
 
