@@ -443,9 +443,8 @@ function SectionCandidateOverview() {
 			label: "Shortlisted",
 			clickable: true,
 			onClick: () => {
-				// Set a flag to highlight shortlisted applications
 				sessionStorage.setItem('highlightShortlisted', 'true');
-				navigate('/candidate/status');
+				navigate('/candidate/status?filter=shortlisted');
 			}
 		},
 		{
@@ -455,7 +454,7 @@ function SectionCandidateOverview() {
 			count: stats.hired,
 			label: "Hired",
 			clickable: true,
-			onClick: () => navigate('/candidate/status')
+			onClick: () => navigate('/candidate/status?filter=accepted')
 		},
 	];
 

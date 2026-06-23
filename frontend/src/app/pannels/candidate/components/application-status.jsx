@@ -49,7 +49,7 @@ function CanStatusPage() {
 	const [applications, setApplications] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const _filterParam = new URLSearchParams(window.location.search).get('filter');
-	const initialStatus = _filterParam === 'inProgress' ? 'inProgress' : _filterParam === 'applied' ? 'applied' : 'all';
+	const initialStatus = _filterParam === 'inProgress' ? 'inProgress' : _filterParam === 'applied' ? 'applied' : _filterParam === 'shortlisted' ? 'shortlisted' : _filterParam === 'accepted' ? 'accepted' : 'all';
 	const [selectedStatus, setSelectedStatus] = useState(initialStatus);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [positionQuery, setPositionQuery] = useState('');
