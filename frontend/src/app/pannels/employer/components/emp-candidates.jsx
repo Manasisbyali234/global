@@ -152,7 +152,11 @@ function EmpCandidatesPage() {
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState("");
   const [currentJob, setCurrentJob] = useState(null);
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(() => {
+    const saved = sessionStorage.getItem('empCandidatesSearch') || "";
+    sessionStorage.removeItem('empCandidatesSearch');
+    return saved;
+  });
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
   const [designationFilter, setDesignationFilter] = useState("");
@@ -399,7 +403,7 @@ function EmpCandidatesPage() {
                     className="form-control page-toolbar__input emp-candidates-search-input"
                     placeholder="Search by email"
                     value={searchText}
-                    onChange={(e) => { setSearchText(e.target.value); setShowSuggestions(true); }}
+                    onChange={(e) => { setSearchText(e.target.value); sessionStorage.setItem('empCandidatesSearch', e.target.value); setShowSuggestions(true); }}
                     style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', width: '100%' }}
                     onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                     onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; setTimeout(() => {}, 150); }}
@@ -560,6 +564,7 @@ function EmpCandidatesPage() {
                           className="btn btn-outline-primary btn-sm"
                           onClick={(e) => {
                             e.stopPropagation();
+                            sessionStorage.setItem('empCandidatesSearch', searchText);
                             navigate(`/employer/emp-candidate-review/${application._id}`);
                           }}
                           style={{whiteSpace: 'nowrap'}}
