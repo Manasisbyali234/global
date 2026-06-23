@@ -243,7 +243,7 @@ const AssessmentResults = () => {
 
 	// Close and go back to status page
 	const handleCloseAssessment = () => {
-		navigate("/candidate/status");
+		navigate(applicationId ? `/candidate/status/interview-details/${applicationId}` : "/candidate/status/interview-details/");
 	};
 
 	if (loading) {
@@ -285,7 +285,7 @@ const AssessmentResults = () => {
 					<h3>Error Loading Assessment</h3>
 					<p className="text-danger">{error}</p>
 					<button
-						onClick={() => navigate("/candidate/status")}
+						onClick={() => navigate(applicationId ? `/candidate/status/interview-details/${applicationId}` : "/candidate/status/interview-details/")}
 						style={{
 							padding: "10px 20px",
 							border: "none",

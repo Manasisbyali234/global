@@ -212,7 +212,12 @@
   color: #16a34a;
 }
 
-.interview-status-pill--rejected {
+.interview-status-pill--rejected,
+.interview-status-pill--failed,
+.interview-status-pill--no-show,
+.interview-status-pill--no-show,
+.interview-status-pill--session-expired,
+.interview-status-pill--suspended {
   background-color: #fef2f2;
   color: #dc2626;
 }
@@ -223,7 +228,8 @@
   color: #2563eb;
 }
 
-.interview-status-pill--accepted {
+.interview-status-pill--accepted,
+.interview-status-pill--passed {
   background-color: #f0fdf4;
   color: #15803d;
 }
