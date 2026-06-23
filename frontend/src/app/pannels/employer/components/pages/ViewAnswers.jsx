@@ -177,7 +177,14 @@ export default function ViewAnswers() {
 
     showConfirmation(
       computedResult === 'Pass'
-        ? (<span>Are you sure you want to mark this assessment as <span style={{ color: '#16a34a', fontWeight: '700' }}>Pass</span>? Once updated, this action cannot be edited, deleted</span>)
+        ? (
+          <span>
+            Are you sure you want to mark this assessment as <span style={{ color: '#16a34a', fontWeight: '700' }}>Pass</span>? Once updated, this action cannot be edited, deleted
+            <div style={{ marginTop: '10px', padding: '8px 12px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '6px', color: '#166534', fontSize: '0.85rem' }}>
+              <strong>Note:</strong> Once the assessment is marked as Pass, you must update the candidate status to <strong>Shortlisted for Next Round</strong> under Candidate Status.
+            </div>
+          </span>
+        )
         : (<span>Are you sure you want to mark this assessment as <span style={{ color: '#dc2626', fontWeight: '700' }}>Fail</span>? Once updated, this action cannot be edited, deleted</span>),
       () => performSave(),
       null,
