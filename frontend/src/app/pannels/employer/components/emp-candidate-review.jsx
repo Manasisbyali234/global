@@ -1101,6 +1101,15 @@ function EmpCandidateReviewPage() {
     }, [applicationId]);
 
     useEffect(() => {
+        if (!loading && window.location.hash === '#manual-stage-tracking') {
+            setTimeout(() => {
+                const el = document.getElementById('manual-stage-tracking');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+    }, [loading]);
+
+    useEffect(() => {
         const handleFocus = () => fetchApplicationDetails();
         window.addEventListener('focus', handleFocus);
         return () => window.removeEventListener('focus', handleFocus);
@@ -1907,7 +1916,7 @@ function EmpCandidateReviewPage() {
                         <div className="review-grid">
                             <div className="review-main">
                                 {interviewProcesses.length > 0 && (
-                                    <div className="section-card">
+                                    <div className="section-card" id="manual-stage-tracking">
                                          <div className="section-header">
                                               <div style={{ display: "flex", flexDirection: "column" }}>
                                                <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4>

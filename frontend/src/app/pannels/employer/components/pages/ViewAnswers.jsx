@@ -185,7 +185,7 @@ export default function ViewAnswers() {
               <span
                 onClick={() => {
                   const appId = attempt?.applicationId?._id || attempt?.applicationId;
-                  if (appId) navigate(`/employer/emp-candidate-review/${appId}`);
+                  if (appId) navigate(`/employer/emp-candidate-review/${appId}#manual-stage-tracking`);
                 }}
                 style={{ color: '#15803d', fontWeight: '700', textDecoration: 'underline', cursor: 'pointer' }}
               >
