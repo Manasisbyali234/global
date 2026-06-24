@@ -15,16 +15,15 @@
 /* Fix location text overflow in all job card types */
 .job-location,
 .card-location,
-[class*="location"],
 .new-job-card .job-location,
 .job-card .job-location,
 .home-job-card .job-location,
 .home-job-card .card-location {
-    overflow: visible !important;
-    text-overflow: unset !important;
-    white-space: normal !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
     max-width: 100% !important;
-    word-break: break-word !important;
+    word-break: normal !important;
 }
 
 /* Ensure location container has proper width constraints */
@@ -41,7 +40,10 @@
     .card-location {
         font-size: 13px !important;
         max-width: 100% !important;
-        white-space: normal !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        word-break: normal !important;
     }
     
     .job-card-left,

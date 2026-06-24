@@ -248,22 +248,22 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                                         if (Array.isArray(job.location)) {
                                             const locations = job.location.filter(loc => loc && loc.trim());
                                             if (locations.length <= 1) {
-                                                return locations.join(', ');
+                                                return <span className="location-text">{locations.join(', ') || 'Location not specified'}</span>;
                                             } else {
                                                 return (
                                                     <>
-                                                        {locations[0]}
+                                                        <span className="location-text">{locations[0]}</span>
                                                         <span 
                                                             className="location-more" 
                                                             title={locations.slice(1).join(', ')}
                                                         >
-                                                            {' '}+{locations.length - 1} more
+                                                            +{locations.length - 1} more
                                                         </span>
                                                     </>
                                                 );
                                             }
                                         }
-                                        return job.location || 'Location not specified';
+                                        return <span className="location-text">{job.location || 'Location not specified'}</span>;
                                     })()
                                     }
                                 </div>

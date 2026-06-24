@@ -89,15 +89,14 @@
 
 .job-location {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: nowrap;
   gap: 4px;
   color: #6b7280;
   font-size: 14px;
   flex: 1;
   min-width: 0;
-  word-break: break-word;
-  overflow-wrap: break-word;
+  overflow: hidden;
 }
 
 .job-location i {
@@ -109,9 +108,9 @@
 .job-location > span {
   flex: 1;
   min-width: 0;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  white-space: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .job-location .location-more {
@@ -123,17 +122,15 @@
   font-size: 12px;
   display: inline-flex;
   align-items: center;
-  overflow: visible;
-  word-break: break-word;
-  overflow-wrap: break-word;
+  white-space: nowrap;
 }
 
 .job-location .location-text {
-  flex: 0 1 auto;
-  min-width: fit-content;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  white-space: normal;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Ensure location text doesn't get cut off */
@@ -144,29 +141,25 @@
   flex: 1 !important;
   min-width: 0 !important;
   flex-wrap: nowrap !important;
-  align-items: flex-start !important;
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
-  text-overflow: unset !important;
+  align-items: center !important;
+  overflow: hidden !important;
 }
 
 .new-job-card .job-location .location-more,
 .job-card .job-location .location-more,
 .home-job-card .job-location .location-more {
   flex-shrink: 0 !important;
-  overflow: visible !important;
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
+  white-space: nowrap !important;
 }
 
 .new-job-card .job-location .location-text,
 .job-card .job-location .location-text,
 .home-job-card .job-location .location-text {
-  flex: 0 1 auto !important;
-  min-width: fit-content !important;
-  white-space: normal !important;
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .job-location i {
@@ -311,10 +304,7 @@
   .job-location {
     max-width: 100% !important;
     font-size: 13px;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-    flex-wrap: wrap;
+    overflow: hidden;
   }
 }
 
@@ -337,10 +327,7 @@
 
   .job-location {
     font-size: 13px;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-    flex-wrap: wrap;
+    overflow: hidden;
   }
 
   .ctc-text, .vacancy-text {
@@ -374,8 +361,7 @@
 
   .job-location {
     font-size: 12px;
-    word-break: break-word;
-    overflow-wrap: break-word;
+    overflow: hidden;
     gap: 2px;
   }
 
