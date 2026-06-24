@@ -1931,20 +1931,11 @@ function EmpCandidateReviewPage() {
                                                <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4>
                                                {!statusUpdateUnlocked && (
                                                    <p style={{ color: '#dc3545', fontSize: '12px', margin: '4px 0 0 0', fontWeight: '500' }}>
-                                                       Please click on "Status update" to unlock the stages.
+                                                       Please click on{' '}
+                                                       <span onClick={handleOpenStatusUpdate} style={{ color: '#f97316', cursor: statusUpdateUnlocked ? 'default' : 'pointer', textDecoration: 'underline', fontWeight: '600' }}>Status Update</span>{' '}to unlock the stages.
                                                    </p>
                                                )}
                                           </div>
-                                          <button
-                                            ref={statusUpdateBtnRef}
-                                            type="button"
-                                            className={`btn btn-sm ${statusUpdateUnlocked ? 'btn-success' : 'btn-primary'}`}
-                                            onClick={handleOpenStatusUpdate}
-                                            disabled={statusUpdateUnlocked}
-                                            title={statusUpdateUnlocked ? 'Status Enabled' : 'Open interview status instructions'}
-                                          >
-                                            {statusUpdateUnlocked ? 'Status Enabled' : 'Status update'}
-                                          </button>
                                           </div>
                                         <div className="section-body" style={{ background: 'var(--soft-beige)', borderRadius: '0 0 16px 16px' }}>
                                             <div className="stage-timeline">
@@ -2135,11 +2126,10 @@ function EmpCandidateReviewPage() {
                                                                             )}
                                                                                 <p style={{ fontSize: '12px', color: '#9aabcc', margin: '4px 0 0 0', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                                                                     <i className="fas fa-info-circle"></i>
-                                                                                    Click on{' '}
                                                                                     <span
-                                                                                        onClick={() => statusUpdateBtnRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-                                                                                        style={{ color: '#f97316', cursor: 'pointer', textDecoration: 'underline', fontWeight: '600' }}
-                                                                                    >Status Update</span>{' '}button.
+                                                                                        onClick={handleOpenStatusUpdate}
+                                                                                        style={{ color: '#f97316', cursor: statusUpdateUnlocked ? 'default' : 'pointer', textDecoration: 'underline', fontWeight: '600' }}
+                                                                                    >Click here to unlock status update.</span>
                                                                                 </p>
                                                                         </div>
                                                                         <div className="control-remarks-wrapper">
