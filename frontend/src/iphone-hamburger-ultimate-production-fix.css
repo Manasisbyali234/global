@@ -44,8 +44,8 @@ html body .hamburger-menu {
   position: fixed !important;
   top: 0 !important;
   right: 0 !important;
-  width: min(280px, calc(100vw - 16px)) !important;
-  max-width: 100vw !important;
+  width: min(280px, calc(100vw - 56px)) !important;
+  max-width: min(280px, calc(100vw - 56px)) !important;
   height: 100vh !important;
   height: 100dvh !important;
   height: -webkit-fill-available !important;
@@ -165,8 +165,8 @@ html body .extra-cell {
 /* 8. BREAKPOINT FIXES */
 @media (max-width: 480px) {
   html body .hamburger-menu {
-    width: min(260px, calc(100vw - 12px)) !important;
-    max-width: 100vw !important;
+    width: min(260px, calc(100vw - 48px)) !important;
+    max-width: min(280px, calc(100vw - 56px)) !important;
   }
   html body .hamburger-btn {
     width: 36px !important;

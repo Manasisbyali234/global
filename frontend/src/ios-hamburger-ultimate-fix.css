@@ -113,7 +113,7 @@ html body .hamburger-menu {
   position: fixed !important;
   top: 0 !important;
   right: 0 !important;
-  width: 280px !important;
+  width: min(280px, calc(100vw - 56px)) !important;
   height: 100vh !important;
   background: #fff !important;
   z-index: 999998 !important;
@@ -196,7 +196,7 @@ html body .hamburger-btn[style*="opacity: 0"] {
   }
   
   html body .hamburger-menu {
-    width: 260px !important;
+    width: min(260px, calc(100vw - 48px)) !important;
   }
 }
 
