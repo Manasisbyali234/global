@@ -21,7 +21,8 @@ const ProtectedRoute = ({ children, allowedRoles = [], requiredRole = null }) =>
                 break;
             case 'candidate':
                 if (!candidateToken) {
-                    return <Navigate to={`/login-candidate?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
+                    const redirectParam = encodeURIComponent(location.pathname + location.search);
+                    return <Navigate to={`/signup-candidate?redirect=${redirectParam}`} replace />;
                 }
                 break;
             case 'employer':

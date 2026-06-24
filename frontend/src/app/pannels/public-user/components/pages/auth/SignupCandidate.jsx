@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { publicUser } from "../../../../../../globals/route-names";
 import { handlePhoneInputChange } from "../../../../../../utils/phoneValidation";
 import { showSuccess, showError } from "../../../../../../utils/popupNotification";
@@ -9,6 +9,7 @@ import "./AuthPages.css";
 
 function SignupCandidate() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [candidateData, setCandidateData] = useState({
         firstName: '',
         middleName: '',
@@ -238,7 +239,12 @@ function SignupCandidate() {
                 showSuccess('Mobile number verified successfully! Please check your registered email inbox to create your password.');
                 setShowOtpModal(false);
                 setCandidateData({ firstName: '', middleName: '', lastName: '', email: '', mobile: '', countryCode: '+91' });
-                navigate(publicUser.pages.LOGIN_CANDIDATE);
+                const params = new URLSearchParams(location.search);
+                const redirectTo = params.get('redirect');
+                const loginPath = redirectTo
+                    ? `${publicUser.pages.LOGIN_CANDIDATE}?redirect=${encodeURIComponent(redirectTo)}`
+                    : publicUser.pages.LOGIN_CANDIDATE;
+                navigate(loginPath);
             } else {
                 showError(data.message || 'Verification failed');
             }
@@ -391,7 +397,7 @@ function SignupCandidate() {
                         </button>
 
                         <p className="small-link">
-                            Already have an account? <NavLink to={publicUser.pages.LOGIN_CANDIDATE}>Log In</NavLink>
+                            Already have an account? <NavLink to={(() => { const p = new URLSearchParams(location.search); const r = p.get('redirect'); return r ? `${publicUser.pages.LOGIN_CANDIDATE}?redirect=${encodeURIComponent(r)}` : publicUser.pages.LOGIN_CANDIDATE; })()}>Log In</NavLink>
                         </p>
                     </form>
                 </div>
