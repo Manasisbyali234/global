@@ -17,7 +17,7 @@ function JobsGridPage() {
     const [filters, setFilters] = useState({});
     const [totalJobs, setTotalJobs] = useState(0);
     const [sortBy, setSortBy] = useState("Most Recent");
-    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [itemsPerPage, setItemsPerPage] = useState(16);
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const lastMobileFilterInteractionRef = useRef(null);
 

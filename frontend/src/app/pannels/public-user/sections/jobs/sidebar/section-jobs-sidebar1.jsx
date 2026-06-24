@@ -616,7 +616,7 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                         
                         <div className="twm-sidebar-ele-filter">
                             <h4 className="section-head-small mb-4">Job Category</h4>
-                            <ul style={{listStyle: 'none', padding: 0}}>
+                            <ul style={{listStyle: 'none', padding: 0, maxHeight: '200px', overflowY: 'auto'}}>
                                 <li style={{marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                     <div className="form-check" style={{margin: 0, display: 'flex', alignItems: 'center'}}>
                                         <input 
