@@ -987,7 +987,7 @@ function EmpCandidateReviewPage() {
 
     const getApplicationDisplayStatus = (applicationData, processes = []) => {
         const baseStatus = String(applicationData?.status || '').trim().toLowerCase() || 'pending';
-        if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
+        if (['accepted', 'hired', 'offer_sent', 'shortlisted'].includes(baseStatus)) {
             return baseStatus;
         }
 

@@ -20,9 +20,9 @@
 .job-card .job-location,
 .home-job-card .job-location,
 .home-job-card .card-location {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    white-space: normal !important;
     max-width: 100% !important;
     word-break: break-word !important;
 }
@@ -40,7 +40,8 @@
     .job-location,
     .card-location {
         font-size: 13px !important;
-        max-width: calc(100vw - 120px) !important;
+        max-width: 100% !important;
+        white-space: normal !important;
     }
     
     .job-card-left,

@@ -232,7 +232,7 @@ function EmpCandidatesPage() {
       case "pending":
         return "twm-bg-yellow";
       case "shortlisted":
-        return "twm-bg-purple";
+        return "twm-bg-green";
       case "interviewed":
         return "twm-bg-orange";
       case "hired":
@@ -250,14 +250,19 @@ function EmpCandidatesPage() {
     }
   };
 
-  const getSharedApplicationDisplayStatus = (application = {}) =>
-    getCanonicalStatusKey(
+  const getSharedApplicationDisplayStatus = (application = {}) => {
+    const baseStatus = String(application?.status || '').trim().toLowerCase();
+    if (['accepted', 'hired', 'offer_sent', 'shortlisted'].includes(baseStatus)) {
+      return baseStatus;
+    }
+    return getCanonicalStatusKey(
       application?.applicationStatus ||
         application?.applicationDisplayStatus ||
         application?.displayStatus ||
         application?.status ||
         "pending"
     );
+  };
 
   const applicationsWithDisplayStatus = useMemo(
     () =>
