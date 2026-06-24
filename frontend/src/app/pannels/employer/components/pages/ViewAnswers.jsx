@@ -177,15 +177,39 @@ export default function ViewAnswers() {
 
     showConfirmation(
       computedResult === 'Pass'
-        ? (<span>Are you sure you want to mark this assessment as <span style={{ color: '#16a34a', fontWeight: '700' }}>Pass</span>? Once updated, this action cannot be edited, deleted</span>)
+        ? (
+          <span>
+            Are you sure you want to mark this assessment as <span style={{ color: '#16a34a', fontWeight: '700' }}>Pass</span>? Once updated, this action cannot be edited, deleted
+            <div style={{ marginTop: '10px', padding: '8px 12px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '6px', color: '#166534', fontSize: '0.85rem' }}>
+              <strong>Note:</strong> Once the assessment is marked as Pass, you must update the candidate status to{' '}
+              <span
+                onClick={() => {
+                  const appId = attempt?.applicationId?._id || attempt?.applicationId;
+                  if (appId) navigate(`/employer/emp-candidate-review/${appId}#manual-stage-tracking`);
+                }}
+                style={{ color: '#15803d', fontWeight: '700', textDecoration: 'underline', cursor: 'pointer' }}
+              >
+                Shortlisted for Next Round
+              </span>{' '}under Candidate Status.
+            </div>
+          </span>
+        )
         : (<span>Are you sure you want to mark this assessment as <span style={{ color: '#dc2626', fontWeight: '700' }}>Fail</span>? Once updated, this action cannot be edited, deleted</span>),
-      () => performSave(),
+      () => {
+        if (computedResult === 'Pass') {
+          const appId = attempt?.applicationId?._id || attempt?.applicationId;
+          performSave(appId ? () => navigate(`/employer/emp-candidate-review/${appId}#manual-stage-tracking`) : null);
+        } else {
+          performSave();
+        }
+      },
       null,
-      'warning'
+      'warning',
+      computedResult === 'Pass' ? { confirmText: 'Yes,Go to Status' } : {}
     );
   };
 
-  const performSave = async () => {
+  const performSave = async (onSuccess = null) => {
     const manualAnswersToEvaluate = (attempt.answers || []).filter((answer) => {
       const question = assessment.questions?.[answer.questionIndex];
       return question && isManualQuestionType(question.type) && hasManualResponse(answer);
@@ -210,6 +234,7 @@ export default function ViewAnswers() {
         setAssessment(response.data.attempt.assessmentId);
         setEvaluationDrafts(buildEvaluationDrafts(response.data.attempt));
         showSuccess('Manual evaluation saved successfully.');
+        if (onSuccess) onSuccess();
         return;
       }
 
