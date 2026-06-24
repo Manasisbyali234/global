@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import './emp-candidate-review.css';
 import './emp-candidate-review-active-button-fix.css';
 import './emp-candidate-review-back-button-mobile-fix.css';
@@ -43,6 +43,8 @@ function EmpCandidateReviewPage() {
     const isInitialLoadRef = useRef(true);
     const processRemarksRef = useRef({});
     const interviewProcessesRef = useRef([]);
+    const location = useLocation();
+    const [highlightedAttemptId, setHighlightedAttemptId] = useState(location.state?.highlightAttemptId || null);
     const [showStatusTermsModal, setShowStatusTermsModal] = useState(false);
     const [statusUpdateUnlocked, setStatusUpdateUnlocked] = useState(false);
     const [showRejectConfirm, setShowRejectConfirm] = useState(false);
@@ -1103,6 +1105,13 @@ function EmpCandidateReviewPage() {
     useEffect(() => {
         if (!loading && window.location.hash === '#manual-stage-tracking') {
             setTimeout(() => {
+                if (highlightedAttemptId) {
+                    const cardEl = document.getElementById(`assessment-card-${highlightedAttemptId}`);
+                    if (cardEl) {
+                        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                    }
+                }
                 const el = document.getElementById('manual-stage-tracking');
                 if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 300);
@@ -1971,7 +1980,15 @@ function EmpCandidateReviewPage() {
                                                                     <div className="indicator-circle">{index + 1}</div>
                                                                 </div>
 
-                                                                <div className={`stage-card ${isCurrentDisabled ? 'stage-disabled' : ''}`}>
+                                                                <div className={`stage-card ${isCurrentDisabled ? 'stage-disabled' : ''}`}
+                                                                    id={process.type === 'assessment' && process.assessmentAttemptId ? `assessment-card-${process.assessmentAttemptId}` : undefined}
+                                                                    style={process.type === 'assessment' && highlightedAttemptId && process.assessmentAttemptId === highlightedAttemptId ? { outline: '2px solid #f97316', boxShadow: '0 0 0 4px rgba(249,115,22,0.2)' } : undefined}
+                                                                    onClick={() => {
+                                                                        if (highlightedAttemptId && process.assessmentAttemptId === highlightedAttemptId) {
+                                                                            setHighlightedAttemptId(null);
+                                                                        }
+                                                                    }}
+                                                                >
                                                                     <div className="stage-row-primary">
                                                                         <div className="stage-header-block">
                                                                             <h5>{cleanProcessName(process.name)}</h5>

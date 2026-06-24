@@ -185,7 +185,7 @@ export default function ViewAnswers() {
               <span
                 onClick={() => {
                   const appId = attempt?.applicationId?._id || attempt?.applicationId;
-                  if (appId) navigate(`/employer/emp-candidate-review/${appId}#manual-stage-tracking`);
+                  if (appId) navigate(`/employer/emp-candidate-review/${appId}#manual-stage-tracking`, { state: { highlightAttemptId: attemptId } });
                 }}
                 style={{ color: '#15803d', fontWeight: '700', textDecoration: 'underline', cursor: 'pointer' }}
               >
@@ -198,7 +198,7 @@ export default function ViewAnswers() {
       () => {
         if (computedResult === 'Pass') {
           const appId = attempt?.applicationId?._id || attempt?.applicationId;
-          performSave(appId ? () => navigate(`/employer/emp-candidate-review/${appId}#manual-stage-tracking`) : null);
+          performSave(appId ? () => navigate(`/employer/emp-candidate-review/${appId}#manual-stage-tracking`, { state: { highlightAttemptId: attemptId } }) : null);
         } else {
           performSave();
         }
