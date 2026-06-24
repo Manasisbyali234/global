@@ -1,6 +1,7 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 const ProtectedRoute = ({ children, allowedRoles = [], requiredRole = null }) => {
+    const location = useLocation();
     const adminToken = localStorage.getItem('adminToken');
     const subAdminToken = localStorage.getItem('subAdminToken');
     const adminData = localStorage.getItem('adminData');
@@ -20,7 +21,7 @@ const ProtectedRoute = ({ children, allowedRoles = [], requiredRole = null }) =>
                 break;
             case 'candidate':
                 if (!candidateToken) {
-                    return <Navigate to="/login-candidate" replace />;
+                    return <Navigate to={`/login-candidate?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
                 }
                 break;
             case 'employer':

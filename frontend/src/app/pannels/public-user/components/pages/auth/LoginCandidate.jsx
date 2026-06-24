@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { canRoute, candidate, publicUser } from "../../../../../../globals/route-names";
 import { useRef, useState } from "react";
 import { useAuth } from "../../../../../../contexts/AuthContext";
@@ -8,6 +8,7 @@ import "./AuthPages.css";
 
 function LoginCandidate() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -32,7 +33,9 @@ function LoginCandidate() {
         }, 'candidate');
 
         if (result.success) {
-            navigate(canRoute(candidate.DASHBOARD));
+            const params = new URLSearchParams(location.search);
+            const redirectTo = params.get('redirect');
+            navigate(redirectTo || canRoute(candidate.DASHBOARD));
         } else {
             setError(result.message);
         }

@@ -3,6 +3,7 @@ import EmpHeaderSection from "../app/pannels/employer/common/emp-header";
 import EmpSidebarSection from "../app/pannels/employer/common/emp-sidebar";
 import YesNoPopup from "../app/common/popups/popup-yes-no";
 import EmployerRoutes from "../routing/employer-routes";
+import EmployerInterviewReminder from "../components/EmployerInterviewReminder";
 import { popupType } from "../globals/constants";
 import { useState, useEffect } from "react";
 import "./employer-mobile-header.css";
@@ -85,6 +86,7 @@ function EmployerLayout() {
                 </div>
 
                 <YesNoPopup id="logout-dash-profile" type={popupType.LOGOUT} msg={"Are you sure you want to logout?"} />
+                <EmployerInterviewReminder />
             </div>
         </>
     )
