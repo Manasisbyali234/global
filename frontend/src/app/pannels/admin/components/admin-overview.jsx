@@ -919,7 +919,7 @@ function AdminOverviewPage() {
                           ? applyRoundStatusCascade(applicant.interviewRounds)
                           : [];
                         let applicantStatusKey = getAdminApplicantTableStatusKey(applicant);
-                        if (displayRounds.length > 0) {
+                        if (displayRounds.length > 0 && !['accepted', 'hired', 'offer_sent'].includes(applicantStatusKey)) {
                           const rounds = displayRounds;
                           if (applicantStatusKey !== 'rejected') {
                             const presentations = rounds.map((round, roundIndex) =>
@@ -931,17 +931,17 @@ function AdminOverviewPage() {
                             if (hasBlockingRound) {
                               applicantStatusKey = 'rejected';
                             } else {
-                            const hasPassedAssessment = rounds.some((round) => {
-                              const isAssessment =
-                                normalizeStatusValue(round?.type) === 'assessment' ||
-                                normalizeStatusValue(round?.name).includes('assessment');
-                              if (!isAssessment) return false;
-                              const result = getAssessmentResultPresentation(round);
-                              return result.label === 'Pass';
-                            });
-                            if (hasPassedAssessment) {
-                              applicantStatusKey = 'pending';
-                            }
+                              const hasPassedAssessment = rounds.some((round) => {
+                                const isAssessment =
+                                  normalizeStatusValue(round?.type) === 'assessment' ||
+                                  normalizeStatusValue(round?.name).includes('assessment');
+                                if (!isAssessment) return false;
+                                const result = getAssessmentResultPresentation(round);
+                                return result.label === 'Pass';
+                              });
+                              if (hasPassedAssessment) {
+                                applicantStatusKey = 'pending';
+                              }
                             }
                           }
                         }
