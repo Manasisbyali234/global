@@ -1884,7 +1884,9 @@ function EmpCandidateReviewPage() {
                             <div className="stat">
                                 <span className="label">Application Status</span>
                                 <span className={`value status ${applicationDisplayStatus}`}>
-                                    {getStatusLabel(applicationDisplayStatus)}
+                                    {applicationDisplayStatus === 'rejected' && hadOfferSentInHistory(application) 
+                                        ? 'Offer Letter Rejected' 
+                                        : getStatusLabel(applicationDisplayStatus)}
                                 </span>
                             </div>
                         </div>

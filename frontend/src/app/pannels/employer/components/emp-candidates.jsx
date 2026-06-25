@@ -264,6 +264,13 @@ function EmpCandidatesPage() {
     );
   };
 
+  const hadOfferSentInHistory = (application = {}) =>
+    Array.isArray(application?.statusHistory) &&
+    application.statusHistory.some((entry) => {
+      const status = String(entry?.status || '').trim().toLowerCase();
+      return status === 'offer sent' || status === 'offer_sent';
+    });
+
   const applicationsWithDisplayStatus = useMemo(
     () =>
       applications.map((application) => ({
@@ -559,7 +566,9 @@ function EmpCandidatesPage() {
                               application.displayStatus
                             )} text-capitalize`}
                           >
-                            {getStatusLabel(application.displayStatus)}
+                            {application.displayStatus === 'rejected' && hadOfferSentInHistory(application)
+                              ? 'Offer Letter Rejected'
+                              : getStatusLabel(application.displayStatus)}
                           </span>
                         </div>
                       </div>
