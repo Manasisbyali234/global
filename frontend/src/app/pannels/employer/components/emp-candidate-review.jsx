@@ -1931,6 +1931,11 @@ function EmpCandidateReviewPage() {
                                          <div className="section-header">
                                               <div style={{ display: "flex", flexDirection: "column" }}>
                                                <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4>
+                                               {!statusUpdateUnlocked && (
+                                                   <p style={{ color: '#dc3545', fontSize: '12px', margin: '4px 0 0 0', fontWeight: '500' }}>
+                                                       Click on the orange link below to unlock the stages.
+                                                   </p>
+                                               )}
                                           </div>
                                           </div>
                                         <div className="section-body" style={{ background: 'var(--soft-beige)', borderRadius: '0 0 16px 16px' }}>
