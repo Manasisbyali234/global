@@ -255,6 +255,14 @@ function EmpCandidatesPage() {
     if (['accepted', 'hired', 'offer_sent', 'shortlisted'].includes(baseStatus)) {
       return baseStatus;
     }
+    const assessmentStatus = String(application?.assessmentStatus || '').trim().toLowerCase();
+    const assessmentResult = String(application?.assessmentResult || '').trim().toLowerCase();
+    if (
+      assessmentStatus === 'suspended' ||
+      ['fail', 'failed'].includes(assessmentResult)
+    ) {
+      return 'rejected';
+    }
     return getCanonicalStatusKey(
       application?.applicationStatus ||
         application?.applicationDisplayStatus ||

@@ -1996,6 +1996,17 @@ export default function EmpPostJob({ onNext }) {
 			if (!el) return;
 			const y = el.getBoundingClientRect().top + window.scrollY - 120;
 			window.scrollTo({ top: y, behavior: 'smooth' });
+			// Highlight the field
+			const input = el.querySelector('input, select, textarea') || (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' ? el : null);
+			const target = input || el;
+			const prevOutline = target.style.outline;
+			const prevBoxShadow = target.style.boxShadow;
+			target.style.outline = '2px solid #dc2626';
+			target.style.boxShadow = '0 0 0 4px rgba(220,38,38,0.15)';
+			setTimeout(() => {
+				target.style.outline = prevOutline;
+				target.style.boxShadow = prevBoxShadow;
+			}, 2500);
 		}, 50);
 	};
 
@@ -2536,13 +2547,23 @@ export default function EmpPostJob({ onNext }) {
 				scrollToField(firstField);
 			} else if (step2Errors && step2Errors.length > 0) {
 				showWarning(step2Errors[0]);
-				// Try to scroll to interview rounds section
-				const interviewSection = document.querySelector('[data-step="2"]') || 
-										 document.querySelector('[id*="interview"]');
-				if (interviewSection) {
-					interviewSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				// Map step 2 error messages to field names for scroll
+				const step2FieldMap = [
+					{ key: 'offerLetterDate', match: /offer letter/i },
+					{ key: 'lastDateOfApplication', match: /last date of application/i },
+					{ key: 'interviewRoundsCount', match: /interview round/i },
+				];
+				const matchedField = step2FieldMap.find(f => f.match.test(step2Errors[0]));
+				if (matchedField) {
+					scrollToField(matchedField.key);
 				} else {
-					window.scrollTo({ top: 0, behavior: 'smooth' });
+					const interviewSection = document.querySelector('[data-field="interviewRoundsCount"]') ||
+											 document.querySelector('[data-step="2"]');
+					if (interviewSection) {
+						interviewSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					} else {
+						window.scrollTo({ top: 0, behavior: 'smooth' });
+					}
 				}
 			} else {
 				showWarning('Please fill all required fields correctly before submitting.');
@@ -4665,7 +4686,7 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					{/* Application Timeline */}
-					<div>
+					<div data-field="offerLetterDate">
 						<label style={label}>
 							<i className="fa fa-calendar-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Offer Letter Release Date <span style={redAsterisk}>*</span>
@@ -4697,7 +4718,7 @@ export default function EmpPostJob({ onNext }) {
 						<HolidayIndicator date={formData.offerLetterDate} />
 					</div>
 
-					<div>
+					<div data-field="lastDateOfApplication">
 						<label style={label}>
 							<i className="fa fa-calendar-times" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Last Date of Application <span style={redAsterisk}>*</span>
@@ -4743,7 +4764,7 @@ export default function EmpPostJob({ onNext }) {
 						<HolidayIndicator date={formData.lastDateOfApplication} />
 					</div>
 
-					<div style={fullRow}>
+					<div style={fullRow} data-field="interviewRoundsCount">
 						<label style={label}>
 							<i className="fa fa-comments" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Number of Interview Rounds <span style={redAsterisk}>*</span>

@@ -1612,12 +1612,12 @@ exports.getDashboardStats = async (req, res) => {
       .select('status statusHistory isSelectedForProcess interviewProcesses assessmentStatus assessmentResult interviewRounds assessmentAttemptsByAssessmentId')
       .lean();
     const normalizedDashboardStatuses = dashboardApplications
-      .map((application) => normalizeApplicationStatusValue(getCandidateVisibleApplicationStatus(application)));
+      .map((application) => getCandidateVisibleApplicationStatus(application));
 
     const applied = dashboardApplications.length;
-    const inProgress = normalizedDashboardStatuses.filter((status) => ['pending', 'interviewed'].includes(status)).length;
-    const shortlisted = normalizedDashboardStatuses.filter((status) => status === 'shortlisted').length;
-    const hired = normalizedDashboardStatuses.filter((status) => status === 'hired').length;
+    const inProgress = normalizedDashboardStatuses.filter((status) => ['pending', 'in_progress', 'interviewed', 'under_review', 'scheduled', 'interview_scheduled'].includes(status)).length;
+    const shortlisted = normalizedDashboardStatuses.filter((status) => ['shortlisted', 'shortlisted_for_next_round', 'selected'].includes(status)).length;
+    const hired = normalizedDashboardStatuses.filter((status) => ['hired', 'accepted', 'offer_sent'].includes(status)).length;
     
     const candidate = await Candidate.findById(candidateId)
       .select('name email credits registrationMethod placementId course')
