@@ -145,7 +145,7 @@ router.post('/jobs', [
   body('title').notEmpty().withMessage('Job title is required'),
   body('description').notEmpty().withMessage('Job description is required'),
   body('location').notEmpty().withMessage('Location is required'),
-  body('category').notEmpty().withMessage('Category is required'),
+  body('category').notEmpty().withMessage('Job Category is required'),
   body('jobType').isIn([
     'full-time', 'part-time', 'remote', 'hybrid', 'contract', 'freelance', 
     'temporary', 'permanent', 'apprenticeship', 'consultant', 'work-from-home',
