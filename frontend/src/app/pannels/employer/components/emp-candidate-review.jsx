@@ -955,6 +955,16 @@ function EmpCandidateReviewPage() {
                 };
             }
 
+            // If the employer has already set a decision status on this process,
+            // do not override it with the auto-derived assessment display status.
+            if (isEmployerDecisionStatus(process?.status)) {
+                const isRejectedRound = isRejectedLikeStatus(process.status);
+                if (isRejectedRound) {
+                    hasBlockingRejectedRound = true;
+                }
+                return process;
+            }
+
             const assessmentDisplay = isAssessmentProcess(process)
                 ? getAssessmentDisplayState(process, applicationData)
                 : null;
@@ -2029,9 +2039,9 @@ function EmpCandidateReviewPage() {
                                                                                     return false;
                                                                                 })))
                                                                                     ? 'Rejected'
-                                                                                    : process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired || isAutoAssessmentStageStatus(assessmentDisplay.statusValue))
+                                                                                    : process.type === 'assessment' && !isEmployerDecisionStatus(process.status) && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired || isAutoAssessmentStageStatus(assessmentDisplay.statusValue))
                                                                                     ? assessmentDisplay.statusLabel
-                                                                                    : (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))}
+                                                                                    : (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))
                                                                             </span>
                                                                         </div>
                                                                     </div>
