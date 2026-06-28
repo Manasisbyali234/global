@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
-import { getCanonicalStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
+import { getStatusLabel, getApplicationStatusKey } from "../../../../utils/statusDisplay";
 import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 import './emp-candidates.css';
 
@@ -250,31 +250,8 @@ function EmpCandidatesPage() {
     }
   };
 
-  const getSharedApplicationDisplayStatus = (application = {}) => {
-    const baseStatus = String(application?.status || '').trim().toLowerCase();
-    if (['accepted', 'hired', 'offer_sent', 'shortlisted'].includes(baseStatus)) {
-      return baseStatus;
-    }
-    // Trust the backend-computed display status fields first
-    const backendDisplayStatus = getCanonicalStatusKey(
-      application?.applicationStatus ||
-        application?.applicationDisplayStatus ||
-        ''
-    );
-    if (backendDisplayStatus && backendDisplayStatus !== 'pending') {
-      return backendDisplayStatus;
-    }
-    // Fallback: derive locally from assessment fields
-    const assessmentStatus = String(application?.assessmentStatus || '').trim().toLowerCase();
-    const assessmentResult = String(application?.assessmentResult || '').trim().toLowerCase();
-    if (
-      assessmentStatus === 'suspended' ||
-      ['fail', 'failed'].includes(assessmentResult)
-    ) {
-      return 'rejected';
-    }
-    return getCanonicalStatusKey(application?.status || "pending");
-  };
+  const getSharedApplicationDisplayStatus = (application = {}) =>
+    getApplicationStatusKey(application);
 
   const hadOfferSentInHistory = (application = {}) =>
     Array.isArray(application?.statusHistory) &&
