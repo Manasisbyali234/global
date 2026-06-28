@@ -1025,11 +1025,14 @@ function EmpCandidateReviewPage() {
             (normalizedAssessmentStatus && normalizedAssessmentStatus !== 'not required');
 
         const pendingAssessmentEvaluation = hasPendingAssessmentEvaluation(applicationData, normalizedProcesses);
-        const hasRejectedAssessmentStage = normalizedProcesses.some((process) =>
-            isAssessmentProcess(process) &&
-            !isPendingAssessmentEvaluationProcess(process) &&
-            isRejectedLikeStatus(process?.status)
-        );
+        const hasRejectedAssessmentStage = normalizedProcesses.some((process) => {
+            if (!isAssessmentProcess(process)) return false;
+            if (isPendingAssessmentEvaluationProcess(process)) return false;
+            if (isRejectedLikeStatus(process?.status)) return true;
+            // Also check the derived display status (e.g. suspended stored as 'pending' internally)
+            const assessmentDisplay = getAssessmentDisplayState(process, applicationData);
+            return isRejectedLikeStatus(assessmentDisplay?.statusValue);
+        });
         const assessmentIsSuspended =
             normalizeStatusValue(applicationData?.assessmentStatus) === 'suspended';
         const assessmentIsFailed = ['fail', 'failed'].includes(
