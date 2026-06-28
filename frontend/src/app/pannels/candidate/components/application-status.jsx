@@ -1,4 +1,4 @@
-﻿import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
+import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { formatInterviewTime } from '../../../../utils/timeUtils';
 import { formatTimeToAMPM } from '../../../../utils/dateFormatter';
@@ -2751,8 +2751,7 @@ function CanStatusPage() {
 											) : (
 												paginatedApplications.map((app, index) => {
 													const interviewRounds = getInterviewRounds(app.jobId, app);
-													const _rawStatus = getCanonicalStatusKey(app.status || 'pending');
-													const applicationDisplayStatus = ['not_advanced_to_next_round','not_advanced_to_next_stage','no_show','session_expired'].includes(_rawStatus) ? 'rejected' : _rawStatus;
+													const applicationDisplayStatus = getApplicationOnlyStatus(app);
 													const isShortlisted = applicationDisplayStatus === 'shortlisted';
 													const shouldHighlightRow = highlightShortlisted && isShortlisted;
 													return (
@@ -3172,8 +3171,7 @@ function CanStatusPage() {
 										</div>
 										<div className="col-md-12 mb-2">
 											{(() => {
-												const _rawSelStatus = getCanonicalStatusKey(selectedApplication.status || 'pending');
-												const selectedApplicationDisplayStatus = ['not_advanced_to_next_round','not_advanced_to_next_stage','no_show','session_expired'].includes(_rawSelStatus) ? 'rejected' : _rawSelStatus;
+												const selectedApplicationDisplayStatus = getApplicationOnlyStatus(selectedApplication);
 												const hasRejectedOffer = selectedApplication.statusHistory?.some((history) => history?.status === 'offer_sent') && selectedApplicationDisplayStatus === 'rejected';
 
 												return (
