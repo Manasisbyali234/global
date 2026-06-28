@@ -2029,7 +2029,7 @@ function EmpCandidateReviewPage() {
                                                                     <div className="stage-row-primary">
                                                                         <div className="stage-header-block">
                                                                             <h5>{cleanProcessName(process.name)}</h5>
-                                                                            <span className={`status-pill ${process.type === 'assessment' ? (assessmentDisplay.statusClass || 'pending') : (process.status || 'pending')}`}>
+                                                                            <span className={`status-pill ${process.type === 'assessment' && !isEmployerDecisionStatus(process.status) ? (assessmentDisplay.statusClass || 'pending') : (process.status || 'pending')}`}>
                                                                                 {(process.derivedRejected || (index > 0 && interviewProcesses.slice(0, index).some(p => {
                                                                                     if (isRejectedLikeStatus(p.status)) return true;
                                                                                     if (isAssessmentProcess(p)) {
