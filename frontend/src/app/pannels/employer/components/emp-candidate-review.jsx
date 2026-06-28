@@ -1997,7 +1997,7 @@ function EmpCandidateReviewPage() {
                                                                                     return false;
                                                                                 })))
                                                                                     ? 'Rejected'
-                                                                                    : process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired)
+                                                                                    : process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired || isAutoAssessmentStageStatus(assessmentDisplay.statusValue))
                                                                                     ? assessmentDisplay.statusLabel
                                                                                     : (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))}
                                                                             </span>
