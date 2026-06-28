@@ -77,7 +77,7 @@ const normalizeApplicationStatusValue = (value = '') =>
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ');
 
-const CANDIDATE_DASHBOARD_IN_PROGRESS_STATUSES = new Set(['pending', 'interviewed']);
+const CANDIDATE_DASHBOARD_IN_PROGRESS_STATUSES = new Set(['pending']);
 
 const normalizeDashboardStatusKey = (value = '') =>
   normalizeApplicationStatusValue(value).replace(/\s+/g, '_');
@@ -1572,7 +1572,7 @@ exports.getDashboard = async (req, res) => {
     const normalizedDashboardApplications = dashboardApplications
       .map((application) => normalizeCandidateVisibleApplication(application));
     const normalizedDashboardStatuses = normalizedDashboardApplications
-      .map((application) => normalizeApplicationStatusValue(application?.status));
+      .map((application) => application?.status);
 
     const applied = normalizedDashboardApplications.length;
     const inProgress = normalizedDashboardStatuses.filter(isCandidateDashboardInProgressStatus).length;
@@ -1620,7 +1620,7 @@ exports.getDashboardStats = async (req, res) => {
       .select('status statusHistory isSelectedForProcess interviewProcesses assessmentStatus assessmentResult interviewRounds assessmentAttemptsByAssessmentId')
       .lean();
     const normalizedDashboardStatuses = dashboardApplications
-      .map((application) => getCandidateVisibleApplicationStatus(application));
+      .map((application) => application?.status);
 
     const applied = dashboardApplications.length;
     const inProgress = normalizedDashboardStatuses.filter(isCandidateDashboardInProgressStatus).length;

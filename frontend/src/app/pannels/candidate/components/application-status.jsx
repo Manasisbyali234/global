@@ -372,6 +372,7 @@ function CanStatusPage() {
 	const formatStatusLabel = (status) => getStatusLabel(status);
 
 	const getApplicationFilterStatus = (application = {}) => getApplicationOnlyStatus(application);
+	const getRawApplicationStatus = (application = {}) => getCanonicalStatusKey(application?.status || 'pending');
 
 	const getAssessmentScheduleSource = (job, roundDetails = null) => ({
 		startDate: roundDetails?.fromDate || roundDetails?.date || job?.assessmentStartDate || null,
@@ -2556,7 +2557,7 @@ function CanStatusPage() {
 		let result = selectedStatus === 'all' || selectedStatus === 'applied'
 			? applications
 			: selectedStatus === 'inProgress'
-				? applications.filter((application) => ['pending', 'interviewed'].includes(getApplicationFilterStatus(application)))
+				? applications.filter((application) => getRawApplicationStatus(application) === 'pending')
 				: applications.filter((application) => {
 					if (getApplicationFilterStatus(application) === selectedStatus) return true;
 					const roundStatuses = getInterviewRoundStatuses(application);
