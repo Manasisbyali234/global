@@ -2042,6 +2042,7 @@ function EmpCandidateReviewPage() {
                                                                                     : process.type === 'assessment' && !isEmployerDecisionStatus(process.status) && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired || isAutoAssessmentStageStatus(assessmentDisplay.statusValue))
                                                                                     ? assessmentDisplay.statusLabel
                                                                                     : (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))
+                                                                                }
                                                                             </span>
                                                                         </div>
                                                                     </div>
