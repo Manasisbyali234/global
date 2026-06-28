@@ -77,6 +77,14 @@ const normalizeApplicationStatusValue = (value = '') =>
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ');
 
+const CANDIDATE_DASHBOARD_IN_PROGRESS_STATUSES = new Set(['pending', 'interviewed']);
+
+const normalizeDashboardStatusKey = (value = '') =>
+  normalizeApplicationStatusValue(value).replace(/\s+/g, '_');
+
+const isCandidateDashboardInProgressStatus = (value = '') =>
+  CANDIDATE_DASHBOARD_IN_PROGRESS_STATUSES.has(normalizeDashboardStatusKey(value));
+
 const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
   const normalizedStatus = normalizeApplicationStatusValue(attempt?.status);
   const normalizedResult = normalizeApplicationStatusValue(attempt?.result);
@@ -1567,7 +1575,7 @@ exports.getDashboard = async (req, res) => {
       .map((application) => normalizeApplicationStatusValue(application?.status));
 
     const applied = normalizedDashboardApplications.length;
-    const inProgress = normalizedDashboardStatuses.filter((status) => ['pending', 'interviewed'].includes(status)).length;
+    const inProgress = normalizedDashboardStatuses.filter(isCandidateDashboardInProgressStatus).length;
     const shortlisted = normalizedDashboardStatuses.filter((status) => status === 'shortlisted').length;
 
     const recentApplications = await Application.find({ candidateId })
@@ -1615,7 +1623,7 @@ exports.getDashboardStats = async (req, res) => {
       .map((application) => getCandidateVisibleApplicationStatus(application));
 
     const applied = dashboardApplications.length;
-    const inProgress = normalizedDashboardStatuses.filter((status) => ['pending', 'in_progress', 'interviewed', 'under_review', 'scheduled', 'interview_scheduled'].includes(status)).length;
+    const inProgress = normalizedDashboardStatuses.filter(isCandidateDashboardInProgressStatus).length;
     const shortlisted = normalizedDashboardStatuses.filter((status) => ['shortlisted', 'shortlisted_for_next_round', 'selected'].includes(status)).length;
     const hired = normalizedDashboardStatuses.filter((status) => ['hired', 'accepted', 'offer_sent'].includes(status)).length;
     

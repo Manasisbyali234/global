@@ -2556,7 +2556,7 @@ function CanStatusPage() {
 		let result = selectedStatus === 'all' || selectedStatus === 'applied'
 			? applications
 			: selectedStatus === 'inProgress'
-				? applications.filter((application) => ['pending', 'in_progress', 'interviewed', 'under_review', 'scheduled', 'interview_scheduled'].includes(getApplicationFilterStatus(application)))
+				? applications.filter((application) => ['pending', 'interviewed'].includes(getApplicationFilterStatus(application)))
 				: applications.filter((application) => {
 					if (getApplicationFilterStatus(application) === selectedStatus) return true;
 					const roundStatuses = getInterviewRoundStatuses(application);
