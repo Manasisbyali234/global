@@ -752,7 +752,11 @@ function EmpCandidateReviewPage() {
     };
 
     const getAssessmentDisplayState = (process = {}, applicationData = null) => {
-        const defaultStatusValue = process?.status || 'pending';
+        // rawAssessmentStatus holds the true attempt status (e.g. 'suspended') that was
+        // stripped from process.status by normalizeTrackedProcessState — use it as the
+        // authoritative status for display purposes.
+        const effectiveStatus = process?.rawAssessmentStatus || process?.assessmentAttemptStatus || process?.status || 'pending';
+        const defaultStatusValue = effectiveStatus;
         const defaultResultValue = process?.result || null;
         const manualEvaluationPendingCount = process?.manualEvaluationPendingCount ?? 0;
         const resolvedResultValue = getAssessmentResultDisplay(
