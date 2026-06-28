@@ -277,6 +277,21 @@ function EmpCandidateReviewPage() {
         return sanitized;
     };
 
+    const isEmployerDecisionStatus = (value) => {
+        const normalized = normalizeStatusValue(value);
+        return [
+            'shortlisted for next round',
+            'shortlisted',
+            'selected',
+            'on hold',
+            'pending decision',
+            'no show',
+            'rejected',
+            'not advanced to next stage',
+            'not advanced to next round'
+        ].includes(normalized);
+    };
+
     const applySavedManualStatuses = (baseProcesses = [], savedProcesses = []) => {
         const savedById = new Map(
             (Array.isArray(savedProcesses) ? savedProcesses : [])
@@ -304,6 +319,19 @@ function EmpCandidateReviewPage() {
                 'available',
                 'not started'
             ]);
+
+            // Employer-decision statuses (e.g. shortlisted_for_next_round) always take
+            // precedence over any auto-computed status from InterviewProcess stages.
+            if (isEmployerDecisionStatus(savedProcess.status)) {
+                return normalizeTrackedProcessState({
+                    ...process,
+                    status: savedProcess.status,
+                    derivedRejected: process?.derivedRejected || false,
+                    result: process.type === 'assessment'
+                        ? process.result || null
+                        : (savedProcess.result || process.result || null)
+                });
+            }
 
             if (
                 (process?.derivedRejected || isRejectedLikeStatus(process?.status)) &&
