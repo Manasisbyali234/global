@@ -255,6 +255,16 @@ function EmpCandidatesPage() {
     if (['accepted', 'hired', 'offer_sent', 'shortlisted'].includes(baseStatus)) {
       return baseStatus;
     }
+    // Trust the backend-computed display status fields first
+    const backendDisplayStatus = getCanonicalStatusKey(
+      application?.applicationStatus ||
+        application?.applicationDisplayStatus ||
+        ''
+    );
+    if (backendDisplayStatus && backendDisplayStatus !== 'pending') {
+      return backendDisplayStatus;
+    }
+    // Fallback: derive locally from assessment fields
     const assessmentStatus = String(application?.assessmentStatus || '').trim().toLowerCase();
     const assessmentResult = String(application?.assessmentResult || '').trim().toLowerCase();
     if (
@@ -263,13 +273,7 @@ function EmpCandidatesPage() {
     ) {
       return 'rejected';
     }
-    return getCanonicalStatusKey(
-      application?.applicationStatus ||
-        application?.applicationDisplayStatus ||
-        application?.displayStatus ||
-        application?.status ||
-        "pending"
-    );
+    return getCanonicalStatusKey(application?.status || "pending");
   };
 
   const hadOfferSentInHistory = (application = {}) =>
