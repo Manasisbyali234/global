@@ -66,9 +66,17 @@
 
 /* Date inputs need extra padding-left for the native calendar icon */
 .emp-posted-jobs-page .manage-jobs-toolbar input[type="date"].form-control {
+  font-family: inherit !important;
+  line-height: 48px !important;
   padding: 0 12px !important;
   cursor: pointer !important;
   padding-right: 8px !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar input[type="date"].form-control::-webkit-date-and-time-value {
+  min-height: 46px;
+  line-height: 46px;
+  text-align: left;
 }
 
 /* Search input keeps left padding for the icon */
@@ -749,6 +757,17 @@
     line-height: 1 !important;
     padding-top: 12px !important;
     padding-bottom: 12px !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-toolbar input[type="date"].form-control {
+    line-height: 48px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-toolbar input[type="date"].form-control::-webkit-date-and-time-value {
+    min-height: 46px;
+    line-height: 46px;
   }
   
   .emp-posted-jobs-page .manage-jobs-toolbar__date-separator {
