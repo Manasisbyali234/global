@@ -1050,6 +1050,13 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     return 'shortlisted_for_next_round';
   }
 
+  // When the employer has explicitly set the application status to 'shortlisted'
+  // via the Shortlisted button, honour it directly — do not let a derived
+  // 'selected' from interview stage tracking override it.
+  if (rawBaseStatus === 'shortlisted') {
+    return 'shortlisted';
+  }
+
   const hasExpiredAssessmentNoShow = hasExpiredAssessmentWindowWithoutActivity(application, options);
   const explicitDisplayStatus = String(
     application?.applicationStatus ||
