@@ -151,7 +151,7 @@ const normalizeApplicationDisplayStatusKey = (statusKey = 'pending') => {
     case 'on_hold':
       return 'pending';
     case 'shortlisted_for_next_round':
-      return 'shortlisted';
+      return 'shortlisted_for_next_round';
     case 'no_show':
     case 'session_expired':
     case 'not_advanced_to_next_round':
