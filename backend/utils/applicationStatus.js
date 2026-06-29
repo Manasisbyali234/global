@@ -1046,6 +1046,10 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     return rawBaseStatus;
   }
 
+  if (rawBaseStatus === 'shortlisted_for_next_round') {
+    return 'shortlisted_for_next_round';
+  }
+
   const hasExpiredAssessmentNoShow = hasExpiredAssessmentWindowWithoutActivity(application, options);
   const explicitDisplayStatus = String(
     application?.applicationStatus ||
@@ -1220,6 +1224,10 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
   const rawBaseStatus = getCanonicalStatusKey(application?.status || '', '');
   if (['accepted', 'hired', 'offer_sent'].includes(rawBaseStatus)) {
     return rawBaseStatus;
+  }
+
+  if (rawBaseStatus === 'shortlisted_for_next_round') {
+    return 'shortlisted_for_next_round';
   }
 
   const hasExpiredAssessmentNoShow = hasExpiredAssessmentWindowWithoutActivity(application, options);

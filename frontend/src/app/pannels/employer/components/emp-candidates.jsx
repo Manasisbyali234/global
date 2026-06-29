@@ -250,8 +250,13 @@ function EmpCandidatesPage() {
     }
   };
 
-  const getSharedApplicationDisplayStatus = (application = {}) =>
-    getApplicationStatusKey(application);
+  const getSharedApplicationDisplayStatus = (application = {}) => {
+    const rawStatus = String(application?.status || '').trim().toLowerCase();
+    if (rawStatus === 'shortlisted for next round' || rawStatus === 'shortlisted_for_next_round') {
+      return 'shortlisted_for_next_round';
+    }
+    return getApplicationStatusKey(application);
+  };
 
   const hadOfferSentInHistory = (application = {}) =>
     Array.isArray(application?.statusHistory) &&

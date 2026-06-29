@@ -1034,6 +1034,9 @@ function EmpCandidateReviewPage() {
         if (['accepted', 'hired', 'offer_sent', 'shortlisted'].includes(baseStatus)) {
             return baseStatus;
         }
+        if (baseStatus === 'shortlisted for next round' || baseStatus === 'shortlisted_for_next_round') {
+            return 'shortlisted_for_next_round';
+        }
 
         const explicitBackendStatus = getCanonicalStatusKey(
             applicationData?.applicationStatus ||

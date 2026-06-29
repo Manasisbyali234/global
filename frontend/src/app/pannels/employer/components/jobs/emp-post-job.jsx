@@ -5565,7 +5565,7 @@ export default function EmpPostJob({ onNext }) {
 
 									if (isAssessmentRound) {
 										return (
-											<div key={uniqueKey} style={{
+											<div key={uniqueKey} data-round-card={uniqueKey} style={{
 												background: '#fff',
 												borderRadius: '12px',
 												border: '1px solid #e2e8f0',
@@ -5664,6 +5664,8 @@ export default function EmpPostJob({ onNext }) {
 																background: '#f8fafc'
 															}}
 															type="date"
+															data-round-key={uniqueKey}
+															data-round-field="fromDate"
 															min={getMinDateForRound(uniqueKey)}
 															value={details.fromDate || ''}
 															onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
@@ -5689,6 +5691,8 @@ export default function EmpPostJob({ onNext }) {
 																background: '#f8fafc'
 															}}
 															type="time"
+															data-round-key={uniqueKey}
+															data-round-field="startTime"
 															value={details.startTime || ''}
 															onChange={(e) => updateRoundDetails(uniqueKey, 'startTime', e.target.value)}
 														/>
@@ -5813,7 +5817,7 @@ export default function EmpPostJob({ onNext }) {
 									}
 									
 									return (
-										<div key={uniqueKey} style={{
+										<div key={uniqueKey} data-round-card={uniqueKey} style={{
 											background: '#fff',
 											borderRadius: '12px',
 											border: '1px solid #e2e8f0',
@@ -5877,6 +5881,8 @@ export default function EmpPostJob({ onNext }) {
 													</label>
 													<textarea
 														data-interview-round-description="true"
+														data-round-key={uniqueKey}
+														data-round-field="description"
 														style={{
 															border: '1px solid #e5e7eb',
 															fontSize: '14px',
@@ -5948,6 +5954,8 @@ export default function EmpPostJob({ onNext }) {
 																	background: '#fff'
 																}}
 																min={getMinDateForRound(uniqueKey)}
+																data-round-key={uniqueKey}
+																data-round-field="fromDate"
 																value={details.fromDate || ''}
 																onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
 															/>
