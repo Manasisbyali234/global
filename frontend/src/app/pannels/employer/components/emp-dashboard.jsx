@@ -224,7 +224,7 @@ function EmpDashboardPage() {
                         </div>
 
                         <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
-                            <div className="panel panel-default" onClick={() => window.location.href = '/employer/candidates-list'} style={{ cursor: 'pointer' }}>
+                            <div className="panel panel-default" onClick={() => window.location.href = '/employer/candidates-list?status=shortlisted'} style={{ cursor: 'pointer' }}>
                                 <div className="panel-body wt-panel-body dashboard-card-2" style={{ backgroundColor: '#fff3e0' }}>
                                     <div className="dashboard-stat-card">
                                         <div className="dashboard-stat-top">

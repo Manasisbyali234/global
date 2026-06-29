@@ -2132,6 +2132,8 @@ function EmpCandidateReviewPage() {
                                                                                 value={process.status || 'pending'}
                                                                                 onChange={(e) => {
                                                                                     if (!statusUpdateUnlocked) return;
+                                                                                    const resultNorm = normalizeStatusValue(process.result);
+                                                                                    if (resultNorm === 'fail' || resultNorm === 'failed') return;
                                                                                     const newStatus = e.target.value;
                                                                                     if (newStatus === 'rejected') {
                                                                                         const isFinal = index === interviewProcesses.length - 1;
@@ -2153,7 +2155,7 @@ function EmpCandidateReviewPage() {
                                                                                         return updated;
                                                                                     });
                                                                                 }}
-                                                                                disabled={!statusUpdateUnlocked || isCurrentDisabled || (process.type === 'assessment' && isPendingAssessmentEvaluationProcess(process))}
+                                                                                disabled={!statusUpdateUnlocked || isCurrentDisabled || (process.type === 'assessment' && isPendingAssessmentEvaluationProcess(process)) || ['fail', 'failed'].includes(normalizeStatusValue(process.result)) || (process.type === 'assessment' && assessmentDisplay.statusValue === 'suspended')}
                                                                             >
                                                                                 {!getStageStatusOptions(index).some((option) => option.value === (process.status || 'pending')) && (
                                                                                     <option value={process.status || 'pending'}>

@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
@@ -158,7 +158,8 @@ function EmpCandidatesPage() {
     return saved;
   });
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [statusFilter, setStatusFilter] = useState("");
+  const location = useLocation();
+  const [statusFilter, setStatusFilter] = useState(() => new URLSearchParams(location.search).get('status') || "");
   const [designationFilter, setDesignationFilter] = useState("");
   const [openDropdown, setOpenDropdown] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -245,6 +246,8 @@ function EmpCandidatesPage() {
         return "twm-bg-green";
       case "rejected":
         return "twm-bg-red";
+      case "offer_rejected":
+        return "twm-bg-red";
       default:
         return "twm-bg-light-blue";
     }
@@ -255,7 +258,11 @@ function EmpCandidatesPage() {
     if (rawStatus === 'shortlisted for next round' || rawStatus === 'shortlisted_for_next_round') {
       return 'shortlisted_for_next_round';
     }
-    return getApplicationStatusKey(application);
+    const statusKey = getApplicationStatusKey(application);
+    if (statusKey === 'rejected' && hadOfferSentInHistory(application)) {
+      return 'offer_rejected';
+    }
+    return statusKey;
   };
 
   const hadOfferSentInHistory = (application = {}) =>
@@ -338,7 +345,8 @@ function EmpCandidatesPage() {
       { value: "selected", label: "Selected" },
       { value: "offer_sent", label: "Offer Letter Sent" },
       { value: "accepted", label: "Offer Accepted" },
-      { value: "rejected", label: "Rejected" }
+      { value: "rejected", label: "Rejected" },
+      { value: "offer_rejected", label: "Offer Rejected" }
     ],
     []
   );
@@ -560,7 +568,7 @@ function EmpCandidatesPage() {
                               application.displayStatus
                             )} text-capitalize`}
                           >
-                            {application.displayStatus === 'rejected' && hadOfferSentInHistory(application)
+                            {application.displayStatus === 'offer_rejected'
                               ? 'Offer Letter Rejected'
                               : getStatusLabel(application.displayStatus)}
                           </span>
