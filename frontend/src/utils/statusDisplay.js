@@ -201,6 +201,10 @@ export const getApplicationStatusKey = (application = {}, fallback = 'pending') 
     return baseStatusKey;
   }
 
+  if (baseStatusKey === 'shortlisted_for_next_round') {
+    return 'shortlisted_for_next_round';
+  }
+
   if (rawStatusKey === 'shortlisted_for_next_round') {
     return rawStatusKey;
   }
