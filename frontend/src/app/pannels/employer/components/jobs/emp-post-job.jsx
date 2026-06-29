@@ -1987,18 +1987,20 @@ export default function EmpPostJob({ onNext }) {
 		companyBanner: 'Company Banner'
 	};
 
-	const scrollToField = (fieldName) => {
+	const scrollToField = (fieldNameOrEl) => {
 		setTimeout(() => {
-			const el =
-				document.querySelector(`[data-field="${fieldName}"]`) ||
-				document.querySelector(`[name="${fieldName}"]`) ||
-				document.getElementById(fieldName);
+			const el = (fieldNameOrEl instanceof Element)
+				? fieldNameOrEl
+				: (
+					document.querySelector(`[data-field="${fieldNameOrEl}"]`) ||
+					document.querySelector(`[name="${fieldNameOrEl}"]`) ||
+					document.getElementById(fieldNameOrEl)
+				);
 			if (!el) return;
 			const y = el.getBoundingClientRect().top + window.scrollY - 120;
 			window.scrollTo({ top: y, behavior: 'smooth' });
-			// Highlight the field
-			const input = el.querySelector('input, select, textarea') || (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' ? el : null);
-			const target = input || el;
+			const inputEl = el.querySelector('input, select, textarea') || (['INPUT', 'SELECT', 'TEXTAREA'].includes(el.tagName) ? el : null);
+			const target = inputEl || el;
 			const prevOutline = target.style.outline;
 			const prevBoxShadow = target.style.boxShadow;
 			target.style.outline = '2px solid #dc2626';
@@ -2124,6 +2126,8 @@ export default function EmpPostJob({ onNext }) {
 	const validateStep2 = () => {
 		const errorMessages = [];
 		const newErrors = { ...errors };
+		let firstInvalidRoundKey = null;
+		let firstInvalidRoundField = null;
 
 		// Validate Interview Rounds Count using basic rules
 		const basicErrors = validateForm(formData, validationRules);
@@ -2181,11 +2185,13 @@ export default function EmpPostJob({ onNext }) {
 			// Validate description for non-assessment rounds
 			if (!details?.description?.trim() && roundType !== 'assessment') {
 				errorMessages.push(`Please enter description for ${roundName}`);
+				if (!firstInvalidRoundKey) { firstInvalidRoundKey = uniqueKey; firstInvalidRoundField = 'description'; }
 			}
 			
 			// Validate date for all rounds (including assessment)
 			if (!details?.fromDate) {
 				errorMessages.push(`Please select Date for ${roundName}`);
+				if (!firstInvalidRoundKey) { firstInvalidRoundKey = uniqueKey; firstInvalidRoundField = 'fromDate'; }
 			} else {
 				const roundDate = new Date(details.fromDate);
 				const dateStr = details.fromDate;
@@ -2204,11 +2210,13 @@ export default function EmpPostJob({ onNext }) {
 			// Validate start time only for assessment round
 			if (!details?.startTime && roundType === 'assessment') {
 				errorMessages.push(`Please select Start Time for ${roundName}`);
+				if (!firstInvalidRoundKey) { firstInvalidRoundKey = uniqueKey; firstInvalidRoundField = 'startTime'; }
 			}
 			
 			// Validate end time only for assessment round
 			if (!details?.endTime && roundType === 'assessment') {
 				errorMessages.push(`Please select End Time for ${roundName}`);
+				if (!firstInvalidRoundKey) { firstInvalidRoundKey = uniqueKey; firstInvalidRoundField = 'endTime'; }
 			}
 			
 			// Validate sub-stages if they exist
@@ -2258,7 +2266,7 @@ export default function EmpPostJob({ onNext }) {
 		}
 
 		setGlobalErrors(errorMessages);
-		return { valid: errorMessages.length === 0, errors: errorMessages };
+		return { valid: errorMessages.length === 0, errors: errorMessages, firstInvalidRoundKey, firstInvalidRoundField };
 	};
 
 	const validateJobForm = () => {
@@ -2547,20 +2555,24 @@ export default function EmpPostJob({ onNext }) {
 				scrollToField(firstField);
 			} else if (step2Errors && step2Errors.length > 0) {
 				showWarning(step2Errors[0]);
-				// Map step 2 error messages to field names for scroll
-				const step2FieldMap = [
-					{ key: 'offerLetterDate', match: /offer letter/i },
-					{ key: 'lastDateOfApplication', match: /last date of application/i },
-					{ key: 'interviewRoundsCount', match: /interview round/i },
-				];
-				const matchedField = step2FieldMap.find(f => f.match.test(step2Errors[0]));
-				if (matchedField) {
-					scrollToField(matchedField.key);
+				const { firstInvalidRoundKey: roundKey, firstInvalidRoundField: roundField } = validateStep2();
+				if (roundKey && roundField) {
+					const roundEl = document.querySelector(`[data-round-key="${roundKey}"][data-round-field="${roundField}"]`);
+					if (roundEl) {
+						scrollToField(roundEl);
+					} else {
+						const roundCard = document.querySelector(`[data-round-card="${roundKey}"]`);
+						if (roundCard) scrollToField(roundCard);
+					}
 				} else {
-					const interviewSection = document.querySelector('[data-field="interviewRoundsCount"]') ||
-											 document.querySelector('[data-step="2"]');
-					if (interviewSection) {
-						interviewSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					const step2FieldMap = [
+						{ key: 'offerLetterDate', match: /offer letter/i },
+						{ key: 'lastDateOfApplication', match: /last date of application/i },
+						{ key: 'interviewRoundsCount', match: /interview round/i },
+					];
+					const matchedField = step2FieldMap.find(f => f.match.test(step2Errors[0]));
+					if (matchedField) {
+						scrollToField(matchedField.key);
 					} else {
 						window.scrollTo({ top: 0, behavior: 'smooth' });
 					}
