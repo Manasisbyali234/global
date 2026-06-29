@@ -6989,6 +6989,16 @@ export default function EmpPostJob({ onNext }) {
 						<div className="document-modal-body">
 							<iframe src={interviewModal.url} title={interviewModal.title} />
 						</div>
+						<div className="document-modal-footer">
+							<button
+								type="button"
+								className="document-modal-close-btn"
+								onClick={() => { closeInterviewModal(); }}
+								aria-label="Close interview popup"
+							>
+								Close
+							</button>
+						</div>
 					</div>
 				</div>
 			)}
