@@ -118,3 +118,22 @@ test('candidate application status preserves final selected status', () => {
     })
   ).toBe('selected');
 });
+
+test('employer application status preserves raw shortlisted over derived final selected status', () => {
+  expect(
+    getApplicationStatusKey({
+      status: 'shortlisted',
+      applicationStatus: 'selected',
+      applicationDisplayStatus: 'selected',
+      displayStatus: 'selected',
+      interviewCurrentStatus: 'selected',
+      interviewProcesses: [
+        {
+          name: 'One-on-One / Panel',
+          type: 'oneOnOnePanel',
+          status: 'selected',
+        },
+      ],
+    })
+  ).toBe('shortlisted');
+});

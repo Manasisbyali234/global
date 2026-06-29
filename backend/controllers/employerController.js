@@ -29,7 +29,8 @@ const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
 const { buildUtcDateTimeFromIst, getStartOfCurrentIstDayUtc } = require('../utils/dateTime');
 const { formatDate } = require('../utils/dateFormatter');
 const {
-  buildApplicationStatusSnapshot: buildSharedApplicationStatusSnapshot
+  buildApplicationStatusSnapshot: buildSharedApplicationStatusSnapshot,
+  getCanonicalStatusKey: getSharedCanonicalStatusKey
 } = require('../utils/applicationStatus');
 
 const generateToken = (id, role) => {
@@ -399,13 +400,24 @@ const ensureExpiredApplicationRejected = async (application = null) => {
 const decorateEmployerApplicationStatusFields = (application = null, options = {}) => {
   if (!application) return application;
 
+  const statusSnapshot = buildSharedApplicationStatusSnapshot(application, {
+    ...options,
+    respectExpiredSessionAutoRejectDisplay: true,
+    respectManualStageStatusForAutoReject: true
+  });
+  const rawBaseStatus = getSharedCanonicalStatusKey(application?.status || '', '');
+  const resolvedStatusSnapshot = rawBaseStatus === 'shortlisted'
+    ? {
+        ...statusSnapshot,
+        applicationStatus: 'shortlisted',
+        applicationDisplayStatus: 'shortlisted',
+        displayStatus: 'shortlisted'
+      }
+    : statusSnapshot;
+
   return {
     ...application,
-    ...buildSharedApplicationStatusSnapshot(application, {
-      ...options,
-      respectExpiredSessionAutoRejectDisplay: true,
-      respectManualStageStatusForAutoReject: true
-    })
+    ...resolvedStatusSnapshot
   };
 };
 

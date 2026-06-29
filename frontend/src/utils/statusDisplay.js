@@ -185,6 +185,11 @@ export const isPositiveInterviewStatusKey = (value = '') => {
 };
 
 export const getApplicationStatusKey = (application = {}, fallback = 'pending') => {
+  const baseStatusKey = getCanonicalStatusKey(application?.status || '', '');
+  if (['accepted', 'hired', 'offer_sent', 'shortlisted', 'shortlisted_for_next_round'].includes(baseStatusKey)) {
+    return baseStatusKey;
+  }
+
   const explicitApplicationStatusKey = getCanonicalStatusKey(
     application?.applicationStatus ||
       application?.applicationDisplayStatus ||
@@ -196,11 +201,6 @@ export const getApplicationStatusKey = (application = {}, fallback = 'pending') 
     getCanonicalStatusKey(application?.status || fallback, fallback);
 
   // If the raw DB status is a positive terminal state, honour it before normalizing
-  const baseStatusKey = getCanonicalStatusKey(application?.status || '', '');
-  if (['accepted', 'hired', 'offer_sent'].includes(baseStatusKey)) {
-    return baseStatusKey;
-  }
-
   if (rawStatusKey === 'shortlisted_for_next_round') {
     return rawStatusKey;
   }
