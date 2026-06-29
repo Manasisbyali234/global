@@ -613,7 +613,7 @@
     border-radius: 30px;
     font-size: 12px;
     font-weight: 700;
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 0.5px;
     white-space: nowrap;
     display: inline-block;
