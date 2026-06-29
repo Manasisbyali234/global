@@ -11,6 +11,11 @@ const AssessmentPreview = ({ assessment, onBack }) => {
     const questions = assessment.questions || [];
     const currentQuestion = questions[currentQuestionIndex];
 
+    const mcqTypes = ['mcq', 'visual-mcq', 'questionary-image-mcq', 'image-mcq', 'upload'];
+    const mcqCount = questions.filter(q => mcqTypes.includes(q.type)).length;
+    const subjectiveCount = questions.filter(q => q.type === 'subjective').length;
+    const totalMarks = questions.reduce((sum, q) => sum + (q.marks || 1), 0);
+
     const handleOptionChange = (idx) => {
         const newAnswers = [...answers];
         newAnswers[currentQuestionIndex] = idx;
@@ -70,10 +75,48 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                     </h2>
                     <div style={{
                         display: "flex",
-                        justifyContent: "flex-end",
+                        justifyContent: "space-between",
                         marginTop: "10px",
                         alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: "8px"
                     }}>
+                        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                            {mcqCount > 0 && (
+                                <span style={{
+                                    background: "#e8f4fd",
+                                    color: "#2980b9",
+                                    padding: "3px 10px",
+                                    borderRadius: "12px",
+                                    fontSize: "13px",
+                                    fontWeight: "600"
+                                }}>
+                                    MCQ: {mcqCount}
+                                </span>
+                            )}
+                            {subjectiveCount > 0 && (
+                                <span style={{
+                                    background: "#fef3e2",
+                                    color: "#e67e22",
+                                    padding: "3px 10px",
+                                    borderRadius: "12px",
+                                    fontSize: "13px",
+                                    fontWeight: "600"
+                                }}>
+                                    Subjective: {subjectiveCount}
+                                </span>
+                            )}
+                            <span style={{
+                                background: "#eafaf1",
+                                color: "#27ae60",
+                                padding: "3px 10px",
+                                borderRadius: "12px",
+                                fontSize: "13px",
+                                fontWeight: "600"
+                            }}>
+                                Total Marks: {totalMarks}
+                            </span>
+                        </div>
                         <div style={{
                             display: "flex",
                             alignItems: "center",
@@ -131,13 +174,31 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                             marginBottom: "15px",
                             fontSize: "16px",
                             fontWeight: "bold",
-                            lineHeight: "1.5"
+                            lineHeight: "1.5",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                            gap: "10px"
                         }}>
-                            <span style={{ marginRight: "10px" }}>{currentQuestionIndex + 1}.</span>
-                            <div 
-                                style={{ display: "inline-block", verticalAlign: "top", width: "calc(100% - 40px)" }}
-                                dangerouslySetInnerHTML={{ __html: formatAssessmentContent(currentQuestion.question || (currentQuestion.type === 'image-mcq' ? "Image-based question" : "Untitled Question")) }} 
-                            />
+                            <div style={{ flex: 1 }}>
+                                <span style={{ marginRight: "10px" }}>{currentQuestionIndex + 1}.</span>
+                                <div 
+                                    style={{ display: "inline-block", verticalAlign: "top", width: "calc(100% - 40px)" }}
+                                    dangerouslySetInnerHTML={{ __html: formatAssessmentContent(currentQuestion.question || (currentQuestion.type === 'image-mcq' ? "Image-based question" : "Untitled Question")) }} 
+                                />
+                            </div>
+                            <span style={{
+                                background: "#f0f4ff",
+                                color: "#3a57e8",
+                                padding: "3px 10px",
+                                borderRadius: "12px",
+                                fontSize: "13px",
+                                fontWeight: "600",
+                                whiteSpace: "nowrap",
+                                flexShrink: 0
+                            }}>
+                                {currentQuestion.marks || 1} {(currentQuestion.marks || 1) === 1 ? "Mark" : "Marks"}
+                            </span>
                         </div>
                         
                         {currentQuestion.imageUrl && (
