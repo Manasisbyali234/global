@@ -161,7 +161,7 @@ export default function AssessmentDashboard() {
 			if (selectedStatus === "all") {
 				matchesStatus = true;
 			} else if (selectedStatus === "draft") {
-				matchesStatus = getAssessmentStatus(assessment) === "draft" || !assessment.isAssigned;
+				matchesStatus = getAssessmentStatus(assessment) === "draft";
 			} else {
 				matchesStatus = getAssessmentStatus(assessment) === selectedStatus;
 			}
