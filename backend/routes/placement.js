@@ -42,7 +42,7 @@ router.post('/register', [
     .trim()
     .isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters')
     .matches(/^[a-zA-Z\s]+$/).withMessage('Name can only contain letters and spaces'),
-  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
   body('collegeName')
     .notEmpty().withMessage('College name is required')
     .trim()

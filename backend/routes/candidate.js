@@ -35,7 +35,7 @@ router.post('/register', [
     .trim()
     .isLength({ max: 50 }).withMessage('Last name must be less than 50 characters')
     .matches(/^[a-zA-Z\s]*$/).withMessage('Last name can only contain letters and spaces'),
-  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
   ...mobileValidationRules()
 ], validateEmailMiddleware, handleValidationErrors, candidateController.registerCandidate);
 

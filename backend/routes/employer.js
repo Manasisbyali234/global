@@ -17,7 +17,7 @@ router.post('/register', [
     .trim()
     .isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters')
     .matches(/^[a-zA-Z0-9\s\-&.,()]+$/).withMessage('Name contains invalid characters'),
-  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
   body('companyName')
     .notEmpty().withMessage('Company name is required')
     .trim()
