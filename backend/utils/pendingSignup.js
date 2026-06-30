@@ -16,7 +16,7 @@ const createOrUpdatePendingSignup = async ({ role, email, phone, name, payload }
     { role, emailLower },
     {
       role,
-      email: (email || '').trim(),
+      email: (email || '').trim().toLowerCase(),
       emailLower,
       phone: (phone || '').trim(),
       name,

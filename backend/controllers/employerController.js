@@ -718,7 +718,7 @@ exports.registerEmployer = async (req, res) => {
     // Create employer without password - they will create it via email link
     const employerData = { 
       name, 
-      email: email.trim(), // Preserve original email format, just trim whitespace
+      email: email.trim().toLowerCase(),
       phone, 
       companyName,
       employerType: finalEmployerType

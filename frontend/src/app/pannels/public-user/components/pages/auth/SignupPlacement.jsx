@@ -49,8 +49,8 @@ function SignupPlacement() {
         if (name === 'email') {
             if (!value || !value.trim()) {
                 errors.email = 'Email is required';
-            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
-                errors.email = 'Please enter a valid email address';
+            } else if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(value.trim())) {
+                errors.email = 'Please enter a valid email address (e.g. name@example.com)';
             } else {
                 delete errors.email;
             }
@@ -136,7 +136,13 @@ function SignupPlacement() {
                     showError(data.message || 'This email is already registered. Please log in instead.');
                 }
             } else {
-                showError(data.message || 'Registration failed.');
+                const emailErrMsg = data.errors?.find(e => e.path === 'email' || e.param === 'email')?.msg;
+                if (emailErrMsg) {
+                    setFieldErrors(prev => ({ ...prev, email: 'Please enter a valid email address (e.g. name@example.com)' }));
+                    showError('Please enter a valid email address (e.g. name@example.com)');
+                } else {
+                    showError(data.errors?.[0]?.msg || data.message || 'Registration failed.');
+                }
             }
         } catch (error) {
             showError('Network error. Please try again.');
@@ -156,7 +162,7 @@ function SignupPlacement() {
         else if (!/^[a-zA-Z\s]+$/.test(placementData.name.trim())) newErrors.name = 'Name can only contain letters and spaces';
 
         if (!placementData.email.trim()) newErrors.email = 'Email is required';
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(placementData.email.trim())) newErrors.email = 'Please enter a valid email address';
+        else if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(placementData.email.trim())) newErrors.email = 'Please enter a valid email address (e.g. name@example.com)';
 
         if (!placementData.phone.trim()) newErrors.phone = 'Mobile number is required';
 

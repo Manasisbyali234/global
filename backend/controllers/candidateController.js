@@ -1,4 +1,4 @@
-ï»¿const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Candidate = require('../models/Candidate');
 const CandidateProfile = require('../models/CandidateProfile');
@@ -423,7 +423,7 @@ exports.registerCandidate = async (req, res) => {
       middleName: normalizedMiddleName,
       lastName: resolvedLastName,
       name: fullName, 
-      email: email.trim(), // Preserve original email format, just trim whitespace
+      email: email.trim().toLowerCase(),
       phone,
       registrationMethod: 'email_signup',
       credits: 0,
@@ -2602,7 +2602,7 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
               panel: 'Panel',
               group: 'Group',
               situational: 'Situational / Behavioral',
-              others: 'Others â€“ Specify.',
+              others: 'Others – Specify.',
               assessment: 'Assessment'
             };
             
@@ -2850,7 +2850,7 @@ exports.getRecommendedJobs = async (req, res) => {
       return res.json({ success: true, jobs: [] });
     }
 
-    // Build DB query â€” always include 'Any' education jobs + skill matches + education matches
+    // Build DB query — always include 'Any' education jobs + skill matches + education matches
     const orConditions = [];
 
     // Always fetch jobs that accept Any education
@@ -2899,7 +2899,7 @@ exports.getRecommendedJobs = async (req, res) => {
       // Education match
       let eduMatched = false;
       if (isAnyEdu) {
-        // Job accepts any education â€” always matches if candidate has education
+        // Job accepts any education — always matches if candidate has education
         eduMatched = hasEducation;
       } else if (hasEducation) {
         const jobSpecList = (job.educationSpecializations || []).map(s =>
@@ -3151,7 +3151,7 @@ exports.getApplicationInterviewDetails = async (req, res) => {
               panel: 'Panel',
               group: 'Group',
               situational: 'Situational / Behavioral',
-              others: 'Others â€“ Specify.',
+              others: 'Others – Specify.',
               assessment: 'Assessment'
             };
           
@@ -3432,7 +3432,7 @@ exports.getInterviewProcessDetails = async (req, res) => {
               panel: 'Panel',
               group: 'Group',
               situational: 'Situational / Behavioral',
-              others: 'Others â€“ Specify.',
+              others: 'Others – Specify.',
               assessment: 'Assessment'
             };
           

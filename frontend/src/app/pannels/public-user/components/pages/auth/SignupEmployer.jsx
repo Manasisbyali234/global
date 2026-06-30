@@ -50,8 +50,8 @@ function SignupEmployer() {
         if (name === 'email') {
             if (!value || !value.trim()) {
                 errors.email = 'Email is required';
-            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
-                errors.email = 'Please enter a valid email address';
+            } else if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(value.trim())) {
+                errors.email = 'Please enter a valid email address (e.g. name@example.com)';
             } else {
                 delete errors.email;
             }
@@ -102,8 +102,8 @@ function SignupEmployer() {
         
         if (!employerData.email || !employerData.email.trim()) {
             errors.email = 'Email is required';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employerData.email.trim())) {
-            errors.email = 'Please enter a valid email address';
+        } else if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(employerData.email.trim())) {
+            errors.email = 'Please enter a valid email address (e.g. name@example.com)';
         }
         
         if (!employerData.mobile || !employerData.mobile.trim()) {
@@ -168,11 +168,17 @@ function SignupEmployer() {
             } else if (response.status === 409 && data.field === 'mobile') {
                 setFieldErrors(prev => ({ ...prev, mobile: data.message }));
             } else {
-                const message = data.message || 'Registration failed.';
-                if (String(message).toLowerCase().includes('email already registered')) {
-                    showWarning(message);
+                const emailErrMsg = data.errors?.find(e => e.path === 'email' || e.param === 'email')?.msg;
+                if (emailErrMsg) {
+                    setFieldErrors(prev => ({ ...prev, email: 'Please enter a valid email address (e.g. name@example.com)' }));
+                    showError('Please enter a valid email address (e.g. name@example.com)');
                 } else {
-                    showError(message);
+                    const message = data.message || 'Registration failed.';
+                    if (String(message).toLowerCase().includes('email already registered')) {
+                        showWarning(message);
+                    } else {
+                        showError(message);
+                    }
                 }
             }
         } catch (error) {

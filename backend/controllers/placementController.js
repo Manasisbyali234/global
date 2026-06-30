@@ -219,7 +219,7 @@ exports.registerPlacement = async (req, res) => {
 
       const placementData = { 
         name: name.trim(), 
-        email: email.trim(), 
+        email: email.trim().toLowerCase(), 
         phone: phone.trim(), 
         collegeName: collegeName.trim(),
         collegeOfficialEmail: collegeOfficialEmail ? collegeOfficialEmail.toLowerCase().trim() : undefined,
@@ -312,7 +312,7 @@ exports.registerPlacement = async (req, res) => {
 
     const placementData = { 
       name: name.trim(), 
-      email: email.trim(), 
+      email: email.trim().toLowerCase(), 
       password: password.trim(), 
       phone: phone.trim(), 
       collegeName: collegeName.trim(),
