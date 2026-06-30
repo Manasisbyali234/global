@@ -20,10 +20,46 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 	<div className="card h-100 shadow-sm assessment-card">
 			<div className="card-body">
 				{/* Serial Number - First */}
-				<div className="mb-2">
-					<h6 className="fw-bold mb-1" style={{fontSize: '14px'}}>
+				<div className="mb-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+					<h6 className="fw-bold mb-0" style={{fontSize: '14px'}}>
 						<span className="text-primary">#{data.serialNumber || (index + 1)}</span>
 					</h6>
+					{String(data.status || '').toLowerCase() === 'draft' ? (
+						<span
+							style={{
+								backgroundColor: '#fff3cd',
+								color: '#92400e',
+								border: '1px solid #f59e0b',
+								fontSize: '11px',
+								fontWeight: '700',
+								letterSpacing: '0.04em',
+								textTransform: 'uppercase',
+								padding: '3px 8px',
+								borderRadius: '4px',
+								display: 'inline-block'
+							}}
+						>
+							Draft
+						</span>
+					) : (
+						<span
+							style={{
+								backgroundColor: '#d1fae5',
+								color: '#065f46',
+								border: '1px solid #10b981',
+								fontSize: '11px',
+								fontWeight: '700',
+								letterSpacing: '0.04em',
+								textTransform: 'uppercase',
+								padding: '3px 8px',
+								borderRadius: '4px',
+								display: 'inline-block'
+							}}
+						>
+							<i className="fa fa-check-circle" style={{ fontSize: '10px', marginRight: '4px' }}></i>
+							Assessment Created
+						</span>
+					)}
 				</div>
 				
 				{/* Company Name - Second */}

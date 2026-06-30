@@ -27,13 +27,21 @@ function CreateAssessmentPage() {
     const [showModal, setShowModal] = useState(false);
     const [editingAssessment, setEditingAssessment] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
     const PAGE_SIZE = 10;
 
-    const filteredAssessments = assessments.filter(assessment => 
-        assessment.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        assessment.designation?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredAssessments = assessments.filter(assessment => {
+        const matchesSearch =
+            assessment.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            assessment.designation?.toLowerCase().includes(searchTerm.toLowerCase());
+        const assessmentStatus = String(assessment.status || '').toLowerCase();
+        const matchesStatus =
+            statusFilter === 'all' ||
+            (statusFilter === 'draft' && assessmentStatus === 'draft') ||
+            (statusFilter === 'created' && assessmentStatus !== 'draft');
+        return matchesSearch && matchesStatus;
+    });
     const pagedAssessments = filteredAssessments.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
     const fetchAssessments = async () => {
@@ -233,6 +241,17 @@ function CreateAssessmentPage() {
                                 />
                             </div>
                         </div>
+                        <div className="col-md-3">
+                            <select
+                                className="form-control"
+                                value={statusFilter}
+                                onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+                            >
+                                <option value="all">Filter by Status</option>
+                                <option value="draft">Draft</option>
+                                <option value="created">Assessment Created</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div className="row">
@@ -243,22 +262,40 @@ function CreateAssessmentPage() {
                                         <style>{`.assessment-card .card-body > *:first-child { display: none !important; }`}</style>
                                         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
                                             <div className="flex-grow-1 w-100">
-                                                {String(assessment.status || '').toLowerCase() === 'draft' && (
-                                                    <span
-                                                        className="badge mb-2"
-                                                        style={{
-                                                            backgroundColor: '#fff3cd',
-                                                            color: '#92400e',
-                                                            border: '1px solid #f59e0b',
-                                                            fontSize: '11px',
-                                                            fontWeight: '700',
-                                                            letterSpacing: '0.04em',
-                                                            textTransform: 'uppercase'
-                                                        }}
-                                                    >
-                                                        Draft
-                                                    </span>
-                                                )}
+                                                <div className="d-flex flex-wrap gap-2 mb-2">
+                                                    {String(assessment.status || '').toLowerCase() === 'draft' ? (
+                                                        <span
+                                                            className="badge"
+                                                            style={{
+                                                                backgroundColor: '#fff3cd',
+                                                                color: '#92400e',
+                                                                border: '1px solid #f59e0b',
+                                                                fontSize: '11px',
+                                                                fontWeight: '700',
+                                                                letterSpacing: '0.04em',
+                                                                textTransform: 'uppercase'
+                                                            }}
+                                                        >
+                                                            Draft
+                                                        </span>
+                                                    ) : (
+                                                        <span
+                                                            className="badge"
+                                                            style={{
+                                                                backgroundColor: '#d1fae5',
+                                                                color: '#065f46',
+                                                                border: '1px solid #10b981',
+                                                                fontSize: '11px',
+                                                                fontWeight: '700',
+                                                                letterSpacing: '0.04em',
+                                                                textTransform: 'uppercase'
+                                                            }}
+                                                        >
+                                                            <i className="fa fa-check-circle me-1" style={{ fontSize: '10px' }}></i>
+                                                            Assessment Created
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 {assessment.companyName && (
                                                     <h6 className="mb-1" style={{fontSize: '14px', fontWeight: '600', wordWrap: 'break-word', overflowWrap: 'break-word'}}>
                                                         <span style={{color: '#8B7355'}}>Company:</span> <span className="text-primary">{assessment.companyName}</span>
