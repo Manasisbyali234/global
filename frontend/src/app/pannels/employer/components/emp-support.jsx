@@ -356,7 +356,7 @@ function EmpSupport() {
                         </div>
                          <p className="mb-4">
                             Thank you for contacting our support team.<br />
-                            We have received your ticket and will respond within 5 Working Days.
+                            We have received your ticket and will respond within 3 Working Days.
                         </p>
                         <button
                             onClick={() => setIsSubmitted(false)} 
