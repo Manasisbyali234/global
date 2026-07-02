@@ -27,6 +27,7 @@ import "./naukri-preview.css";
 import "../../../../../home-alignment.css";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
+import HeroBannerCarousel from '../../../../../components/HeroBannerCarousel';
 
 // Add error boundary to catch rendering errors
 const ErrorBoundary = ({ children }) => {
@@ -545,6 +546,13 @@ function Home16Page() {
 
             {/* Hero Section */}
             <HeroBody className="mt-0 mt-md-4" onSearch={handleSearch} />
+
+            {/* HERO BANNER CAROUSEL */}
+            <div style={{ background: '#fff', padding: '32px 0 0' }}>
+                <div className="container">
+                    <HeroBannerCarousel />
+                </div>
+            </div>
 
             {/* JOBS CATEGORIES SECTION START */}
             <div className="section-full p-t20 p-b20 twm-job-categories-hpage-6-area animate-on-scroll" style={{background: 'transparent !important', backgroundColor: 'transparent !important', paddingTop: 'clamp(5px, 1vw, 10px)', paddingBottom: 'clamp(5px, 1vw, 10px)'}}>

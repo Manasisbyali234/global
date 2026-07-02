@@ -15,6 +15,7 @@ import { api } from "../../../../../utils/api";
 import "../../../../../categories-mobile-grid-fix.css";
 import "../../../../../remove-carousel-hover-effects.css";
 import "../../../../../home-location-fix.css";
+import HeroBannerCarousel from "../../../../../components/HeroBannerCarousel";
 
 const getPostedByLabel = (job) => {
     const rawPostedBy = job?.postedBy || job?.employerId?.employerType || job?.employerType;
@@ -601,6 +602,12 @@ function Home1Page() {
                 </div>
             </div>
             {/* HOW IT WORK SECTION END */}
+            {/* HERO BANNER CAROUSEL */}
+            <div className="section-full site-bg-gray" style={{ paddingTop: "40px", paddingBottom: "0" }}>
+                <div className="container">
+                    <HeroBannerCarousel />
+                </div>
+            </div>
             {/* JOBS CATEGORIES SECTION START */}
             <div className="section-full p-t120 p-b90 site-bg-gray twm-job-categories-area">
                 <div className="container">
