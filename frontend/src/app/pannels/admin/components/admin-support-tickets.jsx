@@ -694,7 +694,7 @@ function AdminSupportTickets() {
                                                     <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Company Name</th>
                                                     <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>University  Name</th>
                                                     <th style={{width: '17%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Job</th>
-                                                    <th style={{width: '12%', minWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
+                                                    <th style={{width: '14%', minWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Priority</th>
                                                     <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
                                                     <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Created</th>
@@ -723,16 +723,16 @@ function AdminSupportTickets() {
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getUserTypeBadge(ticket.userType)}</td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={(ticket.userType === 'employer' || ticket.userType === 'candidate') ? (getCompanyName(ticket) || '-') : '-'}>
-                                                            <span className="category-badge">{(ticket.userType === 'employer' || ticket.userType === 'candidate') ? (getCompanyName(ticket) || '-') : '-'}</span>
+                                                            {(ticket.userType === 'employer' || ticket.userType === 'candidate') ? (getCompanyName(ticket) || '-') : '-'}
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.userType === 'placement' ? (getCompanyName(ticket) || '-') : '-'}>
-                                                            <span className="category-badge">{ticket.userType === 'placement' ? (getCompanyName(ticket) || '-') : '-'}</span>
+                                                            {ticket.userType === 'placement' ? (getCompanyName(ticket) || '-') : '-'}
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={formatJobTitle(getJobTitle(ticket), ticket.userType === 'candidate' ? 'No job selected' : '-')}>
-                                                            <span className="category-badge">{formatJobTitle(getJobTitle(ticket), ticket.userType === 'candidate' ? 'N/A' : '-')}</span>
+                                                            {formatJobTitle(getJobTitle(ticket), ticket.userType === 'candidate' ? 'N/A' : '-')}
                                                         </td>
                                                         <td style={{minWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.category || 'General'}>
-                                                            <span className="category-badge">{{ general: 'General Inquiry', technical: 'Technical Issue', account: 'Account Management', 'job-posting': 'Job Posting', application: 'Job Application', billing: 'Billing', 'student-application': 'Student/Application Query' }[ticket.category] || ticket.category || 'General'}</span>
+                                                            {{ general: 'General Inquiry', technical: 'Technical Issue', account: 'Account Management', 'job-posting': 'Job Posting', application: 'Job Application', billing: 'Billing', 'student-application': 'Student/Application Query' }[ticket.category] || ticket.category || 'General'}
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getPriorityBadge(ticket.priority)}</td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getStatusBadge(ticket.status)}</td>
