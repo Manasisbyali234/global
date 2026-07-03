@@ -46,16 +46,32 @@ function JobDetail1Page() {
         return { token, candidateId: storedCandidateId, isLoggedIn: !!token };
     }, [localStorage.getItem('candidateToken'), localStorage.getItem('candidateId')]);
 
-    const { isEnded, isExpired, isLimitReached } = useMemo(() => {
-        if (!job) return { isEnded: false, isExpired: false, isLimitReached: false };
+    const { isEnded, isExpired, isLimitReached, isOfferLetterDatePassed } = useMemo(() => {
+        if (!job) return { isEnded: false, isExpired: false, isLimitReached: false, isOfferLetterDatePassed: false };
         const now = Date.now();
+        
+        // Check if application deadline has passed
+        const applicationDeadline = job.lastDateOfApplication
+            ? buildUtcDateTimeFromIst(job.lastDateOfApplication, job.lastDateOfApplicationTime || '', 'end')
+            : null;
+        const isExpired = !!applicationDeadline && applicationDeadline.getTime() < now;
+        
+        // Check if all vacancies are filled
+        const vacanciesFilled = !!(job.vacancies && (job.applicationCount || 0) >= job.vacancies);
+        
+        // Application is closed if deadline passed OR all vacancies filled
+        const isLimitReached = isExpired || vacanciesFilled;
+        
+        // Check if offer letter date has passed (job should be hidden/vanished)
         const offerLetterEnd = job.offerLetterDate
             ? buildUtcDateTimeFromIst(job.offerLetterDate, '', 'end')
             : null;
-        const isExpired = !!offerLetterEnd && offerLetterEnd.getTime() < now;
-        const isEnded = (job.status && job.status !== 'active') || isExpired;
-        const isLimitReached = !!(job.applicationLimit && (job.applicationCount || 0) >= job.applicationLimit);
-        return { isEnded, isExpired, isLimitReached };
+        const isOfferLetterDatePassed = !!offerLetterEnd && offerLetterEnd.getTime() < now;
+        
+        // Job is ended if it's not active OR if offer letter date passed
+        const isEnded = (job.status && job.status !== 'active') || isOfferLetterDatePassed;
+        
+        return { isEnded, isExpired, isLimitReached, isOfferLetterDatePassed };
     }, [job]);
 
     const fetchJobDetails = useCallback(async () => {
@@ -201,6 +217,16 @@ function JobDetail1Page() {
             <div className="text-center p-5" style={{animation: 'fadeInUp 0.6s ease-out'}}>
                 <h3 style={{color: '#6c757d'}}>Job not found</h3>
                 <p style={{color: '#9ca3af'}}>The job you're looking for doesn't exist or has been removed.</p>
+            </div>
+        );
+    }
+
+    // Hide job if offer letter date has passed
+    if (isOfferLetterDatePassed) {
+        return (
+            <div className="text-center p-5" style={{animation: 'fadeInUp 0.6s ease-out'}}>
+                <h3 style={{color: '#6c757d'}}>Job Closed</h3>
+                <p style={{color: '#9ca3af'}}>This job posting has been closed and is no longer available.</p>
             </div>
         );
     }

@@ -155,10 +155,27 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
     const JobCard = memo(({ job, index }) => {
         const cardRef = useRef(null);
 
-        const isLimitReached = useMemo(() => {
-            if (!job || !job.applicationLimit) return false;
-            return (job.applicationCount || 0) >= job.applicationLimit;
+        const { isLimitReached, isOfferLetterDatePassed } = useMemo(() => {
+            if (!job) return { isLimitReached: false, isOfferLetterDatePassed: false };
+            const now = Date.now();
+            
+            // Check if all vacancies are filled
+            const vacanciesFilled = !!(job.vacancies && (job.applicationCount || 0) >= job.vacancies);
+            const isLimitReached = vacanciesFilled;
+            
+            // Check if offer letter date has passed (job should be hidden)
+            const offerLetterEnd = job.offerLetterDate
+                ? new Date(job.offerLetterDate).getTime()
+                : null;
+            const isOfferLetterDatePassed = !!offerLetterEnd && offerLetterEnd < now;
+            
+            return { isLimitReached, isOfferLetterDatePassed };
         }, [job]);
+        
+        // Don't render job card if offer letter date has passed
+        if (isOfferLetterDatePassed) {
+            return null;
+        }
         
         useEffect(() => {
             const observer = performanceMonitor.setupIntersectionObserver(
