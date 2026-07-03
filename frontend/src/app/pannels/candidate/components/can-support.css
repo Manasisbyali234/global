@@ -1,0 +1,41 @@
+/* Candidate Support - Select dropdown fix */
+.candidate-support-page .can-support-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.candidate-support-page .can-support-select {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 1;
+  height: 50px !important;
+  min-height: 50px !important;
+  padding: 0 44px 0 12px !important;
+  line-height: 50px !important;
+  box-sizing: border-box !important;
+  cursor: pointer;
+}
+
+.candidate-support-page .can-support-select:disabled {
+  cursor: not-allowed;
+}
+
+.candidate-support-page .can-support-select-arrow {
+  position: absolute;
+  right: 14px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  color: #555;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.candidate-support-page .can-support-select:focus + .can-support-select-arrow {
+  transform: rotate(180deg);
+}

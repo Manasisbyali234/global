@@ -54,6 +54,11 @@ exports.getJobs = async (req, res) => {
     
     const { location, jobType, category, search, title, employerId, employmentType, skills, keyword, jobTitle, education, page = 1, limit = 10, sortBy } = req.query;
     
+    // Cache key based on all query params
+    const cacheKey = `public_jobs_v1_${JSON.stringify(req.query)}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return res.json(cached);
+
     // Optimized query building
     let query = { 
       status: { $in: ['active', 'pending'] },
@@ -125,15 +130,17 @@ exports.getJobs = async (req, res) => {
     };
     const sortCriteria = sortMap[sortBy] || { createdAt: -1 };
 
-    // Optimized query for better performance
-    const jobs = await Job.find(query)
-      .select('title location jobType applicationLimit category ctc createdAt employerId companyName companyLogo companyBanner education educationSpecializations shift lastDateOfApplication lastDateOfApplicationTime vacancies offerLetterDate status')
-      .sort(sortCriteria)
-      .limit(parseInt(limit))
-      .skip((parseInt(page) - 1) * parseInt(limit))
-      .lean();
+    // Run jobs fetch and count in parallel
+    const [jobs, totalJobs] = await Promise.all([
+      Job.find(query)
+        .select('title location jobType applicationLimit category ctc createdAt employerId companyName companyLogo companyBanner education educationSpecializations shift lastDateOfApplication lastDateOfApplicationTime vacancies offerLetterDate status')
+        .sort(sortCriteria)
+        .limit(parseInt(limit))
+        .skip((parseInt(page) - 1) * parseInt(limit))
+        .lean(),
+      Job.countDocuments(query)
+    ]);
 
-    const totalJobs = await Job.countDocuments(query);
     const employerIds = jobs.map(job => job.employerId).filter(Boolean);
     const jobIds = jobs.map(job => job._id);
 
@@ -196,7 +203,8 @@ exports.getJobs = async (req, res) => {
       hasNextPage: parseInt(page) < Math.ceil(totalJobs / parseInt(limit)),
       hasPrevPage: parseInt(page) > 1
     };
-    
+
+    cache.set(cacheKey, response, 60000); // Cache for 1 minute
     res.json(response);
   } catch (error) {
     console.error('Error in getJobs:', error);

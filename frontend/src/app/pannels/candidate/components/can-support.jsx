@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '../../../../utils/api';
 import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
+import './can-support.css';
 
 function CanSupport() {
     const [formData, setFormData] = useState({
@@ -507,33 +508,43 @@ function CanSupport() {
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
                                             <label>Send To<span style={{ color: 'red' }}>*</span></label>
-                                            <select 
-                                                name="receiverRole" 
-                                                className="form-control"
-                                                value={formData.receiverRole}
-                                                onChange={handleChange}
-                                            >
-                                                <option value="employer">HR Support</option>
-                                                <option value="admin">Contact Taleglobal</option>
-                                            </select>
+                                            <div className="can-support-select-wrapper">
+                                                <select 
+                                                    name="receiverRole" 
+                                                    className="form-control can-support-select"
+                                                    value={formData.receiverRole}
+                                                    onChange={handleChange}
+                                                >
+                                                    <option value="employer">HR Support</option>
+                                                    <option value="admin">Contact Taleglobal</option>
+                                                </select>
+                                                <span className="can-support-select-arrow" aria-hidden="true">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
                                             <label>Select Employer <span style={{ color: 'red' }}>*</span></label>
-                                            <select 
-                                                name="receiverId" 
-                                                className={`form-control ${errors.receiverId ? 'is-invalid' : ''}`}
-                                                value={formData.receiverId}
-                                                onChange={handleChange}
-                                                disabled={isLoadingEmployers}
-                                            >
-                                                <option value="">{isLoadingEmployers ? 'Loading employers...' : 'Choose an employer'}</option>
-                                                {employers.map(emp => (
-                                                    <option key={emp.id} value={emp.id}>{emp.name}</option>
-                                                ))}
-                                            </select>
+                                            <div className="can-support-select-wrapper">
+                                                <select 
+                                                    name="receiverId" 
+                                                    className={`form-control can-support-select ${errors.receiverId ? 'is-invalid' : ''}`}
+                                                    value={formData.receiverId}
+                                                    onChange={handleChange}
+                                                    disabled={isLoadingEmployers}
+                                                >
+                                                    <option value="">{isLoadingEmployers ? 'Loading employers...' : 'Choose an employer'}</option>
+                                                    {employers.map(emp => (
+                                                        <option key={emp.id} value={emp.id}>{emp.name}</option>
+                                                    ))}
+                                                </select>
+                                                <span className="can-support-select-arrow" aria-hidden="true">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                                </span>
+                                            </div>
                                             {errors.receiverId && <div className="invalid-feedback">{errors.receiverId}</div>}
                                             {employers.length === 0 && !isLoadingEmployers && (
                                                 <small className="text-muted">No employers found. You can only send tickets to employers you've applied to.</small>
@@ -544,24 +555,29 @@ function CanSupport() {
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
                                             <label>Select Designation<span style={{ color: 'red' }}>*</span></label>
-                                            <select
-                                                name="jobId"
-                                                className={`form-control ${errors.jobId ? 'is-invalid' : ''}`}
-                                                value={formData.jobId}
-                                                onChange={handleChange}
-                                                disabled={!formData.receiverId || selectedEmployerJobs.length === 0}
-                                            >
-                                                <option value="">
-                                                    {!formData.receiverId
-                                                        ? 'Choose an employer first'
-                                                        : selectedEmployerJobs.length === 0
-                                                            ? 'No jobs available'
-                                                            : 'Choose a job'}
-                                                </option>
-                                                {selectedEmployerJobs.map((job) => (
-                                                    <option key={job.id} value={job.id}>{formatJobTitle(job.title)}</option>
-                                                ))}
-                                            </select>
+                                            <div className="can-support-select-wrapper">
+                                                <select
+                                                    name="jobId"
+                                                    className={`form-control can-support-select ${errors.jobId ? 'is-invalid' : ''}`}
+                                                    value={formData.jobId}
+                                                    onChange={handleChange}
+                                                    disabled={!formData.receiverId || selectedEmployerJobs.length === 0}
+                                                >
+                                                    <option value="">
+                                                        {!formData.receiverId
+                                                            ? 'Choose an employer first'
+                                                            : selectedEmployerJobs.length === 0
+                                                                ? 'No jobs available'
+                                                                : 'Choose a job'}
+                                                    </option>
+                                                    {selectedEmployerJobs.map((job) => (
+                                                        <option key={job.id} value={job.id}>{formatJobTitle(job.title)}</option>
+                                                    ))}
+                                                </select>
+                                                <span className="can-support-select-arrow" aria-hidden="true">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                                </span>
+                                            </div>
                                             {errors.jobId && <div className="invalid-feedback">{errors.jobId}</div>}
                                             {formData.receiverId && selectedEmployerJobs.length === 0 && (
                                                 <small className="text-muted">No applied jobs were found for the selected employer.</small>
@@ -612,32 +628,42 @@ function CanSupport() {
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
                                             <label>Category</label>
-                                            <select 
-                                                name="category" 
-                                                className="form-control"
-                                                value={formData.category}
-                                                onChange={handleChange}
-                                            >
-                                                {categories.map(cat => (
-                                                    <option key={cat.value} value={cat.value}>{cat.label}</option>
-                                                ))}
-                                            </select>
+                                            <div className="can-support-select-wrapper">
+                                                <select 
+                                                    name="category" 
+                                                    className="form-control can-support-select"
+                                                    value={formData.category}
+                                                    onChange={handleChange}
+                                                >
+                                                    {categories.map(cat => (
+                                                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                                    ))}
+                                                </select>
+                                                <span className="can-support-select-arrow" aria-hidden="true">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                     
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
                                             <label>Priority</label>
-                                            <select 
-                                                name="priority" 
-                                                className="form-control"
-                                                value={formData.priority}
-                                                onChange={handleChange}
-                                            >
-                                                {priorities.map(pri => (
-                                                    <option key={pri.value} value={pri.value}>{pri.label}</option>
-                                                ))}
-                                            </select>
+                                            <div className="can-support-select-wrapper">
+                                                <select 
+                                                    name="priority" 
+                                                    className="form-control can-support-select"
+                                                    value={formData.priority}
+                                                    onChange={handleChange}
+                                                >
+                                                    {priorities.map(pri => (
+                                                        <option key={pri.value} value={pri.value}>{pri.label}</option>
+                                                    ))}
+                                                </select>
+                                                <span className="can-support-select-arrow" aria-hidden="true">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                     

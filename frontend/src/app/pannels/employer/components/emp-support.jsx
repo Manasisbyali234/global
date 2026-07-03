@@ -356,7 +356,7 @@ function EmpSupport() {
                         </div>
                          <p className="mb-4">
                             Thank you for contacting our support team.<br />
-                            We have received your ticket and will respond within 5 Working Days.
+                            We have received your ticket and will respond within 3 Working Days.
                         </p>
                         <button
                             onClick={() => setIsSubmitted(false)} 
@@ -435,32 +435,42 @@ function EmpSupport() {
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
                                             <label>Category</label>
-                                            <select 
-                                                name="category" 
-                                                className="form-control"
-                                                value={formData.category}
-                                                onChange={handleChange}
-                                            >
-                                                {categories.map(cat => (
-                                                    <option key={cat.value} value={cat.value}>{cat.label}</option>
-                                                ))}
-                                            </select>
+                                            <div className="emp-support-select-wrapper">
+                                                <select 
+                                                    name="category" 
+                                                    className="form-control emp-support-select"
+                                                    value={formData.category}
+                                                    onChange={handleChange}
+                                                >
+                                                    {categories.map(cat => (
+                                                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                                    ))}
+                                                </select>
+                                                <span className="emp-support-select-arrow" aria-hidden="true">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                     
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
                                             <label>Priority</label>
-                                            <select 
-                                                name="priority" 
-                                                className="form-control"
-                                                value={formData.priority}
-                                                onChange={handleChange}
-                                            >
-                                                {priorities.map(pri => (
-                                                    <option key={pri.value} value={pri.value}>{pri.label}</option>
-                                                ))}
-                                            </select>
+                                            <div className="emp-support-select-wrapper">
+                                                <select 
+                                                    name="priority" 
+                                                    className="form-control emp-support-select"
+                                                    value={formData.priority}
+                                                    onChange={handleChange}
+                                                >
+                                                    {priorities.map(pri => (
+                                                        <option key={pri.value} value={pri.value}>{pri.label}</option>
+                                                    ))}
+                                                </select>
+                                                <span className="emp-support-select-arrow" aria-hidden="true">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                     
