@@ -155,27 +155,14 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
     const JobCard = memo(({ job, index }) => {
         const cardRef = useRef(null);
 
-        const { isLimitReached, isOfferLetterDatePassed } = useMemo(() => {
-            if (!job) return { isLimitReached: false, isOfferLetterDatePassed: false };
+        const isLimitReached = useMemo(() => {
+            if (!job) return false;
             const now = Date.now();
             
             // Check if all vacancies are filled
             const vacanciesFilled = !!(job.vacancies && (job.applicationCount || 0) >= job.vacancies);
-            const isLimitReached = vacanciesFilled;
-            
-            // Check if offer letter date has passed (job should be hidden)
-            const offerLetterEnd = job.offerLetterDate
-                ? new Date(job.offerLetterDate).getTime()
-                : null;
-            const isOfferLetterDatePassed = !!offerLetterEnd && offerLetterEnd < now;
-            
-            return { isLimitReached, isOfferLetterDatePassed };
+            return vacanciesFilled;
         }, [job]);
-        
-        // Don't render job card if offer letter date has passed
-        if (isOfferLetterDatePassed) {
-            return null;
-        }
         
         useEffect(() => {
             const observer = performanceMonitor.setupIntersectionObserver(
@@ -397,7 +384,16 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                 {loading && isFirstLoad && skeletonCards}
 
                 {!loading && jobs.length > 0 ? 
-                    jobs.map((job, index) => (
+                    jobs.filter(job => {
+                        // Filter out jobs where offer letter date has passed
+                        if (job.offerLetterDate) {
+                            const offerLetterEnd = new Date(job.offerLetterDate).getTime();
+                            if (offerLetterEnd < Date.now()) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }).map((job, index) => (
                         <JobCard key={job._id} job={job} index={index} />
                     )) : !loading && (
                         <Col xs={12} className="text-center py-5">
