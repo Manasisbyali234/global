@@ -168,7 +168,7 @@ const TermsModal = ({ isOpen, onClose, onAccept, role = 'candidate' }) => {
             sections: [
                 { heading: 'Registration and Verification', content: 'Placement Dean must provide valid institutional credentials and official contact information. Your account will be verified before activation to ensure authenticity. Registration constitutes a legally binding electronic agreement under applicable laws.' },
                 { heading: 'Student Data Management', content: 'You are responsible for the accuracy of student data uploaded to the platform. Student information must be uploaded with proper consent from students and the institution. All data must comply with UGC and AICTE guidelines governing campus placements.' },
-                { heading: 'Credit Allocation', content: 'Credits allocated to students are managed by your institution. You are responsible for fair distribution of credits among students. Credit usage and allocation must be transparent and documented.' },
+                { heading: 'Credit Allocation', content: 'Once the candidate data has been successfully uploaded, Tale Global will allocate the applicable credits. The allocated credits will be activated and communicated to the candidate through their registered email address. Candidates are responsible for ensuring that the email address provided is valid and accessible.' },
                 { heading: 'Data Privacy', content: 'You must comply with data protection regulations when handling student information. Student data should only be used for placement purposes. Unauthorized sharing or commercial use of student data is strictly prohibited.' },
                 ...commonLegalSections
             ]
