@@ -424,12 +424,22 @@ const HeroBody = ({ onSearch }) => {
                 </span>
               ))}
             </div>
-            <button 
-              onClick={() => navigate('/job-grid')}
-              className="hero-cta"
-            >
-              Explore Jobs
-            </button>
+            <div className="hero-cta-row">
+              <button
+                onClick={() => navigate('/job-grid')}
+                className="hero-cta"
+              >
+                Explore Jobs
+              </button>
+              <img
+                src="/assets/images/hero-image.jpg"
+                alt=""
+                aria-hidden="true"
+                className="hero-mobile-cta-image"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
           </div>
           <div className="hero-illustration" aria-hidden="true" />
         </div>

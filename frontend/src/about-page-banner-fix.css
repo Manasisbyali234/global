@@ -1,7 +1,8 @@
 .about-page-active .wt-bnr-inr {
-    height: 84px !important;
-    min-height: 84px !important;
+    height: auto !important;
+    min-height: unset !important;
     padding: 0 !important;
+    padding-top: 70px !important;
 }
 
 .about-page-active .wt-bnr-inr .container,
@@ -30,8 +31,7 @@
 
 @media (max-width: 991px) {
     .about-page-active .wt-bnr-inr {
-        height: 72px !important;
-        min-height: 72px !important;
+        padding-top: 65px !important;
     }
 
     .about-page-active .wt-bnr-inr-entry {
@@ -41,8 +41,7 @@
 
 @media (max-width: 767px) {
     .about-page-active .wt-bnr-inr {
-        height: 60px !important;
-        min-height: 60px !important;
+        padding-top: 60px !important;
     }
 
     .about-page-active .wt-bnr-inr-entry {

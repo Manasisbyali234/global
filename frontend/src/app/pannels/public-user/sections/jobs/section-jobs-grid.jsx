@@ -8,6 +8,7 @@ import { requestCache } from "../../../../../utils/requestCache";
 import { performanceMonitor } from "../../../../../utils/performanceMonitor";
 import { formatCompanyName, getJobDisplayLogo } from "../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
+import { isJobApplicationClosed } from "../../../../../utils/jobApplicationAvailability";
 import { API_BASE_URL } from "../../../../../utils/api";
 import "../../../../../new-job-card.css";
 
@@ -155,14 +156,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
     const JobCard = memo(({ job, index }) => {
         const cardRef = useRef(null);
 
-        const isLimitReached = useMemo(() => {
-            if (!job) return false;
-            const now = Date.now();
-            
-            // Check if all vacancies are filled
-            const vacanciesFilled = !!(job.vacancies && (job.applicationCount || 0) >= job.vacancies);
-            return vacanciesFilled;
-        }, [job]);
+        const isClosed = useMemo(() => isJobApplicationClosed(job), [job]);
         
         useEffect(() => {
             const observer = performanceMonitor.setupIntersectionObserver(
@@ -322,7 +316,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                             >
                                 Already Applied
                             </button>
-                        ) : isLimitReached ? (
+                        ) : isClosed ? (
                             <button
                                 className="apply-now-btn"
                                 disabled
