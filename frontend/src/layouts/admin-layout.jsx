@@ -2,6 +2,7 @@
 import YesNoPopup from "../app/common/popups/popup-yes-no";
 import AdminHeaderSection from "../app/pannels/admin/common/admin-header";
 import AdminSidebarSection from "../app/pannels/admin/common/admin-sidebar";
+import UnifiedHeader from "../components/UnifiedHeader";
 
 import { popupType } from "../globals/constants";
 import { useState, useEffect } from "react";
@@ -53,6 +54,11 @@ function AdminLayout() {
                     onClick={handleMenuToggle} 
                     sidebarActive={sidebarActive} 
                     isMobile={isMobile}
+                />
+                <UnifiedHeader
+                    userRole="admin"
+                    onMenuToggle={handleMenuToggle}
+                    isSidebarOpen={sidebarActive}
                 />
                 <AdminSidebarSection sidebarActive={sidebarActive} isMobile={isMobile} />
 

@@ -431,14 +431,6 @@ const HeroBody = ({ onSearch }) => {
               >
                 Explore Jobs
               </button>
-              <img
-                src="/assets/images/hero-image.jpg"
-                alt=""
-                aria-hidden="true"
-                className="hero-mobile-cta-image"
-                loading="eager"
-                decoding="async"
-              />
             </div>
           </div>
           <div className="hero-illustration" aria-hidden="true" />
