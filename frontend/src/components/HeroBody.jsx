@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HeroBody.css';
-import { Megaphone, Banknote, Users, Settings, Tag, Terminal, TrendingUp } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import api from '../utils/api';
 import { formatDesignation } from '../utils/jobTitleFormatter';
 
@@ -22,6 +22,16 @@ const DEFAULT_DESIGNATIONS = [
   'Program Coordinator (NGO)', 'Machine Operator', 'Welder', 'Electrician', 'Plumber',
   'Carpenter', 'Technician'
 ];
+
+const HERO_FEATURES = ['Verified Companies', 'Easy Applications', 'Jobs Across India'];
+
+const COMPANY_LOGOS = Array.from({ length: 13 }, (_, index) => {
+  const logoNumber = index + 1;
+  return {
+    name: `Company logo ${logoNumber}`,
+    src: `/assets/images/company-logos/photo_${logoNumber}_2026-07-05_11-03-11.jpg`
+  };
+});
 
 const HeroBody = ({ onSearch }) => {
   const navigate = useNavigate();
@@ -44,7 +54,7 @@ const HeroBody = ({ onSearch }) => {
   const industryInputRef = useRef(null);
   const designationInputRef = useRef(null);
   const locationInputRef = useRef(null);
-  const categoriesTrackRef = useRef(null);
+  const logoTrackRef = useRef(null);
   const [errors, setErrors] = useState({
     what: '',
     category: '',
@@ -120,21 +130,19 @@ const HeroBody = ({ onSearch }) => {
   }, []);
 
   useEffect(() => {
-    const track = categoriesTrackRef.current;
+    const track = logoTrackRef.current;
     if (!track) return;
 
-    // Force the marquee animation on the live node because global CSS resets
-    // elsewhere in the app disable animations with !important.
+    // Global mobile CSS disables animations with !important, so keep this marquee explicit.
     track.style.setProperty('display', 'flex', 'important');
     track.style.setProperty('width', 'max-content', 'important');
-    track.style.setProperty('flex-wrap', 'nowrap', 'important');
-    track.style.setProperty('justify-content', 'flex-start', 'important');
-    track.style.setProperty('animation-name', 'hero-categories-scroll', 'important');
-    track.style.setProperty('animation-duration', '22s', 'important');
+    track.style.setProperty('animation', 'hero-logo-scroll 34s linear infinite', 'important');
+    track.style.setProperty('animation-name', 'hero-logo-scroll', 'important');
+    track.style.setProperty('animation-duration', '34s', 'important');
     track.style.setProperty('animation-timing-function', 'linear', 'important');
     track.style.setProperty('animation-iteration-count', 'infinite', 'important');
+    track.style.setProperty('animation-direction', 'normal', 'important');
     track.style.setProperty('animation-play-state', 'running', 'important');
-    track.style.setProperty('animation-fill-mode', 'forwards', 'important');
     track.style.removeProperty('transform');
   }, []);
 
@@ -350,25 +358,6 @@ const HeroBody = ({ onSearch }) => {
     setTouched({...touched, what: true});
   };
 
-  const jobCategories = [
-    { icon: Megaphone, name: 'Marketing', filterValue: 'Marketing', count: '1.2k', iconColor: '#2563EB', bgColor: '#EEF4FF' },
-    { icon: Banknote, name: 'Finance', filterValue: 'Finance', count: '850', iconColor: '#059669', bgColor: '#ECFDF5' },
-    { icon: Users, name: 'HR', filterValue: 'HR', count: '420', iconColor: '#7C3AED', bgColor: '#F5F3FF' },
-    { icon: Settings, name: 'Operations', filterValue: 'Operations', count: '1.1k', iconColor: '#EA580C', bgColor: '#FFF7ED' },
-    { icon: Tag, name: 'Design', filterValue: 'Design', count: '930', iconColor: '#DB2777', bgColor: '#FDF2F8' },
-    { icon: Terminal, name: 'IT', filterValue: 'IT', count: '2.4k', iconColor: '#4F46E5', bgColor: '#EEF2FF' },
-    { icon: TrendingUp, name: 'Sales', filterValue: 'Sales', count: '1.5k', iconColor: '#D97706', bgColor: '#FFFBEB' }
-  ];
-  const carouselCategories = [...jobCategories, ...jobCategories];
-
-  const handleCategoryClick = (category) => {
-    const queryString = new URLSearchParams({
-      category: category.filterValue || category.name
-    }).toString();
-
-    navigate(`/job-grid?${queryString}`);
-  };
-
   const buildSearchFilters = () => {
     const filters = {};
     if (searchData.what && searchData.what !== '') filters.search = searchData.what.trim();
@@ -409,29 +398,32 @@ const HeroBody = ({ onSearch }) => {
     }}>
       {/* LCP image: discoverable from HTML, not hidden in CSS background */}
       <img
-        src="/assets/images/photo_2025-10-09_11-01-43.png"
+        src="/assets/images/hero-image.jpg"
         alt=""
         aria-hidden="true"
+        className="hero-bg-photo"
         fetchPriority="high"
         loading="eager"
         decoding="async"
-        style={{
-          position: 'absolute', top: 0, left: 0,
-          width: '100%', height: '100%',
-          objectFit: 'cover', objectPosition: 'center',
-          zIndex: 0
-        }}
       />
       {/* Hero Section */}
-      <div className="hero-content" style={{ position: 'relative', zIndex: 1 }}>
+      <div className="hero-content" style={{ position: 'relative', zIndex: 2 }}>
         <div className="hero-layout">
           <div className="hero-text" style={{ flex: 1, textAlign: 'left' }}>
             <h1 className="hero-title">
-              Find the <span className="highlight">job</span> that fits your life
+              Find the Job That<br />Fits Your <span className="highlight">Future</span>
             </h1>
-            <p className="hero-subtitle" style={{ color: '#ff9c00' }}>
-              Type your keyword, then click search to find your perfect job.
+            <p className="hero-subtitle">
+              Discover verified jobs from trusted employers and find opportunities that match your skills and career goals.
             </p>
+            <div className="hero-features" aria-label="Platform benefits">
+              {HERO_FEATURES.map((feature) => (
+                <span className="hero-feature" key={feature}>
+                  <CheckCircle size={17} strokeWidth={2.4} aria-hidden="true" />
+                  {feature}
+                </span>
+              ))}
+            </div>
             <button 
               onClick={() => navigate('/job-grid')}
               className="hero-cta"
@@ -439,18 +431,7 @@ const HeroBody = ({ onSearch }) => {
               Explore Jobs
             </button>
           </div>
-          <div className="hero-illustration">
-            <img 
-              src="/assets/images/Resume-amico.svg" 
-              alt="Find Job" 
-              className="hero-image"
-              width="520"
-              height="520"
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-            />
-          </div>
+          <div className="hero-illustration" aria-hidden="true" />
         </div>
 
 
@@ -633,33 +614,20 @@ const HeroBody = ({ onSearch }) => {
           </button>
         </div>
 
-        {/* Job Categories Carousel */}
-        <div className="categories-container" style={{
-          overflow: 'hidden',
-          width: '100%'
-        }}>
-          <div className="categories-carousel" style={{
-            width: '100%',
-            overflow: 'hidden'
-          }}>
-            <div ref={categoriesTrackRef} className="categories-track">
-              {carouselCategories.map((category, index) => (
-                <button
-                  key={`${category.name}-${index}`}
-                  type="button"
-                  className="category-card"
-                  onClick={() => handleCategoryClick(category)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="category-icon small">
-                    {category.icon && React.createElement(category.icon, { size: 20 })}
-                  </div>
-                  <h3 className="category-name">{category.name}</h3>
-                </button>
-              ))}
-            </div>
+        <div className="hero-logo-strip" aria-label="Trusted hiring partners">
+          <div ref={logoTrackRef} className="hero-logo-track">
+            {COMPANY_LOGOS.map((logo) => (
+              <div className="hero-logo-cell" key={logo.src}>
+                <img src={logo.src} alt={logo.name} className="hero-logo-img" loading="lazy" decoding="async" />
+              </div>
+            ))}
+            {COMPANY_LOGOS.map((logo) => (
+              <div className="hero-logo-cell" key={`${logo.src}-duplicate`} aria-hidden="true">
+                <img src={logo.src} alt="" className="hero-logo-img" loading="lazy" decoding="async" />
+              </div>
+            ))}
           </div>
-        </div>
+          </div>
       </div>
     </div>
   );

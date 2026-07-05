@@ -18,6 +18,7 @@ import {
 import { getApplicationStatusKey, getCanonicalStatusKey, getInterviewCurrentStatusKey, getStatusLabel } from '../../../../utils/statusDisplay';
 import { formatDesignation, formatJobTitle } from '../../../../utils/jobTitleFormatter';
 import TermsModal from "../../../../components/TermsModal";
+import { employer, empRoute } from '../../../../globals/route-names';
 
 function EmpCandidateReviewPage() {
     const navigate = useNavigate();
@@ -52,6 +53,13 @@ function EmpCandidateReviewPage() {
     const [isFinalRoundRejection, setIsFinalRoundRejection] = useState(false);
     const pendingNotAdvancedRef = useRef(null);
     const statusUpdateBtnRef = useRef(null);
+    const openInterviewGuide = () => {
+        navigate(empRoute(employer.INTERVIEW_GUIDANCE), {
+            state: {
+                returnTo: `${location.pathname}${location.search || ''}#manual-stage-tracking`
+            }
+        });
+    };
     const stageStatusOptions = [
         { value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
         { value: 'on_hold', label: 'On Hold' },
@@ -1982,6 +1990,15 @@ function EmpCandidateReviewPage() {
                                                    </p>
                                                )}
                                           </div>
+                                          <button
+                                              type="button"
+                                              className="manual-guidance-btn"
+                                              onClick={openInterviewGuide}
+                                              aria-label="Open interview process guidance"
+                                          >
+                                              <i className="fas fa-route"></i>
+                                              <span>Guidence</span>
+                                          </button>
                                           </div>
                                         <div className="section-body" style={{ background: 'var(--soft-beige)', borderRadius: '0 0 16px 16px' }}>
                                             <div className="stage-timeline">

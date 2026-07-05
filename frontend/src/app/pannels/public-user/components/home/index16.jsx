@@ -558,7 +558,7 @@ function Home16Page() {
             <HeroBody className="mt-0 mt-md-4" onSearch={handleSearch} />
 
             {/* HERO BANNER CAROUSEL */}
-            <div style={{ background: '#fff', padding: '32px 0 0' }}>
+            <div style={{ background: '#fff', padding: '8px 0 0' }}>
                 <div className="container">
                     <HeroBannerCarousel />
                 </div>

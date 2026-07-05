@@ -26,8 +26,8 @@
   <link
     rel="preload"
     as="image"
-    href="%PUBLIC_URL%/assets/images/Resume-amico.svg"
-    type="image/svg+xml"
+    href="%PUBLIC_URL%/assets/images/hero-image.jpg"
+    type="image/jpeg"
     fetchpriority="high"
   >
   <!-- PRELOAD LCP logo: WebP is 9KB vs 632KB GIF - critical for LCP -->
@@ -160,8 +160,8 @@
   <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/remove-carousel-hover-effects.css" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/remove-carousel-hover-effects.css"></noscript>
 
-  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/consolidated-master-styles.css" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/consolidated-master-styles.css"></noscript>
+  <link rel="preload" as="style" href="%PUBLIC_URL%/assets/css/consolidated-master-styles.css?v=rich-text-inline-20260705" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="%PUBLIC_URL%/assets/css/consolidated-master-styles.css?v=rich-text-inline-20260705"></noscript>
 
   <link rel="preload" as="style" href="%PUBLIC_URL%/image-modal-header-fix.css" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="%PUBLIC_URL%/image-modal-header-fix.css"></noscript>
@@ -247,7 +247,11 @@
         return;
       }
 
-      const cleanupKey = 'taleglobal-sw-cleanup-v1';
+      const cleanupKey = 'taleglobal-sw-cleanup-v2';
+      const staleAssetUrls = [
+        '/assets/css/consolidated-master-styles.css',
+        '/assets/css/rich-text-editor-fix.css'
+      ];
 
       const runServiceWorkerCleanup = async function () {
         try {
@@ -264,7 +268,11 @@
 
           if ('caches' in window) {
             const cacheKeys = await caches.keys();
-            await Promise.all(cacheKeys.map((cacheKey) => caches.delete(cacheKey)));
+            await Promise.all(cacheKeys.map(async (cacheKey) => {
+              const cache = await caches.open(cacheKey);
+              await Promise.all(staleAssetUrls.map((assetUrl) => cache.delete(assetUrl)));
+              return caches.delete(cacheKey);
+            }));
           }
 
           if (window.localStorage) {

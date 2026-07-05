@@ -19,6 +19,7 @@ const EmpJobReviewPage = lazy(() => import("../app/pannels/employer/components/e
 const EmpSupport = lazy(() => import("../app/pannels/employer/components/emp-support"));
 const EmployerSupportTickets = lazy(() => import("../app/pannels/employer/components/employer-support-tickets"));
 const EmpNotificationsPage = lazy(() => import("../app/pannels/employer/components/emp-notifications"));
+const InterviewProcessGuide = lazy(() => import("../app/pannels/employer/components/interview-process-guide"));
 
 function EmployerRoutes() {
     return (
@@ -55,6 +56,10 @@ function EmployerRoutes() {
 				<Route
 					path={`${employer.JOB_REVIEW}/:id`}
 					element={<EmpJobReviewPage />}
+				/>
+				<Route
+					path={employer.INTERVIEW_GUIDANCE}
+					element={<InterviewProcessGuide />}
 				/>
 				<Route
 					path={employer.RESUME_ALERTS}

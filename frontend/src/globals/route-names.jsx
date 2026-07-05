@@ -102,6 +102,7 @@ export const employer = {
 	RESUME_ALERTS: "/resume-alerts",
 	CAN_REVIEW:   "/emp-candidate-review",
     JOB_REVIEW:   "/emp-job-review",
+    INTERVIEW_GUIDANCE: "/interview-process-guidance",
     SUPPORT:      "/support",
     SUPPORT_TICKETS: "/support-tickets"
 };
