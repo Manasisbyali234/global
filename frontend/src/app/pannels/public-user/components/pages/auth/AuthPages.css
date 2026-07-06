@@ -81,6 +81,25 @@
   object-fit: cover;
 }
 
+.login-page-image-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.login-page-image-wrapper .login-page-image {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 28px;
+}
+
 .left-section .overlay {
   position: absolute;
   bottom: 0;
@@ -628,6 +647,12 @@
   .public-auth-page .left-section img {
     object-fit: contain;
     object-position: center;
+  }
+
+  .public-auth-page .login-page-image-wrapper .login-page-image {
+    object-fit: contain;
+    object-position: center;
+    border-radius: 20px;
   }
 
   .public-auth-page .otp-modal {

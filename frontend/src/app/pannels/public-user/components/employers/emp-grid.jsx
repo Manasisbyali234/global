@@ -382,8 +382,20 @@ const EmployersGridPage = memo(() => {
                                         <EmployerCard key={employer._id} employer={employer} index={index} />
                                     )) : !loading && (
                                         <Col xs={12} className="text-center py-5">
-                                            <h5>No employers found</h5>
-                                            <p>Please check back later for new companies.</p>
+                                            <h5>Building Our Global Employer Network</h5>
+                                            <p>
+                                                TALEGLOBAL is currently onboarding employers from across industries. As companies complete their
+                                                registration, their profiles will be displayed here.
+                                            </p>
+                                            <p>
+                                                Until then, we invite both employers and job seekers to register and become active on the platform.
+                                                Employers can create their company profiles and start posting job opportunities, while candidates can
+                                                complete their profiles, explore available opportunities, and stay prepared for upcoming openings.
+                                            </p>
+                                            <p>
+                                                Our employer and company listings will continue to grow as more organizations join TALEGLOBAL,
+                                                bringing more job postings and career opportunities from around the world.
+                                            </p>
                                         </Col>
                                     )
                                 }
