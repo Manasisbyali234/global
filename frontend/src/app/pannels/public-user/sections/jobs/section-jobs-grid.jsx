@@ -393,8 +393,20 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                         <Col xs={12} className="text-center py-5">
                             <div style={{padding: '40px', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #e0e0e0'}}>
                                 <i className="feather-search" style={{fontSize: '48px', color: '#ccc', marginBottom: '20px'}}></i>
-                                <h5 style={{color: '#666', marginBottom: '10px'}}>No jobs found</h5>
-                                <p style={{color: '#999', margin: 0}}>Try adjusting your filters or check back later for new opportunities.</p>
+                                <h5 style={{color: '#666', marginBottom: '10px'}}>Building Our Global Employer Network</h5>
+                                <p style={{color: '#777', marginBottom: '10px'}}>
+                                    <strong>TALEGLOBAL</strong> is currently onboarding <strong>employers</strong> from across industries. As companies complete their
+                                    registration, their profiles will be displayed here.
+                                </p>
+                                <p style={{color: '#777', marginBottom: '10px'}}>
+                                    Until then, we invite both <strong>employers</strong> and <strong>job seekers</strong> to register and become active on the platform.
+                                    Employers can create their <strong>company profiles</strong> and start posting <strong>job opportunities</strong>, while <strong>candidates</strong> can
+                                    complete their profiles, explore available opportunities, and stay prepared for upcoming openings.
+                                </p>
+                                <p style={{color: '#777', margin: 0}}>
+                                    Our <strong>employer and company listings</strong> will continue to grow as more organizations join <strong>TALEGLOBAL</strong>,
+                                    bringing more <strong>job postings</strong> and <strong>career opportunities</strong> from around the world.
+                                </p>
                             </div>
                         </Col>
                     )
