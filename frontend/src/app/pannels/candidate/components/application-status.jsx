@@ -1,4 +1,5 @@
-import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
+﻿import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
+import VideoTutorialButton from '../../../../components/VideoTutorialButton';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { formatInterviewTime } from '../../../../utils/timeUtils';
 import { formatTimeToAMPM } from '../../../../utils/dateFormatter';
@@ -166,7 +167,7 @@ function CanStatusPage() {
 		const { uniqueKey, processId, roundId, roundType, roundName, index } = roundContext || {};
 
 		// For duplicate round types, only match by position (index) or exact unique key.
-		// Never fall back to type-based matching — that would make both rounds show the same status.
+		// Never fall back to type-based matching â€” that would make both rounds show the same status.
 		const isDuplicate = isDuplicateRoundType(application, roundType);
 
 		const normalizedUniqueKey = normalizeRoundLookupKey(uniqueKey);
@@ -719,7 +720,7 @@ function CanStatusPage() {
 			roundDetails?.__roundStatus
 		];
 
-		// Check direct round status first — if it's already a rejected-like status, return immediately
+		// Check direct round status first â€” if it's already a rejected-like status, return immediately
 		const directRoundStatus = typeof round === 'object' ? round?.status : '';
 		console.log('[getBlockingRoundStatus] roundIndex:', roundIndex, 'directRoundStatus:', directRoundStatus, 'isRejected:', directRoundStatus && isRejectedInterviewProcessStatus(directRoundStatus));
 		if (directRoundStatus && isRejectedInterviewProcessStatus(directRoundStatus)) {
@@ -746,7 +747,7 @@ function CanStatusPage() {
 			const completionInfo = assessmentInfo?.completionInfo || {};
 			const windowInfo = getAssessmentWindowInfo(application?.jobId, roundDetails);
 
-			// isPassed takes priority — expired+pass (auto-submitted) is NOT a rejection
+			// isPassed takes priority â€” expired+pass (auto-submitted) is NOT a rejection
 			if (completionInfo.isPassed) {
 				return '';
 			}
@@ -796,7 +797,7 @@ function CanStatusPage() {
 				const appLevelStatus = normalizeStatusValue(application?.assessmentStatus || '');
 				const appLevelResult = normalizeStatusValue(application?.assessmentResult || '');
 				const appLevelIsPendingReview = ['expired', 'completed'].includes(appLevelStatus) && appLevelResult === 'pending';
-				// A true no_show/expired at application level means this round IS a rejection — don't skip it
+				// A true no_show/expired at application level means this round IS a rejection â€” don't skip it
 				const appLevelIsRejected = ['no show', 'expired', 'session expired', 'failed', 'fail', 'suspended', 'rejected', 'not advanced to next stage', 'not advanced to next round', 'not eligible for next round', 'not eligibal for next round'].includes(appLevelStatus) && !appLevelIsPendingReview;
 				if (appLevelIsRejected) {
 					return 'rejected';
@@ -1726,7 +1727,7 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others � Specify.',
+				others: 'Others ï¿½ Specify.',
 				assessment: 'Assessment'
 			};
 			
@@ -1761,7 +1762,7 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others � Specify.',
+				others: 'Others ï¿½ Specify.',
 				assessment: 'Assessment',
 				nonTechnical: 'Non-Technical',
 				managerial: 'Managerial Round',
@@ -1805,7 +1806,7 @@ function CanStatusPage() {
 						panel: 'Panel',
 						group: 'Group Discussion',
 						situational: 'Situational / Behavioral Round',
-						others: 'Others � Specify.',
+						others: 'Others ï¿½ Specify.',
 						nonTechnical: 'Non-Technical',
 						managerial: 'Managerial Round',
 						final: 'Final',
@@ -1878,7 +1879,7 @@ function CanStatusPage() {
 				panel: 'Panel',
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
-				others: 'Others � Specify.',
+				others: 'Others ï¿½ Specify.',
 				assessment: 'Assessment',
 				nonTechnical: 'Non-Technical',
 				managerial: 'Managerial Round',
@@ -1945,7 +1946,7 @@ function CanStatusPage() {
 			if (roundTypes.group) rounds.push({ name: 'Group Discussion', uniqueKey: 'group', roundType: 'group' });
 			if (roundTypes.technical) rounds.push({ name: 'Technical Round', uniqueKey: 'technical', roundType: 'technical' });
 			if (roundTypes.situational) rounds.push({ name: 'Situational / Behavioral Round', uniqueKey: 'situational', roundType: 'situational' });
-			if (roundTypes.others) rounds.push({ name: 'Others � Specify.', uniqueKey: 'others', roundType: 'others' });
+			if (roundTypes.others) rounds.push({ name: 'Others ï¿½ Specify.', uniqueKey: 'others', roundType: 'others' });
 
 			if (rounds.length > 0) return rounds;
 		}
@@ -2131,7 +2132,7 @@ function CanStatusPage() {
 			}
 			if ((isNoShow || (isExpired && !assessmentRoundInfo.completionInfo?.isPendingReview) || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
 				// If the prior assessment round's window also ended without a pass,
-				// the candidate never reached this round — show Pending, not No Show / Rejected.
+				// the candidate never reached this round â€” show Pending, not No Show / Rejected.
 				if (roundIndex > 0) {
 					const rounds = getInterviewRounds(application?.jobId, application);
 					const priorBlockedByUnreachedRound = (() => {
@@ -2318,7 +2319,7 @@ function CanStatusPage() {
 			}
 
 			// For duplicate round types, never show 'Schedule' for the second untouched round
-			// based on the first round's shortlisted status — each round is independent.
+			// based on the first round's shortlisted status â€” each round is independent.
 			const effectiveRoundType = roundDetails?.__roundType || roundType;
 			const isThisRoundDuplicate = isDuplicateRoundType(application, effectiveRoundType);
 			if (!isThisRoundDuplicate && roundIndex > 0 && getRoundActivationState(application, roundIndex).canStart) {
@@ -2602,6 +2603,7 @@ function CanStatusPage() {
 							<p style={{ color: '#6b7280', margin: 0 }}>
 								Track your job applications and interview progress
 							</p>
+							<VideoTutorialButton videoId="9kX8WZJZwYg" style={{ marginTop: '8px' }} />
 						</div>
 					</div>
 				</div>
@@ -2835,7 +2837,7 @@ function CanStatusPage() {
 																						panel: 'Panel',
 																						group: 'Group Discussion',
 																						situational: 'Situational / Behavioral Round',
-																						others: 'Others � Specify.',
+																						others: 'Others ï¿½ Specify.',
 																						assessment: 'Assessment',
 																						nonTechnical: 'Non-Technical',
 																						managerial: 'Managerial Round',
@@ -3060,7 +3062,7 @@ function CanStatusPage() {
 						</div>
 						<div className="status-page-pagination-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "row" }}>
 							<div style={{ color: "#6c757d", fontSize: "13px" }}>
-								Showing {filteredApplications.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}�{Math.min(currentPage * PAGE_SIZE, filteredApplications.length)} of {filteredApplications.length} record{filteredApplications.length !== 1 ? "s" : ""}
+								Showing {filteredApplications.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}ï¿½{Math.min(currentPage * PAGE_SIZE, filteredApplications.length)} of {filteredApplications.length} record{filteredApplications.length !== 1 ? "s" : ""}
 							</div>
 							{Math.ceil(filteredApplications.length / PAGE_SIZE) > 1 && (
 								<div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
@@ -3229,7 +3231,7 @@ function CanStatusPage() {
 												panel: 'Panel',
 												group: 'Group Discussion',
 												situational: 'Situational / Behavioral Round',
-												others: 'Others � Specify.',
+												others: 'Others ï¿½ Specify.',
 												assessment: 'Assessment',
 												nonTechnical: 'Non-Technical',
 												managerial: 'Managerial Round',

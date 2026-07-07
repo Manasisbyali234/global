@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import CreateAssessmentModal from './CreateAssessmentModal';
 import { showPopup, showSuccess, showError, showConfirmation } from '../../../../../utils/popupNotification';
 import { formatAssessmentContent } from '../../../../../utils/assessmentContent';
@@ -125,6 +125,7 @@ function CreateAssessmentPage() {
         <div className="create-assessment-page">
             <div className="wt-admin-right-page-header clearfix">
                 <h2>Create Assessment</h2>
+                <VideoTutorialButton videoId="IXUgKVZEH-U" style={{ marginTop: '8px' }} />
                 <div className="breadcrumbs">
                     <a href="#">Home</a>
                     <a href="#">Dashboard</a>
@@ -310,7 +311,7 @@ function CreateAssessmentPage() {
                     {filteredAssessments.length > 0 && (
                         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "column" }}>
                             <div style={{ color: "#6c757d", fontSize: "13px" }}>
-                                Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredAssessments.length)} of {filteredAssessments.length} assessment{filteredAssessments.length !== 1 ? "s" : ""}
+                                Showing {(currentPage - 1) * PAGE_SIZE + 1}â€“{Math.min(currentPage * PAGE_SIZE, filteredAssessments.length)} of {filteredAssessments.length} assessment{filteredAssessments.length !== 1 ? "s" : ""}
                             </div>
                             {Math.ceil(filteredAssessments.length / PAGE_SIZE) > 1 && (
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>

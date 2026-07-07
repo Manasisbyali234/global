@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
+import VideoTutorialButton from '../../../../components/VideoTutorialButton';
 import { api } from '../../../../utils/api';
 import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
 import './can-support.css';
@@ -414,6 +415,7 @@ function CanSupport() {
         }
     };
 
+
     if (isSubmitted) {
         return (
             <div className="twm-right-section-panel site-bg-gray candidate-support-page candidate-support-success">
@@ -436,12 +438,7 @@ function CanSupport() {
                             Thank you for contacting our support team.<br />
                             We have received your ticket and will respond within 3 Working Days.
                         </p>
-                        <button 
-                            onClick={() => setIsSubmitted(false)} 
-                            className="site-button"
-                        >
-                            Submit Another Ticket
-                        </button>
+                        <button onClick={() => setIsSubmitted(false)} className="site-button">Submit Another Ticket</button>
                     </div>
                 </div>
             </div>
@@ -453,7 +450,6 @@ function CanSupport() {
 
     return (
         <div className="twm-right-section-panel site-bg-gray candidate-support-page">
-            {/* Support Page Header */}
             <div className="candidate-page-shell candidate-support-shell candidate-page-shell--header">
                 <div className="candidate-page-header-card">
                     <div style={{ textAlign: 'center' }}>
@@ -461,283 +457,165 @@ function CanSupport() {
                             <i className="fa fa-headset me-2" style={{color: '#f97316'}}></i>
                             Get Support
                         </h2>
+                        <VideoTutorialButton videoId="AVdqIex43oo" style={{ marginTop: '8px' }} />
                     </div>
                 </div>
             </div>
-            
-            {/* Support Content */}
             <div className="candidate-page-shell candidate-support-shell candidate-page-shell--content">
                 <div className="panel panel-default">
                     <div className="panel-body wt-panel-body p-a20 m-b30">
-                            <form onSubmit={handleSubmit}>
-                                {errors.submit && (
-                                    <div className="alert alert-danger mb-3" style={{padding: '12px', fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word'}}>{errors.submit}</div>
-                                )}
-                                
-                                <div className="row">
-                                    <div className="col-xl-6 col-lg-6 col-md-12">
-                                        <div className="form-group">
-                                            <label>Name<span style={{ color: 'red' }}>*</span></label>
-                                            <input 
-                                                name="name" 
-                                                type="text" 
-                                                className="form-control"
-                                                placeholder={isLoadingProfile ? "Loading..." : "Your name"}
-                                                value={formData.name}
-                                                readOnly
-                                            />
-
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="col-xl-6 col-lg-6 col-md-12">
-                                        <div className="form-group">
-                                            <label>Email<span style={{ color: 'red' }}>*</span></label>
-                                            <input 
-                                                name="email" 
-                                                type="email" 
-                                                className="form-control"
-                                                placeholder={isLoadingProfile ? "Loading..." : "Your email address"}
-                                                value={formData.email}
-                                                readOnly
-                                            />
-
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="col-xl-6 col-lg-6 col-md-12">
-                                        <div className="form-group">
-                                            <label>Send To<span style={{ color: 'red' }}>*</span></label>
-                                            <div className="can-support-select-wrapper">
-                                                <select 
-                                                    name="receiverRole" 
-                                                    className="form-control can-support-select"
-                                                    value={formData.receiverRole}
-                                                    onChange={handleChange}
-                                                >
-                                                    <option value="employer">HR Support</option>
-                                                    <option value="admin">Contact Taleglobal</option>
-                                                </select>
-                                                <span className="can-support-select-arrow" aria-hidden="true">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-xl-6 col-lg-6 col-md-12">
-                                        <div className="form-group">
-                                            <label>Select Employer <span style={{ color: 'red' }}>*</span></label>
-                                            <div className="can-support-select-wrapper">
-                                                <select 
-                                                    name="receiverId" 
-                                                    className={`form-control can-support-select ${errors.receiverId ? 'is-invalid' : ''}`}
-                                                    value={formData.receiverId}
-                                                    onChange={handleChange}
-                                                    disabled={isLoadingEmployers}
-                                                >
-                                                    <option value="">{isLoadingEmployers ? 'Loading employers...' : 'Choose an employer'}</option>
-                                                    {employers.map(emp => (
-                                                        <option key={emp.id} value={emp.id}>{emp.name}</option>
-                                                    ))}
-                                                </select>
-                                                <span className="can-support-select-arrow" aria-hidden="true">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                                                </span>
-                                            </div>
-                                            {errors.receiverId && <div className="invalid-feedback">{errors.receiverId}</div>}
-                                            {employers.length === 0 && !isLoadingEmployers && (
-                                                <small className="text-muted">No employers found. You can only send tickets to employers you've applied to.</small>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="col-xl-6 col-lg-6 col-md-12">
-                                        <div className="form-group">
-                                            <label>Select Designation<span style={{ color: 'red' }}>*</span></label>
-                                            <div className="can-support-select-wrapper">
-                                                <select
-                                                    name="jobId"
-                                                    className={`form-control can-support-select ${errors.jobId ? 'is-invalid' : ''}`}
-                                                    value={formData.jobId}
-                                                    onChange={handleChange}
-                                                    disabled={!formData.receiverId || selectedEmployerJobs.length === 0}
-                                                >
-                                                    <option value="">
-                                                        {!formData.receiverId
-                                                            ? 'Choose an employer first'
-                                                            : selectedEmployerJobs.length === 0
-                                                                ? 'No jobs available'
-                                                                : 'Choose a job'}
-                                                    </option>
-                                                    {selectedEmployerJobs.map((job) => (
-                                                        <option key={job.id} value={job.id}>{formatJobTitle(job.title)}</option>
-                                                    ))}
-                                                </select>
-                                                <span className="can-support-select-arrow" aria-hidden="true">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                                                </span>
-                                            </div>
-                                            {errors.jobId && <div className="invalid-feedback">{errors.jobId}</div>}
-                                            {formData.receiverId && selectedEmployerJobs.length === 0 && (
-                                                <small className="text-muted">No applied jobs were found for the selected employer.</small>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="col-xl-12 col-lg-12 col-md-12">
-                                        <div className="form-group">
-                                            <label>Subject <span style={{ color: 'red' }}>*</span></label>
-                                            <textarea
-                                                ref={subjectRef}
-                                                name="subject" 
-                                                className={`form-control ${errors.subject ? 'is-invalid' : ''}`}
-                                                rows={1}
-                                                placeholder="Brief description of your issue" 
-                                                value={formData.subject}
-                                                onChange={(e) => {
-                                                    autoResizeTextarea(e.target);
-                                                    handleChange(e);
-                                                }}
-                                                style={{ resize: 'none', overflow: 'hidden', minHeight: '44px' }}
-                                            />
-                                            {errors.subject && <div className="invalid-feedback">{errors.subject}</div>}
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="col-xl-12 col-lg-12 col-md-12">
-                                        <div className="form-group">
-                                            <label>Message <span style={{ color: 'red' }}>*</span></label>
-                                            <textarea
-                                                ref={messageRef}
-                                                name="message" 
-                                                className={`form-control ${errors.message ? 'is-invalid' : ''}`}
-                                                rows={5}
-                                                placeholder="Describe your issue or question in detail..." 
-                                                value={formData.message}
-                                                onChange={(e) => {
-                                                    autoResizeTextarea(e.target);
-                                                    handleChange(e);
-                                                }}
-                                                style={{ resize: 'none', overflow: 'hidden', minHeight: '140px' }}
-                                            />
-                                            {errors.message && <div className="invalid-feedback">{errors.message}</div>}
-                                        </div>
-                                    </div>
-
-                                    <div className="col-xl-6 col-lg-6 col-md-12">
-                                        <div className="form-group">
-                                            <label>Category</label>
-                                            <div className="can-support-select-wrapper">
-                                                <select 
-                                                    name="category" 
-                                                    className="form-control can-support-select"
-                                                    value={formData.category}
-                                                    onChange={handleChange}
-                                                >
-                                                    {categories.map(cat => (
-                                                        <option key={cat.value} value={cat.value}>{cat.label}</option>
-                                                    ))}
-                                                </select>
-                                                <span className="can-support-select-arrow" aria-hidden="true">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="col-xl-6 col-lg-6 col-md-12">
-                                        <div className="form-group">
-                                            <label>Priority</label>
-                                            <div className="can-support-select-wrapper">
-                                                <select 
-                                                    name="priority" 
-                                                    className="form-control can-support-select"
-                                                    value={formData.priority}
-                                                    onChange={handleChange}
-                                                >
-                                                    {priorities.map(pri => (
-                                                        <option key={pri.value} value={pri.value}>{pri.label}</option>
-                                                    ))}
-                                                </select>
-                                                <span className="can-support-select-arrow" aria-hidden="true">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="col-xl-12 col-lg-12 col-md-12">
-                                        <div className="form-group">
-                                            <label>Attachments (Optional)</label>
-                                            <input 
-                                                type="file" 
-                                                className={`form-control ${errors.files ? 'is-invalid' : ''}`}
-                                                multiple 
-                                                accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png,.gif,.webp"
-                                                onChange={handleFileChange}
-                                                disabled={isCompressing}
-                                            />
-                                            {isCompressing && (
-                                                <div className="mt-2" style={{ color: '#ff6b35' }}>
-                                                    <i className="fa fa-spinner fa-spin me-1"></i>
-                                                    Compressing images...
-                                                </div>
-                                            )}
-                                            <small className="form-text d-block mt-2" style={{ color: '#ff6b35' }}>
-                                                <i className="fa fa-info-circle me-1"></i>
-                                                 A maximum of 3 files can be uploaded (50 MB per file, 150 MB total).
-                                            </small>
-                                            {errors.files && (
-                                                <div className="invalid-feedback d-block">
-                                                    <i className="fa fa-exclamation-triangle me-1"></i>
-                                                    {errors.files}
-                                                </div>
-                                            )}
-                                            {files.length > 0 && (
-                                                <div className="mt-3">
-                                                    <strong className="d-block mb-2" style={{ color: '#ff6b35' }}>
-                                                        <i className="fa fa-check-circle me-1"></i>
-                                                        Selected files ({files.length}/3):
-                                                    </strong>
-                                                    <ul className="list-unstyled mb-0">
-                                                        {files.map((file, index) => {
-                                                            const fileSizeKB = file.size / 1024;
-                                                            const fileSizeMB = fileSizeKB / 1024;
-                                                            const displaySize = fileSizeMB >= 1 
-                                                                ? fileSizeMB.toFixed(2) + ' MB' 
-                                                                : fileSizeKB.toFixed(2) + ' KB';
-                                                            return (
-                                                                <li key={index} className="d-flex align-items-center mb-2">
-                                                                    <i className="fa fa-file me-2" style={{ color: '#ff6b35' }}></i>
-                                                                    <span className="flex-grow-1" style={{ fontSize: '14px', color: '#ff6b35' }}>{file.name}</span>
-                                                                    <span className="ms-2" style={{ fontSize: '12px', color: '#ff6b35', fontWeight: '600' }}>
-                                                                        {displaySize}
-                                                                    </span>
-                                                                </li>
-                                                            );
-                                                        })}
-                                                    </ul>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="col-xl-12 col-lg-12 col-md-12">
-                                        <button 
-                                            type="submit" 
-                                            className="site-button"
-                                            disabled={isSubmitting}
-                                        >
-                                            {isSubmitting ? 'Submitting...' : 'Submit Support Ticket'}
-                                        </button>
+                        <form onSubmit={handleSubmit}>
+                            {errors.submit && (
+                                <div className="alert alert-danger mb-3" style={{padding: '12px', fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word'}}>{errors.submit}</div>
+                            )}
+                            <div className="row">
+                                <div className="col-xl-6 col-lg-6 col-md-12">
+                                    <div className="form-group">
+                                        <label>Name<span style={{ color: 'red' }}>*</span></label>
+                                        <input name="name" type="text" className="form-control" placeholder={isLoadingProfile ? "Loading..." : "Your name"} value={formData.name} readOnly />
                                     </div>
                                 </div>
-                            </form>
-                        </div>
+                                <div className="col-xl-6 col-lg-6 col-md-12">
+                                    <div className="form-group">
+                                        <label>Email<span style={{ color: 'red' }}>*</span></label>
+                                        <input name="email" type="email" className="form-control" placeholder={isLoadingProfile ? "Loading..." : "Your email address"} value={formData.email} readOnly />
+                                    </div>
+                                </div>
+                                <div className="col-xl-6 col-lg-6 col-md-12">
+                                    <div className="form-group">
+                                        <label>Send To<span style={{ color: 'red' }}>*</span></label>
+                                        <div className="can-support-select-wrapper">
+                                            <select name="receiverRole" className="form-control can-support-select" value={formData.receiverRole} onChange={handleChange}>
+                                                <option value="employer">HR Support</option>
+                                                <option value="admin">Contact Taleglobal</option>
+                                            </select>
+                                            <span className="can-support-select-arrow" aria-hidden="true">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-xl-6 col-lg-6 col-md-12">
+                                    <div className="form-group">
+                                        <label>Select Employer <span style={{ color: 'red' }}>*</span></label>
+                                        <div className="can-support-select-wrapper">
+                                            <select name="receiverId" className={`form-control can-support-select ${errors.receiverId ? 'is-invalid' : ''}`} value={formData.receiverId} onChange={handleChange} disabled={isLoadingEmployers}>
+                                                <option value="">{isLoadingEmployers ? 'Loading employers...' : 'Choose an employer'}</option>
+                                                {employers.map(emp => (
+                                                    <option key={emp.id} value={emp.id}>{emp.name}</option>
+                                                ))}
+                                            </select>
+                                            <span className="can-support-select-arrow" aria-hidden="true">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                            </span>
+                                        </div>
+                                        {errors.receiverId && <div className="invalid-feedback">{errors.receiverId}</div>}
+                                        {employers.length === 0 && !isLoadingEmployers && (
+                                            <small className="text-muted">No employers found. You can only send tickets to employers you've applied to.</small>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="col-xl-6 col-lg-6 col-md-12">
+                                    <div className="form-group">
+                                        <label>Select Designation<span style={{ color: 'red' }}>*</span></label>
+                                        <div className="can-support-select-wrapper">
+                                            <select name="jobId" className={`form-control can-support-select ${errors.jobId ? 'is-invalid' : ''}`} value={formData.jobId} onChange={handleChange} disabled={!formData.receiverId || selectedEmployerJobs.length === 0}>
+                                                <option value="">{!formData.receiverId ? 'Choose an employer first' : selectedEmployerJobs.length === 0 ? 'No jobs available' : 'Choose a job'}</option>
+                                                {selectedEmployerJobs.map((job) => (
+                                                    <option key={job.id} value={job.id}>{formatJobTitle(job.title)}</option>
+                                                ))}
+                                            </select>
+                                            <span className="can-support-select-arrow" aria-hidden="true">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                            </span>
+                                        </div>
+                                        {errors.jobId && <div className="invalid-feedback">{errors.jobId}</div>}
+                                        {formData.receiverId && selectedEmployerJobs.length === 0 && (
+                                            <small className="text-muted">No applied jobs were found for the selected employer.</small>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="col-xl-12 col-lg-12 col-md-12">
+                                    <div className="form-group">
+                                        <label>Subject <span style={{ color: 'red' }}>*</span></label>
+                                        <textarea ref={subjectRef} name="subject" className={`form-control ${errors.subject ? 'is-invalid' : ''}`} rows={1} placeholder="Brief description of your issue" value={formData.subject} onChange={(e) => { autoResizeTextarea(e.target); handleChange(e); }} style={{ resize: 'none', overflow: 'hidden', minHeight: '44px' }} />
+                                        {errors.subject && <div className="invalid-feedback">{errors.subject}</div>}
+                                    </div>
+                                </div>
+                                <div className="col-xl-12 col-lg-12 col-md-12">
+                                    <div className="form-group">
+                                        <label>Message <span style={{ color: 'red' }}>*</span></label>
+                                        <textarea ref={messageRef} name="message" className={`form-control ${errors.message ? 'is-invalid' : ''}`} rows={5} placeholder="Describe your issue or question in detail..." value={formData.message} onChange={(e) => { autoResizeTextarea(e.target); handleChange(e); }} style={{ resize: 'none', overflow: 'hidden', minHeight: '140px' }} />
+                                        {errors.message && <div className="invalid-feedback">{errors.message}</div>}
+                                    </div>
+                                </div>
+                                <div className="col-xl-6 col-lg-6 col-md-12">
+                                    <div className="form-group">
+                                        <label>Category</label>
+                                        <div className="can-support-select-wrapper">
+                                            <select name="category" className="form-control can-support-select" value={formData.category} onChange={handleChange}>
+                                                {categories.map(cat => (<option key={cat.value} value={cat.value}>{cat.label}</option>))}
+                                            </select>
+                                            <span className="can-support-select-arrow" aria-hidden="true">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-xl-6 col-lg-6 col-md-12">
+                                    <div className="form-group">
+                                        <label>Priority</label>
+                                        <div className="can-support-select-wrapper">
+                                            <select name="priority" className="form-control can-support-select" value={formData.priority} onChange={handleChange}>
+                                                {priorities.map(pri => (<option key={pri.value} value={pri.value}>{pri.label}</option>))}
+                                            </select>
+                                            <span className="can-support-select-arrow" aria-hidden="true">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-xl-12 col-lg-12 col-md-12">
+                                    <div className="form-group">
+                                        <label>Attachments (Optional)</label>
+                                        <input type="file" className={`form-control ${errors.files ? 'is-invalid' : ''}`} multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png,.gif,.webp" onChange={handleFileChange} disabled={isCompressing} />
+                                        {isCompressing && (<div className="mt-2" style={{ color: '#ff6b35' }}><i className="fa fa-spinner fa-spin me-1"></i>Compressing images...</div>)}
+                                        <small className="form-text d-block mt-2" style={{ color: '#ff6b35' }}>
+                                            <i className="fa fa-info-circle me-1"></i> A maximum of 3 files can be uploaded (50 MB per file, 150 MB total).
+                                        </small>
+                                        {errors.files && (<div className="invalid-feedback d-block"><i className="fa fa-exclamation-triangle me-1"></i>{errors.files}</div>)}
+                                        {files.length > 0 && (
+                                            <div className="mt-3">
+                                                <strong className="d-block mb-2" style={{ color: '#ff6b35' }}><i className="fa fa-check-circle me-1"></i>Selected files ({files.length}/3):</strong>
+                                                <ul className="list-unstyled mb-0">
+                                                    {files.map((file, index) => {
+                                                        const fileSizeKB = file.size / 1024;
+                                                        const fileSizeMB = fileSizeKB / 1024;
+                                                        const displaySize = fileSizeMB >= 1 ? fileSizeMB.toFixed(2) + ' MB' : fileSizeKB.toFixed(2) + ' KB';
+                                                        return (
+                                                            <li key={index} className="d-flex align-items-center mb-2">
+                                                                <i className="fa fa-file me-2" style={{ color: '#ff6b35' }}></i>
+                                                                <span className="flex-grow-1" style={{ fontSize: '14px', color: '#ff6b35' }}>{file.name}</span>
+                                                                <span className="ms-2" style={{ fontSize: '12px', color: '#ff6b35', fontWeight: '600' }}>{displaySize}</span>
+                                                            </li>
+                                                        );
+                                                    })}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="col-xl-12 col-lg-12 col-md-12">
+                                    <button type="submit" className="site-button" disabled={isSubmitting}>
+                                        {isSubmitting ? 'Submitting...' : 'Submit Support Ticket'}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
+        </div>
     );
 }
 

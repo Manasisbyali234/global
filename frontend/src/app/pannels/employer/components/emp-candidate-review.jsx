@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from "react";
+﻿import { useEffect, useState, useRef } from "react";
+import VideoTutorialButton from '../../../../components/VideoTutorialButton';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import './emp-candidate-review.css';
@@ -789,7 +790,7 @@ function EmpCandidateReviewPage() {
 
     const getAssessmentDisplayState = (process = {}, applicationData = null) => {
         // rawAssessmentStatus holds the true attempt status (e.g. 'suspended') that was
-        // stripped from process.status by normalizeTrackedProcessState — use it as the
+        // stripped from process.status by normalizeTrackedProcessState â€” use it as the
         // authoritative status for display purposes.
         const effectiveStatus = process?.rawAssessmentStatus || process?.assessmentAttemptStatus || process?.status || 'pending';
         const defaultStatusValue = effectiveStatus;
@@ -1372,7 +1373,7 @@ function EmpCandidateReviewPage() {
                         managerial: 'Managerial Round',
                         hr: 'HR Round',
                         situational: 'Situational / Behavioral Round',
-                        others: 'Others – Specify.',
+                        others: 'Others â€“ Specify.',
                         assessment: 'Assessment'
                     };
                     processes = data.application.jobId.interviewRoundOrder.map((roundKey, index) => {
@@ -1908,6 +1909,7 @@ function EmpCandidateReviewPage() {
                     <h2>Candidate Application Review</h2>
                     <p>Evaluating <strong style={{ color: '#f97316', fontWeight: '700' }}>{candidate.name}</strong> for <strong style={{ color: '#f97316', fontWeight: '700' }}>{formatJobTitle(application.jobId?.title)}</strong></p>
                 </div>
+                <VideoTutorialButton videoId="tiaxYdj6O8Y" style={{ marginRight: '8px' }} />
                 <button className="back-btn" onClick={() => navigate(-1)}>
                     <i className="fas fa-arrow-left"></i>
                     <span>Back to Applications</span>
@@ -2141,7 +2143,7 @@ function EmpCandidateReviewPage() {
                                                                                     marginTop: '4px',
                                                                                     pointerEvents: 'none'
                                                                                 }}>
-                                                                                    ⚠️ Please update Stage {index} first, then update Stage {index + 1}
+                                                                                    âš ï¸ Please update Stage {index} first, then update Stage {index + 1}
                                                                                 </div>
                                                                             )}
                                                                             <select
@@ -2558,15 +2560,15 @@ function EmpCandidateReviewPage() {
                                                     <td>
                                                         {emp.isCurrentCompany ? (
                                                             <div className="small">
-                                                                <div><span className="text-muted">Pres:</span> {emp.presentCTC ? `₹${emp.presentCTC} LPA` : '—'}</div>
-                                                                <div><span className="text-muted">Exp:</span> {emp.expectedCTC ? `₹${emp.expectedCTC} LPA` : '—'}</div>
+                                                                <div><span className="text-muted">Pres:</span> {emp.presentCTC ? `â‚¹${emp.presentCTC} LPA` : 'â€”'}</div>
+                                                                <div><span className="text-muted">Exp:</span> {emp.expectedCTC ? `â‚¹${emp.expectedCTC} LPA` : 'â€”'}</div>
                                                             </div>
-                                                        ) : '—'}
+                                                        ) : 'â€”'}
                                                     </td>
                                                     <td>
                                                         {emp.isCurrentCompany ? (
-                                                            emp.noticePeriod === 'Custom' ? emp.customNoticePeriod : (emp.noticePeriod || '—')
-                                                        ) : '—'}
+                                                            emp.noticePeriod === 'Custom' ? emp.customNoticePeriod : (emp.noticePeriod || 'â€”')
+                                                        ) : 'â€”'}
                                                     </td>
                                                     <td className="text-center">
                                                         {emp.description || emp.projectDetails ? (
@@ -2577,7 +2579,7 @@ function EmpCandidateReviewPage() {
                                                             >
                                                                 <i className="fas fa-eye"></i>
                                                             </button>
-                                                        ) : "—"}
+                                                        ) : "â€”"}
                                                     </td>
                                                 </tr>
                                             ))}

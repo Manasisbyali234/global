@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
+import VideoTutorialButton from '../../../../components/VideoTutorialButton';
 import { MapPin } from 'lucide-react';
 import { loadScript } from "../../../../globals/constants";
 import SectionCandidateOverview from "../sections/dashboard/section-can-overview";
@@ -206,6 +207,7 @@ function CanDashboardPage() {
             </div>
           </div>
         </div>
+      <div style={{ textAlign: 'right', padding: '0 0 8px 0' }}><VideoTutorialButton videoId="eF8E1KkscWY" /></div>
 
         {/* Stats Cards */}
         <div className="candidate-page-shell candidate-page-shell--content">

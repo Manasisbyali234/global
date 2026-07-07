@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
+import VideoTutorialButton from '../../../../../../components/VideoTutorialButton';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { publicUser } from "../../../../../../globals/route-names";
 import { handlePhoneInputChange } from "../../../../../../utils/phoneValidation";
@@ -297,6 +298,7 @@ function SignupPlacement() {
                     </NavLink>
                     
                     <h2>Sign Up</h2>
+                    <VideoTutorialButton videoId="gfJ9lefQQT4" style={{ marginBottom: '8px' }} />
                     <p className="sub-text">Create Placement Dean account</p>
 
                     <form onSubmit={handleSubmit}>
