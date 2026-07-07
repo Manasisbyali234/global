@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import VideoTutorialButton from '../../../../components/VideoTutorialButton';
 import { api } from '../../../../utils/api';
 import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
@@ -420,7 +420,7 @@ function CanSupport() {
         return (
             <div className="twm-right-section-panel site-bg-gray candidate-support-page candidate-support-success">
                 <div className="candidate-page-shell candidate-support-shell candidate-page-shell--header">
-                    <div className="candidate-page-header-card">
+                    <div className="candidate-page-header-card" style={{ position: 'relative' }}>
                         <div style={{ textAlign: 'center' }}>
                             <h2 className="candidate-page-title">
                                 <i className="fa fa-headset me-2" style={{color: '#f97316'}}></i>

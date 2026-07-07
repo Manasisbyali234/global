@@ -461,13 +461,7 @@ td .text-success:not(.badge) {
     padding: 2rem 2rem 0 2rem;
 }
 
-.status-page-header-card {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-}
+.status-page-header-card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 2rem; position: relative; }
 
 .status-page-content-container {
     padding: 0 2rem 2rem 2rem;
@@ -536,11 +530,7 @@ td .text-success:not(.badge) {
         padding: 1rem 0.5rem 0 0.5rem !important;
     }
     
-    .status-page-header-card {
-        padding: 1rem !important;
-        margin-bottom: 1rem !important;
-        border-radius: 8px !important;
-    }
+    .status-page-header-card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 2rem; position: relative; }
 
     .status-page-content-container {
         padding: 0 !important;
@@ -1066,3 +1056,4 @@ td .text-success:not(.badge) {
         min-height: 1rem !important;
     }
 }
+

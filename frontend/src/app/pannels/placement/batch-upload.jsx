@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import VideoTutorialButton from '../../../components/VideoTutorialButton';
 import { formatDate } from '../../../utils/dateFormatter';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -394,7 +394,7 @@ function BatchUpload() {
                     {/* Main Form Column */}
                     <div className="form-column">
                         <div className="form-card">
-                            <div className="form-header">
+                            <div className="form-header" style={{ position: 'relative' }}>
                                 <h2>Configuration & Details</h2>
                                 <VideoTutorialButton videoId="YrDnHhQGSkE" style={{ marginTop: '8px' }} />
                                 <p>Upload student data files and configure batch settings for processing</p>

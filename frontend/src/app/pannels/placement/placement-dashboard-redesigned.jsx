@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import VideoTutorialButton from '../../../components/VideoTutorialButton';
 import { formatDate } from '../../../utils/dateFormatter';
 import { api } from '../../../utils/api';
@@ -854,7 +854,7 @@ function PlacementDashboardRedesigned() {
 
                 {/* Content Area */}
                 <div className="content-area">
-                    <div style={{ textAlign: 'right', marginBottom: '8px' }}><VideoTutorialButton videoId="XU5hQtlTcG8" /></div>
+                    <div style={{ position: 'relative', minHeight: '30px', marginBottom: '8px' }}><VideoTutorialButton videoId="XU5hQtlTcG8" /></div>
                     {loading ? (
                         <div className="loading-state">
                             <div className="spinner"></div>

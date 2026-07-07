@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import VideoTutorialButton from '../../../../../../components/VideoTutorialButton';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { publicUser } from "../../../../../../globals/route-names";
@@ -292,7 +292,7 @@ function SignupPlacement() {
                 </div>
 
                 {/* Right Side (Form Section) */}
-                <div className="right-section">
+                <div className="right-section" style={{ position: 'relative' }}>
                     <NavLink to={publicUser.INITIAL} className="auth-logo">
                         <JobZImage src="images/logo-dark.png" alt="Logo" />
                     </NavLink>

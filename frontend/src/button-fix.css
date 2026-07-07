@@ -21,6 +21,25 @@
     background-color: #dc3545 !important;
 }
 
-.action-buttons button:nth-child(3) {
-    background-color: #007bff !important;
+
+
+/* Video tutorial close button override */
+button.video-close-btn {
+    all: unset !important;
+    position: absolute !important;
+    top: -40px !important;
+    right: -40px !important;
+    background: #8b0000 !important;
+    color: #fff !important;
+    border: none !important;
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    border-radius: 50% !important;
+    width: 44px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 1 !important;
 }

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import CreateAssessmentModal from './CreateAssessmentModal';
 import { showPopup, showSuccess, showError, showConfirmation } from '../../../../../utils/popupNotification';
 import { formatAssessmentContent } from '../../../../../utils/assessmentContent';
@@ -123,7 +123,7 @@ function CreateAssessmentPage() {
 
     return (
         <div className="create-assessment-page">
-            <div className="wt-admin-right-page-header clearfix">
+            <div className="wt-admin-right-page-header clearfix" style={{ position: 'relative' }}>
                 <h2>Create Assessment</h2>
                 <VideoTutorialButton videoId="IXUgKVZEH-U" style={{ marginTop: '8px' }} />
                 <div className="breadcrumbs">

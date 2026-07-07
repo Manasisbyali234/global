@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import VideoTutorialButton from '../../../../components/VideoTutorialButton';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -1904,7 +1904,7 @@ function EmpCandidateReviewPage() {
 
     return (
         <div className="candidate-review-container emp-candidate-review-page">
-            <div className="candidate-review-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <div className="candidate-review-header" style={{ position: 'relative' }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                 <div className="header-title">
                     <h2>Candidate Application Review</h2>
                     <p>Evaluating <strong style={{ color: '#f97316', fontWeight: '700' }}>{candidate.name}</strong> for <strong style={{ color: '#f97316', fontWeight: '700' }}>{formatJobTitle(application.jobId?.title)}</strong></p>

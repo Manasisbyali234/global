@@ -205,7 +205,7 @@ function CanDashboardPage() {
                 )}
               </div>
             </div>
-            <VideoTutorialButton videoId="eF8E1KkscWY" />
+            <VideoTutorialButton videoId="eF8E1KkscWY" pinned />
           </div>
         </div>
 
