@@ -25,13 +25,16 @@ const DEFAULT_DESIGNATIONS = [
 
 const HERO_FEATURES = ['Verified Companies', 'Easy Applications', 'Jobs Across India'];
 
-const COMPANY_LOGOS = Array.from({ length: 13 }, (_, index) => {
-  const logoNumber = index + 1;
-  return {
-    name: `Company logo ${logoNumber}`,
-    src: `/assets/images/company-logos/photo_${logoNumber}_2026-07-05_11-03-11.jpg`
-  };
-});
+const COMPANY_LOGOS = [
+  ...Array.from({ length: 13 }, (_, index) => ({
+    name: `Company logo ${index + 1}`,
+    src: `/assets/images/Company logos/photo_${index + 1}_2026-07-05_11-03-11.jpg`
+  })),
+  { name: 'Company logo 14', src: '/assets/images/Company logos/photo_2026-07-07_01-35-15.jpg' },
+  { name: 'Company logo 15', src: '/assets/images/Company logos/photo_2026-07-07_01-35-46-removebg-preview.png' },
+  { name: 'Company logo 16', src: '/assets/images/Company logos/photo_2026-07-07_01-35-52-removebg-preview.png' },
+  { name: 'Company logo 17', src: '/assets/images/Company logos/photo_2026-07-07_01-35-57-removebg-preview.png' },
+];
 
 const HeroBody = ({ onSearch }) => {
   const navigate = useNavigate();
