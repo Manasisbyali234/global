@@ -2603,9 +2603,10 @@ function CanStatusPage() {
 							<p style={{ color: '#6b7280', margin: 0 }}>
 								Track your job applications and interview progress
 							</p>
-							<VideoTutorialButton videoId="9kX8WZJZwYg" style={{ marginTop: '8px' }} />
+
 						</div>
 					</div>
+						<VideoTutorialButton videoId="9kX8WZJZwYg" />
 				</div>
 
 				{/* Status Content */}

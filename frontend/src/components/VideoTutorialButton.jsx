@@ -5,12 +5,12 @@ function VideoTutorialButton({ videoId, style }) {
     const [show, setShow] = useState(false);
     return (
         <>
-            <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
+            <div style={{ position: 'absolute', top: '50%', right: '16px', transform: 'translateY(-50%)', zIndex: 10 }}>
                 <button
                     onClick={() => setShow(true)}
-                    style={{ background: '#ff0000', border: 'none', color: '#fff', borderRadius: '6px', padding: '6px 14px', display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', ...style }}
+                    style={{ background: '#ff0000', border: 'none', color: '#fff', borderRadius: '4px', padding: '2px 6px', display: 'inline-flex', alignItems: 'center', gap: '3px', cursor: 'pointer', fontSize: '9px', fontWeight: '600', lineHeight: '1.4', ...style }}
                 >
-                    <i className="fa fa-play-circle"></i> How it Works
+                    <i className="fa fa-play-circle" style={{ fontSize: '9px' }}></i> How it Works
                 </button>
             </div>
             {show && createPortal(

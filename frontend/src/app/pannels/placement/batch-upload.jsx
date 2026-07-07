@@ -587,7 +587,7 @@ function BatchUpload() {
                                 setShowResubmitModal(false);
                                 resetForm();
                                 setResubmitFileId(null);
-                            }}>Ã—</button>
+                            }}>×</button>
                         </div>
                         <div className="modal-body">
                             <div className="upload-field">
@@ -691,3 +691,4 @@ function BatchUpload() {
 }
 
 export default BatchUpload;
+
