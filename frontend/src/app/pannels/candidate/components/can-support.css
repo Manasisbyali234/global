@@ -1,4 +1,11 @@
 /* Candidate Support - Select dropdown fix */
+.candidate-page-header-card,
+.wt-admin-right-page-header,
+.status-page-header-card,
+.candidate-review-header,
+.form-header {
+  position: relative !important;
+}
 .candidate-support-page .can-support-select-wrapper {
   position: relative;
   display: flex;
