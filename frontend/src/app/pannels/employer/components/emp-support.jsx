@@ -1,3 +1,4 @@
+﻿import VideoTutorialButton from '../../../../components/VideoTutorialButton';
 import { useState, useEffect, useRef } from 'react';
 import './emp-support.css';
 
@@ -380,7 +381,8 @@ function EmpSupport() {
         }}>
             {/* Header */}
             <div className="employer-page-shell employer-page-shell--header">
-                <div className="wt-admin-right-page-header clearfix employer-page-header-card">
+                <div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ position: "relative" }}>
+                    <VideoTutorialButton videoId="_KTq0lJo-HY" />
                     <h2 className="employer-page-title">Support</h2>
                     <p className="employer-page-subtitle">Raise a ticket for technical issues, account help, or job posting questions.</p>
                 </div>

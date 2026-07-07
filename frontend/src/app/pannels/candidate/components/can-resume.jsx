@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from "react";
+﻿import { useEffect, useState, useCallback } from "react";
+import VideoTutorialButton from '../../../../components/VideoTutorialButton';
 import { useLocation } from "react-router-dom";
 import SectionCanAccomplishments from "../sections/resume/section-can-accomplishments";
 import SectionCanAttachment from "../sections/resume/section-can-attachment";
@@ -105,7 +106,8 @@ function CanMyResumePage() {
 				<div className="twm-right-section-panel site-bg-gray candidate-resume-page">
 					{/* Resume Page Header */}
 					<div className="resume-page-header-container">
-						<div className="resume-page-header-inner">
+				<div className="resume-page-header-inner" style={{ position: "relative" }}>
+					<VideoTutorialButton videoId="gJkZoVHOhCU" />
 							<div style={{ textAlign: 'center' }}>
 								<h2 className="resume-page-title">
 									<i className="fa fa-file-text-o me-2" style={{color: '#f97316'}}></i>

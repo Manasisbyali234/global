@@ -125,7 +125,7 @@ function CreateAssessmentPage() {
         <div className="create-assessment-page">
             <div className="wt-admin-right-page-header clearfix" style={{ position: 'relative' }}>
                 <h2>Create Assessment</h2>
-                <VideoTutorialButton videoId="IXUgKVZEH-U" style={{ marginTop: '8px' }} />
+                <VideoTutorialButton videoId="CoDhNW9PrKU" style={{ marginTop: '8px' }} />
                 <div className="breadcrumbs">
                     <a href="#">Home</a>
                     <a href="#">Dashboard</a>
