@@ -286,8 +286,12 @@ function SignupPlacement() {
                 <div className="main-card public-auth-card">
                 {/* Left Side (Image Section) */}
                 <div className="left-section">
-                    <div className="image-wrapper">
-                        <img src="assets/images/background/image.png" alt="Placement Signup" />
+                    <div className="image-wrapper login-page-image-wrapper">
+                        <img
+                            className="login-page-image"
+                            src="assets/images/ChatGPT%20Image%20Jul%206%2C%202026%2C%2010_13_53%20AM.png"
+                            alt="Placement Signup"
+                        />
                     </div>
                 </div>
 

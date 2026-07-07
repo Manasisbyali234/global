@@ -238,6 +238,22 @@
     box-sizing: border-box;
 }
 
+/* Toolbar row: aligns How it Works button to the right, above content */
+.content-area-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 16px;
+    min-height: 28px;
+}
+
+@media (max-width: 991px) {
+    .content-area-toolbar {
+        justify-content: flex-start;
+        margin-bottom: 12px;
+    }
+}
+
 /* Profile Sections - Personal Details and Placement Details */
 .profile-section {
     background-color: var(--primary-white);

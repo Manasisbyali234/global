@@ -854,7 +854,9 @@ function PlacementDashboardRedesigned() {
 
                 {/* Content Area */}
                 <div className="content-area">
-                    <div style={{ position: 'relative', minHeight: '30px', marginBottom: '8px' }}><VideoTutorialButton videoId="XU5hQtlTcG8" /></div>
+                    <div className="content-area-toolbar">
+                        <VideoTutorialButton videoId="XU5hQtlTcG8" pinned={false} />
+                    </div>
                     {loading ? (
                         <div className="loading-state">
                             <div className="spinner"></div>
