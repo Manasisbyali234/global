@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import VideoTutorialButton from '../../../../../components/VideoTutorialButton';
 import AssessmentCard from "../assessments/AssessmnetCard";
 import CreateAssessmentModal from "../assessments/CreateassessmentModal";
 import QuestionModal from "../assessments/qusetion-popup";
@@ -310,7 +311,8 @@ export default function AssessmentDashboard() {
 		}}>
 			{/* Header */}
 			<div className="employer-page-shell employer-page-shell--header">
-				<div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+				<div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', position: 'relative' }}>
+					<VideoTutorialButton videoId="CoDhNW9PrKU" />
 						<div className="d-flex justify-content-between align-items-center assessment-header-top-row">
 							<div>
 								<h2 className="employer-page-title">Assessments</h2>
