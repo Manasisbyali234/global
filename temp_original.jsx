@@ -1,4 +1,4 @@
-﻿import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../../utils/popupNotification';
+import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../../utils/popupNotification';
 import VideoTutorialButton from '../../../../../components/VideoTutorialButton';
 import { formatDate } from '../../../../../utils/dateFormatter';
 import React, { useState, useEffect, useCallback, useRef } from "react";
@@ -3636,7 +3636,7 @@ export default function EmpPostJob({ onNext }) {
 													<span
 														style={chipX}
 														onClick={() => update({ preferredLanguages: formData.preferredLanguages.filter(l => l !== lang) })}
-													>×</span>
+													>�</span>
 												</div>
 											))}
 										</div>
@@ -4470,7 +4470,7 @@ export default function EmpPostJob({ onNext }) {
 											onClick={() => removeSkill(s)}
 											title="Remove skill"
 										>
-											×
+											�
 										</span>
 									</div>
 								))}
@@ -5070,7 +5070,7 @@ export default function EmpPostJob({ onNext }) {
 											}}
 											title="Remove this stage"
 										>
-											×
+											�
 										</span>
 									</div>
 								);
@@ -6208,7 +6208,7 @@ export default function EmpPostJob({ onNext }) {
 																					const requiredMinutes = slots * interviewDuration;
 																					
 																					if (totalMinutes < requiredMinutes) {
-																						showError(`Total interview time (${(totalMinutes/60).toFixed(1)} hours) must be ≥ ${(requiredMinutes/60).toFixed(1)} hours (${slots} slots × 1 hour per candidate)`);
+																						showError(`Total interview time (${(totalMinutes/60).toFixed(1)} hours) must be ≥ ${(requiredMinutes/60).toFixed(1)} hours (${slots} slots � 1 hour per candidate)`);
 																						return;
 																					}
 																				}
@@ -6918,7 +6918,7 @@ export default function EmpPostJob({ onNext }) {
 						</p>
 						<div style={{fontSize: 13, color: '#dc2626', lineHeight: 1.5, marginBottom: 24, textAlign: 'left', background: '#fef2f2', padding: '12px', borderRadius: 8, border: '1px solid #fecaca'}}>
 							<strong>⚠️ Important:</strong> The total interview time (start time − end time) must be greater than or equal to the total required duration.<br/><br/>
-							<strong>Total required duration</strong> = total slots × interview duration per candidate.<br/><br/>
+							<strong>Total required duration</strong> = total slots � interview duration per candidate.<br/><br/>
 							<strong>Example:</strong> If total slots = 10 and interview duration = 1 hour, then total interview time must be ≥ 10 hours.
 						</div>
 						<div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>

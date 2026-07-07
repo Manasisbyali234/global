@@ -311,8 +311,7 @@ export default function AssessmentDashboard() {
 		}}>
 			{/* Header */}
 			<div className="employer-page-shell employer-page-shell--header">
-				<div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', position: 'relative' }}>
-					<VideoTutorialButton videoId="CoDhNW9PrKU" />
+				<div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
 						<div className="d-flex justify-content-between align-items-center assessment-header-top-row">
 							<div>
 								<h2 className="employer-page-title">Assessments</h2>
@@ -322,6 +321,7 @@ export default function AssessmentDashboard() {
 								<span className="badge bg-light text-dark px-3 py-2" style={{fontSize: '14px'}}>
 									Showing: {filteredAssessments.length} of {assessments.length}
 								</span>
+								<VideoTutorialButton videoId="CoDhNW9PrKU" pinned={false} />
 								<button className="btn btn-dark" onClick={handleCreateAssessmentClick}>
 									<i className="fa fa-plus me-2"></i>Create Assessment
 								</button>
