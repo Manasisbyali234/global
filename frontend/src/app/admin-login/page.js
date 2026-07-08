@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useLoginRateLimit, formatCountdown } from "../../hooks/useLoginRateLimit";
+import { useLoginRateLimit } from "../../hooks/useLoginRateLimit";
 import { useNavigate } from "react-router-dom";
 import "../../admin-login-custom.css";
 import LetterCaptchaField from "../../components/LetterCaptchaField";
@@ -77,7 +77,7 @@ export default function AdminLogin() {
         try {
             const data = await api.adminSendOtp({ email: resetEmail.trim() });
             if (data.success) {
-                setResetSuccess(`OTP sent to mobile number ${DEFAULT_PHONE} successfully!`);
+                setResetSuccess(`OTP sent successfully to ${DEFAULT_PHONE}`);
                 setOtpSent(true);
                 startResendCooldown();
             } else {
@@ -97,7 +97,7 @@ export default function AdminLogin() {
         try {
             const data = await api.adminSendOtp({ email: resetEmail.trim() });
             if (data.success) {
-                setResetSuccess(`OTP resent to mobile number ${DEFAULT_PHONE} successfully!`);
+                setResetSuccess(`OTP resent successfully to ${DEFAULT_PHONE}`);
                 startResendCooldown();
             } else {
                 setResetError(data.message || "Failed to resend OTP.");
@@ -199,7 +199,7 @@ export default function AdminLogin() {
                                 <div className="twm-login-reg-logo">
                                     <div className="twm-login-reg-title">
                                         <h4>{isResetMode ? "Reset Password" : "Admin Login"}</h4>
-                                        <p>{isResetMode ? "OTP will be sent to your registered email" : "Access Admin Panel"}</p>
+                                        <p>{isResetMode ? `OTP will be sent via SMS to ${DEFAULT_PHONE}` : "Access Admin Panel"}</p>
                                     </div>
                                 </div>
                             </div>
@@ -284,7 +284,7 @@ export default function AdminLogin() {
                                                                         style={{ transition: "none" }}
                                                                         onMouseEnter={(e) => { e.currentTarget.style.transform = "none"; }}
                                                                     >
-                                                                        {loading ? "Logging in..." : "Login"}
+                                                                        {loading ? "Logging in..." : isLocked ? `Try after ${countdown}s` : "Login"}
                                                                     </button>
                                                                 </div>
                                                             </div>
