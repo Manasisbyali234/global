@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useLoginRateLimit } from "../../hooks/useLoginRateLimit";
 import { useNavigate } from "react-router-dom";
 import "../../admin-login-custom.css";
 import LetterCaptchaField from "../../components/LetterCaptchaField";
@@ -33,6 +34,7 @@ export default function AdminLogin() {
     const [passwordValidation, setPasswordValidation] = useState(initialPasswordValidationState);
     const captchaRef = useRef(null);
     const navigate = useNavigate();
+    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('admin');
 
     const handleChange = (e) => {
         setFormData({
@@ -134,6 +136,7 @@ export default function AdminLogin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isLocked) return;
         setLoading(true);
         setError("");
 
@@ -146,6 +149,7 @@ export default function AdminLogin() {
             const data = await api.adminLogin(formData);
 
             if (data.success) {
+                clearAttempts();
                 localStorage.setItem("adminToken", data.token);
 
                 if (data.admin) {
@@ -160,8 +164,10 @@ export default function AdminLogin() {
                 return;
             }
 
+            recordFailedAttempt();
             setError(data.message || "Login failed. Please try again.");
         } catch (networkError) {
+            recordFailedAttempt();
             setError(`Network error: ${networkError.message}. Please ensure backend server is running on port 5000.`);
         } finally {
             setLoading(false);
@@ -262,17 +268,22 @@ export default function AdminLogin() {
                                                                     </button>
                                                                 </div>
 
+                                                                {isLocked && (
+                                                                    <div className="alert alert-warning" role="alert" style={{ textAlign: 'center' }}>
+                                                                        Too many failed attempts. Try again in <strong>{countdown}s</strong>
+                                                                    </div>
+                                                                )}
                                                                 <div className="form-group">
                                                                     <button
                                                                         type="submit"
                                                                         className="site-button admin-auth-button"
-                                                                        disabled={loading}
+                                                                        disabled={loading || isLocked}
                                                                         style={{ transition: "none" }}
                                                                         onMouseEnter={(event) => {
                                                                             event.currentTarget.style.transform = "none";
                                                                         }}
                                                                     >
-                                                                        {loading ? "Logging in..." : "Login"}
+                                                                        {loading ? "Logging in..." : isLocked ? `Try after ${countdown}s` : "Login"}
                                                                     </button>
                                                                 </div>
                                                             </div>

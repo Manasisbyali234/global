@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import "../../admin-login-custom.css";
 import LetterCaptchaField from "../../components/LetterCaptchaField";
 import { api } from "../../utils/api";
+import { useLoginRateLimit } from "../../hooks/useLoginRateLimit";
 
 export default function SubAdminLogin() {
     const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ export default function SubAdminLogin() {
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const captchaRef = useRef(null);
+    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('subadmin');
 
     const handleChange = (e) => {
         setFormData({
@@ -22,6 +24,7 @@ export default function SubAdminLogin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isLocked) return;
         setLoading(true);
         setError("");
 
@@ -34,6 +37,7 @@ export default function SubAdminLogin() {
             const data = await api.subAdminLogin(formData);
 
             if (data.success) {
+                clearAttempts();
                 localStorage.setItem("adminToken", data.token);
 
                 if (data.subAdmin) {
@@ -54,8 +58,10 @@ export default function SubAdminLogin() {
                 return;
             }
 
+            recordFailedAttempt();
             setError(data.message || "Login failed. Please try again.");
         } catch (networkError) {
+            recordFailedAttempt();
             setError(`Network error: ${networkError.message}. Please ensure backend server is running.`);
         } finally {
             setLoading(false);
@@ -136,13 +142,19 @@ export default function SubAdminLogin() {
                                                 />
                                             </div>
 
+                                            {isLocked && (
+                                                <div className="alert alert-warning" style={{ textAlign: 'center' }}>
+                                                    Too many failed attempts. Try again in <strong>{countdown}s</strong>
+                                                </div>
+                                            )}
+
                                             <div className="form-group">
                                                 <button
                                                     type="submit"
                                                     className="site-button"
-                                                    disabled={loading}
+                                                    disabled={loading || isLocked}
                                                 >
-                                                    {loading ? "Logging in..." : "Login as Sub Admin"}
+                                                    {loading ? "Logging in..." : isLocked ? `Try after ${countdown}s` : "Login as Sub Admin"}
                                                 </button>
                                             </div>
                                         </div>

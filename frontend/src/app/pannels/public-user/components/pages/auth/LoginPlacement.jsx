@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { placementRoute, placement, publicUser } from "../../../../../../globals/route-names";
 import { useRef, useState } from "react";
+import { useLoginRateLimit } from "../../../../../../hooks/useLoginRateLimit";
 import { useAuth } from "../../../../../../contexts/AuthContext";
 import JobZImage from "../../../../../common/jobz-img";
 import LetterCaptchaField from "../../../../../../components/LetterCaptchaField";
@@ -15,9 +16,11 @@ function LoginPlacement() {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const captchaRef = useRef(null);
+    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('placement');
 
     const handleLogin = async (event) => {
         event.preventDefault();
+        if (isLocked) return;
         setError('');
         setLoading(true);
 
@@ -45,12 +48,15 @@ function LoginPlacement() {
             }, 'placement');
 
             if (result.success) {
+                clearAttempts();
                 navigate(placementRoute(placement.DASHBOARD));
             } else {
+                recordFailedAttempt();
                 setError(result.message || 'Login failed. Please try again.');
             }
         } catch (loginError) {
             console.error('Login error:', loginError);
+            recordFailedAttempt();
             setError('Login failed. Please try again.');
         }
 
@@ -126,8 +132,13 @@ function LoginPlacement() {
                                 <LetterCaptchaField ref={captchaRef} />
                             </div>
 
-                            <button type="submit" className="login-btn" disabled={loading}>
-                                {loading ? 'Logging in...' : 'Log in'}
+                            {isLocked && (
+                                <div className="alert alert-warning p-2 mb-3" style={{ fontSize: '14px', textAlign: 'center' }}>
+                                    Too many failed attempts. Try again in <strong>{countdown}s</strong>
+                                </div>
+                            )}
+                            <button type="submit" className="login-btn" disabled={loading || isLocked}>
+                                {loading ? 'Logging in...' : isLocked ? `Try after ${countdown}s` : 'Log in'}
                             </button>
 
                             <p className="small-link">
