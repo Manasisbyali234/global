@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { placementRoute, placement, publicUser } from "../../../../../../globals/route-names";
 import { useRef, useState } from "react";
-import { useLoginRateLimit } from "../../../../../../hooks/useLoginRateLimit";
+import { useLoginRateLimit, formatCountdown } from "../../../../../../hooks/useLoginRateLimit";
 import { useAuth } from "../../../../../../contexts/AuthContext";
 import JobZImage from "../../../../../common/jobz-img";
 import LetterCaptchaField from "../../../../../../components/LetterCaptchaField";
@@ -134,11 +134,11 @@ function LoginPlacement() {
 
                             {isLocked && (
                                 <div className="alert alert-warning p-2 mb-3" style={{ fontSize: '14px', textAlign: 'center' }}>
-                                    Too many failed attempts. Try again in <strong>{countdown}s</strong>
+                                    Too many failed attempts. Try again in <strong>{formatCountdown(countdown)}</strong>
                                 </div>
                             )}
                             <button type="submit" className="login-btn" disabled={loading || isLocked}>
-                                {loading ? 'Logging in...' : isLocked ? `Try after ${countdown}s` : 'Log in'}
+                                {loading ? 'Logging in...' : 'Log in'}
                             </button>
 
                             <p className="small-link">
