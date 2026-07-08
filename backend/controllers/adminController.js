@@ -276,6 +276,102 @@ const queuePlacementWelcomeEmails = ({
   });
 };
 
+const DEFAULT_OTP_MOBILE = '9008599697'; // +91 90085 99697
+
+// Send OTP via SMS to default mobile number
+exports.sendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const normalizedEmail = email.trim();
+
+    let user = await Admin.findByEmail(normalizedEmail);
+    if (!user) {
+      const subAdmin = await SubAdmin.findByEmail(normalizedEmail);
+      if (subAdmin) user = subAdmin;
+    }
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Email not registered.' });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    user.resetPasswordOTP = otp;
+    user.resetPasswordOTPExpires = expires;
+    await user.save();
+
+    const { sendSMS } = require('../utils/smsProvider');
+    await sendSMS(DEFAULT_OTP_MOBILE, otp, user.name || 'Admin');
+
+    res.json({ success: true, message: `OTP sent to the registered mobile number successfully.` });
+  } catch (error) {
+    console.error('sendOTP error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Verify OTP and reset password
+exports.verifyOTPAndResetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    const normalizedEmail = email.trim();
+
+    let user = await Admin.findByEmail(normalizedEmail);
+    if (!user) {
+      const subAdmin = await SubAdmin.findByEmail(normalizedEmail);
+      if (subAdmin) user = subAdmin;
+    }
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Email not registered.' });
+    }
+
+    if (!user.resetPasswordOTP || user.resetPasswordOTP !== otp.trim()) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
+    }
+
+    if (!user.resetPasswordOTPExpires || user.resetPasswordOTPExpires < new Date()) {
+      return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
+    }
+
+    user.password = newPassword;
+    user.resetPasswordOTP = undefined;
+    user.resetPasswordOTPExpires = undefined;
+    await user.save();
+
+    res.json({ success: true, message: 'Password reset successful.' });
+  } catch (error) {
+    console.error('verifyOTPAndResetPassword error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Reset password directly (legacy)
+exports.resetPasswordDirect = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    const normalizedEmail = email.trim();
+
+    let user = await Admin.findByEmail(normalizedEmail);
+    if (!user) {
+      const subAdmin = await SubAdmin.findByEmail(normalizedEmail);
+      if (subAdmin) user = subAdmin;
+    }
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Email not registered.' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ success: true, message: 'Password reset successful.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 };

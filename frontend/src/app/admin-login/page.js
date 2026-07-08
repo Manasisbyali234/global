@@ -5,11 +5,7 @@ import "../../admin-login-custom.css";
 import LetterCaptchaField from "../../components/LetterCaptchaField";
 import { api } from "../../utils/api";
 
-const initialResetFormState = {
-    email: "",
-    newPassword: "",
-    confirmPassword: ""
-};
+const DEFAULT_PHONE = "+91 90085 99697";
 
 const initialPasswordValidationState = {
     length: false,
@@ -18,76 +14,98 @@ const initialPasswordValidationState = {
 };
 
 export default function AdminLogin() {
-    const [formData, setFormData] = useState({
-        email: "",
-        password: ""
-    });
+    const [formData, setFormData] = useState({ email: "", password: "" });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+
+    // Reset password flow states
     const [isResetMode, setIsResetMode] = useState(false);
+    const [resetEmail, setResetEmail] = useState("");
+    const [otpSent, setOtpSent] = useState(false);
+    const [otp, setOtp] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [showResetPassword, setShowResetPassword] = useState(false);
     const [resetLoading, setResetLoading] = useState(false);
     const [resetError, setResetError] = useState("");
     const [resetSuccess, setResetSuccess] = useState("");
-    const [showResetPassword, setShowResetPassword] = useState(false);
-    const [resetFormData, setResetFormData] = useState(initialResetFormState);
+    const [resendCooldown, setResendCooldown] = useState(0);
     const [passwordValidation, setPasswordValidation] = useState(initialPasswordValidationState);
+
     const captchaRef = useRef(null);
     const navigate = useNavigate();
     const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('admin');
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const resetResetFlowState = () => {
-        setResetLoading(false);
-        setResetError("");
-        setResetSuccess("");
-        setShowResetPassword(false);
-        setResetFormData(initialResetFormState);
-        setPasswordValidation(initialPasswordValidationState);
+    const startResendCooldown = () => {
+        setResendCooldown(60);
+        const timer = setInterval(() => {
+            setResendCooldown((prev) => {
+                if (prev <= 1) { clearInterval(timer); return 0; }
+                return prev - 1;
+            });
+        }, 1000);
     };
 
     const handleToggleResetMode = () => {
         setError("");
-
         if (isResetMode) {
             setIsResetMode(false);
-            resetResetFlowState();
-            return;
+            setOtpSent(false);
+            setOtp("");
+            setNewPassword("");
+            setResetEmail("");
+            setResetError("");
+            setResetSuccess("");
+            setPasswordValidation(initialPasswordValidationState);
+        } else {
+            setResetEmail(formData.email);
+            setResetError("");
+            setResetSuccess("");
+            setIsResetMode(true);
         }
+    };
 
+    const handleSendOtp = async (e) => {
+        e.preventDefault();
+        setResetLoading(true);
         setResetError("");
         setResetSuccess("");
-        setResetFormData({
-            ...initialResetFormState,
-            email: formData.email
-        });
-        setIsResetMode(true);
+        try {
+            const data = await api.adminSendOtp({ email: resetEmail.trim() });
+            if (data.success) {
+                setResetSuccess(`OTP sent to mobile number ${DEFAULT_PHONE} successfully!`);
+                setOtpSent(true);
+                startResendCooldown();
+            } else {
+                setResetError(data.message || "Failed to send OTP. Please try again.");
+            }
+        } catch (err) {
+            setResetError(err.message || "Failed to send OTP. Please try again.");
+        } finally {
+            setResetLoading(false);
+        }
     };
 
-    const updatePasswordValidation = (password) => {
-        setPasswordValidation({
-            length: password.length >= 6,
-            uppercase: /[A-Z]/.test(password),
-            specialChars: /[@#!%$*?]/.test(password)
-        });
-    };
-
-    const handleResetFieldChange = (e) => {
-        const { name, value } = e.target;
-
-        setResetFormData((currentData) => ({
-            ...currentData,
-            [name]: value
-        }));
-
-        if (name === "newPassword") {
-            updatePasswordValidation(value);
+    const handleResendOtp = async () => {
+        setResetLoading(true);
+        setResetError("");
+        setResetSuccess("");
+        try {
+            const data = await api.adminSendOtp({ email: resetEmail.trim() });
+            if (data.success) {
+                setResetSuccess(`OTP resent to mobile number ${DEFAULT_PHONE} successfully!`);
+                startResendCooldown();
+            } else {
+                setResetError(data.message || "Failed to resend OTP.");
+            }
+        } catch (err) {
+            setResetError(err.message || "Failed to resend OTP.");
+        } finally {
+            setResetLoading(false);
         }
     };
 
@@ -103,32 +121,29 @@ export default function AdminLogin() {
             return;
         }
 
-        if (resetFormData.newPassword !== resetFormData.confirmPassword) {
-            setResetError("Passwords do not match.");
-            setResetLoading(false);
-            return;
-        }
-
         try {
-            const normalizedEmail = resetFormData.email.trim();
-            const data = await api.adminResetPasswordDirect({
-                email: normalizedEmail,
-                newPassword: resetFormData.newPassword
+            const data = await api.adminVerifyOtpReset({
+                email: resetEmail.trim(),
+                otp: otp.trim(),
+                newPassword
             });
-
             if (data.success) {
                 setResetSuccess("Password reset successful. You can log in now.");
-                setFormData((currentFormData) => ({
-                    ...currentFormData,
-                    email: normalizedEmail
-                }));
-                window.setTimeout(() => {
+                setTimeout(() => {
                     setIsResetMode(false);
-                    resetResetFlowState();
-                }, 1200);
+                    setOtpSent(false);
+                    setOtp("");
+                    setNewPassword("");
+                    setResetEmail("");
+                    setResetError("");
+                    setResetSuccess("");
+                    setPasswordValidation(initialPasswordValidationState);
+                }, 1500);
+            } else {
+                setResetError(data.message || "Invalid or expired OTP. Please try again.");
             }
-        } catch (requestError) {
-            setResetError(requestError.message || "Unable to reset password. Please try again.");
+        } catch (err) {
+            setResetError(err.message || "Unable to reset password. Please try again.");
         } finally {
             setResetLoading(false);
         }
@@ -184,7 +199,7 @@ export default function AdminLogin() {
                                 <div className="twm-login-reg-logo">
                                     <div className="twm-login-reg-title">
                                         <h4>{isResetMode ? "Reset Password" : "Admin Login"}</h4>
-                                        <p>{isResetMode ? "Create a new password directly" : "Access Admin Panel"}</p>
+                                        <p>{isResetMode ? "OTP will be sent to your registered email" : "Access Admin Panel"}</p>
                                     </div>
                                 </div>
                             </div>
@@ -230,21 +245,11 @@ export default function AdminLogin() {
                                                                     <span
                                                                         onClick={() => setShowPassword(!showPassword)}
                                                                         style={{
-                                                                            position: "absolute",
-                                                                            right: "8px",
-                                                                            top: 0,
-                                                                            bottom: 0,
-                                                                            cursor: "pointer",
-                                                                            color: "#6c757d",
-                                                                            fontSize: "16px",
-                                                                            zIndex: "10",
-                                                                            userSelect: "none",
-                                                                            display: "flex",
-                                                                            alignItems: "center",
-                                                                            justifyContent: "center",
-                                                                            width: "32px",
-                                                                            textAlign: "center",
-                                                                            lineHeight: 1
+                                                                            position: "absolute", right: "8px", top: 0, bottom: 0,
+                                                                            cursor: "pointer", color: "#6c757d", fontSize: "16px",
+                                                                            zIndex: "10", userSelect: "none", display: "flex",
+                                                                            alignItems: "center", justifyContent: "center",
+                                                                            width: "32px", textAlign: "center", lineHeight: 1
                                                                         }}
                                                                     >
                                                                         <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
@@ -252,10 +257,7 @@ export default function AdminLogin() {
                                                                 </div>
 
                                                                 <div className="form-group mb-3">
-                                                                    <LetterCaptchaField
-                                                                        ref={captchaRef}
-                                                                        wrapperClassName="admin-letter-captcha"
-                                                                    />
+                                                                    <LetterCaptchaField ref={captchaRef} wrapperClassName="admin-letter-captcha" />
                                                                 </div>
 
                                                                 <div className="form-group">
@@ -273,17 +275,50 @@ export default function AdminLogin() {
                                                                         Too many failed attempts. Try again in <strong>{countdown}s</strong>
                                                                     </div>
                                                                 )}
+
                                                                 <div className="form-group">
                                                                     <button
                                                                         type="submit"
                                                                         className="site-button admin-auth-button"
                                                                         disabled={loading || isLocked}
                                                                         style={{ transition: "none" }}
-                                                                        onMouseEnter={(event) => {
-                                                                            event.currentTarget.style.transform = "none";
-                                                                        }}
+                                                                        onMouseEnter={(e) => { e.currentTarget.style.transform = "none"; }}
                                                                     >
                                                                         {loading ? "Logging in..." : isLocked ? `Try after ${countdown}s` : "Login"}
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    ) : !otpSent ? (
+                                                        <form onSubmit={handleSendOtp}>
+                                                            <div className="twm-tabs-style-2-content">
+                                                                {resetError && <div className="alert alert-danger" role="alert">{resetError}</div>}
+                                                                {resetSuccess && <div className="alert alert-success" role="alert">{resetSuccess}</div>}
+
+                                                                <div className="alert alert-info" role="alert" style={{ fontSize: '13px' }}>
+                                                                    OTP will be sent via SMS to <strong>{DEFAULT_PHONE}</strong>
+                                                                </div>
+
+                                                                <div className="form-group mb-3">
+                                                                    <input
+                                                                        type="email"
+                                                                        required
+                                                                        className="form-control"
+                                                                        placeholder="Admin Email"
+                                                                        value={resetEmail}
+                                                                        onChange={(e) => setResetEmail(e.target.value)}
+                                                                    />
+                                                                </div>
+
+                                                                <div className="form-group">
+                                                                    <button type="button" className="site-button admin-auth-button admin-secondary-button" onClick={handleToggleResetMode}>
+                                                                        Back to login
+                                                                    </button>
+                                                                </div>
+
+                                                                <div className="form-group">
+                                                                    <button type="submit" className="site-button admin-auth-button" disabled={resetLoading}>
+                                                                        {resetLoading ? "Sending OTP..." : "Send OTP"}
                                                                     </button>
                                                                 </div>
                                                             </div>
@@ -291,105 +326,82 @@ export default function AdminLogin() {
                                                     ) : (
                                                         <form onSubmit={handleResetPassword}>
                                                             <div className="twm-tabs-style-2-content">
-                                                                {resetError && (
-                                                                    <div className="alert alert-danger" role="alert">
-                                                                        {resetError}
-                                                                    </div>
-                                                                )}
+                                                                {resetError && <div className="alert alert-danger" role="alert">{resetError}</div>}
+                                                                {resetSuccess && <div className="alert alert-success" role="alert">{resetSuccess}</div>}
 
-                                                                {resetSuccess && (
-                                                                    <div className="alert alert-success" role="alert">
-                                                                        {resetSuccess}
-                                                                    </div>
-                                                                )}
+                                                                <div className="alert alert-info" role="alert" style={{ fontSize: '13px' }}>
+                                                                    OTP sent via SMS to <strong>{DEFAULT_PHONE}</strong>
+                                                                </div>
 
                                                                 <div className="form-group mb-3">
                                                                     <input
-                                                                        name="email"
-                                                                        type="email"
+                                                                        type="text"
                                                                         required
                                                                         className="form-control"
-                                                                        placeholder="Admin Email"
-                                                                        value={resetFormData.email}
-                                                                        onChange={handleResetFieldChange}
+                                                                        placeholder="Enter OTP"
+                                                                        value={otp}
+                                                                        onChange={(e) => setOtp(e.target.value)}
                                                                     />
                                                                 </div>
 
                                                                 <div className="form-group mb-3" style={{ position: "relative" }}>
                                                                     <input
-                                                                        name="newPassword"
                                                                         type={showResetPassword ? "text" : "password"}
                                                                         required
                                                                         className="form-control"
                                                                         placeholder="New Password"
-                                                                        value={resetFormData.newPassword}
-                                                                        onChange={handleResetFieldChange}
+                                                                        value={newPassword}
+                                                                        onChange={(e) => {
+                                                                            const pwd = e.target.value;
+                                                                            setNewPassword(pwd);
+                                                                            setPasswordValidation({
+                                                                                length: pwd.length >= 6,
+                                                                                uppercase: /[A-Z]/.test(pwd),
+                                                                                specialChars: /[@#!%$*?]/.test(pwd)
+                                                                            });
+                                                                        }}
                                                                         style={{ paddingRight: "48px" }}
                                                                     />
                                                                     <span
                                                                         onClick={() => setShowResetPassword(!showResetPassword)}
                                                                         style={{
-                                                                            position: "absolute",
-                                                                            right: "8px",
-                                                                            top: 0,
-                                                                            bottom: 0,
-                                                                            cursor: "pointer",
-                                                                            color: "#6c757d",
-                                                                            fontSize: "16px",
-                                                                            zIndex: "10",
-                                                                            userSelect: "none",
-                                                                            display: "flex",
-                                                                            alignItems: "center",
-                                                                            justifyContent: "center",
-                                                                            width: "32px",
-                                                                            textAlign: "center",
-                                                                            lineHeight: 1
+                                                                            position: "absolute", right: "8px", top: 0, bottom: 0,
+                                                                            cursor: "pointer", color: "#6c757d", fontSize: "16px",
+                                                                            zIndex: "10", userSelect: "none", display: "flex",
+                                                                            alignItems: "center", justifyContent: "center",
+                                                                            width: "32px", textAlign: "center", lineHeight: 1
                                                                         }}
                                                                     >
                                                                         <i className={showResetPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
                                                                     </span>
                                                                 </div>
 
-                                                                <div className="form-group mb-3">
-                                                                    <input
-                                                                        name="confirmPassword"
-                                                                        type={showResetPassword ? "text" : "password"}
-                                                                        required
-                                                                        className="form-control"
-                                                                        placeholder="Confirm New Password"
-                                                                        value={resetFormData.confirmPassword}
-                                                                        onChange={handleResetFieldChange}
-                                                                    />
+                                                                <div className="password-requirements">
+                                                                    <div className={`password-rule ${passwordValidation.length ? "active" : ""}`}>At least 6 characters</div>
+                                                                    <div className={`password-rule ${passwordValidation.uppercase ? "active" : ""}`}>One uppercase letter</div>
+                                                                    <div className={`password-rule ${passwordValidation.specialChars ? "active" : ""}`}>One special character (@#!%$*?)</div>
                                                                 </div>
 
-                                                                <div className="password-requirements">
-                                                                    <div className={`password-rule ${passwordValidation.length ? "active" : ""}`}>
-                                                                        At least 6 characters
-                                                                    </div>
-                                                                    <div className={`password-rule ${passwordValidation.uppercase ? "active" : ""}`}>
-                                                                        One uppercase letter
-                                                                    </div>
-                                                                    <div className={`password-rule ${passwordValidation.specialChars ? "active" : ""}`}>
-                                                                        One special character (@#!%$*?)
-                                                                    </div>
+                                                                <div className="mt-3 mb-3 text-center">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn btn-link p-0"
+                                                                        onClick={handleResendOtp}
+                                                                        disabled={resendCooldown > 0 || resetLoading}
+                                                                        style={{ color: resendCooldown > 0 ? '#6c757d' : '#FF7A00', textDecoration: 'none', fontWeight: '500' }}
+                                                                    >
+                                                                        {resendCooldown > 0 ? `Resend OTP in ${resendCooldown}s` : "Resend OTP"}
+                                                                    </button>
                                                                 </div>
 
                                                                 <div className="form-group">
-                                                                    <button
-                                                                        type="button"
-                                                                        className="site-button admin-auth-button admin-secondary-button"
-                                                                        onClick={handleToggleResetMode}
-                                                                    >
+                                                                    <button type="button" className="site-button admin-auth-button admin-secondary-button" onClick={handleToggleResetMode}>
                                                                         Back to login
                                                                     </button>
                                                                 </div>
 
                                                                 <div className="form-group">
-                                                                    <button
-                                                                        type="submit"
-                                                                        className="site-button admin-auth-button"
-                                                                        disabled={resetLoading}
-                                                                    >
+                                                                    <button type="submit" className="site-button admin-auth-button" disabled={resetLoading}>
                                                                         {resetLoading ? "Resetting..." : "Reset Password"}
                                                                     </button>
                                                                 </div>
