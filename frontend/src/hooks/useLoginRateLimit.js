@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const MAX_ATTEMPTS = 3;
-const LOCKOUT_SECONDS = 30;
+const LOCKOUT_SECONDS = 1800;
+
+export function formatCountdown(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}m ${String(s).padStart(2, '0')}s`;
+}
 
 export function useLoginRateLimit(userType) {
     const storageKey = `loginAttempts_${userType}`;

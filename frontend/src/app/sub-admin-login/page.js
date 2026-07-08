@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import "../../admin-login-custom.css";
 import LetterCaptchaField from "../../components/LetterCaptchaField";
 import { api } from "../../utils/api";
-import { useLoginRateLimit } from "../../hooks/useLoginRateLimit";
+import { useLoginRateLimit, formatCountdown } from "../../hooks/useLoginRateLimit";
 
 export default function SubAdminLogin() {
     const [formData, setFormData] = useState({
@@ -144,7 +144,7 @@ export default function SubAdminLogin() {
 
                                             {isLocked && (
                                                 <div className="alert alert-warning" style={{ textAlign: 'center' }}>
-                                                    Too many failed attempts. Try again in <strong>{countdown}s</strong>
+                                                    Too many failed attempts. Try again in <strong>{formatCountdown(countdown)}</strong>
                                                 </div>
                                             )}
 
@@ -154,7 +154,7 @@ export default function SubAdminLogin() {
                                                     className="site-button"
                                                     disabled={loading || isLocked}
                                                 >
-                                                    {loading ? "Logging in..." : isLocked ? `Try after ${countdown}s` : "Login as Sub Admin"}
+                                                    {loading ? "Logging in..." : "Login as Sub Admin"}
                                                 </button>
                                             </div>
                                         </div>

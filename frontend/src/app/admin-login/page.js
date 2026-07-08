@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useLoginRateLimit } from "../../hooks/useLoginRateLimit";
+import { useLoginRateLimit, formatCountdown } from "../../hooks/useLoginRateLimit";
 import { useNavigate } from "react-router-dom";
 import "../../admin-login-custom.css";
 import LetterCaptchaField from "../../components/LetterCaptchaField";
@@ -270,7 +270,7 @@ export default function AdminLogin() {
 
                                                                 {isLocked && (
                                                                     <div className="alert alert-warning" role="alert" style={{ textAlign: 'center' }}>
-                                                                        Too many failed attempts. Try again in <strong>{countdown}s</strong>
+                                                                        Too many failed attempts. Try again in <strong>{formatCountdown(countdown)}</strong>
                                                                     </div>
                                                                 )}
                                                                 <div className="form-group">
@@ -283,7 +283,7 @@ export default function AdminLogin() {
                                                                             event.currentTarget.style.transform = "none";
                                                                         }}
                                                                     >
-                                                                        {loading ? "Logging in..." : isLocked ? `Try after ${countdown}s` : "Login"}
+                                                                        {loading ? "Logging in..." : "Login"}
                                                                     </button>
                                                                 </div>
                                                             </div>
