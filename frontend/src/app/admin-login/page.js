@@ -272,7 +272,7 @@ export default function AdminLogin() {
 
                                                                 {isLocked && (
                                                                     <div className="alert alert-warning" role="alert" style={{ textAlign: 'center' }}>
-                                                                        Too many failed attempts. Try again in <strong>{formatCountdown(countdown)}</strong>
+                                                                        Too many failed attempts. Try again in <strong>{countdown}s</strong>
                                                                     </div>
                                                                 )}
 
