@@ -13,6 +13,7 @@ import { fetchLocationFromPincode } from '../../../../utils/pincodeService';
 import './emp-company-profile.css';
 import '../../../../remove-profile-hover-effects.css';
 
+import VideoTutorialButton from '../../../../components/VideoTutorialButton';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 import ConfirmationDialog from '../../../../components/ConfirmationDialog';
 
@@ -1567,7 +1568,8 @@ function EmpCompanyProfilePage() {
     return (
         <div className="twm-right-section-panel site-bg-gray emp-company-profile orange-icons">
             <div className="employer-page-shell employer-page-shell--header">
-            <div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', marginBottom: '2rem' }}>
+            <div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', marginBottom: '2rem', position: 'relative' }}>
+                <VideoTutorialButton videoId="nGVrQiS5hEA" />
                 <h2 className="employer-page-title">Company Details</h2>
                 <p className="employer-page-subtitle">Manage your organization profile, hiring authorization, and brand assets.</p>
                 

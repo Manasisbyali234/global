@@ -1,4 +1,5 @@
 import { showSuccess, showError } from '../../../../../utils/popupNotification';
+import VideoTutorialButton from '../../../../../components/VideoTutorialButton';
 import { formatDate as formatDateUtil } from '../../../../../utils/dateFormatter';
 import { AlertCircle, Building2, Calendar, Edit, Eye, MapPin, Pause, Play, Search } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
@@ -270,7 +271,8 @@ export default function EmpPostedJobs() {
 		}}>
 			{/* Header */}
 			<div className="employer-page-shell employer-page-shell--header">
-				<div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+				<div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', position: 'relative' }}>
+					<VideoTutorialButton videoId="RjcSfy5Fz0U" />
 					<h2 className="employer-page-title">Manage Interview</h2>
 					<p className="employer-page-subtitle" style={{ margin: '0.5rem 0 0 0', color: '#6b7280' }}>
 						Review your posted jobs, track applications, and manage listing status from one place.
