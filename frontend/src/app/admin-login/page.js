@@ -77,7 +77,7 @@ export default function AdminLogin() {
         try {
             const data = await api.adminSendOtp({ email: resetEmail.trim() });
             if (data.success) {
-                setResetSuccess(`OTP sent successfully to ${DEFAULT_PHONE}`);
+                setResetSuccess('OTP sent successfully to +91 90*******97');
                 setOtpSent(true);
                 startResendCooldown();
             } else {
@@ -97,7 +97,7 @@ export default function AdminLogin() {
         try {
             const data = await api.adminSendOtp({ email: resetEmail.trim() });
             if (data.success) {
-                setResetSuccess(`OTP resent successfully to ${DEFAULT_PHONE}`);
+                setResetSuccess('OTP resent successfully to +91 90*******97');
                 startResendCooldown();
             } else {
                 setResetError(data.message || "Failed to resend OTP.");

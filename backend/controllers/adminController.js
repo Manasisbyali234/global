@@ -1970,13 +1970,17 @@ exports.updateEmployerStatus = async (req, res) => {
         if (isApproved) {
           const employerName = employer.name || employer.firstName || employer.companyName || 'Employer';
           
+          // Fetch contactOfficialEmail from employer profile
+          const employerProfile = await EmployerProfile.findOne({ employerId: employer._id }).select('contactOfficialEmail').lean();
+          const contactOfficialEmail = employerProfile?.contactOfficialEmail || null;
+
           // Send different email based on employer type
           if (employer.employerType === 'consultant') {
             const { sendConsultantApprovalEmail } = require('../utils/emailService');
-            await sendConsultantApprovalEmail(employer.email, employerName, employer.companyName);
+            await sendConsultantApprovalEmail(employer.email, employerName, employer.companyName, contactOfficialEmail);
           } else {
             const { sendEmployerAccountApprovalEmail } = require('../utils/emailService');
-            await sendEmployerAccountApprovalEmail(employer.email, employerName, employer.companyName);
+            await sendEmployerAccountApprovalEmail(employer.email, employerName, employer.companyName, contactOfficialEmail);
           }
         }
         

@@ -1326,7 +1326,7 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
   await sendMailWithGreeting(transporter, mailOptions);
 };
 
-const sendEmployerAccountApprovalEmail = async (email, name, companyName = null) => {
+const sendEmployerAccountApprovalEmail = async (email, name, companyName = null, contactOfficialEmail = null) => {
   const transporter = createTransport();
   const employerGreetingName = (typeof name === 'string' && name.trim())
     || (typeof companyName === 'string' && companyName.trim())
@@ -1363,7 +1363,7 @@ const sendEmployerAccountApprovalEmail = async (email, name, companyName = null)
 
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
-    to: email,
+    to: contactOfficialEmail ? `${email}, ${contactOfficialEmail}` : email,
     subject: 'Your Employer Account Has Been Approved – Start Posting Jobs',
     html: template
   };
@@ -1371,7 +1371,7 @@ const sendEmployerAccountApprovalEmail = async (email, name, companyName = null)
   await sendMailWithGreeting(transporter, mailOptions);
 };
 
-const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
+const sendConsultantApprovalEmail = async (email, name, companyName = null, contactOfficialEmail = null) => {
   const transporter = createTransport();
   
   const template = `
@@ -1412,7 +1412,7 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
 
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
-    to: email,
+    to: contactOfficialEmail ? `${email}, ${contactOfficialEmail}` : email,
     subject: 'Your Consultant Account Has Been Approved – Start Posting Jobs',
     html: template
   };
