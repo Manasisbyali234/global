@@ -2603,9 +2603,8 @@ function CanStatusPage() {
 							<p style={{ color: '#6b7280', margin: 0 }}>
 								Track your job applications and interview progress
 							</p>
-
 						</div>
-						<VideoTutorialButton videoId="9kX8WZJZwYg" pinned />
+						<VideoTutorialButton videoId="eF8E1KkscWY" pinned />
 					</div>
 				</div>
 
@@ -3133,14 +3132,17 @@ function CanStatusPage() {
 									<i className="fa fa-clipboard-list me-2" style={{color: '#ff6b35'}}></i>
 									Interview Process Details
 							</h5>
-							<button
-								type="button"
-								className="btn btn-outline-secondary btn-sm"
-								onClick={() => navigate(canRoute(candidate.STATUS))}
-							>
-								<i className="fa fa-arrow-left me-2"></i>
-								Back to Status
-							</button>
+							<div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+								<VideoTutorialButton videoId="9kX8WZJZwYg" pinned={false} />
+								<button
+									type="button"
+									className="btn btn-outline-secondary btn-sm"
+									onClick={() => navigate(canRoute(candidate.STATUS))}
+								>
+									<i className="fa fa-arrow-left me-2"></i>
+									Back to Status
+								</button>
+							</div>
 						</div>
 						<div style={{padding: '0'}}>
 								{/* Job Information */}

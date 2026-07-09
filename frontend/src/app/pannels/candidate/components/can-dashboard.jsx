@@ -1,5 +1,4 @@
 ﻿import { useEffect, useState } from "react";
-import VideoTutorialButton from '../../../../components/VideoTutorialButton';
 import { MapPin } from 'lucide-react';
 import { loadScript } from "../../../../globals/constants";
 import SectionCandidateOverview from "../sections/dashboard/section-can-overview";
@@ -205,7 +204,6 @@ function CanDashboardPage() {
                 )}
               </div>
             </div>
-            <VideoTutorialButton videoId="eF8E1KkscWY" pinned />
           </div>
         </div>
 
