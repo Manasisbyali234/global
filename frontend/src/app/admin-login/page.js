@@ -6,6 +6,7 @@ import LetterCaptchaField from "../../components/LetterCaptchaField";
 import { api } from "../../utils/api";
 
 const DEFAULT_PHONE = "+91 90085 99697";
+const MASKED_PHONE = "+91 90*******97";
 
 const initialPasswordValidationState = {
     length: false,
@@ -199,7 +200,7 @@ export default function AdminLogin() {
                                 <div className="twm-login-reg-logo">
                                     <div className="twm-login-reg-title">
                                         <h4>{isResetMode ? "Reset Password" : "Admin Login"}</h4>
-                                        <p>{isResetMode ? `OTP will be sent via SMS to ${DEFAULT_PHONE}` : "Access Admin Panel"}</p>
+                                        <p>{isResetMode ? "Reset your admin password" : "Access Admin Panel"}</p>
                                     </div>
                                 </div>
                             </div>
@@ -296,7 +297,7 @@ export default function AdminLogin() {
                                                                 {resetSuccess && <div className="alert alert-success" role="alert">{resetSuccess}</div>}
 
                                                                 <div className="alert alert-info" role="alert" style={{ fontSize: '13px' }}>
-                                                                    OTP will be sent via SMS to <strong>{DEFAULT_PHONE}</strong>
+                                                                    OTP will be sent via SMS to <strong>{MASKED_PHONE}</strong>
                                                                 </div>
 
                                                                 <div className="form-group mb-3">
@@ -329,11 +330,7 @@ export default function AdminLogin() {
                                                                 {resetError && <div className="alert alert-danger" role="alert">{resetError}</div>}
                                                                 {resetSuccess && <div className="alert alert-success" role="alert">{resetSuccess}</div>}
 
-                                                                <div className="alert alert-info" role="alert" style={{ fontSize: '13px' }}>
-                                                                    OTP sent via SMS to <strong>{DEFAULT_PHONE}</strong>
-                                                                </div>
-
-                                                                <div className="form-group mb-3">
+<div className="form-group mb-3">
                                                                     <input
                                                                         type="text"
                                                                         required
