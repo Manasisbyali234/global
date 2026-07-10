@@ -533,8 +533,12 @@ exports.loginCandidate = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid password' });
     }
 
-    if (candidate.status !== 'active') {
-      return res.status(401).json({ success: false, message: 'Account is inactive' });
+    if (candidate.status === 'pending') {
+      return res.status(401).json({ success: false, message: 'Account is not activated yet. Please check your email to set your password and activate your account.' });
+    }
+
+    if (candidate.status === 'inactive') {
+      return res.status(401).json({ success: false, message: 'Your account has been deactivated. Please contact support for assistance.' });
     }
 
     const token = generateToken(candidate._id, 'candidate');
@@ -2602,7 +2606,7 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
               panel: 'Panel',
               group: 'Group',
               situational: 'Situational / Behavioral',
-              others: 'Others – Specify.',
+              others: 'Others ï¿½ Specify.',
               assessment: 'Assessment'
             };
             
@@ -2850,7 +2854,7 @@ exports.getRecommendedJobs = async (req, res) => {
       return res.json({ success: true, jobs: [] });
     }
 
-    // Build DB query — always include 'Any' education jobs + skill matches + education matches
+    // Build DB query ï¿½ always include 'Any' education jobs + skill matches + education matches
     const orConditions = [];
 
     // Always fetch jobs that accept Any education
@@ -2899,7 +2903,7 @@ exports.getRecommendedJobs = async (req, res) => {
       // Education match
       let eduMatched = false;
       if (isAnyEdu) {
-        // Job accepts any education — always matches if candidate has education
+        // Job accepts any education ï¿½ always matches if candidate has education
         eduMatched = hasEducation;
       } else if (hasEducation) {
         const jobSpecList = (job.educationSpecializations || []).map(s =>
@@ -3151,7 +3155,7 @@ exports.getApplicationInterviewDetails = async (req, res) => {
               panel: 'Panel',
               group: 'Group',
               situational: 'Situational / Behavioral',
-              others: 'Others – Specify.',
+              others: 'Others ï¿½ Specify.',
               assessment: 'Assessment'
             };
           
@@ -3432,7 +3436,7 @@ exports.getInterviewProcessDetails = async (req, res) => {
               panel: 'Panel',
               group: 'Group',
               situational: 'Situational / Behavioral',
-              others: 'Others – Specify.',
+              others: 'Others ï¿½ Specify.',
               assessment: 'Assessment'
             };
           

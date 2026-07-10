@@ -13,7 +13,7 @@ export default function SubAdminLogin() {
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const captchaRef = useRef(null);
-    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('subadmin');
+    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('subadmin', formData.email);
 
     const handleChange = (e) => {
         setFormData({

@@ -9,19 +9,25 @@ export function formatCountdown(seconds) {
     return `${m}m ${String(s).padStart(2, '0')}s`;
 }
 
-export function useLoginRateLimit(userType) {
-    const storageKey = `loginAttempts_${userType}`;
-    const lockoutKey = `loginLockout_${userType}`;
+export function useLoginRateLimit(userType, email = '') {
+    const normalizedEmail = email.trim().toLowerCase();
+    const storageKey = `loginAttempts_${userType}_${normalizedEmail}`;
+    const lockoutKey = `loginLockout_${userType}_${normalizedEmail}`;
 
-    const getLockoutRemaining = () => {
+    const getLockoutRemaining = useCallback(() => {
+        if (!normalizedEmail) return 0;
         const lockoutTime = parseInt(localStorage.getItem(lockoutKey) || '0', 10);
         if (!lockoutTime) return 0;
         const remaining = Math.ceil((lockoutTime - Date.now()) / 1000);
         return remaining > 0 ? remaining : 0;
-    };
+    }, [lockoutKey, normalizedEmail]);
 
-    const [countdown, setCountdown] = useState(getLockoutRemaining);
+    const [countdown, setCountdown] = useState(() => getLockoutRemaining());
     const isLocked = countdown > 0;
+
+    useEffect(() => {
+        setCountdown(getLockoutRemaining());
+    }, [getLockoutRemaining]);
 
     useEffect(() => {
         if (countdown <= 0) return;
@@ -35,9 +41,10 @@ export function useLoginRateLimit(userType) {
             }
         }, 1000);
         return () => clearInterval(timer);
-    }, [countdown]);
+    }, [countdown, getLockoutRemaining, lockoutKey, storageKey]);
 
     const recordFailedAttempt = useCallback(() => {
+        if (!normalizedEmail) return;
         const attempts = parseInt(localStorage.getItem(storageKey) || '0', 10) + 1;
         localStorage.setItem(storageKey, attempts);
         if (attempts >= MAX_ATTEMPTS) {
@@ -45,13 +52,14 @@ export function useLoginRateLimit(userType) {
             localStorage.setItem(lockoutKey, lockoutUntil);
             setCountdown(LOCKOUT_SECONDS);
         }
-    }, [storageKey, lockoutKey]);
+    }, [storageKey, lockoutKey, normalizedEmail]);
 
     const clearAttempts = useCallback(() => {
+        if (!normalizedEmail) return;
         localStorage.removeItem(storageKey);
         localStorage.removeItem(lockoutKey);
         setCountdown(0);
-    }, [storageKey, lockoutKey]);
+    }, [storageKey, lockoutKey, normalizedEmail]);
 
     return { isLocked, countdown, recordFailedAttempt, clearAttempts };
 }

@@ -17,7 +17,7 @@ function LoginCandidate() {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const captchaRef = useRef(null);
-    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('candidate');
+    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('candidate', email);
 
     const handleLogin = async (event) => {
         event.preventDefault();

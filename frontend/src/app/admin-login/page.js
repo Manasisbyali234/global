@@ -35,7 +35,7 @@ export default function AdminLogin() {
 
     const captchaRef = useRef(null);
     const navigate = useNavigate();
-    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('admin');
+    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('admin', formData.email);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
