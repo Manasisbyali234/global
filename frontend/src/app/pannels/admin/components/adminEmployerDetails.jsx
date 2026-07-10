@@ -666,7 +666,11 @@ function EmployerDetails() {
 
                 <div className="description-section" data-aos="fade-up" data-aos-delay="375">
                     <h6><i className="fa fa-align-left"></i>About Company</h6>
-                    <div className="description-text" dangerouslySetInnerHTML={{ __html: profile.description || 'No description provided' }} />
+                    <div className="description-text" dangerouslySetInnerHTML={{ __html: (() => {
+                        const defaultDesc = 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.';
+                        const plainText = (profile.description || '').replace(/<[^>]*>/g, '').trim();
+                        return plainText && plainText !== defaultDesc ? profile.description : 'No description provided';
+                    })() }} />
                 </div>
 
                 <div className="description-section" data-aos="fade-up" data-aos-delay="400">
