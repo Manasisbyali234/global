@@ -125,82 +125,29 @@ function CandidateInterviewReminder() {
   useEffect(() => {
     if (!activeAlert) {
       if (audioRef.current) {
-        audioRef.current.stop();
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
         audioRef.current = null;
       }
       return undefined;
     }
 
-    let ctx = null;
-    let stopped = false;
-    let timeoutId = null;
+    const audio = new Audio("/sounds/ringtune.mp3");
+    audio.loop = true;
+    audioRef.current = audio;
 
-    const playSiren = () => {
-      if (stopped) return;
-      try {
-        ctx = new (window.AudioContext || window.webkitAudioContext)();
-      } catch {
-        return;
-      }
-
-      const scheduleCycle = (startTime, iteration) => {
-        if (stopped) return;
-        // Ambulance: alternates between two tones (high 960Hz → low 760Hz)
-        const isHigh = iteration % 2 === 0;
-        const freq = isHigh ? 960 : 760;
-        const duration = 0.45;
-
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(freq, startTime);
-        // Slight frequency sweep for siren feel
-        osc.frequency.linearRampToValueAtTime(isHigh ? 1020 : 700, startTime + duration);
-
-        gain.gain.setValueAtTime(0, startTime);
-        gain.gain.linearRampToValueAtTime(0.35, startTime + 0.02);
-        gain.gain.setValueAtTime(0.35, startTime + duration - 0.04);
-        gain.gain.linearRampToValueAtTime(0, startTime + duration);
-
-        osc.start(startTime);
-        osc.stop(startTime + duration);
-
-        const msUntilNext = (startTime + duration - ctx.currentTime) * 1000;
-        timeoutId = window.setTimeout(() => scheduleCycle(ctx.currentTime, iteration + 1), Math.max(0, msUntilNext - 20));
-      };
-
-      scheduleCycle(ctx.currentTime, 0);
-    };
-
-    const stopSiren = () => {
-      stopped = true;
-      window.clearTimeout(timeoutId);
-      if (ctx) {
-        try { ctx.close(); } catch { /* ignore */ }
-        ctx = null;
-      }
-    };
-
-    audioRef.current = { stop: stopSiren };
-
-    // Start immediately; also restart on user interaction if browser blocked autoplay
-    const attemptPlay = () => {
-      if (!stopped && !ctx) playSiren();
-    };
-
-    playSiren();
-    window.addEventListener("click", attemptPlay, true);
-    window.addEventListener("keydown", attemptPlay, true);
-    window.addEventListener("touchstart", attemptPlay, true);
+    const tryPlay = () => { audio.play().catch(() => {}); };
+    tryPlay();
+    window.addEventListener("click", tryPlay, { once: true, capture: true });
+    window.addEventListener("keydown", tryPlay, { once: true, capture: true });
+    window.addEventListener("touchstart", tryPlay, { once: true, capture: true });
 
     return () => {
-      window.removeEventListener("click", attemptPlay, true);
-      window.removeEventListener("keydown", attemptPlay, true);
-      window.removeEventListener("touchstart", attemptPlay, true);
-      stopSiren();
+      window.removeEventListener("click", tryPlay, true);
+      window.removeEventListener("keydown", tryPlay, true);
+      window.removeEventListener("touchstart", tryPlay, true);
+      audio.pause();
+      audio.currentTime = 0;
       audioRef.current = null;
     };
   }, [activeAlert]);
