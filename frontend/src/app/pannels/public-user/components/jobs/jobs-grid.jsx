@@ -177,6 +177,13 @@ function JobsGridPage() {
 
     return (
         <>
+            <div style={{width: '100%', lineHeight: 0}}>
+                <img
+                    src="/assets/images/jobs%20banner.jpg"
+                    alt="Jobs Banner"
+                    style={{width: '100%', height: 'auto', display: 'block'}}
+                />
+            </div>
             <div className="section-full py-3 site-bg-white job-grid-page" data-aos="fade-up" style={{paddingLeft: '20px', paddingRight: '20px'}}>
                 {mobileFilterDrawer}
                 <Row className="mb-4">
