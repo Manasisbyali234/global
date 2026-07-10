@@ -66,8 +66,9 @@ function JobDetail1Page() {
         // Use the shared utility for the full closed check (consistent with job page logic)
         const isLimitReached = isJobApplicationClosed(job);
 
-        // Job is ended if it's not active OR if offer letter date passed
-        const isEnded = (job.status && job.status !== 'active') || isOfferLetterDatePassed;
+        // Job is ended if it's explicitly inactive/closed/draft OR if offer letter date passed
+        const status = String(job.status || '').toLowerCase();
+        const isEnded = (status && status !== 'active' && status !== 'pending') || isOfferLetterDatePassed;
 
         return { isEnded, isExpired, isLimitReached, isOfferLetterDatePassed };
     }, [job]);

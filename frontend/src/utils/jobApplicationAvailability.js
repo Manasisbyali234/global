@@ -8,7 +8,8 @@ const getPositiveInteger = (value) => {
 export const isJobApplicationClosed = (job = {}, now = Date.now()) => {
   if (!job) return false;
 
-  if (job.status && String(job.status).toLowerCase() !== "active") {
+  const status = String(job.status || "").toLowerCase();
+  if (status && status !== "active" && status !== "pending") {
     return true;
   }
 

@@ -259,6 +259,12 @@ export function setBanner(currentpath) {
             if (currentpath.startsWith('/job-detail/')) {
                 return banner.publicUser.jobs.detail1
             }
+            if (currentpath.startsWith('/job-grid')) {
+                return banner.publicUser.jobs.grid
+            }
+            if (currentpath.startsWith('/emp-grid')) {
+                return banner.publicUser.employer.grid
+            }
             return {
                 title: "", crumb: ""
             }

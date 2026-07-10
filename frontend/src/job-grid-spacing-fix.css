@@ -1,146 +1,15 @@
-/* Job Grid Page - Mobile Spacing Fix */
+/* Job Grid Page - Banner with full image */
 
 .job-grid-banner-active .wt-bnr-inr {
-  height: 72px !important;
-  min-height: 72px !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-}
-
-.job-grid-banner-active .wt-bnr-inr .container,
-.job-grid-banner-active .wt-bnr-inr .overlay-main {
-  height: 100% !important;
-  min-height: 100% !important;
-}
-
-.job-grid-banner-active .wt-bnr-inr-entry {
-  height: 72px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 !important;
-  vertical-align: middle !important;
-}
-
-.job-grid-banner-active .banner-title-outer,
-.job-grid-banner-active .banner-title-name,
-.job-grid-banner-active .banner-title-name .wt-title {
-  margin: 0 !important;
-}
-
-.job-grid-banner-active .banner-title-name .wt-title {
-  line-height: 1.1 !important;
-}
-
-.job-grid-banner-active .banner-title-outer {
-  position: static !important;
-}
-
-.job-grid-banner-active .banner-title-name {
-  display: block !important;
-  margin-bottom: 0 !important;
-}
-
-@media (min-width: 992px) {
-  .job-grid-page .rightSidebar .sidebar-elements > form > .form-group:first-child .section-head-small {
-    min-height: 42px !important;
-    margin: 0 0 1rem 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    white-space: nowrap !important;
-    line-height: 1.2 !important;
-  }
-
-  .job-grid-page .product-filter-wrap {
-    min-height: 42px !important;
-    margin-bottom: 1.5rem !important;
-    align-items: center !important;
-    padding-top: 28px !important;
-  }
-
-  .job-grid-page .woocommerce-result-count-left,
-  .job-grid-page .woocommerce-ordering {
-    display: flex !important;
-    align-items: center !important;
-  }
-
-  .job-grid-page .job-grid-records-filter {
-    margin-bottom: 0.6rem !important;
-  }
-
-  .job-grid-page .job-title-filter-group > .position-relative {
-    margin-top: 3.2rem !important;
-  }
-}
-
-@media (max-width: 991px) {
-  .job-grid-banner-active .wt-bnr-inr {
-    height: 60px !important;
-    min-height: 60px !important;
-    padding: 0 !important;
-    position: relative !important;
-  }
-  
-  .job-grid-banner-active .wt-bnr-inr-entry {
-    height: 60px !important;
-    padding: 0 !important;
-  }
-  
-  .job-grid-banner-active .banner-title-outer {
-    margin: 0 0 2px 0 !important;
-    padding: 0 !important;
-  }
-  
-  .job-grid-banner-active .banner-title-name {
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  
-  .job-grid-banner-active .banner-title-name .wt-title {
-    margin: 0 0 2px 0 !important;
-    padding: 0 !important;
-    font-size: 18px !important;
-    line-height: 1.1 !important;
-  }
-  
-  .job-grid-banner-active .wt-breadcrumb {
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  
-  .job-grid-banner-active .page-content {
-    padding-top: 0 !important;
-    margin-top: 90px !important;
-    padding-left: 15px !important;
-    padding-right: 15px !important;
-  }
-  
-  .job-grid-page {
-    margin-top: 0 !important;
-    padding-top: 10px !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-  
-  .overlay-wraper .overlay-main,
-  .overlay-main {
-    position: absolute !important;
-  }
+  height: 200px !important;
+  min-height: unset !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 @media (max-width: 767px) {
   .job-grid-banner-active .wt-bnr-inr {
-    height: 52px !important;
-    min-height: 52px !important;
-    padding: 0 !important;
-  }
-
-  .job-grid-banner-active .wt-bnr-inr-entry {
-    height: 52px !important;
-  }
-
-  .job-grid-banner-active .banner-title-name .wt-title {
-    font-size: 20px !important;
+    height: 120px !important;
   }
 }

@@ -343,7 +343,15 @@ const EmployersGridPage = memo(() => {
         : null;
 
     return (
-        <div className="section-full py-3 site-bg-white emp-grid-page" style={{paddingLeft: '20px', paddingRight: '20px'}}>
+        <>
+            <div style={{width: '100%', lineHeight: 0}}>
+                <img
+                    src="/assets/images/employer%20Banner.jpg"
+                    alt="Employer Banner"
+                    style={{width: '100%', height: 'auto', display: 'block'}}
+                />
+            </div>
+            <div className="section-full py-3 site-bg-white emp-grid-page" style={{paddingLeft: '20px', paddingRight: '20px'}}>
             {mobileFilterDrawer}
             <Row className="mb-4">
                     <Col lg={3} md={12} className="rightSidebar d-none d-lg-block">
@@ -418,6 +426,7 @@ const EmployersGridPage = memo(() => {
                     </Col>
                 </Row>
         </div>
+        </>
     );
 });
 

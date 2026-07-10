@@ -16,6 +16,7 @@ function PublicUserLayout() {
     const isTermsPage = currentpath === '/terms-conditions';
     const isPrivacyPage = currentpath === '/privacy-policy';
     const isJobGridPage = currentpath.startsWith('/job-grid');
+    const isEmpGridPage = currentpath.startsWith('/emp-grid');
     const isJobDetailPage = currentpath.startsWith('/job-detail/');
     const isCreatePasswordPage = currentpath === '/create-password';
     const isPublicAuthPage = [
@@ -58,6 +59,7 @@ function PublicUserLayout() {
 
                 <div className="page-content public-page-content" style={{ minHeight: '60vh' }}>
                     {
+                        !isJobGridPage && !isEmpGridPage &&
                         showBanner(currentpath) &&
                         setBanner(currentpath)?.title &&
                         <InnerPageBanner _data={setBanner(currentpath)} />
