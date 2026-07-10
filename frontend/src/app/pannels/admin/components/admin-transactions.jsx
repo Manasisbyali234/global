@@ -427,7 +427,7 @@ function AdminTransactionsPage() {
                                                 <div className="text-muted small">
                                                     <p className="mb-1 fw-bold text-dark"></p>
                                                     <p className="mb-1">Whitefield, Bengaluru, Karnataka 560066</p>
-                                                    <p className="mb-1"><strong>GSTIN:</strong> 29ABCFG9123F1Z</p>
+                                                    <p className="mb-1"><strong>GSTIN:</strong> 29ABCFG9123F1ZE</p>
                                                     <p className="mb-0"><strong>Email:</strong> finance@taleglobal.com</p>
                                                 </div>
                                             </div>
