@@ -30,10 +30,5 @@ export const isJobApplicationClosed = (job = {}, now = Date.now()) => {
 
   const applicationCount = getPositiveInteger(job.applicationCount) || 0;
   const applicationLimit = getPositiveInteger(job.applicationLimit);
-  if (applicationLimit && applicationCount >= applicationLimit) {
-    return true;
-  }
-
-  const vacancies = getPositiveInteger(job.vacancies);
-  return Boolean(vacancies && applicationCount >= vacancies);
+  return Boolean(applicationLimit && applicationCount >= applicationLimit);
 };

@@ -1,4 +1,4 @@
-Ôªøimport { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../../utils/popupNotification';
+import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../../utils/popupNotification';
 import VideoTutorialButton from '../../../../../components/VideoTutorialButton';
 import { formatDate } from '../../../../../utils/dateFormatter';
 import React, { useState, useEffect, useCallback, useRef } from "react";
@@ -2178,7 +2178,7 @@ export default function EmpPostJob({ onNext }) {
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
 				assessment: 'Assessment',
-				others: 'Others ‚Äì Specify.'
+				others: 'Others ñ Specify.'
 			};
 			const customType = roundType === 'others' ? details?.customType : null;
 			const roundName = (roundType === 'others' && customType && customType.trim()) ? customType : (roundNames[roundType] || roundType);
@@ -2590,7 +2590,7 @@ export default function EmpPostJob({ onNext }) {
 			if (!hasScheduledDataInDb) {
 				const roundList = unscheduledRoundNames.join(', ');
 				const roundLabel = unscheduledRoundNames.length === 1 ? 'round' : 'round(s)';
-				showWarning(`Please complete the "Schedule Interview" step for the following ${roundLabel}: ${roundList}\n\n‚Ä¢ Click on "Schedule Interview"\n‚Ä¢ Select the available time slots\n‚Ä¢ Update the HR name\n‚Ä¢ Generate the interview slots\n‚Ä¢ Submit the slots to continue`);
+				showWarning(`Please complete the "Schedule Interview" step for the following ${roundLabel}: ${roundList}\n\nï Click on "Schedule Interview"\nï Select the available time slots\nï Update the HR name\nï Generate the interview slots\nï Submit the slots to continue`);
 				return;
 			}
 		} catch (error) {
@@ -3636,7 +3636,7 @@ export default function EmpPostJob({ onNext }) {
 													<span
 														style={chipX}
 														onClick={() => update({ preferredLanguages: formData.preferredLanguages.filter(l => l !== lang) })}
-													>√ó</span>
+													>◊</span>
 												</div>
 											))}
 										</div>
@@ -4001,7 +4001,7 @@ export default function EmpPostJob({ onNext }) {
 									padding: '2px 8px',
 									borderRadius: 4,
 								}}>
-									‚úì Auto-calculated
+									? Auto-calculated
 								</span>
 							)}
 						</label>
@@ -4044,7 +4044,7 @@ export default function EmpPostJob({ onNext }) {
 							value={formData.vacancies}
 							onChange={(e) => {
 								const vacancies = e.target.value;
-								const applicationLimit = vacancies ? (parseInt(vacancies) + 1).toString() : '';
+								const applicationLimit = vacancies ? parseInt(vacancies).toString() : '';
 								update({ vacancies, applicationLimit });
 							}}
 						/>
@@ -4470,7 +4470,7 @@ export default function EmpPostJob({ onNext }) {
 											onClick={() => removeSkill(s)}
 											title="Remove skill"
 										>
-											√ó
+											◊
 										</span>
 									</div>
 								))}
@@ -4793,8 +4793,8 @@ export default function EmpPostJob({ onNext }) {
 									borderRadius: 4,
 								}}>
 									{parseInt(formData.interviewRoundsCount) === formData.interviewRoundOrder.length 
-										? `‚úì ${formData.interviewRoundOrder.length} rounds selected` 
-										: `‚ö† ${formData.interviewRoundOrder.length}/${formData.interviewRoundsCount} selected`
+										? `? ${formData.interviewRoundOrder.length} rounds selected` 
+										: `? ${formData.interviewRoundOrder.length}/${formData.interviewRoundsCount} selected`
 									}
 								</span>
 							)}
@@ -4902,7 +4902,7 @@ export default function EmpPostJob({ onNext }) {
 							<option value="technical">Technical Round</option>
 							<option value="hr">HR Round</option>
 							<option value="situational">Situational / Behavioral Round</option>
-							<option value="others">Others ‚Äì Specify.</option>
+							<option value="others">Others ñ Specify.</option>
 						</select>
 
 						{/* Others Specify Text Input */}
@@ -4991,7 +4991,7 @@ export default function EmpPostJob({ onNext }) {
 									group: 'Group Discussion',
 									situational: 'Situational / Behavioral Round',
 									assessment: 'MCQ/Assessment Schedule',
-									others: 'Others ‚Äì Specify.'
+									others: 'Others ñ Specify.'
 								};
 								
 								// Get custom type for "others" rounds
@@ -5070,7 +5070,7 @@ export default function EmpPostJob({ onNext }) {
 											}}
 											title="Remove this stage"
 										>
-											√ó
+											◊
 										</span>
 									</div>
 								);
@@ -5497,7 +5497,7 @@ export default function EmpPostJob({ onNext }) {
 													padding: '2px 8px',
 													borderRadius: 4,
 												}}>
-													‚úì Auto-calculated
+													? Auto-calculated
 												</span>
 											</label>
 											<input
@@ -5543,7 +5543,7 @@ export default function EmpPostJob({ onNext }) {
 										group: 'Group Discussion',
 										situational: 'Situational / Behavioral Round',
 										assessment: 'Assessment',
-										others: 'Others ‚Äì Specify.'
+										others: 'Others ñ Specify.'
 									};
 									const customType = roundType === 'others' ? formData.interviewRoundDetails[uniqueKey]?.customType : null;
 									const displayName = (roundType === 'others' && customType && customType.trim()) ? customType : (roundNames[roundType] || roundType);
@@ -6208,7 +6208,7 @@ export default function EmpPostJob({ onNext }) {
 																					const requiredMinutes = slots * interviewDuration;
 																					
 																					if (totalMinutes < requiredMinutes) {
-																						showError(`Total interview time (${(totalMinutes/60).toFixed(1)} hours) must be ‚â• ${(requiredMinutes/60).toFixed(1)} hours (${slots} slots √ó 1 hour per candidate)`);
+																						showError(`Total interview time (${(totalMinutes/60).toFixed(1)} hours) must be = ${(requiredMinutes/60).toFixed(1)} hours (${slots} slots ◊ 1 hour per candidate)`);
 																						return;
 																					}
 																				}
@@ -6566,7 +6566,7 @@ export default function EmpPostJob({ onNext }) {
 															padding: '2px 8px',
 															borderRadius: 4,
 														}}>
-															‚úì Auto-calculated
+															? Auto-calculated
 														</span>
 													</label>
 													<input
@@ -6627,7 +6627,7 @@ export default function EmpPostJob({ onNext }) {
 											group: 'Group Discussion',
 											situational: 'Situational / Behavioral Round',
 											assessment: 'Assessment',
-											others: 'Others ‚Äì Specify.'
+											others: 'Others ñ Specify.'
 										};
 										
 										const customType = roundType === 'others' ? details?.customType : null;
@@ -6917,9 +6917,9 @@ export default function EmpPostJob({ onNext }) {
 							Are you sure you want to set the date to <strong>{formatDate(showSubStageConfirm.selectedDate)}</strong> for Day {showSubStageConfirm.subIndex + 1}?
 						</p>
 						<div style={{fontSize: 13, color: '#dc2626', lineHeight: 1.5, marginBottom: 24, textAlign: 'left', background: '#fef2f2', padding: '12px', borderRadius: 8, border: '1px solid #fecaca'}}>
-							<strong>‚ö†Ô∏è Important:</strong> The total interview time (start time ‚àí end time) must be greater than or equal to the total required duration.<br/><br/>
-							<strong>Total required duration</strong> = total slots √ó interview duration per candidate.<br/><br/>
-							<strong>Example:</strong> If total slots = 10 and interview duration = 1 hour, then total interview time must be ‚â• 10 hours.
+							<strong>?? Important:</strong> The total interview time (start time - end time) must be greater than or equal to the total required duration.<br/><br/>
+							<strong>Total required duration</strong> = total slots ◊ interview duration per candidate.<br/><br/>
+							<strong>Example:</strong> If total slots = 10 and interview duration = 1 hour, then total interview time must be = 10 hours.
 						</div>
 						<div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
 							<button
