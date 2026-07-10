@@ -254,7 +254,7 @@ function EmpTransactionsPage() {
                                                 <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '45px', marginBottom: '15px' }} />
                                                 <div className="text-muted small">
                                                     <p className="mb-1 fw-bold text-dark"></p>
-                                                    <p className="mb-1">Whitefield, Bengaluru, Karnataka 560066</p>
+                                                    <p className="mb-1">Seshadripuram, bangalore - 560020</p>
                                                     <p className="mb-1"><strong>GSTIN:</strong> 29ABCFG9123F1ZE</p>
                                                     <p className="mb-0"><strong>Email:</strong> support@taleglobal.net</p>
                                                 </div>
@@ -350,7 +350,7 @@ function EmpTransactionsPage() {
                                         
                                         <div className="invoice-footer d-none d-print-block mt-5 pt-3 border-top text-center text-muted small">
                                             <p className="mb-1">© {new Date().getFullYear()} TaleGlobal Platform. All rights reserved.</p>
-                                            <p className="mb-0">www.taleglobal.net | Whitefield, Bengaluru, Karnataka 560066</p>
+                                            <p className="mb-0">www.taleglobal.net | Seshadripuram, bangalore - 560020</p>
                                         </div>
                                     </div>
                                 )}

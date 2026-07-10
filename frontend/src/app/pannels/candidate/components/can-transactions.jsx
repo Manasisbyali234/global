@@ -459,7 +459,7 @@ function CanTransactionsPage() {
                                                 <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '38px', marginBottom: '10px' }} />
                                                 <div className="text-muted" style={{ fontSize: '0.82rem' }}>
                                                     <p className="mb-1 fw-bold text-dark"></p>
-                                                    <p className="mb-1">Whitefield, Bengaluru, Karnataka 560066</p>
+                                                    <p className="mb-1">Seshadripuram, bangalore - 560020</p>
                                                     <p className="mb-1"><strong>GSTIN:</strong> 29ABCFG9123F1ZE</p>
                                                     <p className="mb-0"><strong>Support:</strong> support@taleglobal.net</p>
                                                 </div>
@@ -589,7 +589,7 @@ function CanTransactionsPage() {
 
                                         <div className="invoice-footer d-none d-print-block mt-4 pt-3 border-top text-center text-muted" style={{ fontSize: '0.76rem' }}>
                                             <p className="mb-1">© {new Date().getFullYear()} TaleGlobal Platform. All rights reserved.</p>
-                                            <p className="mb-0">www.taleglobal.net | Whitefield, Bengaluru, Karnataka 560066</p>
+                                            <p className="mb-0">www.taleglobal.net | Seshadripuram, bangalore - 560020</p>
                                         </div>
                                     </div>
                                 )}
