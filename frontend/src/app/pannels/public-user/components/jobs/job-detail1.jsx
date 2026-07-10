@@ -14,6 +14,7 @@ import { formatJobEducationDisplay } from '../../../../../utils/jobEducationOpti
 import { formatCompanyName, getJobDisplayBanner, getJobDisplayLogo, isConsultantJobPost } from "../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
+import { isJobApplicationClosed } from "../../../../../utils/jobApplicationAvailability";
 import { API_BASE_URL } from "../../../../../utils/api";
 import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
@@ -49,28 +50,25 @@ function JobDetail1Page() {
     const { isEnded, isExpired, isLimitReached, isOfferLetterDatePassed } = useMemo(() => {
         if (!job) return { isEnded: false, isExpired: false, isLimitReached: false, isOfferLetterDatePassed: false };
         const now = Date.now();
-        
-        // Check if application deadline has passed
-        const applicationDeadline = job.lastDateOfApplication
-            ? buildUtcDateTimeFromIst(job.lastDateOfApplication, job.lastDateOfApplicationTime || '', 'end')
-            : null;
-        const isExpired = !!applicationDeadline && applicationDeadline.getTime() < now;
-        
-        // Check if all vacancies are filled
-        const vacanciesFilled = !!(job.vacancies && (job.applicationCount || 0) >= job.vacancies);
-        
-        // Application is closed if deadline passed OR all vacancies filled
-        const isLimitReached = isExpired || vacanciesFilled;
-        
+
         // Check if offer letter date has passed (job should be hidden/vanished)
         const offerLetterEnd = job.offerLetterDate
             ? buildUtcDateTimeFromIst(job.offerLetterDate, '', 'end')
             : null;
         const isOfferLetterDatePassed = !!offerLetterEnd && offerLetterEnd.getTime() < now;
-        
+
+        // Check if application deadline has passed
+        const applicationDeadline = job.lastDateOfApplication
+            ? buildUtcDateTimeFromIst(job.lastDateOfApplication, job.lastDateOfApplicationTime || '', 'end')
+            : null;
+        const isExpired = !!applicationDeadline && applicationDeadline.getTime() < now;
+
+        // Use the shared utility for the full closed check (consistent with job page logic)
+        const isLimitReached = isJobApplicationClosed(job);
+
         // Job is ended if it's not active OR if offer letter date passed
         const isEnded = (job.status && job.status !== 'active') || isOfferLetterDatePassed;
-        
+
         return { isEnded, isExpired, isLimitReached, isOfferLetterDatePassed };
     }, [job]);
 

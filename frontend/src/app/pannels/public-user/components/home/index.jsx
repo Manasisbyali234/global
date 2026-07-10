@@ -10,6 +10,7 @@ import { formatDate } from "../../../../../utils/dateFormatter";
 import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
+import { isJobApplicationClosed } from "../../../../../utils/jobApplicationAvailability";
 import { api } from "../../../../../utils/api";
 // CSS is now in public/assets/css/home-job-cards.css
 import "../../../../../categories-mobile-grid-fix.css";
@@ -203,7 +204,11 @@ function HomeJobsList() {
                                                     `₹${job.salary}`
                                         ) : '₹4.25-5.5'} <span>LPA</span>
                                     </div>
-                                    <NavLink to={`${publicUser.jobs.DETAIL1}/${job._id}`} className="twm-jobs-browse site-text-primary">Browse Job</NavLink>
+                                    {isJobApplicationClosed(job) ? (
+                                        <span className="twm-jobs-browse" style={{ color: '#6c757d', cursor: 'not-allowed', fontWeight: '600' }}>Application Closed</span>
+                                    ) : (
+                                        <NavLink to={`${publicUser.jobs.DETAIL1}/${job._id}`} className="twm-jobs-browse site-text-primary">Browse Job</NavLink>
+                                    )}
                                 </div>
                             </div>
                         </li>

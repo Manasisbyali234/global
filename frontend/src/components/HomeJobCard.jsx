@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { publicUser } from "../globals/route-names";
 import { formatCompanyName, getJobDisplayLogo } from "../utils/jobBranding";
 import { formatJobTitle } from "../utils/jobTitleFormatter";
+import { isJobApplicationClosed } from "../utils/jobApplicationAvailability";
 import "../custom-tags.css";
 
 const formatCtcText = (job) => {
@@ -89,6 +90,7 @@ const HomeJobCard = ({ job }) => {
     const companyName = formatCompanyName(job?.companyName || job?.employerProfile?.companyName, "Company");
     const logo = getJobDisplayLogo(job);
     const placeholderInitial = companyName?.charAt(0)?.toUpperCase() || "?";
+    const isClosed = isJobApplicationClosed(job);
 
     const locationDisplay = (() => {
         if (Array.isArray(rawLocation)) {
@@ -150,12 +152,22 @@ const HomeJobCard = ({ job }) => {
                     <span className="card-company-name">{companyName}</span>
                     <span className="card-posted-text">Posted by: <strong>{postedBy}</strong></span>
                 </div>
-                <NavLink
-                    to={`${publicUser.jobs.DETAIL1}/${job?._id ?? ""}`}
-                    className="card-apply-btn"
-                >
-                    Apply Now
-                </NavLink>
+                {isClosed ? (
+                    <button
+                        className="card-apply-btn"
+                        disabled
+                        style={{ backgroundColor: '#6c757d', cursor: 'not-allowed', border: 'none', opacity: 1 }}
+                    >
+                        Application Closed
+                    </button>
+                ) : (
+                    <NavLink
+                        to={`${publicUser.jobs.DETAIL1}/${job?._id ?? ""}`}
+                        className="card-apply-btn"
+                    >
+                        Apply Now
+                    </NavLink>
+                )}
             </div>
         </div>
     );
