@@ -266,15 +266,18 @@ exports.getJobById = async (req, res) => {
       console.log('Profile cover exists:', !!employerProfile.coverImage);
     }
     
+    const applicationCount = await Application.countDocuments({ jobId: job._id, paymentStatus: 'paid' });
+
     const jobWithProfile = {
       ...job,
       employerProfile,
       employerType: postingType.employerType,
-      postedBy: postingType.postedBy
+      postedBy: postingType.postedBy,
+      applicationCount
     };
 
     const response = { success: true, job: jobWithProfile };
-    cache.set(cacheKey, response, 600000); // Cache for 10 minutes
+    cache.set(cacheKey, response, 30000); // Cache for 30 seconds
     
     res.json(response);
   } catch (error) {

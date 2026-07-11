@@ -555,7 +555,7 @@ function JobDetail1Page() {
             <div className="scroll-progress" style={{width: `${scrollProgress}%`}}></div>
             <div style={{width: '100%', position: 'relative', zIndex: 1, marginTop: '70px'}}>
                 <img src="/assets/images/jobs%20banner.jpg" alt="Jobs Banner" style={{width: '100%', height: 'auto', display: 'block'}} />
-                <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.35)'}}>
+                <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                     <h2 style={{color: '#ff9c00', fontWeight: '700', fontSize: '2rem', margin: 0, textAlign: 'center', padding: '0 20px'}}>{displayJobTitle}</h2>
                 </div>
             </div>
