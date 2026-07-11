@@ -19,7 +19,7 @@ function VideoTutorialButton({ videoId, style, pinned = true }) {
             {show && createPortal(
                 <div onClick={() => setShow(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.75)', zIndex: 2147483647, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div onClick={e => e.stopPropagation()} style={{ position: 'relative', width: '60%', maxWidth: '480px', background: '#000', borderRadius: '8px', overflow: 'visible' }}>
-                        <button onClick={() => setShow(false)} className="video-close-btn" style={{ position: 'absolute', top: '-40px', right: '-40px' }}>&times;</button>
+                        <button onClick={() => setShow(false)} className="video-close-btn" style={{ position: 'absolute', top: '-40px', right: '-40px' }}>×</button>
                         <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, borderRadius: '8px', overflow: 'hidden' }}>
                             <iframe src={`https://www.youtube.com/embed/${videoId}?autoplay=1`} title="Tutorial" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }} />
                         </div>

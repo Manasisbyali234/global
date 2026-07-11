@@ -12,6 +12,7 @@ import { formatJobEducationDisplay } from "../../../../../utils/jobEducationOpti
 import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
 import { formatJobTitle } from "../../../../../utils/jobTitleFormatter";
 import { buildUtcDateTimeFromIst } from "../../../../../utils/timezoneUtils";
+import { isJobApplicationClosed } from "../../../../../utils/jobApplicationAvailability";
 import { SkeletonContainer, JobCardSkeleton, StatsSkeleton, RecruiterSkeleton } from "../../../../../components/SkeletonLoader";
 import "../../../../../new-job-card.css";
 import "../../../../../home-responsive.css";
@@ -52,30 +53,7 @@ const ErrorBoundary = ({ children }) => {
     return children;
 };
 
-const isJobApplicationClosed = (job) => {
-    if (!job) return false;
 
-    // Check if all vacancies are filled
-    const vacanciesFilled = job.vacancies && (job.applicationCount || 0) >= job.vacancies;
-    if (vacanciesFilled) return true;
-
-    // Check if job status is not active
-    if (job.status && job.status !== 'active') return true;
-
-    // Check if application deadline has passed
-    if (job.lastDateOfApplication) {
-        const applicationDeadline = buildUtcDateTimeFromIst(job.lastDateOfApplication, job.lastDateOfApplicationTime || '', 'end');
-        if (!!applicationDeadline && Date.now() > applicationDeadline.getTime()) return true;
-    }
-
-    // Check if offer letter date has passed (job closed)
-    if (job.offerLetterDate) {
-        const offerLetterEnd = buildUtcDateTimeFromIst(job.offerLetterDate, "", "end");
-        if (!!offerLetterEnd && Date.now() > offerLetterEnd.getTime()) return true;
-    }
-
-    return false;
-};
 
 function Home16Page() {
     const getPostedByLabel = (job) => {

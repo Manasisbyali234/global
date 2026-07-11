@@ -2178,7 +2178,7 @@ export default function EmpPostJob({ onNext }) {
 				group: 'Group Discussion',
 				situational: 'Situational / Behavioral Round',
 				assessment: 'Assessment',
-				others: 'Others – Specify.'
+				others: 'Others Ã— Specify.'
 			};
 			const customType = roundType === 'others' ? details?.customType : null;
 			const roundName = (roundType === 'others' && customType && customType.trim()) ? customType : (roundNames[roundType] || roundType);
@@ -2590,7 +2590,7 @@ export default function EmpPostJob({ onNext }) {
 			if (!hasScheduledDataInDb) {
 				const roundList = unscheduledRoundNames.join(', ');
 				const roundLabel = unscheduledRoundNames.length === 1 ? 'round' : 'round(s)';
-				showWarning(`Please complete the "Schedule Interview" step for the following ${roundLabel}: ${roundList}\n\n• Click on "Schedule Interview"\n• Select the available time slots\n• Update the HR name\n• Generate the interview slots\n• Submit the slots to continue`);
+				showWarning(`Please complete the "Schedule Interview" step for the following ${roundLabel}: ${roundList}\n\nÃ— Click on "Schedule Interview"\nÃ— Select the available time slots\nÃ— Update the HR name\nÃ— Generate the interview slots\nÃ— Submit the slots to continue`);
 				return;
 			}
 		} catch (error) {
@@ -3636,7 +3636,7 @@ export default function EmpPostJob({ onNext }) {
 													<span
 														style={chipX}
 														onClick={() => update({ preferredLanguages: formData.preferredLanguages.filter(l => l !== lang) })}
-													>×</span>
+													>Ã—</span>
 												</div>
 											))}
 										</div>
@@ -4042,11 +4042,7 @@ export default function EmpPostJob({ onNext }) {
 							min="1"
 							placeholder="e.g., 5"
 							value={formData.vacancies}
-							onChange={(e) => {
-								const vacancies = e.target.value;
-								const applicationLimit = vacancies ? parseInt(vacancies).toString() : '';
-								update({ vacancies, applicationLimit });
-							}}
+							onChange={(e) => { update({ vacancies: e.target.value }); }}
 						/>
 						{errors.vacancies && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
@@ -4470,7 +4466,7 @@ export default function EmpPostJob({ onNext }) {
 											onClick={() => removeSkill(s)}
 											title="Remove skill"
 										>
-											×
+											Ã—
 										</span>
 									</div>
 								))}
@@ -4902,7 +4898,7 @@ export default function EmpPostJob({ onNext }) {
 							<option value="technical">Technical Round</option>
 							<option value="hr">HR Round</option>
 							<option value="situational">Situational / Behavioral Round</option>
-							<option value="others">Others – Specify.</option>
+							<option value="others">Others Ã— Specify.</option>
 						</select>
 
 						{/* Others Specify Text Input */}
@@ -4991,7 +4987,7 @@ export default function EmpPostJob({ onNext }) {
 									group: 'Group Discussion',
 									situational: 'Situational / Behavioral Round',
 									assessment: 'MCQ/Assessment Schedule',
-									others: 'Others – Specify.'
+									others: 'Others Ã— Specify.'
 								};
 								
 								// Get custom type for "others" rounds
@@ -5070,7 +5066,7 @@ export default function EmpPostJob({ onNext }) {
 											}}
 											title="Remove this stage"
 										>
-											×
+											Ã—
 										</span>
 									</div>
 								);
@@ -5543,7 +5539,7 @@ export default function EmpPostJob({ onNext }) {
 										group: 'Group Discussion',
 										situational: 'Situational / Behavioral Round',
 										assessment: 'Assessment',
-										others: 'Others – Specify.'
+										others: 'Others Ã— Specify.'
 									};
 									const customType = roundType === 'others' ? formData.interviewRoundDetails[uniqueKey]?.customType : null;
 									const displayName = (roundType === 'others' && customType && customType.trim()) ? customType : (roundNames[roundType] || roundType);
@@ -6208,7 +6204,7 @@ export default function EmpPostJob({ onNext }) {
 																					const requiredMinutes = slots * interviewDuration;
 																					
 																					if (totalMinutes < requiredMinutes) {
-																						showError(`Total interview time (${(totalMinutes/60).toFixed(1)} hours) must be = ${(requiredMinutes/60).toFixed(1)} hours (${slots} slots × 1 hour per candidate)`);
+																						showError(`Total interview time (${(totalMinutes/60).toFixed(1)} hours) must be = ${(requiredMinutes/60).toFixed(1)} hours (${slots} slots Ã— 1 hour per candidate)`);
 																						return;
 																					}
 																				}
@@ -6627,7 +6623,7 @@ export default function EmpPostJob({ onNext }) {
 											group: 'Group Discussion',
 											situational: 'Situational / Behavioral Round',
 											assessment: 'Assessment',
-											others: 'Others – Specify.'
+											others: 'Others Ã— Specify.'
 										};
 										
 										const customType = roundType === 'others' ? details?.customType : null;
@@ -6918,7 +6914,7 @@ export default function EmpPostJob({ onNext }) {
 						</p>
 						<div style={{fontSize: 13, color: '#dc2626', lineHeight: 1.5, marginBottom: 24, textAlign: 'left', background: '#fef2f2', padding: '12px', borderRadius: 8, border: '1px solid #fecaca'}}>
 							<strong>?? Important:</strong> The total interview time (start time - end time) must be greater than or equal to the total required duration.<br/><br/>
-							<strong>Total required duration</strong> = total slots × interview duration per candidate.<br/><br/>
+							<strong>Total required duration</strong> = total slots Ã— interview duration per candidate.<br/><br/>
 							<strong>Example:</strong> If total slots = 10 and interview duration = 1 hour, then total interview time must be = 10 hours.
 						</div>
 						<div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>

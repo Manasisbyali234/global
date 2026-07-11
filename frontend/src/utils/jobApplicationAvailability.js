@@ -31,5 +31,12 @@ export const isJobApplicationClosed = (job = {}, now = Date.now()) => {
 
   const applicationCount = getPositiveInteger(job.applicationCount) || 0;
   const applicationLimit = getPositiveInteger(job.applicationLimit);
-  return Boolean(applicationLimit && applicationCount >= applicationLimit);
+  const vacancies = getPositiveInteger(job.vacancies);
+
+  // Only enforce applicationLimit if it is strictly greater than vacancies.
+  // When applicationLimit === vacancies it was likely auto-filled by a form bug
+  // and should not be treated as a hard cap.
+  if (!applicationLimit) return false;
+  if (vacancies && applicationLimit <= vacancies) return false;
+  return applicationCount >= applicationLimit;
 };

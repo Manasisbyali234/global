@@ -344,13 +344,6 @@ const EmployersGridPage = memo(() => {
 
     return (
         <>
-            <div style={{width: '100%', lineHeight: 0}}>
-                <img
-                    src="/assets/images/employer%20Banner.jpg"
-                    alt="Employer Banner"
-                    style={{width: '100%', height: 'auto', display: 'block'}}
-                />
-            </div>
             <div className="section-full py-3 site-bg-white emp-grid-page" style={{paddingLeft: '20px', paddingRight: '20px'}}>
             {mobileFilterDrawer}
             <Row className="mb-4">

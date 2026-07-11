@@ -1034,7 +1034,7 @@ function PlacementDetails() {
                                     {viewingFile.name} - Student Data
                                 </h5>
                                 <button type="button" className="close" onClick={() => setViewingFile(null)}>
-                                    <span>&times;</span>
+                                    <span>×</span>
                                 </button>
                             </div>
                             <div className="modal-body">
@@ -1098,7 +1098,7 @@ function PlacementDetails() {
                                     File Credits Management - {selectedFile.fileName}
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowCreditsModal(false)}>
-                                    <span>&times;</span>
+                                    <span>×</span>
                                 </button>
                             </div>
                             <div className="modal-body">
@@ -1138,7 +1138,7 @@ function PlacementDetails() {
                                     Bulk Credits Assignment - All Files
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowBulkCreditsModal(false)}>
-                                    <span>&times;</span>
+                                    <span>×</span>
                                 </button>
                             </div>
                             <div className="modal-body">
@@ -1200,7 +1200,7 @@ function PlacementDetails() {
                                     Stored Excel Data from MongoDB
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowStoredDataModal(false)}>
-                                    <span>&times;</span>
+                                    <span>×</span>
                                 </button>
                             </div>
                             <div className="modal-body">
@@ -1283,7 +1283,7 @@ function PlacementDetails() {
                                     {viewImageModal.title}
                                 </h5>
                                 <button type="button" className="close" onClick={() => setViewImageModal(null)}>
-                                    <span>&times;</span>
+                                    <span>×</span>
                                 </button>
                             </div>
                             <div className="modal-body text-center">
@@ -1312,7 +1312,7 @@ function PlacementDetails() {
                                     Credits Not Assigned
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowCreditWarningModal(false)}>
-                                    <span>&times;</span>
+                                    <span>×</span>
                                 </button>
                             </div>
                             <div className="modal-body" style={{padding: '24px'}}>
@@ -1360,7 +1360,7 @@ function PlacementDetails() {
                                     Reject File: {rejectingFile.name}
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowRejectModal(false)}>
-                                    <span>&times;</span>
+                                    <span>×</span>
                                 </button>
                             </div>
                             <div className="modal-body">

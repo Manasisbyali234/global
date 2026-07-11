@@ -184,7 +184,7 @@ const TermsModal = ({ isOpen, onClose, onAccept, role = 'candidate' }) => {
             <div className="terms-modal" data-role={role}>
                 <div className="terms-modal-header">
                     <h2>{content.title}</h2>
-                    <button className="terms-close-btn" onClick={onClose}>&times;</button>
+                    <button className="terms-close-btn" onClick={onClose}>×</button>
                 </div>
                 
                 <div className="terms-modal-body" onScroll={handleScroll}>

@@ -1,4 +1,4 @@
-
+﻿
 
 import { NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -15,7 +15,10 @@ function SectionAvailableJobsList({ employerId }) {
 	const [jobs, setJobs] = useState([]);
 	const [loading, setLoading] = useState(true);
 
-	
+	const isJobClosed = (job) => {
+		if (!job || !job.applicationLimit) return false;
+		return (job.applicationCount || 0) >= job.applicationLimit;
+	};
 
 	useEffect(() => {
 		if (employerId) {
@@ -62,14 +65,14 @@ function SectionAvailableJobsList({ employerId }) {
 			if (job.ctc.min && job.ctc.max) {
 				const minLPA = formatValue(job.ctc.min);
 				const maxLPA = formatValue(job.ctc.max);
-				return minLPA === maxLPA ? `₹${minLPA}LPA` : `₹${minLPA} - ${maxLPA} LPA`;
+				return minLPA === maxLPA ? `â‚¹${minLPA}LPA` : `â‚¹${minLPA} - ${maxLPA} LPA`;
 			} else {
 				const lpa = formatValue(job.ctc.min || job.ctc.max);
-				return `₹${lpa}LPA`;
+				return `â‚¹${lpa}LPA`;
 			}
 		}
 		if (job.salary && (job.salary.min || job.salary.max)) {
-			const currency = job.salary.currency === 'USD' ? '$' : '₹';
+			const currency = job.salary.currency === 'USD' ? '$' : 'â‚¹';
 			if (job.salary.min && job.salary.max) {
 				return `${currency}${job.salary.min} - ${currency}${job.salary.max}`;
 			} else {
@@ -225,3 +228,4 @@ function SectionAvailableJobsList({ employerId }) {
 }
 
 export default SectionAvailableJobsList;
+

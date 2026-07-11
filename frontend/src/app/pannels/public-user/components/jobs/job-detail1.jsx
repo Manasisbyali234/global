@@ -553,6 +553,12 @@ function JobDetail1Page() {
     return (
         <>
             <div className="scroll-progress" style={{width: `${scrollProgress}%`}}></div>
+            <div style={{width: '100%', position: 'relative', zIndex: 1, marginTop: '70px'}}>
+                <img src="/assets/images/jobs%20banner.jpg" alt="Jobs Banner" style={{width: '100%', height: 'auto', display: 'block'}} />
+                <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.35)'}}>
+                    <h2 style={{color: '#fff', fontWeight: '700', fontSize: '2rem', textShadow: '0 2px 8px rgba(0,0,0,0.5)', margin: 0, textAlign: 'center', padding: '0 20px'}}>{displayJobTitle}</h2>
+                </div>
+            </div>
             
             {showPendingPaymentBanner && pendingPayment && (
                 <div style={{
