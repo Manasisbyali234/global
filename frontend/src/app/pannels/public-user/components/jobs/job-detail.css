@@ -3,6 +3,16 @@
     padding-left: 50px;
 }
 
+/* Job detail banner - orange title, no shadow */
+.wt-bnr-inr-entry .banner-title-outer .banner-title-name .wt-title {
+    color: #ff9c00 !important;
+}
+
+.wt-bnr-inr {
+    box-shadow: none !important;
+    filter: none !important;
+}
+
 /* Professional Job Detail Page Styling */
 
 /* Scroll Progress Indicator */
