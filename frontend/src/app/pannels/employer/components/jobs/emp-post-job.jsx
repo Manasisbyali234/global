@@ -4042,7 +4042,17 @@ export default function EmpPostJob({ onNext }) {
 							min="1"
 							placeholder="e.g., 5"
 							value={formData.vacancies}
-							onChange={(e) => { update({ vacancies: e.target.value }); }}
+							onChange={(e) => {
+							const val = e.target.value;
+							const vacancyNum = parseInt(val) || 0;
+							const currentLimit = parseInt(formData.applicationLimit) || 0;
+							const updates = { vacancies: val };
+							if (vacancyNum > 0 && currentLimit <= vacancyNum) {
+								updates.applicationLimit = String(vacancyNum + 1);
+								setApplicationLimitWarning('');
+							}
+							update(updates);
+						}}
 						/>
 						{errors.vacancies && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
