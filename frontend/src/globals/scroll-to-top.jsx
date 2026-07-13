@@ -15,6 +15,10 @@ const ScrollToTop = () => {
 
     applyDefaultSkinStyle();
 
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', { page_path: pathname });
+    }
+
   }, [pathname]);
   
   return null;
