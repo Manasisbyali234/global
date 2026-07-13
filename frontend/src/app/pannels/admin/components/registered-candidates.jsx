@@ -20,79 +20,102 @@ function RegisteredCandidatesPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const PAGE_SIZE = 10;
     const modalRef = useRef(null);
+    const isFiltered = searchTerm || profileStatusFilter;
 
     useEffect(() => {
-        fetchData();
+        fetchShortlisted();
     }, []);
 
     useEffect(() => {
-        const normalizedSearch = searchTerm.trim().toLowerCase();
-        const filtered = candidates.filter((candidate) => {
-            const matchesSearch = !normalizedSearch || (
-                candidate.name?.toLowerCase().includes(normalizedSearch) ||
-                candidate.email?.toLowerCase().includes(normalizedSearch) ||
-                candidate.phone?.includes(searchTerm) ||
-                candidate.profile?.location?.toLowerCase().includes(normalizedSearch) ||
-                candidate.profile?.skills?.some((skill) =>
-                    skill.toLowerCase().includes(normalizedSearch)
-                )
-            );
+        if (!isFiltered) {
+            fetchCandidates(currentPage);
+        }
+    }, [currentPage]);
 
-            const matchesProfileStatus = !profileStatusFilter || (
-                profileStatusFilter === 'completed'
-                    ? candidate.isProfileComplete
-                    : !candidate.isProfileComplete
-            );
+    useEffect(() => {
+        if (isFiltered) {
+            // When filters are active, fetch all to search client-side
+            fetchAllCandidates();
+        } else {
+            fetchCandidates(currentPage);
+        }
+    }, [searchTerm, profileStatusFilter]);
 
-            return matchesSearch && matchesProfileStatus;
-        });
+    const fetchShortlisted = async () => {
+        try {
+            const res = await api.getShortlistedApplications();
+            if (res.success) setShortlistedApplications(res.data);
+        } catch (err) {}
+    };
 
-        setFilteredCandidates(filtered);
-    }, [candidates, searchTerm, profileStatusFilter]);
-
-    const fetchData = async () => {
+    const fetchCandidates = async (page) => {
         try {
             setLoading(true);
-            const [candidatesResponse, shortlistedResponse] = await Promise.all([
-                api.getRegisteredCandidates(),
-                api.getShortlistedApplications()
-            ]);
-            
-            if (candidatesResponse.success) {
-                setCandidates(candidatesResponse.data);
-                setTotalCandidates(candidatesResponse.total || candidatesResponse.data.length);
+            const res = await api.getRegisteredCandidates({ page, limit: PAGE_SIZE });
+            if (res.success) {
+                setCandidates(res.data);
+                setFilteredCandidates(res.data);
+                setTotalCandidates(res.total || res.data.length);
             }
-            if (shortlistedResponse.success) {
-                setShortlistedApplications(shortlistedResponse.data);
+        } catch (err) {}
+        finally { setLoading(false); }
+    };
+
+    const fetchAllCandidates = async () => {
+        try {
+            setLoading(true);
+            const res = await api.getRegisteredCandidates({ page: 1, limit: 10000 });
+            if (res.success) {
+                const all = res.data;
+                const normalizedSearch = searchTerm.trim().toLowerCase();
+                const filtered = all.filter((candidate) => {
+                    const matchesSearch = !normalizedSearch || (
+                        candidate.name?.toLowerCase().includes(normalizedSearch) ||
+                        candidate.email?.toLowerCase().includes(normalizedSearch) ||
+                        candidate.phone?.includes(searchTerm) ||
+                        candidate.profile?.location?.toLowerCase().includes(normalizedSearch) ||
+                        candidate.profile?.skills?.some((skill) =>
+                            skill.toLowerCase().includes(normalizedSearch)
+                        )
+                    );
+                    const matchesProfileStatus = !profileStatusFilter || (
+                        profileStatusFilter === 'completed'
+                            ? candidate.isProfileComplete
+                            : !candidate.isProfileComplete
+                    );
+                    return matchesSearch && matchesProfileStatus;
+                });
+                setCandidates(all);
+                setFilteredCandidates(filtered);
+                setTotalCandidates(res.total || res.data.length);
             }
-        } catch (err) {
-            
-        } finally {
-            setLoading(false);
-        }
+        } catch (err) {}
+        finally { setLoading(false); }
+    };
+
+    const handleSearch = (term) => {
+        setSearchTerm(term);
+        setCurrentPage(1);
+    };
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
     };
 
     const getCandidateShortlistInfo = (candidateId) => {
         const applications = shortlistedApplications.filter(
             app => app.candidateId?._id === candidateId || app.candidateId === candidateId
         );
-        
         if (applications.length === 0) {
             return { status: 'Not Shortlisted', round: '-', selected: '-' };
         }
-        
         const latestApp = applications[applications.length - 1];
         return {
             status: 'Shortlisted',
             round: latestApp.currentRound || 'Round 1',
-            selected: latestApp.finalStatus === 'selected' ? 'Yes' : 
+            selected: latestApp.finalStatus === 'selected' ? 'Yes' :
                      latestApp.finalStatus === 'rejected' ? 'No' : 'Pending'
         };
-    };
-
-    const handleSearch = (searchTerm) => {
-        setSearchTerm(searchTerm);
-        setCurrentPage(1);
     };
 
     const viewCandidateDetails = (candidate) => {
@@ -100,6 +123,15 @@ function RegisteredCandidatesPage() {
         const modal = new window.bootstrap.Modal(modalRef.current);
         modal.show();
     };
+
+    // Pagination logic
+    const displayTotal = isFiltered ? filteredCandidates.length : totalCandidates;
+    const totalPages = Math.ceil(displayTotal / PAGE_SIZE);
+    const pagedCandidates = isFiltered
+        ? filteredCandidates.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+        : filteredCandidates;
+    const showStart = displayTotal === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+    const showEnd = Math.min(currentPage * PAGE_SIZE, displayTotal);
 
     if (loading) {
         return (
@@ -174,7 +206,7 @@ function RegisteredCandidatesPage() {
                     <div className="page-toolbar">
                         <h4 className="page-toolbar__title">
                             <i className="fa fa-list-alt"></i>
-                            All Registered Candidates ({searchTerm || profileStatusFilter ? filteredCandidates.length : totalCandidates})
+                            All Registered Candidates ({isFiltered ? filteredCandidates.length : totalCandidates})
                         </h4>
                         <div className="candidates-filters page-toolbar__controls page-toolbar__controls--dual">
                             <div className="search-section page-toolbar__section">
@@ -207,7 +239,7 @@ function RegisteredCandidatesPage() {
                     </div>
                 </div>
                 <div className="card-body">
-                    {filteredCandidates.length === 0 ? (
+                    {pagedCandidates.length === 0 ? (
                         <div className="empty-state" data-aos="fade-in">
                             <i className="fa fa-users"></i>
                             <h3>No Registered Candidates</h3>
@@ -229,7 +261,7 @@ function RegisteredCandidatesPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredCandidates.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((candidate, index) => {
+                                    {pagedCandidates.map((candidate) => {
                                         const shortlistInfo = getCandidateShortlistInfo(candidate._id);
                                         return (
                                             <tr key={candidate._id}>
@@ -286,15 +318,15 @@ function RegisteredCandidatesPage() {
                     )}
                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "column" }}>
                         <div style={{ color: "#6c757d", fontSize: "13px" }}>
-                            Showing {filteredCandidates.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredCandidates.length)} of {filteredCandidates.length} candidate{filteredCandidates.length !== 1 ? "s" : ""}
+                            Showing {showStart}–{showEnd} of {displayTotal} candidate{displayTotal !== 1 ? "s" : ""}
                         </div>
-                        {Math.ceil(filteredCandidates.length / PAGE_SIZE) > 1 && (
+                        {totalPages > 1 && (
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
-                                <button onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === 1 ? "#f8f9fa" : "#fff", color: currentPage === 1 ? "#adb5bd" : "#495057", cursor: currentPage === 1 ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8249;</button>
-                                {Array.from({ length: Math.ceil(filteredCandidates.length / PAGE_SIZE) }, (_, i) => i + 1).map(page => (
-                                    <button key={page} onClick={() => setCurrentPage(page)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: page === currentPage ? "1px solid #ff8c00" : "1px solid #dee2e6", background: page === currentPage ? "#ff8c00" : "#fff", color: page === currentPage ? "#fff" : "#495057", fontWeight: page === currentPage ? 700 : 400, cursor: "pointer", fontSize: "13px" }}>{page}</button>
+                                <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === 1 ? "#f8f9fa" : "#fff", color: currentPage === 1 ? "#adb5bd" : "#495057", cursor: currentPage === 1 ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8249;</button>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                    <button key={page} onClick={() => handlePageChange(page)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: page === currentPage ? "1px solid #ff8c00" : "1px solid #dee2e6", background: page === currentPage ? "#ff8c00" : "#fff", color: page === currentPage ? "#fff" : "#495057", fontWeight: page === currentPage ? 700 : 400, cursor: "pointer", fontSize: "13px" }}>{page}</button>
                                 ))}
-                                <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === Math.ceil(filteredCandidates.length / PAGE_SIZE)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === Math.ceil(filteredCandidates.length / PAGE_SIZE) ? "#f8f9fa" : "#fff", color: currentPage === Math.ceil(filteredCandidates.length / PAGE_SIZE) ? "#adb5bd" : "#495057", cursor: currentPage === Math.ceil(filteredCandidates.length / PAGE_SIZE) ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8250;</button>
+                                <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === totalPages ? "#f8f9fa" : "#fff", color: currentPage === totalPages ? "#adb5bd" : "#495057", cursor: currentPage === totalPages ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8250;</button>
                             </div>
                         )}
                     </div>
