@@ -1624,6 +1624,12 @@ export default function EmpPostJob({ onNext }) {
 
 
 	/* Skills logic - now handled by dropdown */
+	const toTitleCase = (str) => {
+		const s = String(str || '').trim();
+		if (!s) return '';
+		return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+	};
+
 	const removeSkill = (skill) =>
 		update({
 			requiredSkills: formData.requiredSkills.filter((s) => s !== skill),
@@ -4328,8 +4334,8 @@ export default function EmpPostJob({ onNext }) {
 									onKeyPress={(e) => {
 										if (e.key === 'Enter' && formData.skillInput.trim()) {
 											e.preventDefault();
-											const newSkill = formData.skillInput.trim();
-											if (!formData.requiredSkills.includes(newSkill)) {
+											const newSkill = toTitleCase(formData.skillInput);
+											if (!formData.requiredSkills.some(s => s.toLowerCase() === newSkill.toLowerCase())) {
 												update({ 
 													requiredSkills: [...formData.requiredSkills, newSkill],
 													skillInput: ''
@@ -4385,10 +4391,13 @@ export default function EmpPostJob({ onNext }) {
 												onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
 												onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
 												onClick={() => {
-													update({ 
-														requiredSkills: [...formData.requiredSkills, skill],
-														skillInput: ''
-													});
+													const formattedSkill = toTitleCase(skill);
+													if (!formData.requiredSkills.some(s => s.toLowerCase() === formattedSkill.toLowerCase())) {
+														update({ 
+															requiredSkills: [...formData.requiredSkills, formattedSkill],
+															skillInput: ''
+														});
+													}
 												}}
 											>
 												<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -4429,8 +4438,8 @@ export default function EmpPostJob({ onNext }) {
 								}}
 								onClick={() => {
 									if (formData.skillInput.trim()) {
-										const newSkill = formData.skillInput.trim();
-										if (!formData.requiredSkills.includes(newSkill)) {
+										const newSkill = toTitleCase(formData.skillInput);
+										if (!formData.requiredSkills.some(s => s.toLowerCase() === newSkill.toLowerCase())) {
 											update({ 
 												requiredSkills: [...formData.requiredSkills, newSkill],
 												skillInput: ''

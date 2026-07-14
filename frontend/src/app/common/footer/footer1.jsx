@@ -216,8 +216,8 @@ function Footer1() {
                             <h4 className="footer-col-title">Quick Links</h4>
                             <ul className="footer-link-list" style={{ paddingLeft: '0' }}>
                                 <li><NavLink to={publicUser.INITIAL}>Home</NavLink></li>
-                                <li><NavLink to={publicUser.jobs.GRID}>Jobs</NavLink></li>
-                                <li><NavLink to={publicUser.employer.GRID}>Companies</NavLink></li>
+                                <li><NavLink to="/job-grid">Jobs</NavLink></li>
+                                <li><NavLink to="/emp-grid">Companies</NavLink></li>
                                 <li><NavLink to={publicUser.pages.ABOUT}>About Us</NavLink></li>
                                 <li><NavLink to={publicUser.pages.CONTACT}>Contact Us</NavLink></li>
                             </ul>
