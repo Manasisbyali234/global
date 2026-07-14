@@ -329,12 +329,12 @@ function EmpJobReviewPage() {
                             <div className="col-lg-6 col-12">
                                 <div className="mt-2">
                                     <h5 className="mb-1">Job Title / Designation</h5>
-                                    <p className="mb-0 text-muted"><strong>{jobDetails.title}</strong></p>
+                                    <p className="mb-0 text-muted"><strong>{jobDetails.title?.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())}</strong></p>
                                 </div>
 
                                 <div className="mt-2">
                                     <h5 className="mb-1">Job Category</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.category || 'N/A'}</p>
+                                    <p className="mb-0 text-muted">{jobDetails.category ? jobDetails.category.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()) : 'N/A'}</p>
                                 </div>
 
                                 <div className="mt-2">
