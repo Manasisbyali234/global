@@ -10,6 +10,16 @@ import SearchBar from "../../../../components/SearchBar";
 import "./admin-search-styles.css";
 import "./admin-overview.css";
 
+const ABBR_SET = new Set(['IQ','IT','AI','LLP','LLC','Inc','Pvt','Ltd','PVT','LTD']);
+const toTitleCase = (str) => {
+    if (!str) return str;
+    return str.replace(/\S+/g, (word) => {
+        const upper = word.toUpperCase();
+        if (ABBR_SET.has(upper) || ABBR_SET.has(word)) return upper === 'PVT' || upper === 'LTD' ? upper.charAt(0) + upper.slice(1).toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+};
+
 function AdminOverviewPage() {
   const [searchParams] = useSearchParams();
   const [employers, setEmployers] = useState([]);
@@ -690,7 +700,7 @@ function AdminOverviewPage() {
                         .slice((employerPage - 1) * PAGE_SIZE, employerPage * PAGE_SIZE)
                         .map((employer) => (
                           <tr key={employer.employerId}>
-                            <td>{employer.employerName}</td>
+                            <td>{toTitleCase(employer.employerName)}</td>
                             <td>{formatEmployerType(employer.employerType)}</td>
                             <td>{employer.jobsCount}</td>
                             <td>{employer.activeJobsCount ?? 0}</td>
@@ -814,7 +824,7 @@ function AdminOverviewPage() {
                       visibleEmployerJobs.slice((jobPage - 1) * PAGE_SIZE, jobPage * PAGE_SIZE).map((job) => (
                           <tr key={job.jobId}>
                             <td>{job.createdAt ? formatDate(job.createdAt) : "N/A"}</td>
-                            {showJobCompanyColumn && <td>{job.companyName || selectedEmployer?.employerName || "N/A"}</td>}
+                            {showJobCompanyColumn && <td>{toTitleCase(job.companyName || selectedEmployer?.employerName) || "N/A"}</td>}
                             <td>{formatJobTitle(job.title)}</td>
                             <td>{job.applicationsCount}</td>
                             <td>{job.paidApplicationsCount ?? 0}</td>
