@@ -450,6 +450,9 @@
     font-weight: 700 !important;
     color: #000000 !important;
     font-size: 1.1rem;
+    white-space: normal !important;
+    word-break: break-word;
+    text-align: left;
 }
 
 .company-name-wrap {
@@ -499,11 +502,8 @@
 
 .emp-table tbody td:first-child .company-name {
     white-space: normal !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    text-align: center;
+    display: inline;
+    text-align: left;
 }
 
 .status-badge {

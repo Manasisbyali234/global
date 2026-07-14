@@ -12,6 +12,16 @@ import PageLoader from '../../../../components/PageLoader';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 
+const ABBR_SET = new Set(['IQ','IT','AI','LLP','LLC','Inc','Pvt','Ltd','PVT','LTD']);
+const toTitleCase = (str) => {
+    if (!str) return str;
+    return str.replace(/\S+/g, (word) => {
+        const upper = word.toUpperCase();
+        if (ABBR_SET.has(upper) || ABBR_SET.has(word)) return upper === 'PVT' || upper === 'LTD' ? upper.charAt(0) + upper.slice(1).toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+};
+
 function AdminEmployersAllRequest() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -330,9 +340,9 @@ function AdminEmployersAllRequest() {
                                     ) : (
                                         paginated.map((employer) => (
                                             <tr key={employer._id}>
-                                                <td style={{textAlign: 'center'}}>
+                                                <td style={{textAlign: 'left'}}>
                                                     <span className="company-name">
-                                                        {employer.companyName || employer.email}
+                                                        {toTitleCase(employer.companyName) || employer.email}
                                                     </span>
                                                 </td>
                                                 <td style={{textAlign: 'center'}}>
