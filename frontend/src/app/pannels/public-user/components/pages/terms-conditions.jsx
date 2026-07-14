@@ -248,7 +248,7 @@ function TermsConditionsPage() {
                                 <div className="accordion-content">
                                     <div className="accordion-body">
                                         <h4 className="subsection-title">Service Fee</h4>
-                                        <p>A one-time, non-refundable service fee of ₹129 (Rupees Ninety-Nine only) is charged for accessing the platform features/services.</p>
+                                        <p>A one-time, non-refundable service fee of ₹129 (Rupees One Twenty Nine only) is charged for accessing the platform features/services.</p>
                                         
                                         <h4 className="subsection-title">No Refund Policy</h4>
                                         <p>All payments are final and non-refundable. After successful processing, no refunds, cancellations, or chargebacks are permitted. No refunds will be issued regardless of interview outcome or employer decision. Candidates are responsible for their internet access and device readiness. TaleGlobal is not liable for these issues.</p>
