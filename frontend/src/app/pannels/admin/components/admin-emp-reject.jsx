@@ -9,6 +9,16 @@ import './admin-search-styles.css';
 import SearchBar from '../../../../components/SearchBar';
 import PageLoader from '../../../../components/PageLoader';
 
+const ABBR_SET = new Set(['IQ','IT','AI','LLP','LLC','Inc','Pvt','Ltd','PVT','LTD']);
+const toTitleCase = (str) => {
+    if (!str) return str;
+    return str.replace(/\S+/g, (word) => {
+        const upper = word.toUpperCase();
+        if (ABBR_SET.has(upper) || ABBR_SET.has(word)) return upper === 'PVT' || upper === 'LTD' ? upper.charAt(0) + upper.slice(1).toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+};
+
 function AdminEmployersRejected() {
     const navigate = useNavigate();
     const [employers, setEmployers] = useState([]);
@@ -127,7 +137,7 @@ function AdminEmployersRejected() {
                                             <tr key={employer._id}>
                                                 <td style={{textAlign: 'center'}}>
                                                     <span className="company-name">
-                                                        {employer.companyName || employer.email}
+                                                        {toTitleCase(employer.companyName) || employer.email}
                                                     </span>
                                                 </td>
                                                 <td style={{textAlign: 'center'}}>

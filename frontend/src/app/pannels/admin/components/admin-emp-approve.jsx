@@ -9,6 +9,16 @@ import SearchBar from '../../../../components/SearchBar';
 import PageLoader from '../../../../components/PageLoader';
 import { formatDate } from '../../../../utils/dateFormatter';
 
+const ABBR_SET = new Set(['IQ','IT','AI','LLP','LLC','Inc','Pvt','Ltd','PVT','LTD']);
+const toTitleCase = (str) => {
+    if (!str) return str;
+    return str.replace(/\S+/g, (word) => {
+        const upper = word.toUpperCase();
+        if (ABBR_SET.has(upper) || ABBR_SET.has(word)) return upper === 'PVT' || upper === 'LTD' ? upper.charAt(0) + upper.slice(1).toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+};
+
 function AdminEmployersApproved() {
     const navigate = useNavigate();
     const [employers, setEmployers] = useState([]);
@@ -207,7 +217,7 @@ function AdminEmployersApproved() {
                                                             {employer.hasResubmittedDocuments && (
                                                                 <span className="company-name-dot company-name-dot--resubmit" title="Document resubmitted" aria-hidden="true"></span>
                                                             )}
-                                                            {employer.companyName || employer.email}
+                                                            {toTitleCase(employer.companyName) || employer.email}
                                                         </span>
                                                         {employer.hasNewConsultantCompanies && employer.newConsultantCompanies?.length > 0 && (
                                                             <span className="company-name-subnote">

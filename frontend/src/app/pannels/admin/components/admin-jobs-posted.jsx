@@ -3,6 +3,16 @@ import { api } from "../../../../utils/api";
 import { formatDate } from "../../../../utils/dateFormatter";
 import { formatJobTitle } from "../../../../utils/jobTitleFormatter";
 
+const ABBR_SET = new Set(['IQ','IT','AI','LLP','LLC','Inc','Pvt','Ltd','PVT','LTD']);
+const toTitleCase = (str) => {
+    if (!str) return str;
+    return str.replace(/\S+/g, (word) => {
+        const upper = word.toUpperCase();
+        if (ABBR_SET.has(upper) || ABBR_SET.has(word)) return upper === 'PVT' || upper === 'LTD' ? upper.charAt(0) + upper.slice(1).toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+};
+
 function AdminJobsPostedPage() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -186,7 +196,7 @@ function AdminJobsPostedPage() {
                         <td>{(currentPage - 1) * PAGE_SIZE + index + 1}</td>
                         <td>{job.postedDate ? formatDate(job.postedDate) : "N/A"}</td>
                         <td>{formatJobTitle(job.title)}</td>
-                        <td>{job.companyName}</td>
+                        <td>{toTitleCase(job.companyName)}</td>
                         <td>{formatEmployerType(job.employerType)}</td>
                         <td>{job.lastDateOfApplication ? formatDate(job.lastDateOfApplication) : "N/A"}</td>
                         <td>{job.offerLetterDate ? formatDate(job.offerLetterDate) : "N/A"}</td>

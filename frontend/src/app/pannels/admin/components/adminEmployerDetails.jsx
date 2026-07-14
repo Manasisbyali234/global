@@ -1,12 +1,22 @@
 import { useState, useEffect } from "react";
-import { formatDate as formatDateUtil } from '../../../../utils/dateFormatter';
 import { useNavigate, useParams } from "react-router-dom";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { showSuccess, showError } from '../../../../utils/popupNotification';
 import PageLoader from '../../../../components/PageLoader';
+import { formatDate as formatDateUtil } from '../../../../utils/dateFormatter';
 import { formatDesignation } from '../../../../utils/jobTitleFormatter';
 import './employer-details-styles.css';
+
+const ABBR_SET = new Set(['IQ','IT','AI','LLP','LLC','Inc','Pvt','Ltd','PVT','LTD']);
+const toTitleCase = (str) => {
+    if (!str) return str;
+    return str.replace(/\S+/g, (word) => {
+        const upper = word.toUpperCase();
+        if (ABBR_SET.has(upper) || ABBR_SET.has(word)) return upper === 'PVT' || upper === 'LTD' ? upper.charAt(0) + upper.slice(1).toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+};
 
 function EmployerDetails() {
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -558,7 +568,7 @@ function EmployerDetails() {
                         </div>
                         <div className="profile-field" data-aos="fade-right" data-aos-delay="225">
                             <h6><i className="fa fa-building"></i>Company Name</h6>
-                            <p>{profile.companyName || profile.employerId?.companyName || 'N/A'}</p>
+                            <p>{toTitleCase(profile.companyName || profile.employerId?.companyName) || 'N/A'}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-right" data-aos-delay="250">
                             <h6><i className="fa fa-phone"></i>Phone Number</h6>
