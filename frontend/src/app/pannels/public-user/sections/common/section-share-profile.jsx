@@ -96,28 +96,30 @@ function SectionShareProfile() {
                         }}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-                            <h3 style={{ margin: 0, color: '#333', fontSize: '22px', fontWeight: '600' }}>Share this Job</h3>
-                            <button
-                                onClick={() => setShowSharePopup(false)}
-                                style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    fontSize: '28px',
-                                    cursor: 'pointer',
-                                    color: '#999',
-                                    lineHeight: '1',
-                                    padding: '0',
-                                    width: '32px',
-                                    height: '32px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                ×
-                            </button>
-                        </div>
+                        <button
+                            onClick={() => setShowSharePopup(false)}
+                            style={{
+                                position: 'absolute',
+                                top: '12px',
+                                right: '12px',
+                                background: 'transparent',
+                                border: 'none',
+                                fontSize: '28px',
+                                cursor: 'pointer',
+                                color: '#999',
+                                lineHeight: '1',
+                                padding: '0',
+                                width: '32px',
+                                height: '32px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 1
+                            }}
+                        >
+                            ×
+                        </button>
+                        <h3 style={{ margin: '0 0 25px 0', color: '#333', fontSize: '22px', fontWeight: '600', paddingRight: '40px' }}>Share this Job</h3>
                         <div style={{
                             display: 'grid',
                             gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))',

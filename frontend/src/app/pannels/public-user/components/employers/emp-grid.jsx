@@ -267,7 +267,7 @@ const EmployersGridPage = memo(() => {
                         </div>
                     </div>
                     
-                    <h4 className="company-card-name">{employer.companyName}</h4>
+                    <h4 className="company-card-name">{employer.companyName ? employer.companyName.charAt(0).toUpperCase() + employer.companyName.slice(1).toLowerCase() : ''}</h4>
                     
                     <div className="company-card-location">
                         <i className="feather-map-pin" />
