@@ -2,7 +2,7 @@
 // Survives across browser tabs/windows since it lives on the server.
 
 const MAX_ATTEMPTS = 3;
-const LOCKOUT_DURATION_MS = 30 * 1000; // 30 seconds
+const LOCKOUT_DURATION_MS = 30 * 60 * 1000; // 30 minutes
 
 const attempts = new Map(); // key: "role:email" -> { count, lockedUntil }
 
