@@ -16,7 +16,7 @@ function LoginPlacement() {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const captchaRef = useRef(null);
-    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('placement', email);
+    const { isLocked, countdown, startLockout, clearAttempts } = useLoginRateLimit();
 
     const handleLogin = async (event) => {
         event.preventDefault();
@@ -51,12 +51,11 @@ function LoginPlacement() {
                 clearAttempts();
                 navigate(placementRoute(placement.DASHBOARD));
             } else {
-                recordFailedAttempt();
+                if (result.secondsRemaining) startLockout(result.secondsRemaining);
                 setError(result.message || 'Login failed. Please try again.');
             }
         } catch (loginError) {
             console.error('Login error:', loginError);
-            recordFailedAttempt();
             setError('Login failed. Please try again.');
         }
 

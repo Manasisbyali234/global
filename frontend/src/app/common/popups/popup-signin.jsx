@@ -18,6 +18,8 @@ function SignInPopup() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [lockoutSeconds, setLockoutSeconds] = useState(0);
+    const lockoutTimerRef = useRef(null);
     const [showCanPassword, setShowCanPassword] = useState(false);
     const [showEmpPassword, setShowEmpPassword] = useState(false);
     const [showPlacementPassword, setShowPlacementPassword] = useState(false);
@@ -25,6 +27,21 @@ function SignInPopup() {
     const candidateCaptchaRef = useRef(null);
     const employerCaptchaRef = useRef(null);
     const placementCaptchaRef = useRef(null);
+
+    const startLockoutCountdown = (seconds) => {
+        setLockoutSeconds(seconds);
+        clearInterval(lockoutTimerRef.current);
+        lockoutTimerRef.current = setInterval(() => {
+            setLockoutSeconds(prev => {
+                if (prev <= 1) {
+                    clearInterval(lockoutTimerRef.current);
+                    setError('');
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
 
     useEffect(() => {
         setCanUsername('');
@@ -93,6 +110,7 @@ function SignInPopup() {
             moveToCandidate();
         } else {
             setError(result.message);
+            if (result.secondsRemaining) startLockoutCountdown(result.secondsRemaining);
         }
         setLoading(false);
     }
@@ -117,6 +135,7 @@ function SignInPopup() {
             moveToEmployer();
         } else {
             setError(result.message);
+            if (result.secondsRemaining) startLockoutCountdown(result.secondsRemaining);
         }
         setLoading(false);
     }
@@ -155,6 +174,7 @@ function SignInPopup() {
             moveToPlacement();
         } else {
             setError(result.message);
+            if (result.secondsRemaining) startLockoutCountdown(result.secondsRemaining);
         }
         setLoading(false);
     }
@@ -243,7 +263,7 @@ function SignInPopup() {
 											<div className="row">
 												{error && (
 													<div className="col-12">
-														<div className="alert alert-danger">{error}</div>
+														<div className="alert alert-danger">{error}{lockoutSeconds > 0 ? ` (${lockoutSeconds}s)` : ''}</div>
 													</div>
 												)}
 												{success && (

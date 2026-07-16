@@ -1,6 +1,0 @@
-content = open('backend/controllers/employerController.js', 'rb').read().decode('utf-8')
-print('loginRateLimiter:', 'loginRateLimiter' in content)
-print('checkEmpLockout:', 'checkEmpLockout' in content)
-print('clearEmpAttempts:', 'clearEmpAttempts' in content)
-idx = content.find('exports.loginEmployer')
-print(repr(content[idx:idx+400]))

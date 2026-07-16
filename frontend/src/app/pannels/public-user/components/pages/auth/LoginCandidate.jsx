@@ -17,7 +17,7 @@ function LoginCandidate() {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const captchaRef = useRef(null);
-    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('candidate', email);
+    const { isLocked, countdown, startLockout, clearAttempts } = useLoginRateLimit();
 
     const handleLogin = async (event) => {
         event.preventDefault();
@@ -41,7 +41,7 @@ function LoginCandidate() {
             const redirectTo = params.get('redirect');
             navigate(redirectTo || canRoute(candidate.DASHBOARD));
         } else {
-            recordFailedAttempt();
+            if (result.secondsRemaining) startLockout(result.secondsRemaining);
             setError(result.message);
         }
 

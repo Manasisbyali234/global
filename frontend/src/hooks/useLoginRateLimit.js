@@ -1,65 +1,42 @@
-import { useState, useEffect, useCallback } from 'react';
-
-const MAX_ATTEMPTS = 3;
-const LOCKOUT_SECONDS = 1800;
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export function formatCountdown(seconds) {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
-    return `${m}m ${String(s).padStart(2, '0')}s`;
+    return m > 0 ? `${m}m ${String(s).padStart(2, '0')}s` : `${s}s`;
 }
 
-export function useLoginRateLimit(userType, email = '') {
-    const normalizedEmail = email.trim().toLowerCase();
-    const storageKey = `loginAttempts_${userType}_${normalizedEmail}`;
-    const lockoutKey = `loginLockout_${userType}_${normalizedEmail}`;
+/**
+ * Server-driven login rate limiter.
+ * The lockout is enforced by the backend and returned as `secondsRemaining`
+ * in the login response. This hook just manages the countdown display.
+ */
+export function useLoginRateLimit() {
+    const [countdown, setCountdown] = useState(0);
+    const timerRef = useRef(null);
 
-    const getLockoutRemaining = useCallback(() => {
-        if (!normalizedEmail) return 0;
-        const lockoutTime = parseInt(localStorage.getItem(lockoutKey) || '0', 10);
-        if (!lockoutTime) return 0;
-        const remaining = Math.ceil((lockoutTime - Date.now()) / 1000);
-        return remaining > 0 ? remaining : 0;
-    }, [lockoutKey, normalizedEmail]);
-
-    const [countdown, setCountdown] = useState(() => getLockoutRemaining());
     const isLocked = countdown > 0;
 
-    useEffect(() => {
-        setCountdown(getLockoutRemaining());
-    }, [getLockoutRemaining]);
-
-    useEffect(() => {
-        if (countdown <= 0) return;
-        const timer = setInterval(() => {
-            const remaining = getLockoutRemaining();
-            setCountdown(remaining);
-            if (remaining <= 0) {
-                localStorage.removeItem(lockoutKey);
-                localStorage.removeItem(storageKey);
-                clearInterval(timer);
-            }
+    const startLockout = useCallback((seconds) => {
+        clearInterval(timerRef.current);
+        setCountdown(seconds);
+        timerRef.current = setInterval(() => {
+            setCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(timerRef.current);
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
-        return () => clearInterval(timer);
-    }, [countdown, getLockoutRemaining, lockoutKey, storageKey]);
-
-    const recordFailedAttempt = useCallback(() => {
-        if (!normalizedEmail) return;
-        const attempts = parseInt(localStorage.getItem(storageKey) || '0', 10) + 1;
-        localStorage.setItem(storageKey, attempts);
-        if (attempts >= MAX_ATTEMPTS) {
-            const lockoutUntil = Date.now() + LOCKOUT_SECONDS * 1000;
-            localStorage.setItem(lockoutKey, lockoutUntil);
-            setCountdown(LOCKOUT_SECONDS);
-        }
-    }, [storageKey, lockoutKey, normalizedEmail]);
+    }, []);
 
     const clearAttempts = useCallback(() => {
-        if (!normalizedEmail) return;
-        localStorage.removeItem(storageKey);
-        localStorage.removeItem(lockoutKey);
+        clearInterval(timerRef.current);
         setCountdown(0);
-    }, [storageKey, lockoutKey, normalizedEmail]);
+    }, []);
 
-    return { isLocked, countdown, recordFailedAttempt, clearAttempts };
+    useEffect(() => () => clearInterval(timerRef.current), []);
+
+    return { isLocked, countdown, startLockout, clearAttempts };
 }

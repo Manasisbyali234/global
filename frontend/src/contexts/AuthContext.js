@@ -149,7 +149,8 @@ export const AuthProvider = ({ children }) => {
         return {
           success: false,
           message: response.message || 'Login failed. Please try again.',
-          shouldResetRecaptcha: Boolean(response.shouldResetRecaptcha)
+          shouldResetRecaptcha: Boolean(response.shouldResetRecaptcha),
+          secondsRemaining: response.secondsRemaining || 0
         };
       }
     } catch (error) {
