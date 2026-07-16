@@ -85,7 +85,7 @@ function LoginPlacement() {
                         <p className="sub-text">Placement Dean Portal</p>
 
                         <form onSubmit={handleLogin}>
-                            {error && (
+                            {error && !isLocked && (
                                 <div className="alert alert-danger p-2 mb-3" style={{ fontSize: '14px' }}>
                                     {error}
                                 </div>

@@ -814,7 +814,8 @@ exports.loginEmployer = async (req, res) => {
 
     const lockout = checkEmpLockout('employer', email);
     if (lockout.locked) {
-      return res.status(429).json({ success: false, message: `Too many failed attempts. Please try again in ${lockout.secondsRemaining} seconds.`, secondsRemaining: lockout.secondsRemaining });
+      const mins = Math.ceil(lockout.secondsRemaining / 60);
+      return res.status(429).json({ success: false, message: `Too many failed attempts. Please try again after ${mins} minute${mins !== 1 ? 's' : ''}.`, secondsRemaining: lockout.secondsRemaining });
     }
 
     const employer = await Employer.findByEmail(email.trim());

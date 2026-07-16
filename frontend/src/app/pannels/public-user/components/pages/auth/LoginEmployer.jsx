@@ -68,7 +68,7 @@ function LoginEmployer() {
                         <p className="sub-text">Manage your company and hiring</p>
 
                         <form onSubmit={handleLogin}>
-                            {error && (
+                            {error && !isLocked && (
                                 <div className="alert alert-danger p-2 mb-3" style={{ fontSize: '14px' }}>
                                     {error}
                                 </div>

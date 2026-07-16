@@ -30,7 +30,8 @@ const employerSchema = new mongoose.Schema({
   resetPasswordOTPExpires: { type: Date },
   phoneOTP: { type: String },
   phoneOTPExpires: { type: Date },
-  isPhoneVerified: { type: Boolean, default: false }
+  isPhoneVerified: { type: Boolean, default: false },
+  passwordChangedAt: { type: Date }
 }, {
   timestamps: true
 });

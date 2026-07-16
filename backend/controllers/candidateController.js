@@ -520,7 +520,8 @@ exports.loginCandidate = async (req, res) => {
 
     const lockout = checkLockout('candidate', email);
     if (lockout.locked) {
-      return res.status(429).json({ success: false, message: `Too many failed attempts. Please try again in ${lockout.secondsRemaining} seconds.`, secondsRemaining: lockout.secondsRemaining });
+      const mins = Math.ceil(lockout.secondsRemaining / 60);
+      return res.status(429).json({ success: false, message: `Too many failed attempts. Please try again after ${mins} minute${mins !== 1 ? 's' : ''}.`, secondsRemaining: lockout.secondsRemaining });
     }
 
     const candidate = await Candidate.findByEmail(email.trim());
