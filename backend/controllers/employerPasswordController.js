@@ -62,6 +62,7 @@ exports.confirmResetPassword = async (req, res) => {
     }
 
     employer.password = newPassword;
+    employer.passwordChangedAt = new Date();
     employer.resetPasswordToken = undefined;
     employer.resetPasswordExpires = undefined;
     await employer.save();
@@ -113,6 +114,7 @@ exports.verifyOTPAndResetPassword = async (req, res) => {
     }
 
     employer.password = newPassword;
+    employer.passwordChangedAt = new Date();
     employer.resetPasswordOTP = undefined;
     employer.resetPasswordOTPExpires = undefined;
     await employer.save();
@@ -151,6 +153,7 @@ exports.updatePasswordReset = async (req, res) => {
     }
     
     employer.password = newPassword;
+    employer.passwordChangedAt = new Date();
     employer.markModified('password');
     await employer.save();
 

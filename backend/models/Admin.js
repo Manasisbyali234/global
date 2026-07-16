@@ -10,6 +10,7 @@ const adminSchema = new mongoose.Schema({
   status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   resetPasswordOTP: { type: String },
   resetPasswordOTPExpires: { type: Date },
+  passwordChangedAt: { type: Date },
   passwordChangedAt: { type: Date }
 }, {
   timestamps: true

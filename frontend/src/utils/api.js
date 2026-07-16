@@ -66,12 +66,26 @@ const getAuthHeaders = (userType = 'candidate') => {
 const handleApiResponse = async (response) => {
   if (!response.ok) {
     if (response.status === 401) {
-      // Token expired or invalid - redirect to login
+      let errorData;
+      try {
+        const text = await response.text();
+        try { errorData = JSON.parse(text); } catch { errorData = { message: text || 'Unauthorized' }; }
+      } catch { errorData = { message: 'Unauthorized' }; }
+
+      if (errorData.forceLogout) {
+        // Password was changed on another device — clear all sessions and redirect
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/?session_expired=password_changed';
+        throw new Error(errorData.message || 'Session expired');
+      }
+
       const currentPath = window.location.pathname;
       if (!currentPath.includes('/login')) {
         localStorage.clear();
         window.location.href = '/login';
       }
+      throw new Error(errorData.message || 'Unauthorized');
     }
     
     let errorData;

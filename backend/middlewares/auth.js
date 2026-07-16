@@ -39,8 +39,15 @@ const auth = (roles = []) => {
       }
       
       if (!user) {
-        // Removed auth debug line for security
         return res.status(401).json({ message: 'User not found or account deactivated' });
+      }
+
+      // Reject token if password was changed after it was issued
+      if (user.passwordChangedAt) {
+        const changedAt = Math.floor(user.passwordChangedAt.getTime() / 1000);
+        if (decoded.iat < changedAt) {
+          return res.status(401).json({ message: 'Password was changed. Please log in again.', forceLogout: true });
+        }
       }
 
       // Check if Placement Dean is active

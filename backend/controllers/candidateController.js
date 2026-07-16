@@ -1379,6 +1379,7 @@ exports.confirmResetPassword = async (req, res) => {
     }
 
     candidate.password = newPassword;
+    candidate.passwordChangedAt = new Date();
     candidate.resetPasswordToken = undefined;
     candidate.resetPasswordExpires = undefined;
     await candidate.save();
@@ -1407,6 +1408,7 @@ exports.changePassword = async (req, res) => {
     }
     
     candidate.password = newPassword;
+    candidate.passwordChangedAt = new Date();
     await candidate.save();
 
     res.json({ success: true, message: 'Password updated successfully' });
@@ -1435,6 +1437,7 @@ exports.updatePasswordReset = async (req, res) => {
     
     await stampNotificationVisibilityStart(candidate, new Date());
     candidate.password = newPassword;
+    candidate.passwordChangedAt = new Date();
     candidate.markModified('password');
     await candidate.save();
 
@@ -1490,6 +1493,7 @@ exports.verifyOTPAndResetPassword = async (req, res) => {
 
     await stampNotificationVisibilityStart(candidate, new Date());
     candidate.password = newPassword;
+    candidate.passwordChangedAt = new Date();
     candidate.resetPasswordOTP = undefined;
     candidate.resetPasswordOTPExpires = undefined;
     await candidate.save();
