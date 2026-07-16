@@ -31,6 +31,7 @@ const {
   getResolvedTrackedProcesses
 } = require('../utils/applicationStatus');
 const { applyNoShowRejection, isNoShowCandidate } = require('../utils/noShowHandler');
+const { recordFailedAttempt, checkLockout, clearAttempts } = require('../utils/loginRateLimiter');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -516,11 +517,16 @@ exports.registerCandidate = async (req, res) => {
 exports.loginCandidate = async (req, res) => {
   try {
     const { email, password } = req.body;
-    // Removed console debug line for security;
+
+    const lockout = checkLockout('candidate', email);
+    if (lockout.locked) {
+      return res.status(429).json({ success: false, message: `Too many failed attempts. Please try again in ${lockout.secondsRemaining} seconds.`, secondsRemaining: lockout.secondsRemaining });
+    }
 
     const candidate = await Candidate.findByEmail(email.trim());
     if (!candidate) {
-      return res.status(401).json({ success: false, message: 'no account found with this email address' });
+      const result = recordFailedAttempt('candidate', email);
+      return res.status(401).json({ success: false, message: 'no account found with this email address', ...(result.locked ? { secondsRemaining: result.secondsRemaining } : {}) });
     }
 
     if (!candidate.password) {
@@ -530,7 +536,8 @@ exports.loginCandidate = async (req, res) => {
     const passwordMatch = await candidate.comparePassword(password);
     
     if (!passwordMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid password' });
+      const result = recordFailedAttempt('candidate', email);
+      return res.status(401).json({ success: false, message: 'Invalid password', ...(result.locked ? { secondsRemaining: result.secondsRemaining } : { attemptsLeft: result.attemptsLeft }) });
     }
 
     if (candidate.status === 'pending') {
@@ -541,6 +548,7 @@ exports.loginCandidate = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Your account has been deactivated. Please contact support for assistance.' });
     }
 
+    clearAttempts('candidate', email);
     const token = generateToken(candidate._id, 'candidate');
 
     res.json({

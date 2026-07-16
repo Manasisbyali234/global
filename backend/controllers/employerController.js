@@ -26,6 +26,7 @@ const {
 } = require('../utils/pendingSignup');
 const { validateGSTFormat, fetchGSTInfo, mapGSTToProfile } = require('../utils/gstService');
 const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
+const { recordFailedAttempt: recordEmpAttempt, checkLockout: checkEmpLockout, clearAttempts: clearEmpAttempts } = require('../utils/loginRateLimiter');
 const { buildUtcDateTimeFromIst, getStartOfCurrentIstDayUtc } = require('../utils/dateTime');
 const { formatDate } = require('../utils/dateFormatter');
 const {
@@ -807,31 +808,34 @@ exports.loginEmployer = async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    // Validate input
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
-    
-    // Removed console debug line for security
+
+    const lockout = checkEmpLockout('employer', email);
+    if (lockout.locked) {
+      return res.status(429).json({ success: false, message: `Too many failed attempts. Please try again in ${lockout.secondsRemaining} seconds.`, secondsRemaining: lockout.secondsRemaining });
+    }
 
     const employer = await Employer.findByEmail(email.trim());
     if (!employer) {
-      return res.status(401).json({ success: false, message: 'no account found with this email address' });
+      const result = recordEmpAttempt('employer', email);
+      return res.status(401).json({ success: false, message: 'no account found with this email address', ...(result.locked ? { secondsRemaining: result.secondsRemaining } : {}) });
     }
 
     const isPasswordValid = await employer.comparePassword(password);
     
     if (!isPasswordValid) {
-      return res.status(401).json({ success: false, message: 'Invalid password' });
+      const result = recordEmpAttempt('employer', email);
+      return res.status(401).json({ success: false, message: 'Invalid password', ...(result.locked ? { secondsRemaining: result.secondsRemaining } : { attemptsLeft: result.attemptsLeft }) });
     }
 
     if (employer.status !== 'active') {
-      // Removed console debug line for security;
       return res.status(401).json({ success: false, message: 'Account is inactive' });
     }
 
+    clearEmpAttempts('employer', email);
     const token = generateToken(employer._id, 'employer');
-    // Removed console debug line for security;
 
     res.json({
       success: true,
