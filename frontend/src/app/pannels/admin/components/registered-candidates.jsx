@@ -9,9 +9,8 @@ import PageLoader from '../../../../components/PageLoader';
 
 function RegisteredCandidatesPage() {
     const navigate = useNavigate();
-    const [candidates, setCandidates] = useState([]);
+    const [allCandidates, setAllCandidates] = useState([]);
     const [filteredCandidates, setFilteredCandidates] = useState([]);
-    const [totalCandidates, setTotalCandidates] = useState(0);
     const [shortlistedApplications, setShortlistedApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -20,26 +19,34 @@ function RegisteredCandidatesPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const PAGE_SIZE = 10;
     const modalRef = useRef(null);
-    const isFiltered = searchTerm || profileStatusFilter;
 
     useEffect(() => {
         fetchShortlisted();
+        fetchAllCandidates();
     }, []);
 
     useEffect(() => {
-        if (!isFiltered) {
-            fetchCandidates(currentPage);
-        }
-    }, [currentPage]);
-
-    useEffect(() => {
-        if (isFiltered) {
-            // When filters are active, fetch all to search client-side
-            fetchAllCandidates(searchTerm, profileStatusFilter);
-        } else {
-            fetchCandidates(currentPage);
-        }
-    }, [searchTerm, profileStatusFilter]);
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        const filtered = allCandidates.filter((candidate) => {
+            const matchesSearch = !normalizedSearch || (
+                candidate.name?.toLowerCase().includes(normalizedSearch) ||
+                candidate.email?.toLowerCase().includes(normalizedSearch) ||
+                candidate.phone?.includes(normalizedSearch) ||
+                candidate.profile?.location?.toLowerCase().includes(normalizedSearch) ||
+                candidate.profile?.skills?.some((skill) =>
+                    skill.toLowerCase().includes(normalizedSearch)
+                )
+            );
+            const matchesProfileStatus = !profileStatusFilter || (
+                profileStatusFilter === 'completed'
+                    ? candidate.isProfileComplete
+                    : !candidate.isProfileComplete
+            );
+            return matchesSearch && matchesProfileStatus;
+        });
+        setFilteredCandidates(filtered);
+        setCurrentPage(1);
+    }, [searchTerm, profileStatusFilter, allCandidates]);
 
     const fetchShortlisted = async () => {
         try {
@@ -48,46 +55,13 @@ function RegisteredCandidatesPage() {
         } catch (err) {}
     };
 
-    const fetchCandidates = async (page) => {
-        try {
-            setLoading(true);
-            const res = await api.getRegisteredCandidates({ page, limit: PAGE_SIZE });
-            if (res.success) {
-                setCandidates(res.data);
-                setFilteredCandidates(res.data);
-                setTotalCandidates(res.total || res.data.length);
-            }
-        } catch (err) {}
-        finally { setLoading(false); }
-    };
-
-    const fetchAllCandidates = async (currentSearch = searchTerm, currentProfileFilter = profileStatusFilter) => {
+    const fetchAllCandidates = async () => {
         try {
             setLoading(true);
             const res = await api.getRegisteredCandidates({ page: 1, limit: 10000 });
             if (res.success) {
-                const all = res.data;
-                const normalizedSearch = currentSearch.trim().toLowerCase();
-                const filtered = all.filter((candidate) => {
-                    const matchesSearch = !normalizedSearch || (
-                        candidate.name?.toLowerCase().includes(normalizedSearch) ||
-                        candidate.email?.toLowerCase().includes(normalizedSearch) ||
-                        candidate.phone?.includes(normalizedSearch) ||
-                        candidate.profile?.location?.toLowerCase().includes(normalizedSearch) ||
-                        candidate.profile?.skills?.some((skill) =>
-                            skill.toLowerCase().includes(normalizedSearch)
-                        )
-                    );
-                    const matchesProfileStatus = !currentProfileFilter || (
-                        currentProfileFilter === 'completed'
-                            ? candidate.isProfileComplete
-                            : !candidate.isProfileComplete
-                    );
-                    return matchesSearch && matchesProfileStatus;
-                });
-                setCandidates(all);
-                setFilteredCandidates(filtered);
-                setTotalCandidates(res.total || res.data.length);
+                setAllCandidates(res.data);
+                setFilteredCandidates(res.data);
             }
         } catch (err) {}
         finally { setLoading(false); }
@@ -95,7 +69,6 @@ function RegisteredCandidatesPage() {
 
     const handleSearch = (term) => {
         setSearchTerm(term);
-        setCurrentPage(1);
     };
 
     const handlePageChange = (page) => {
@@ -125,13 +98,10 @@ function RegisteredCandidatesPage() {
     };
 
     // Pagination logic
-    const displayTotal = isFiltered ? filteredCandidates.length : totalCandidates;
-    const totalPages = Math.ceil(displayTotal / PAGE_SIZE);
-    const pagedCandidates = isFiltered
-        ? filteredCandidates.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
-        : filteredCandidates;
-    const showStart = displayTotal === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
-    const showEnd = Math.min(currentPage * PAGE_SIZE, displayTotal);
+    const totalPages = Math.ceil(filteredCandidates.length / PAGE_SIZE);
+    const pagedCandidates = filteredCandidates.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    const showStart = filteredCandidates.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+    const showEnd = Math.min(currentPage * PAGE_SIZE, filteredCandidates.length);
 
     if (loading) {
         return (
@@ -206,7 +176,7 @@ function RegisteredCandidatesPage() {
                     <div className="page-toolbar">
                         <h4 className="page-toolbar__title">
                             <i className="fa fa-list-alt"></i>
-                            All Registered Candidates ({isFiltered ? filteredCandidates.length : totalCandidates})
+                            All Registered Candidates ({filteredCandidates.length})
                         </h4>
                         <div className="candidates-filters page-toolbar__controls page-toolbar__controls--dual">
                             <div className="search-section page-toolbar__section">
@@ -318,7 +288,7 @@ function RegisteredCandidatesPage() {
                     )}
                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "column" }}>
                         <div style={{ color: "#6c757d", fontSize: "13px" }}>
-                            Showing {showStart}–{showEnd} of {displayTotal} candidate{displayTotal !== 1 ? "s" : ""}
+                            Showing {showStart}–{showEnd} of {filteredCandidates.length} candidate{filteredCandidates.length !== 1 ? "s" : ""}
                         </div>
                         {totalPages > 1 && (
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
