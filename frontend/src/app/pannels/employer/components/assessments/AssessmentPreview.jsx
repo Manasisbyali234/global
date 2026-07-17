@@ -324,19 +324,18 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                         {/* Navigation */}
                         <div style={{
                             display: "flex",
-                            justifyContent: "space-between",
+                            flexDirection: "column",
+                            gap: "10px",
                             marginTop: "20px",
-                            alignItems: "center",
                         }}>
-                            <button
-                                onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
-                                disabled={currentQuestionIndex === 0}
-                                className="btn btn-outline-secondary"
-                            >
-                                ← Previous
-                            </button>
-
-                            <div style={{ display: "flex", gap: "5px" }}>
+                            <div style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: "5px",
+                                justifyContent: "center",
+                                maxWidth: "100%",
+                                overflow: "hidden",
+                            }}>
                                 {questions.map((_, idx) => (
                                     <button
                                         key={idx}
@@ -344,6 +343,7 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                                         style={{
                                             width: "30px",
                                             height: "30px",
+                                            flexShrink: 0,
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
@@ -351,20 +351,29 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                                             border: idx === currentQuestionIndex ? "none" : "1px solid #ccc",
                                             background: idx === currentQuestionIndex ? "#3498db" : "#fff",
                                             color: idx === currentQuestionIndex ? "#fff" : "#000",
+                                            cursor: "pointer",
                                         }}
                                     >
                                         {idx + 1}
                                     </button>
                                 ))}
                             </div>
-
-                            <button
-                                onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
-                                disabled={currentQuestionIndex === questions.length - 1}
-                                className="btn btn-primary"
-                            >
-                                Next →
-                            </button>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <button
+                                    onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
+                                    disabled={currentQuestionIndex === 0}
+                                    className="btn btn-outline-secondary"
+                                >
+                                    ← Previous
+                                </button>
+                                <button
+                                    onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
+                                    disabled={currentQuestionIndex === questions.length - 1}
+                                    className="btn btn-primary"
+                                >
+                                    Next →
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ) : (
