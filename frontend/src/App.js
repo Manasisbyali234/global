@@ -75,6 +75,19 @@ function App() {
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Show message if redirected after forced logout due to password change
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('session_expired') === 'password_changed') {
+      setTimeout(() => {
+        alert('Your password was changed on another device. Please log in again.');
+      }, 500);
+      // Clean the URL without reloading
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
+    }
+  }, []);
+
+  useEffect(() => {
     // Force light mode immediately
     const cleanup = forceLightMode();
 

@@ -40,20 +40,32 @@ const rewriteBackendUrl = (url) => {
 };
 
 const originalFetch = window.fetch.bind(window);
-window.fetch = (input, init) => {
+window.fetch = async (input, init) => {
   if (typeof input === 'string') {
-    return originalFetch(rewriteBackendUrl(input), init);
-  }
-
-  if (input instanceof Request) {
+    input = rewriteBackendUrl(input);
+  } else if (input instanceof Request) {
     const rewrittenUrl = rewriteBackendUrl(input.url);
     if (rewrittenUrl !== input.url) {
-      const rewrittenRequest = new Request(rewrittenUrl, input);
-      return originalFetch(rewrittenRequest, init);
+      input = new Request(rewrittenUrl, input);
     }
   }
 
-  return originalFetch(input, init);
+  const response = await originalFetch(input, init);
+
+  // Global force-logout: password changed on another device
+  if (response.status === 401) {
+    const clone = response.clone();
+    try {
+      const data = await clone.json();
+      if (data.forceLogout) {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('/?session_expired=password_changed');
+      }
+    } catch { /* not JSON, ignore */ }
+  }
+
+  return response;
 };
 
 axios.interceptors.request.use((config) => {
