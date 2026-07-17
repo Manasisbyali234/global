@@ -35,7 +35,7 @@ function RegisteredCandidatesPage() {
     useEffect(() => {
         if (isFiltered) {
             // When filters are active, fetch all to search client-side
-            fetchAllCandidates();
+            fetchAllCandidates(searchTerm, profileStatusFilter);
         } else {
             fetchCandidates(currentPage);
         }
@@ -61,25 +61,25 @@ function RegisteredCandidatesPage() {
         finally { setLoading(false); }
     };
 
-    const fetchAllCandidates = async () => {
+    const fetchAllCandidates = async (currentSearch = searchTerm, currentProfileFilter = profileStatusFilter) => {
         try {
             setLoading(true);
             const res = await api.getRegisteredCandidates({ page: 1, limit: 10000 });
             if (res.success) {
                 const all = res.data;
-                const normalizedSearch = searchTerm.trim().toLowerCase();
+                const normalizedSearch = currentSearch.trim().toLowerCase();
                 const filtered = all.filter((candidate) => {
                     const matchesSearch = !normalizedSearch || (
                         candidate.name?.toLowerCase().includes(normalizedSearch) ||
                         candidate.email?.toLowerCase().includes(normalizedSearch) ||
-                        candidate.phone?.includes(searchTerm) ||
+                        candidate.phone?.includes(normalizedSearch) ||
                         candidate.profile?.location?.toLowerCase().includes(normalizedSearch) ||
                         candidate.profile?.skills?.some((skill) =>
                             skill.toLowerCase().includes(normalizedSearch)
                         )
                     );
-                    const matchesProfileStatus = !profileStatusFilter || (
-                        profileStatusFilter === 'completed'
+                    const matchesProfileStatus = !currentProfileFilter || (
+                        currentProfileFilter === 'completed'
                             ? candidate.isProfileComplete
                             : !candidate.isProfileComplete
                     );

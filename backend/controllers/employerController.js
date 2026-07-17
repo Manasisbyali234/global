@@ -3433,7 +3433,7 @@ exports.getApplicationDetails = async (req, res) => {
       _id: applicationId,
       employerId: req.user._id
     })
-    .populate('candidateId', 'name email phone profilePicture profileImage')
+    .populate('candidateId', 'name email phone profilePicture profileImage firstName middleName lastName dateOfBirth gender fatherName motherName residentialAddress permanentAddress pincode location stateCode resume experienceLetter skills resumeHeadline profileSummary totalExperience')
     .populate('jobId', 'title location interviewRoundsCount interviewRoundTypes interviewRoundOrder interviewRoundDetails assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime lastDateOfApplication lastDateOfApplicationTime');
 
     if (!application) {
