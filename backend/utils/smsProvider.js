@@ -20,7 +20,7 @@ const sendSMS = async (mobile, otp, name) => {
     console.log('Sending SMS via AuthKey to:', formattedMobile, 'OTP:', otp);
 
     const response = await axios.post(
-      "https://console.authkey.io/restapi/requestjson.php",
+      `https://console.authkey.io/restapi/requestjson.php?authkey=${process.env.AUTHKEY_API_KEY}`,
       {
         country_code: "91",
         mobile: formattedMobile,
@@ -33,13 +33,19 @@ const sendSMS = async (mobile, otp, name) => {
       },
       {
         headers: {
-          Authorization: `Basic ${process.env.AUTHKEY_API_KEY}`,
           "Content-Type": "application/json",
         },
       }
     );
 
-    console.log("✅ SMS Sent Response:", response.data);
+    console.log("✅ SMS Sent Response:", JSON.stringify(response.data));
+
+    // AuthKey returns error codes even on HTTP 200
+    if (response.data && response.data.type === 'error') {
+      console.error('❌ AuthKey returned error:', response.data);
+      return { success: false, error: response.data.message || 'SMS provider error' };
+    }
+
     return response.data;
   } catch (error) {
     console.error(
