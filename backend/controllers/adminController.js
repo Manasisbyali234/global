@@ -302,7 +302,12 @@ exports.sendOTP = async (req, res) => {
     await user.save();
 
     const { sendSMS } = require('../utils/smsProvider');
-    await sendSMS(DEFAULT_OTP_MOBILE, otp, user.name || 'Admin');
+    const smsResult = await sendSMS(DEFAULT_OTP_MOBILE, otp, user.name || 'Admin');
+
+    if (smsResult && smsResult.success === false) {
+      console.error('SMS sending failed:', smsResult.error);
+      return res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
+    }
 
     res.json({ success: true, message: `OTP sent to the registered mobile number successfully.` });
   } catch (error) {
@@ -5858,89 +5863,3 @@ exports.getAdminProfile = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
-};
-
-// OTP-based Password Reset for Admin/SubAdmin
-exports.sendOTP = async (req, res) => {
-  try {
-    const { email } = req.body;
-    let user = await Admin.findByEmail(email.trim());
-    let userType = 'Admin';
-    
-    if (!user) {
-      user = await SubAdmin.findByEmail(email.trim());
-      userType = 'SubAdmin';
-    }
-    
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.resetPasswordOTP = otp;
-    user.resetPasswordOTPExpires = Date.now() + 10 * 60 * 1000;
-    await user.save();
-
-    try {
-      const { sendOTPEmail } = require('../utils/emailService');
-      await sendOTPEmail(email, otp, user.name);
-    } catch (emailError) {
-      console.error('Admin sendOTP email error:', emailError);
-    }
-
-    res.json({ success: true, message: 'OTP sent to your email' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-exports.verifyOTPAndResetPassword = async (req, res) => {
-  try {
-    const { email, otp, newPassword } = req.body;
-    
-    let user = await Admin.findByEmail(email.trim());
-    
-    if (!user || user.resetPasswordOTP !== otp || (user.resetPasswordOTPExpires && user.resetPasswordOTPExpires < Date.now())) {
-      user = await SubAdmin.findByEmail(email.trim());
-    }
-
-    if (!user || user.resetPasswordOTP !== otp || (user.resetPasswordOTPExpires && user.resetPasswordOTPExpires < Date.now())) {
-      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
-    }
-
-    user.password = newPassword;
-    user.resetPasswordOTP = undefined;
-    user.resetPasswordOTPExpires = undefined;
-    await user.save();
-
-    res.json({ success: true, message: 'Password reset successful' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-exports.resetPasswordDirect = async (req, res) => {
-  try {
-    const { email, newPassword } = req.body;
-    const normalizedEmail = email.trim();
-
-    let user = await Admin.findByEmail(normalizedEmail);
-
-    if (!user) {
-      user = await SubAdmin.findByEmail(normalizedEmail);
-    }
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    user.password = newPassword;
-    user.resetPasswordOTP = undefined;
-    user.resetPasswordOTPExpires = undefined;
-    await user.save();
-
-    res.json({ success: true, message: 'Password reset successful' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
