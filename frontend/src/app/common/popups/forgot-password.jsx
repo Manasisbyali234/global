@@ -49,7 +49,6 @@ function ForgotPassword() {
       const endpoints = [
         `${apiUrl}/api/candidate/password/send-otp`,
         `${apiUrl}/api/employer/password/send-otp`,
-        `${apiUrl}/api/admin/send-otp`,
         `${apiUrl}/api/placement/password/send-otp`
       ];
       
@@ -66,8 +65,7 @@ function ForgotPassword() {
           const result = await response.json();
           
           if (response.ok && result.success) {
-            const isAdminEndpoint = endpoint.includes('/api/admin/');
-            setMessage(isAdminEndpoint ? 'OTP sent to the registered mobile number successfully.' : 'OTP sent to your email successfully!');
+            setMessage('OTP sent to your email successfully!');
             setOtpSent(true);
             startResendCooldown();
             success = true;
@@ -102,7 +100,6 @@ function ForgotPassword() {
       const endpoints = [
         `${apiUrl}/api/candidate/password/send-otp`,
         `${apiUrl}/api/employer/password/send-otp`,
-        `${apiUrl}/api/admin/send-otp`,
         `${apiUrl}/api/placement/password/send-otp`
       ];
       
@@ -119,8 +116,7 @@ function ForgotPassword() {
           const result = await response.json();
           
           if (response.ok && result.success) {
-            const isAdminEndpoint = endpoint.includes('/api/admin/');
-            setMessage(isAdminEndpoint ? 'OTP resent to the registered mobile number successfully.' : 'OTP resent to your email successfully!');
+            setMessage('OTP resent to your email successfully!');
             startResendCooldown();
             success = true;
             break;
@@ -161,7 +157,6 @@ function ForgotPassword() {
       const endpoints = [
         `${apiUrl}/api/candidate/password/verify-otp`,
         `${apiUrl}/api/employer/password/verify-otp`,
-        `${apiUrl}/api/admin/verify-otp-reset`,
         `${apiUrl}/api/placement/password/verify-otp`
       ];
       
