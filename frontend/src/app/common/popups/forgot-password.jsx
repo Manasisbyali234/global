@@ -66,7 +66,8 @@ function ForgotPassword() {
           const result = await response.json();
           
           if (response.ok && result.success) {
-            setMessage('OTP sent to your email successfully!');
+            const isAdminEndpoint = endpoint.includes('/api/admin/');
+            setMessage(isAdminEndpoint ? 'OTP sent to the registered mobile number successfully.' : 'OTP sent to your email successfully!');
             setOtpSent(true);
             startResendCooldown();
             success = true;
@@ -118,7 +119,8 @@ function ForgotPassword() {
           const result = await response.json();
           
           if (response.ok && result.success) {
-            setMessage('OTP resent to your email successfully!');
+            const isAdminEndpoint = endpoint.includes('/api/admin/');
+            setMessage(isAdminEndpoint ? 'OTP resent to the registered mobile number successfully.' : 'OTP resent to your email successfully!');
             startResendCooldown();
             success = true;
             break;

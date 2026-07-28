@@ -212,8 +212,8 @@ function RegisteredCandidatesPage() {
                     {pagedCandidates.length === 0 ? (
                         <div className="empty-state" data-aos="fade-in">
                             <i className="fa fa-users"></i>
-                            <h3>No Registered Candidates</h3>
-                            <p>No candidates have registered yet.</p>
+                            <h3>{searchTerm || profileStatusFilter ? 'No Candidates Found' : 'No Registered Candidates'}</h3>
+                            <p>{searchTerm || profileStatusFilter ? 'Try a different search term or filter.' : 'No candidates have registered yet.'}</p>
                         </div>
                     ) : (
                         <div className="candidates-table-responsive">
