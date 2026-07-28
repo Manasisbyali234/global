@@ -278,7 +278,7 @@ const queuePlacementWelcomeEmails = ({
 
 const DEFAULT_OTP_MOBILE = '8951670880'; // +91 89516 70880
 
-// Send OTP via SMS to default mobile number
+// Send OTP via SMS with email fallback
 exports.sendOTP = async (req, res) => {
   try {
     const { email } = req.body;
@@ -301,15 +301,29 @@ exports.sendOTP = async (req, res) => {
     user.resetPasswordOTPExpires = expires;
     await user.save();
 
-    const { sendSMS } = require('../utils/smsProvider');
-    const smsResult = await sendSMS(DEFAULT_OTP_MOBILE, otp, user.name || 'Admin');
-
-    if (smsResult && smsResult.success === false) {
-      console.error('SMS sending failed:', smsResult.error);
-      return res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
+    // Try SMS first, fall back to email if SMS fails
+    let deliveredVia = 'email';
+    try {
+      const { sendSMS } = require('../utils/smsProvider');
+      const smsResult = await sendSMS(DEFAULT_OTP_MOBILE, otp, user.name || 'Admin');
+      if (!smsResult || smsResult.success !== false) {
+        deliveredVia = 'sms';
+      }
+    } catch (smsError) {
+      console.error('SMS sending failed, falling back to email:', smsError.message);
     }
 
-    res.json({ success: true, message: `OTP sent to the registered mobile number successfully.` });
+    if (deliveredVia === 'email') {
+      const { sendOTPEmail } = require('../utils/emailService');
+      await sendOTPEmail(normalizedEmail, otp, user.name || 'Admin');
+    }
+
+    res.json({
+      success: true,
+      message: deliveredVia === 'sms'
+        ? 'OTP sent to the registered mobile number successfully.'
+        : 'OTP sent to your registered email address.'
+    });
   } catch (error) {
     console.error('sendOTP error:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -5863,3 +5877,4 @@ exports.getAdminProfile = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
+};
