@@ -276,7 +276,7 @@ const queuePlacementWelcomeEmails = ({
   });
 };
 
-const DEFAULT_OTP_MOBILE = '9008599697'; // +91 90085 99697
+const DEFAULT_OTP_MOBILE = '8951670880'; // +91 89516 70880
 
 // Send OTP via SMS to default mobile number
 exports.sendOTP = async (req, res) => {

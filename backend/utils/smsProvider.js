@@ -32,7 +32,7 @@ const sendSMS = async (mobile, otp, name) => {
     });
 
     const response = await axios.get(
-      `https://console.authkey.io/api/v5/index.php?${params.toString()}`
+      `https://api.authkey.io/request?${params.toString()}`
     );
 
     console.log("✅ SMS Sent Response:", JSON.stringify(response.data));
