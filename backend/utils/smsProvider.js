@@ -19,23 +19,20 @@ const sendSMS = async (mobile, otp, name) => {
   try {
     console.log('Sending SMS via AuthKey to:', formattedMobile, 'OTP:', otp);
 
-    const response = await axios.post(
-      `https://console.authkey.io/restapi/requestjson.php?authkey=${process.env.AUTHKEY_API_KEY}`,
-      {
-        country_code: "91",
-        mobile: formattedMobile,
-        sender: process.env.SENDER_ID,
-        pe_id: process.env.ENTITY_ID,
-        template_id: process.env.TEMPLATE_ID,
-        sid: process.env.SID,
-        name: firstName,
-        otp: otp
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+    const params = new URLSearchParams({
+      authkey: process.env.AUTHKEY_API_KEY,
+      mobile: formattedMobile,
+      country_code: '91',
+      sid: process.env.SID,
+      otp: otp,
+      name: firstName,
+      pe_id: process.env.ENTITY_ID,
+      template_id: process.env.TEMPLATE_ID,
+      sender: process.env.SENDER_ID
+    });
+
+    const response = await axios.get(
+      `https://console.authkey.io/api/v5/index.php?${params.toString()}`
     );
 
     console.log("✅ SMS Sent Response:", JSON.stringify(response.data));
