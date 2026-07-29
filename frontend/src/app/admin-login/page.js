@@ -20,6 +20,13 @@ export default function AdminLogin() {
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
 
+    // 2FA OTP step states
+    const [requires2FA, setRequires2FA] = useState(false);
+    const [loginEmail, setLoginEmail] = useState("");
+    const [loginOtp, setLoginOtp] = useState("");
+    const [loginOtpLoading, setLoginOtpLoading] = useState(false);
+    const [loginOtpError, setLoginOtpError] = useState("");
+
     // Reset password flow states
     const [isResetMode, setIsResetMode] = useState(false);
     const [resetEmail, setResetEmail] = useState("");
@@ -192,10 +199,17 @@ export default function AdminLogin() {
         try {
             const data = await api.adminLogin(formData);
 
+            if (data.success && data.requiresOTP) {
+                clearAttempts();
+                setLoginEmail(data.email || formData.email);
+                setRequires2FA(true);
+                setLoading(false);
+                return;
+            }
+
             if (data.success) {
                 clearAttempts();
                 localStorage.setItem("adminToken", data.token);
-
                 if (data.admin) {
                     localStorage.setItem("adminData", JSON.stringify(data.admin));
                     localStorage.removeItem("subAdminData");
@@ -203,7 +217,6 @@ export default function AdminLogin() {
                     localStorage.setItem("subAdminData", JSON.stringify(data.subAdmin));
                     localStorage.removeItem("adminData");
                 }
-
                 navigate("/admin/dashboard");
                 return;
             }
@@ -215,6 +228,32 @@ export default function AdminLogin() {
             setError(`Network error: ${networkError.message}. Please ensure backend server is running on port 5000.`);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleVerifyLoginOtp = async (e) => {
+        e.preventDefault();
+        setLoginOtpLoading(true);
+        setLoginOtpError("");
+        try {
+            const data = await api.adminVerifyLoginOtp({ email: loginEmail, otp: loginOtp.trim() });
+            if (data.success) {
+                localStorage.setItem("adminToken", data.token);
+                if (data.admin) {
+                    localStorage.setItem("adminData", JSON.stringify(data.admin));
+                    localStorage.removeItem("subAdminData");
+                } else if (data.subAdmin) {
+                    localStorage.setItem("subAdminData", JSON.stringify(data.subAdmin));
+                    localStorage.removeItem("adminData");
+                }
+                navigate("/admin/dashboard");
+            } else {
+                setLoginOtpError(data.message || "Invalid OTP. Please try again.");
+            }
+        } catch (err) {
+            setLoginOtpError(err.message || "Failed to verify OTP.");
+        } finally {
+            setLoginOtpLoading(false);
         }
     };
 
@@ -239,7 +278,43 @@ export default function AdminLogin() {
                                         <div className="row">
                                             <div className="col-lg-12">
                                                 <div className="twm-tabs-style-2">
-                                                    {!isResetMode ? (
+                                                    {requires2FA ? (
+                                                        <form onSubmit={handleVerifyLoginOtp}>
+                                                            <div className="twm-tabs-style-2-content">
+                                                                {loginOtpError && (
+                                                                    <div className="alert alert-danger" role="alert">{loginOtpError}</div>
+                                                                )}
+                                                                <div className="alert alert-info" role="alert" style={{ fontSize: '13px' }}>
+                                                                    An OTP has been sent to <strong>{loginEmail}</strong>. Enter it below to complete login.
+                                                                </div>
+                                                                <div className="form-group mb-3">
+                                                                    <input
+                                                                        type="text"
+                                                                        required
+                                                                        className="form-control"
+                                                                        placeholder="Enter OTP"
+                                                                        value={loginOtp}
+                                                                        onChange={(e) => setLoginOtp(e.target.value)}
+                                                                        autoFocus
+                                                                    />
+                                                                </div>
+                                                                <div className="form-group">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="site-button admin-auth-button admin-secondary-button"
+                                                                        onClick={() => { setRequires2FA(false); setLoginOtp(""); setLoginOtpError(""); }}
+                                                                    >
+                                                                        Back to login
+                                                                    </button>
+                                                                </div>
+                                                                <div className="form-group">
+                                                                    <button type="submit" className="site-button admin-auth-button" disabled={loginOtpLoading}>
+                                                                        {loginOtpLoading ? "Verifying..." : "Verify OTP"}
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    ) : !isResetMode ? (
                                                         <form onSubmit={handleSubmit}>
                                                             <div className="twm-tabs-style-2-content">
                                                                 {error && (

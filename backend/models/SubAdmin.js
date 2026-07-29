@@ -19,7 +19,11 @@ const subAdminSchema = new mongoose.Schema({
   status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required: true },
   resetPasswordOTP: { type: String },
-  resetPasswordOTPExpires: { type: Date }
+  resetPasswordOTPExpires: { type: Date },
+  twoFactorOTP: { type: String },
+  twoFactorOTPExpires: { type: Date },
+  twoFactorOTP: { type: String },
+  twoFactorOTPExpires: { type: Date }
 }, {
   timestamps: true
 });

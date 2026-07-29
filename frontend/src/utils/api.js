@@ -18,6 +18,8 @@ const resolveBackendOrigin = () => {
 
 export const BACKEND_URL = resolveBackendOrigin();
 export const API_BASE_URL = process.env.REACT_APP_API_URL || `${BACKEND_URL}/api`;
+const ADMIN_SLUG = process.env.REACT_APP_ADMIN_SLUG || 'xK9mP2r5';
+export const ADMIN_API_URL = `${API_BASE_URL}/${ADMIN_SLUG}`;
 
 // iOS Safari compatible fetch with retry mechanism
 const safeFetch = async (url, options = {}, retries = 3) => {
@@ -376,7 +378,7 @@ export const api = {
   getEmployerProfile: (employerId) => {
     // If employerId is provided, it's an admin request
     if (employerId) {
-      return fetch(`${API_BASE_URL}/admin/employers/${employerId}/profile`, {
+      return fetch(`${ADMIN_API_URL}/employers/${employerId}/profile`, {
         headers: getAuthHeaders('admin'),
       }).then((res) => res.json());
     }
@@ -549,7 +551,7 @@ export const api = {
 
   // Admin APIs
   adminLogin: (data) => {
-    return fetch(`${API_BASE_URL}/admin/login`, {
+    return fetch(`${ADMIN_API_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -557,7 +559,7 @@ export const api = {
   },
 
   adminResetPasswordDirect: (data) => {
-    return safeFetch(`${API_BASE_URL}/admin/password/reset-direct`, {
+    return safeFetch(`${ADMIN_API_URL}/password/reset-direct`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -565,7 +567,7 @@ export const api = {
   },
 
   adminSendOtp: (data) => {
-    return safeFetch(`${API_BASE_URL}/admin/send-otp`, {
+    return safeFetch(`${ADMIN_API_URL}/send-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -573,7 +575,15 @@ export const api = {
   },
 
   adminVerifyOtpReset: (data) => {
-    return safeFetch(`${API_BASE_URL}/admin/verify-otp-reset`, {
+    return safeFetch(`${ADMIN_API_URL}/verify-otp-reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }).then(handleApiResponse);
+  },
+
+  adminVerifyLoginOtp: (data) => {
+    return safeFetch(`${ADMIN_API_URL}/verify-login-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -581,7 +591,7 @@ export const api = {
   },
 
   subAdminLogin: (data) => {
-    return fetch(`${API_BASE_URL}/admin/login`, {
+    return fetch(`${ADMIN_API_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -589,85 +599,85 @@ export const api = {
   },
 
   getAdminStats: () => {
-    return safeFetch(`${API_BASE_URL}/admin/dashboard/stats`, {
+    return safeFetch(`${ADMIN_API_URL}/dashboard/stats`, {
       headers: getAuthHeaders('admin'),
     }).then(handleApiResponse);
   },
 
   getAdminCharts: () => {
-    return safeFetch(`${API_BASE_URL}/admin/dashboard/charts`, {
+    return safeFetch(`${ADMIN_API_URL}/dashboard/charts`, {
       headers: getAuthHeaders('admin'),
     }).then(handleApiResponse);
   },
 
   getAdminJobsPosted: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    return safeFetch(`${API_BASE_URL}/admin/dashboard/jobs-posted?${queryString}`, {
+    return safeFetch(`${ADMIN_API_URL}/dashboard/jobs-posted?${queryString}`, {
       headers: getAuthHeaders('admin'),
     }).then(handleApiResponse);
   },
 
   getAdminEmployerOverview: () => {
-    return safeFetch(`${API_BASE_URL}/admin/dashboard/employer-overview`, {
+    return safeFetch(`${ADMIN_API_URL}/dashboard/employer-overview`, {
       headers: getAuthHeaders('admin'),
     }).then(handleApiResponse);
   },
 
   getAdminEmployerOverviewJobs: (employerId) => {
-    return safeFetch(`${API_BASE_URL}/admin/dashboard/employer-overview/${employerId}/jobs`, {
+    return safeFetch(`${ADMIN_API_URL}/dashboard/employer-overview/${employerId}/jobs`, {
       headers: getAuthHeaders('admin'),
     }).then(handleApiResponse);
   },
 
   getAdminJobApplicants: (jobId) => {
-    return safeFetch(`${API_BASE_URL}/admin/dashboard/jobs/${jobId}/applicants`, {
+    return safeFetch(`${ADMIN_API_URL}/dashboard/jobs/${jobId}/applicants`, {
       headers: getAuthHeaders('admin'),
     }).then(handleApiResponse);
   },
 
   getSubAdminProfile: () => {
-    return safeFetch(`${API_BASE_URL}/admin/sub-admin/profile`, {
+    return safeFetch(`${ADMIN_API_URL}/sub-admin/profile`, {
       headers: getAuthHeaders('admin'),
     }).then(handleApiResponse);
   },
 
   getAdminUsers: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    return fetch(`${API_BASE_URL}/admin/users?${queryString}`, {
+    return fetch(`${ADMIN_API_URL}/users?${queryString}`, {
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
   },
 
   getAllCandidates: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    return fetch(`${API_BASE_URL}/admin/candidates?${queryString}`, {
+    return fetch(`${ADMIN_API_URL}/candidates?${queryString}`, {
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
   },
 
   getAllEmployers: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    return fetch(`${API_BASE_URL}/admin/employers?${queryString}`, {
+    return fetch(`${ADMIN_API_URL}/employers?${queryString}`, {
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
   },
 
   getAllJobs: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    return fetch(`${API_BASE_URL}/admin/jobs?${queryString}`, {
+    return fetch(`${ADMIN_API_URL}/jobs?${queryString}`, {
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
   },
 
   deleteCandidate: (candidateId) => {
-    return fetch(`${API_BASE_URL}/admin/candidates/${candidateId}`, {
+    return fetch(`${ADMIN_API_URL}/candidates/${candidateId}`, {
       method: 'DELETE',
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
   },
 
   updateEmployerStatus: (employerId, statusData) => {
-    return fetch(`${API_BASE_URL}/admin/employers/${employerId}/status`, {
+    return fetch(`${ADMIN_API_URL}/employers/${employerId}/status`, {
       method: 'PUT',
       headers: getAuthHeaders('admin'),
       body: JSON.stringify(statusData),
@@ -675,14 +685,14 @@ export const api = {
   },
 
   deleteEmployer: (employerId) => {
-    return fetch(`${API_BASE_URL}/admin/employers/${employerId}`, {
+    return fetch(`${ADMIN_API_URL}/employers/${employerId}`, {
       method: 'DELETE',
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
   },
 
   adminDeleteJob: (jobId) => {
-    return fetch(`${API_BASE_URL}/admin/jobs/${jobId}`, {
+    return fetch(`${ADMIN_API_URL}/jobs/${jobId}`, {
       method: 'DELETE',
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
@@ -690,33 +700,33 @@ export const api = {
 
   getRegisteredCandidates: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    return fetch(`${API_BASE_URL}/admin/candidates/registered?${queryString}`, {
+    return fetch(`${ADMIN_API_URL}/candidates/registered?${queryString}`, {
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
   },
 
   getAdminCandidateDetails: (candidateId) => {
-    return fetch(`${API_BASE_URL}/admin/candidates/${candidateId}`, {
+    return fetch(`${ADMIN_API_URL}/candidates/${candidateId}`, {
       headers: getAuthHeaders('admin'),
     }).then(handleApiResponse);
   },
 
   getShortlistedApplications: () => {
-    return fetch(`${API_BASE_URL}/admin/applications?status=shortlisted`, {
+    return fetch(`${ADMIN_API_URL}/applications?status=shortlisted`, {
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
   },
 
   getAllPlacements: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    return fetch(`${API_BASE_URL}/admin/placements?${queryString}`, {
+    return fetch(`${ADMIN_API_URL}/placements?${queryString}`, {
       headers: getAuthHeaders('admin'),
     }).then(handleApiResponse);
   },
 
   updatePlacementStatus: (placementId, status) => {
     const isApproved = status === 'approved';
-    return fetch(`${API_BASE_URL}/admin/placements/${placementId}/status`, {
+    return fetch(`${ADMIN_API_URL}/placements/${placementId}/status`, {
       method: 'PUT',
       headers: getAuthHeaders('admin'),
       body: JSON.stringify({ status, isApproved }),
@@ -724,13 +734,13 @@ export const api = {
   },
 
   getPlacementDetails: (placementId) => {
-    return fetch(`${API_BASE_URL}/admin/placements/${placementId}`, {
+    return fetch(`${ADMIN_API_URL}/placements/${placementId}`, {
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
   },
 
   assignPlacementCredits: (placementId, credits) => {
-    return fetch(`${API_BASE_URL}/admin/placements/${placementId}/credits`, {
+    return fetch(`${ADMIN_API_URL}/placements/${placementId}/credits`, {
       method: 'PUT',
       headers: getAuthHeaders('admin'),
       body: JSON.stringify({ credits }),
@@ -738,14 +748,14 @@ export const api = {
   },
 
   processPlacementData: (placementId) => {
-    return fetch(`${API_BASE_URL}/admin/placements/${placementId}/process`, {
+    return fetch(`${ADMIN_API_URL}/placements/${placementId}/process`, {
       method: 'POST',
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
   },
 
   getPlacementData: (placementId) => {
-    return fetch(`${API_BASE_URL}/admin/placements/${placementId}/data`, {
+    return fetch(`${ADMIN_API_URL}/placements/${placementId}/data`, {
       headers: getAuthHeaders('admin'),
     }).then(handleApiResponse);
   },
@@ -1058,13 +1068,13 @@ export const api = {
   },
 
   getCandidatesForCredits: () => {
-    return fetch(`${API_BASE_URL}/admin/candidates/credits/list`, {
+    return fetch(`${ADMIN_API_URL}/candidates/credits/list`, {
       headers: getAuthHeaders('admin'),
     }).then((res) => res.json());
   },
 
   updateCandidateCredits: (candidateId, data) => {
-    return fetch(`${API_BASE_URL}/admin/candidates/${candidateId}/credits`, {
+    return fetch(`${ADMIN_API_URL}/candidates/${candidateId}/credits`, {
       method: 'PUT',
       headers: getAuthHeaders('admin'),
       body: JSON.stringify(data),
@@ -1072,7 +1082,7 @@ export const api = {
   },
 
   createCandidate: (data) => {
-    return fetch(`${API_BASE_URL}/admin/candidates/create`, {
+    return fetch(`${ADMIN_API_URL}/candidates/create`, {
       method: 'POST',
       headers: getAuthHeaders('admin'),
       body: JSON.stringify(data),

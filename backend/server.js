@@ -364,6 +364,16 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Strict rate limiter for admin API routes
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests.' },
+  skip: (req) => process.env.NODE_ENV === 'development'
+});
+
 // Skip body parsing for file uploads
 app.use('/api/employer/profile/gallery', (req, res, next) => next());
 app.use('/api/employer/assessments/upload-question-image', (req, res, next) => next());
@@ -479,7 +489,10 @@ app.options('*', cors());
 app.use('/api/public', publicRoutes);
 app.use('/api/candidate', candidateRoutes);
 app.use('/api/employer', employerRoutes);
-app.use('/api/admin', adminRoutes);
+const adminSlug = process.env.ADMIN_API_SLUG || 'admin';
+app.use(`/api/${adminSlug}`, adminLimiter, adminRoutes);
+// Legacy /api/admin path — reject with 404 to avoid leaking the real slug
+app.use('/api/admin', (req, res) => res.status(404).json({ success: false, message: 'Not found' }));
 app.use('/api/placement', placementRoutes);
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/payments', paymentRoutes);

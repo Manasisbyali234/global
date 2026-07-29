@@ -574,11 +574,9 @@ exports.loginAdmin = async (req, res) => {
     const { email, password } = req.body;
     const normalizedEmail = email.trim();
 
-    // First check if it's a regular admin
     let user = await Admin.findByEmail(normalizedEmail);
     let userType = 'admin';
-    
-    // If not found in Admin, check SubAdmin
+
     if (!user) {
       const subAdminUser = await SubAdmin.findByEmail(normalizedEmail);
       if (subAdminUser) {
@@ -586,7 +584,7 @@ exports.loginAdmin = async (req, res) => {
         userType = 'sub-admin';
       }
     }
-    
+
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid email' });
     }
@@ -599,9 +597,68 @@ exports.loginAdmin = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Account is inactive' });
     }
 
+    // Generate 2FA OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.twoFactorOTP = otp;
+    user.twoFactorOTPExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    // Send OTP to admin's email
+    try {
+      const { sendOTPEmail } = require('../utils/emailService');
+      await sendOTPEmail(user.email, otp, user.name || 'Admin');
+    } catch (emailError) {
+      console.error('2FA OTP email error:', emailError);
+      return res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
+    }
+
+    res.json({
+      success: true,
+      requiresOTP: true,
+      email: user.email,
+      message: `OTP sent to ${user.email}`
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Verify 2FA OTP and complete login
+exports.verifyLoginOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const normalizedEmail = email.trim();
+
+    let user = await Admin.findByEmail(normalizedEmail);
+    let userType = 'admin';
+
+    if (!user) {
+      const subAdminUser = await SubAdmin.findByEmail(normalizedEmail);
+      if (subAdminUser) {
+        user = subAdminUser;
+        userType = 'sub-admin';
+      }
+    }
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    if (!user.twoFactorOTP || user.twoFactorOTP !== otp.trim()) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
+    }
+
+    if (!user.twoFactorOTPExpires || user.twoFactorOTPExpires < new Date()) {
+      return res.status(400).json({ success: false, message: 'OTP has expired. Please login again.' });
+    }
+
+    user.twoFactorOTP = undefined;
+    user.twoFactorOTPExpires = undefined;
+    await user.save();
+
     const token = generateToken(user._id, userType);
 
-    const responseData = {
+    res.json({
       success: true,
       token,
       [userType === 'admin' ? 'admin' : 'subAdmin']: {
@@ -611,9 +668,7 @@ exports.loginAdmin = async (req, res) => {
         role: user.role,
         ...(userType === 'sub-admin' && { permissions: user.permissions })
       }
-    };
-
-    res.json(responseData);
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

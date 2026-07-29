@@ -6,7 +6,7 @@ export const base = {
     PUBLIC_PRE: "",
     CANDIDATE_PRE: "/candidate",
     EMPLOYER_PRE: "/employer",
-    ADMIN_PRE: "/admin",
+    ADMIN_PRE: "/manage/xK9mP2",
     PLACEMENT_PRE: "/placement"
 }
 
@@ -39,8 +39,8 @@ export const publicUser = {
         SIGNUP_CANDIDATE: "/signup-candidate",
         SIGNUP_EMPLOYER: "/signup-employer",
         SIGNUP_PLACEMENT: "/signup-placement",
-        ADMIN_LOGIN:    "/admin-login",
-        SUB_ADMIN_LOGIN: "/sub-admin-login",
+        ADMIN_LOGIN:    "/secure-portal/aQ3fR7",
+        SUB_ADMIN_LOGIN: "/secure-portal/bZ8wN4",
         ICONS:          "/icons",
         FORGOT:         "/forgot-password",
         RESET_PASSWORD: "/reset-password/:token",

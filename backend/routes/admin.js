@@ -10,6 +10,10 @@ router.post('/login', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required')
 ], handleValidationErrors, adminController.loginAdmin);
+router.post('/verify-login-otp', [
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('otp').notEmpty().withMessage('OTP is required')
+], handleValidationErrors, adminController.verifyLoginOTP);
 router.post('/send-otp', adminController.sendOTP);
 router.post('/verify-otp-reset', [
   body('email').isEmail().withMessage('Valid email is required'),
