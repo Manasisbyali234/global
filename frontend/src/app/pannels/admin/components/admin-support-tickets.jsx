@@ -471,7 +471,7 @@ function AdminSupportTickets() {
         <div className="admin-emp-manage-container">
             <div className="wt-admin-right-page-header">
                 <h2>Support Tickets</h2>
-                <p>Monitors and respond to customer support requests</p>
+                <p>Monitor and respond to customer support requests</p>
             </div>
             <Container fluid>
                 <div className="stats-grid">
