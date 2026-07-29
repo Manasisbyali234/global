@@ -4,6 +4,7 @@ import LetterCaptchaField from "../../components/LetterCaptchaField";
 import { api } from "../../utils/api";
 import { useLoginRateLimit, formatCountdown } from "../../hooks/useLoginRateLimit";
 import { useNavigate } from "react-router-dom";
+import { base } from "../../globals/route-names";
 
 export default function SubAdminLogin() {
     const [formData, setFormData] = useState({
@@ -41,7 +42,7 @@ export default function SubAdminLogin() {
             localStorage.setItem("subAdminData", JSON.stringify(data.admin));
             localStorage.removeItem("adminData");
         }
-        navigate("/admin/dashboard");
+        navigate(base.ADMIN_PRE + "/dashboard");
     };
 
     const handleSubmit = async (e) => {

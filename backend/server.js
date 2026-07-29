@@ -489,7 +489,7 @@ app.options('*', cors());
 app.use('/api/public', publicRoutes);
 app.use('/api/candidate', candidateRoutes);
 app.use('/api/employer', employerRoutes);
-const adminSlug = process.env.ADMIN_API_SLUG || 'admin';
+const adminSlug = process.env.ADMIN_API_SLUG || 'xK9mP2r5';
 app.use(`/api/${adminSlug}`, adminLimiter, adminRoutes);
 // Legacy /api/admin path — reject with 404 to avoid leaking the real slug
 app.use('/api/admin', (req, res) => res.status(404).json({ success: false, message: 'Not found' }));

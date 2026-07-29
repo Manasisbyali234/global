@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useLoginRateLimit } from "../../hooks/useLoginRateLimit";
 import { useNavigate } from "react-router-dom";
+import { base } from "../../globals/route-names";
 import "../../admin-login-custom.css";
 import LetterCaptchaField from "../../components/LetterCaptchaField";
 import { api } from "../../utils/api";
@@ -220,7 +221,7 @@ export default function AdminLogin() {
                     localStorage.setItem("subAdminData", JSON.stringify(data.subAdmin));
                     localStorage.removeItem("adminData");
                 }
-                navigate("/admin/dashboard");
+                navigate(base.ADMIN_PRE + "/dashboard");
                 return;
             }
 
@@ -249,7 +250,7 @@ export default function AdminLogin() {
                     localStorage.setItem("subAdminData", JSON.stringify(data.subAdmin));
                     localStorage.removeItem("adminData");
                 }
-                navigate("/admin/dashboard");
+                navigate(base.ADMIN_PRE + "/dashboard");
             } else {
                 setLoginOtpError(data.message || "Invalid OTP. Please try again.");
             }
