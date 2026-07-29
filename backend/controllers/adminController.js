@@ -278,11 +278,45 @@ const queuePlacementWelcomeEmails = ({
 
 const DEFAULT_OTP_MOBILE = '8951670880'; // +91 89516 70880
 
+const OTP_MAX_ATTEMPTS = 3;
+const OTP_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+const otpAttempts = new Map();
+
+const checkOtpLockout = (email) => {
+  const key = String(email).trim().toLowerCase();
+  const entry = otpAttempts.get(key);
+  if (!entry || entry.lockedUntil <= Date.now()) return { locked: false };
+  return { locked: true, secondsRemaining: Math.ceil((entry.lockedUntil - Date.now()) / 1000) };
+};
+
+const recordOtpFailure = (email) => {
+  const key = String(email).trim().toLowerCase();
+  const now = Date.now();
+  const entry = otpAttempts.get(key) || { count: 0, lockedUntil: 0 };
+  if (entry.lockedUntil > 0 && entry.lockedUntil <= now) { entry.count = 0; entry.lockedUntil = 0; }
+  entry.count += 1;
+  if (entry.count >= OTP_MAX_ATTEMPTS) {
+    entry.lockedUntil = now + OTP_LOCKOUT_MS;
+    otpAttempts.set(key, entry);
+    return { locked: true, secondsRemaining: Math.ceil(OTP_LOCKOUT_MS / 1000) };
+  }
+  otpAttempts.set(key, entry);
+  return { locked: false, attemptsLeft: OTP_MAX_ATTEMPTS - entry.count };
+};
+
+const clearOtpAttempts = (email) => otpAttempts.delete(String(email).trim().toLowerCase());
+
 // Send OTP via SMS to default mobile number
 exports.sendOTP = async (req, res) => {
   try {
     const { email } = req.body;
     const normalizedEmail = email.trim();
+
+    const lockout = checkOtpLockout(normalizedEmail);
+    if (lockout.locked) {
+      const mins = Math.ceil(lockout.secondsRemaining / 60);
+      return res.status(429).json({ success: false, message: `Too many failed attempts. Please try again after ${mins} minute${mins !== 1 ? 's' : ''}.`, secondsRemaining: lockout.secondsRemaining });
+    }
 
     let user = await Admin.findByEmail(normalizedEmail);
     if (!user) {
@@ -333,7 +367,12 @@ exports.verifyOTPAndResetPassword = async (req, res) => {
     }
 
     if (!user.resetPasswordOTP || user.resetPasswordOTP !== otp.trim()) {
-      return res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
+      const result = recordOtpFailure(normalizedEmail);
+      if (result.locked) {
+        const mins = Math.ceil(result.secondsRemaining / 60);
+        return res.status(429).json({ success: false, message: `Too many failed attempts. Please try again after ${mins} minute${mins !== 1 ? 's' : ''}.`, secondsRemaining: result.secondsRemaining });
+      }
+      return res.status(400).json({ success: false, message: `Invalid OTP. ${result.attemptsLeft} attempt${result.attemptsLeft !== 1 ? 's' : ''} remaining.` });
     }
 
     if (!user.resetPasswordOTPExpires || user.resetPasswordOTPExpires < new Date()) {
@@ -345,6 +384,7 @@ exports.verifyOTPAndResetPassword = async (req, res) => {
     user.resetPasswordOTPExpires = undefined;
     await user.save();
 
+    clearOtpAttempts(normalizedEmail);
     res.json({ success: true, message: 'Password reset successful.' });
   } catch (error) {
     console.error('verifyOTPAndResetPassword error:', error);
