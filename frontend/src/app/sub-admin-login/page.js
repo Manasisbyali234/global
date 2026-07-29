@@ -23,7 +23,7 @@ export default function SubAdminLogin() {
 
     const captchaRef = useRef(null);
     
-    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('subadmin', formData.email);
+    const { isLocked, countdown, startLockout, clearAttempts } = useLoginRateLimit();
 
     const handleChange = (e) => {
         setFormData({
@@ -76,11 +76,9 @@ export default function SubAdminLogin() {
                 return;
             }
 
-            recordFailedAttempt();
-            setError(data.message || "Login failed. Please try again.");
+                        setError(data.message || "Login failed. Please try again.");
         } catch (networkError) {
-            recordFailedAttempt();
-            setError(`Network error: ${networkError.message}. Please ensure backend server is running.`);
+                        setError(`Network error: ${networkError.message}. Please ensure backend server is running.`);
         } finally {
             setLoading(false);
         }

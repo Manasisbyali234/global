@@ -51,7 +51,7 @@ export default function AdminLogin() {
             clearInterval(lockoutTimerRef.current);
         };
     }, []);
-    const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('admin', formData.email);
+    const { isLocked, countdown, startLockout, clearAttempts } = useLoginRateLimit();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -223,10 +223,8 @@ export default function AdminLogin() {
                 return;
             }
 
-            recordFailedAttempt();
             setError(data.message || "Login failed. Please try again.");
         } catch (networkError) {
-            recordFailedAttempt();
             setError(`Network error: ${networkError.message}. Please ensure backend server is running on port 5000.`);
         } finally {
             setLoading(false);
