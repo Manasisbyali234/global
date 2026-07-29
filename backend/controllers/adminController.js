@@ -278,7 +278,6 @@ const queuePlacementWelcomeEmails = ({
 
 const DEFAULT_OTP_MOBILE = '9008599697';
 
-<<<<<<< HEAD
 const OTP_MAX_ATTEMPTS = 3;
 const OTP_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
 const otpAttempts = new Map();
@@ -307,10 +306,7 @@ const recordOtpFailure = (email) => {
 
 const clearOtpAttempts = (email) => otpAttempts.delete(String(email).trim().toLowerCase());
 
-// Send OTP via SMS to default mobile number
-=======
 // Send OTP via SMS with email fallback
->>>>>>> df3288fdd73436fcb05529c866c41d7fc3058ad4
 exports.sendOTP = async (req, res) => {
   try {
     const { email } = req.body;
