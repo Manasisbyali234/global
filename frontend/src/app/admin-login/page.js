@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useLoginRateLimit } from "../../hooks/useLoginRateLimit";
 import { useNavigate } from "react-router-dom";
 import "../../admin-login-custom.css";
@@ -35,6 +35,15 @@ export default function AdminLogin() {
     const [otpLockout, setOtpLockout] = useState(0); // seconds remaining in lockout
 
     const captchaRef = useRef(null);
+    const resendTimerRef = useRef(null);
+    const lockoutTimerRef = useRef(null);
+
+    useEffect(() => {
+        return () => {
+            clearInterval(resendTimerRef.current);
+            clearInterval(lockoutTimerRef.current);
+        };
+    }, []);
     const navigate = useNavigate();
     const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('admin', formData.email);
 
@@ -43,20 +52,22 @@ export default function AdminLogin() {
     };
 
     const startResendCooldown = () => {
+        clearInterval(resendTimerRef.current);
         setResendCooldown(60);
-        const timer = setInterval(() => {
+        resendTimerRef.current = setInterval(() => {
             setResendCooldown((prev) => {
-                if (prev <= 1) { clearInterval(timer); return 0; }
+                if (prev <= 1) { clearInterval(resendTimerRef.current); return 0; }
                 return prev - 1;
             });
         }, 1000);
     };
 
     const startOtpLockout = (seconds) => {
+        clearInterval(lockoutTimerRef.current);
         setOtpLockout(seconds);
-        const timer = setInterval(() => {
+        lockoutTimerRef.current = setInterval(() => {
             setOtpLockout((prev) => {
-                if (prev <= 1) { clearInterval(timer); return 0; }
+                if (prev <= 1) { clearInterval(lockoutTimerRef.current); return 0; }
                 return prev - 1;
             });
         }, 1000);
