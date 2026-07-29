@@ -132,6 +132,9 @@ export default function AdminLogin() {
             if (data.success) {
                 setResetSuccess('OTP resent successfully to +91 90*******97');
                 startResendCooldown();
+            } else if (data.secondsRemaining) {
+                startOtpLockout(data.secondsRemaining);
+                setResetError(data.message);
             } else {
                 setResetError(data.message || "Failed to resend OTP.");
             }

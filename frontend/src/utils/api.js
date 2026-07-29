@@ -571,7 +571,7 @@ export const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-    }).then(handleApiResponse);
+    }).then((res) => res.json());
   },
 
   adminVerifyOtpReset: (data) => {
@@ -579,7 +579,7 @@ export const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-    }).then(handleApiResponse);
+    }).then((res) => res.json());
   },
 
   adminVerifyLoginOtp: (data) => {
