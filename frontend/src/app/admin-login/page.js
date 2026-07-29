@@ -32,6 +32,7 @@ export default function AdminLogin() {
     const [resetSuccess, setResetSuccess] = useState("");
     const [resendCooldown, setResendCooldown] = useState(0);
     const [passwordValidation, setPasswordValidation] = useState(initialPasswordValidationState);
+    const [otpLockout, setOtpLockout] = useState(0); // seconds remaining in lockout
 
     const captchaRef = useRef(null);
     const navigate = useNavigate();
@@ -45,6 +46,16 @@ export default function AdminLogin() {
         setResendCooldown(60);
         const timer = setInterval(() => {
             setResendCooldown((prev) => {
+                if (prev <= 1) { clearInterval(timer); return 0; }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    const startOtpLockout = (seconds) => {
+        setOtpLockout(seconds);
+        const timer = setInterval(() => {
+            setOtpLockout((prev) => {
                 if (prev <= 1) { clearInterval(timer); return 0; }
                 return prev - 1;
             });
@@ -81,6 +92,9 @@ export default function AdminLogin() {
                 setResetSuccess('OTP sent successfully to +91 90*******97');
                 setOtpSent(true);
                 startResendCooldown();
+            } else if (data.secondsRemaining) {
+                startOtpLockout(data.secondsRemaining);
+                setResetError(data.message);
             } else {
                 setResetError(data.message || "Failed to send OTP. Please try again.");
             }
@@ -140,6 +154,9 @@ export default function AdminLogin() {
                     setResetSuccess("");
                     setPasswordValidation(initialPasswordValidationState);
                 }, 1500);
+            } else if (data.secondsRemaining) {
+                startOtpLockout(data.secondsRemaining);
+                setResetError(data.message);
             } else {
                 setResetError(data.message || "Invalid or expired OTP. Please try again.");
             }
@@ -299,7 +316,6 @@ export default function AdminLogin() {
                                                                 <div className="alert alert-info" role="alert" style={{ fontSize: '13px' }}>
                                                                     OTP will be sent via SMS to <strong>{MASKED_PHONE}</strong>
                                                                 </div>
-
                                                                 <div className="form-group mb-3">
                                                                     <input
                                                                         type="email"
@@ -318,8 +334,8 @@ export default function AdminLogin() {
                                                                 </div>
 
                                                                 <div className="form-group">
-                                                                    <button type="submit" className="site-button admin-auth-button" disabled={resetLoading}>
-                                                                        {resetLoading ? "Sending OTP..." : "Send OTP"}
+                                                                    <button type="submit" className="site-button admin-auth-button" disabled={resetLoading || otpLockout > 0}>
+                                                                        {resetLoading ? "Sending OTP..." : otpLockout > 0 ? `Locked (${Math.floor(otpLockout / 60)}:${String(otpLockout % 60).padStart(2, '0')})` : "Send OTP"}
                                                                     </button>
                                                                 </div>
                                                             </div>
@@ -329,6 +345,11 @@ export default function AdminLogin() {
                                                             <div className="twm-tabs-style-2-content">
                                                                 {resetError && <div className="alert alert-danger" role="alert">{resetError}</div>}
                                                                 {resetSuccess && <div className="alert alert-success" role="alert">{resetSuccess}</div>}
+                                                                {otpLockout > 0 && (
+                                                                    <div className="alert alert-warning" role="alert" style={{ textAlign: 'center' }}>
+                                                                        Too many failed attempts. Try again in <strong>{Math.floor(otpLockout / 60)}:{String(otpLockout % 60).padStart(2, '0')}</strong>
+                                                                    </div>
+                                                                )}
 
 <div className="form-group mb-3">
                                                                     <input
@@ -398,8 +419,8 @@ export default function AdminLogin() {
                                                                 </div>
 
                                                                 <div className="form-group">
-                                                                    <button type="submit" className="site-button admin-auth-button" disabled={resetLoading}>
-                                                                        {resetLoading ? "Resetting..." : "Reset Password"}
+                                                                    <button type="submit" className="site-button admin-auth-button" disabled={resetLoading || otpLockout > 0}>
+                                                                        {resetLoading ? "Resetting..." : otpLockout > 0 ? `Locked (${Math.floor(otpLockout / 60)}:${String(otpLockout % 60).padStart(2, '0')})` : "Reset Password"}
                                                                     </button>
                                                                 </div>
                                                             </div>
