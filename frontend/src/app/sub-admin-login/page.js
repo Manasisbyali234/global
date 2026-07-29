@@ -3,7 +3,6 @@ import "../../admin-login-custom.css";
 import LetterCaptchaField from "../../components/LetterCaptchaField";
 import { api } from "../../utils/api";
 import { useLoginRateLimit, formatCountdown } from "../../hooks/useLoginRateLimit";
-import { useNavigate } from "react-router-dom";
 import { base } from "../../globals/route-names";
 
 export default function SubAdminLogin() {
@@ -23,7 +22,7 @@ export default function SubAdminLogin() {
     const [loginOtpError, setLoginOtpError] = useState("");
 
     const captchaRef = useRef(null);
-    const navigate = useNavigate();
+    
     const { isLocked, countdown, recordFailedAttempt, clearAttempts } = useLoginRateLimit('subadmin', formData.email);
 
     const handleChange = (e) => {
@@ -42,7 +41,7 @@ export default function SubAdminLogin() {
             localStorage.setItem("subAdminData", JSON.stringify(data.admin));
             localStorage.removeItem("adminData");
         }
-        navigate(base.ADMIN_PRE + "/dashboard");
+        window.location.href = base.ADMIN_PRE + "/dashboard";
     };
 
     const handleSubmit = async (e) => {
