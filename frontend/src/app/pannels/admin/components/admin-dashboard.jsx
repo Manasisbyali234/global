@@ -4,6 +4,7 @@ import JobZImage from "../../../common/jobz-img";
 import CountUp from "react-countup";
 import AdminDashboardActivityChart from "../common/admin-graph";
 import { api } from "../../../../utils/api";
+import { adminRoute } from "../../../../globals/route-names";
 import "./admin-dashboard-styles.css";
 
 function AdminDashboardPage() {
@@ -192,7 +193,11 @@ function AdminDashboardPage() {
                 {!isSubAdmin && (
                 <div className="row" style={{marginBottom: '2rem'}}>
                     <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
+<<<<<<< HEAD
                         <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/manage/xK9mP2/registered-candidates')}>
+=======
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate(adminRoute('/registered-candidates'))}>
+>>>>>>> 67f3d051ee32f139592867aa7e82dc41922f6ecb
                             <div className="admin-stat-card__body">
                                 <div className="admin-stat-card__top">
                                     <i className="fa fa-users text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
@@ -206,7 +211,11 @@ function AdminDashboardPage() {
                     </div>
 
                     <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
+<<<<<<< HEAD
                         <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/manage/xK9mP2/admin-emp-approved')}>
+=======
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate(adminRoute('/admin-emp-approved'))}>
+>>>>>>> 67f3d051ee32f139592867aa7e82dc41922f6ecb
                             <div className="admin-stat-card__body">
                                 <div className="admin-stat-card__top">
                                     <i className="fa fa-building text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
@@ -220,7 +229,11 @@ function AdminDashboardPage() {
                     </div>
 
                     <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
+<<<<<<< HEAD
                         <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/manage/xK9mP2/overview')}>
+=======
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate(adminRoute('/overview'))}>
+>>>>>>> 67f3d051ee32f139592867aa7e82dc41922f6ecb
                             <div className="admin-stat-card__body">
                                 <div className="admin-stat-card__top">
                                     <i className="fa fa-briefcase text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
@@ -234,7 +247,7 @@ function AdminDashboardPage() {
                     </div>
 
                     <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
-                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', height: '140px', border: '1px solid #eef2f7'}}>
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate(adminRoute('/registered-candidates'))}>
                             <div className="admin-stat-card__body">
                                 <div className="admin-stat-card__top">
                                     <i className="fa fa-user-check text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
@@ -248,7 +261,7 @@ function AdminDashboardPage() {
                     </div>
 
                     <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
-                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', height: '140px', border: '1px solid #eef2f7'}}>
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate(adminRoute('/registered-candidates'))}>
                             <div className="admin-stat-card__body">
                                 <div className="admin-stat-card__top">
                                     <i className="fa fa-user-times text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
@@ -262,7 +275,11 @@ function AdminDashboardPage() {
                     </div>
                     
                     <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
+<<<<<<< HEAD
                         <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/manage/xK9mP2/admin-placement-approved')}>
+=======
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate(adminRoute('/admin-placement-approved'))}>
+>>>>>>> 67f3d051ee32f139592867aa7e82dc41922f6ecb
                             <div className="admin-stat-card__body">
                                 <div className="admin-stat-card__top">
                                     <i className="fa fa-graduation-cap text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
