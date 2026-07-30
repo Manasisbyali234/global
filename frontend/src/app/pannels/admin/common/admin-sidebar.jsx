@@ -5,12 +5,12 @@ import { loadScript, setMenuActive } from "../../../../globals/constants";
 import { admin, adminRoute, publicUser } from "../../../../globals/route-names";
 import { useEffect, useState, useRef } from "react";
 import "./admin-sidebar.css";
+import { ADMIN_API_URL, API_BASE_URL } from '../../../../utils/api';
 
 function AdminSidebarSection({ sidebarActive, isMobile }) {
     const location = useLocation();
     const currentpath = location.pathname;
     const currentSearch = location.search;
-    const ADMIN_API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
     const [userPermissions, setUserPermissions] = useState([]);
     const [isSubAdmin, setIsSubAdmin] = useState(false);
     const [openMenus, setOpenMenus] = useState({});
@@ -31,7 +31,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             
             if (!token || !subAdminData) return;
             
-            const response = await fetch(`${ADMIN_API_BASE_URL}/admin/sub-admin/profile`, {
+            const response = await fetch(`${ADMIN_API_URL}/sub-admin/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -67,7 +67,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
             
-            const res = await fetch(`${ADMIN_API_BASE_URL}/admin/employers?approvalStatus=pending&limit=1`, {
+            const res = await fetch(`${ADMIN_API_URL}/employers?approvalStatus=pending&limit=1`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -86,7 +86,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
 
-            const res = await fetch(`${ADMIN_API_BASE_URL}/admin/employers`, {
+            const res = await fetch(`${ADMIN_API_URL}/employers`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -110,7 +110,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
             
-            const res = await fetch(`${ADMIN_API_BASE_URL}/admin/placements?status=pending&limit=1`, {
+            const res = await fetch(`${ADMIN_API_URL}/placements?status=pending&limit=1`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -128,7 +128,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
 
-            const res = await fetch(`${ADMIN_API_BASE_URL}/admin/placements`, {
+            const res = await fetch(`${ADMIN_API_URL}/placements`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -151,7 +151,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
             
-            const res = await fetch(`${ADMIN_API_BASE_URL}/admin/support-tickets?status=new&limit=1`, {
+            const res = await fetch(`${ADMIN_API_URL}/support-tickets?status=new&limit=1`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -172,7 +172,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                 return;
             }
 
-            const res = await fetch(`${ADMIN_API_BASE_URL}/notifications/admin?page=1&limit=1`, {
+            const res = await fetch(`${API_BASE_URL}/notifications/admin?page=1&limit=1`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
