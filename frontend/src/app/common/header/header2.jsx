@@ -20,7 +20,7 @@ const Header2 = memo(function Header2({ _config }) {
             case 'placement':
                 return '/placement/dashboard';
             case 'admin':
-                return '/admin/dashboard';
+                return '/manage/xK9mP2/dashboard';
             case 'sub-admin':
                 return '/sub-admin/dashboard';
             default:
