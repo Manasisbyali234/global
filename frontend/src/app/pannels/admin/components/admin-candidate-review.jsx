@@ -4,7 +4,7 @@ import JobZImage from "../../../common/jobz-img";
 import { useNavigate, useParams } from "react-router-dom";
 import PageLoader from '../../../../components/PageLoader';
 import './admin-candidate-review.css';
-import { ADMIN_API_URL } from '../../../../utils/api';
+import { ADMIN_API_URL, BACKEND_URL } from '../../../../utils/api';
 import { getStatusLabel } from '../../../../utils/statusDisplay';
 import { formatDesignation, formatJobTitle } from '../../../../utils/jobTitleFormatter';
 
