@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { showSuccess, showError } from '../../../../utils/popupNotification';
+import { ADMIN_API_URL } from '../../../../utils/api';
 import PageLoader from '../../../../components/PageLoader';
 import '../../../../admin-credits-button-fix.css';
 
@@ -28,7 +29,7 @@ function AdminCreditsPage() {
 	const fetchCandidates = async () => {
 		try {
 			const token = localStorage.getItem('adminToken');
-			const response = await fetch('http://localhost:5000/api/admin/candidates', {
+			const response = await fetch(`${ADMIN_API_URL}/candidates`, {
 				headers: { 'Authorization': `Bearer ${token}` }
 			});
 			const data = await response.json();
@@ -78,7 +79,7 @@ function AdminCreditsPage() {
 	const updateCandidateCredits = async (candidateId, creditsToAdd) => {
 		try {
 			const token = localStorage.getItem('adminToken');
-			const response = await fetch(`http://localhost:5000/api/admin/candidates/${candidateId}/credits`, {
+			const response = await fetch(`${ADMIN_API_URL}/candidates/${candidateId}/credits`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
@@ -120,7 +121,7 @@ function AdminCreditsPage() {
 		
 		try {
 			const token = localStorage.getItem('adminToken');
-			const response = await fetch('http://localhost:5000/api/admin/candidates/credits/bulk', {
+			const response = await fetch(`${ADMIN_API_URL}/candidates/credits/bulk`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
@@ -151,7 +152,7 @@ function AdminCreditsPage() {
 		
 		try {
 			const token = localStorage.getItem('adminToken');
-			const response = await fetch('http://localhost:5000/api/admin/candidates/create', {
+			const response = await fetch(`${ADMIN_API_URL}/candidates/create`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

@@ -3,6 +3,7 @@ import JobZImage from "../../../common/jobz-img";
 import { loadScript } from "../../../../globals/constants";
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 import { formatDate } from '../../../../utils/dateFormatter';
+import { ADMIN_API_URL } from '../../../../utils/api';
 function AdminCandidates() {
     const [candidates, setCandidates] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,7 +16,7 @@ function AdminCandidates() {
     const fetchCandidates = async () => {
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch('http://localhost:5000/api/admin/users?type=candidates', {
+            const response = await fetch(`${ADMIN_API_URL}/users?type=candidates`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -61,7 +62,7 @@ function AdminCandidates() {
     const performDelete = async (candidateId) => {
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`http://localhost:5000/api/admin/users/${candidateId}/candidate`, {
+            const response = await fetch(`${ADMIN_API_URL}/users/${candidateId}/candidate`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

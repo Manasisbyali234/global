@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import SearchBar from "../../../../components/SearchBar";
+import { ADMIN_API_URL } from '../../../../utils/api';
 import './admin-emp-manage-styles.css';
 import './admin-sub-admin-permission-cards-fix.css';
 import './admin-sub-admin-mobile-fix.css';
 
 import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = ADMIN_API_URL;
 
 const passwordInputStyle = `
   input[type="password"]::-ms-reveal,
@@ -192,7 +193,7 @@ function AdminSubAdmin() {
         setLoading(true);
         try {
             const token = localStorage.getItem('adminToken');
-            const url = showEditForm ? `${API_BASE_URL}/admin/sub-admins/${editingId}` : `${API_BASE_URL}/admin/sub-admins`;
+            const url = showEditForm ? `${API_BASE_URL}/sub-admins/${editingId}` : `${API_BASE_URL}/sub-admins`;
             const method = showEditForm ? 'PUT' : 'POST';
             
             const requestBody = {
@@ -278,7 +279,7 @@ function AdminSubAdmin() {
         try {
             const token = localStorage.getItem('adminToken');
             
-            const response = await fetch(`${API_BASE_URL}/admin/sub-admins`, {
+            const response = await fetch(`${API_BASE_URL}/sub-admins`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -310,7 +311,7 @@ function AdminSubAdmin() {
             async () => {
                 try {
                     const token = localStorage.getItem('adminToken');
-                    const response = await fetch(`${API_BASE_URL}/admin/sub-admins/${id}`, {
+                    const response = await fetch(`${API_BASE_URL}/sub-admins/${id}`, {
                         method: 'DELETE',
                         headers: {
                             'Authorization': `Bearer ${token}`

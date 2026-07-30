@@ -4,7 +4,7 @@ import JobZImage from "../../../common/jobz-img";
 import { useNavigate, useParams } from "react-router-dom";
 import PageLoader from '../../../../components/PageLoader';
 import './admin-candidate-review.css';
-import { BACKEND_URL } from '../../../../utils/api';
+import { ADMIN_API_URL } from '../../../../utils/api';
 import { getStatusLabel } from '../../../../utils/statusDisplay';
 import { formatDesignation, formatJobTitle } from '../../../../utils/jobTitleFormatter';
 
@@ -28,7 +28,7 @@ function AdminCandidateReviewPage() {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
 
-            const response = await fetch(`${BACKEND_URL}/api/admin/candidates/${candidateId}`, {
+            const response = await fetch(`${ADMIN_API_URL}/candidates/${candidateId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
 import { formatJobTitle } from '../../../../utils/jobTitleFormatter';
+import { ADMIN_API_URL } from '../../../../utils/api';
 
 function ShortlistedCandidatesPage() {
     const [shortlistedCandidates, setShortlistedCandidates] = useState([]);
@@ -13,7 +14,7 @@ function ShortlistedCandidatesPage() {
     const fetchShortlistedCandidates = async () => {
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch('http://localhost:5000/api/admin/applications?status=shortlisted', {
+            const response = await fetch(`${ADMIN_API_URL}/applications?status=shortlisted`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

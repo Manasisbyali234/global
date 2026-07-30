@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { formatDate } from '../../../../utils/dateFormatter';
-import { api } from '../../../../utils/api';
+import { api, ADMIN_API_URL } from '../../../../utils/api';
 import PageLoader from '../../../../components/PageLoader';
 import './placement-details.css';
 
@@ -21,7 +21,7 @@ function PlacementFileRecords() {
 
             const [placementResponse, fileResponse] = await Promise.all([
                 api.getPlacementDetails(id),
-                fetch(`http://localhost:5000/api/admin/placements/${id}/files/${fileId}/data`, {
+                fetch(`${ADMIN_API_URL}/placements/${id}/files/${fileId}/data`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                     }

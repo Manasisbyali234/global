@@ -6,6 +6,7 @@ import { showSuccess, showError } from '../../../../utils/popupNotification';
 import PageLoader from '../../../../components/PageLoader';
 import { formatDate as formatDateUtil } from '../../../../utils/dateFormatter';
 import { formatDesignation } from '../../../../utils/jobTitleFormatter';
+import { ADMIN_API_URL, BACKEND_URL } from '../../../../utils/api';
 import './employer-details-styles.css';
 
 const ABBR_SET = new Set(['IQ','IT','AI','LLP','LLC','Inc','Pvt','Ltd','PVT','LTD']);
@@ -19,9 +20,8 @@ const toTitleCase = (str) => {
 };
 
 function EmployerDetails() {
-    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-    const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
-    console.log('API_BASE_URL configured as:', API_BASE_URL);
+    const API_ORIGIN = BACKEND_URL;
+    const API_BASE_URL = ADMIN_API_URL;
     const navigate = useNavigate();
     const { id } = useParams();
     const [profile, setProfile] = useState(null);
@@ -48,7 +48,7 @@ function EmployerDetails() {
     const fetchEmployerProfile = async () => {
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`${API_BASE_URL}/admin/employers/${id}/profile`, {
+            const response = await fetch(`${API_BASE_URL}/employers/${id}/profile`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -183,7 +183,7 @@ function EmployerDetails() {
     const downloadDocument = async (employerId, documentType) => {
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`${API_BASE_URL}/admin/download-document/${employerId}/${documentType}`, {
+            const response = await fetch(`${API_BASE_URL}/download-document/${employerId}/${documentType}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -220,7 +220,7 @@ function EmployerDetails() {
             }
 
             // Append timestamp to bust any intermediate caches
-            const url = `${API_BASE_URL}/admin/employers/${employerId}/view-document/${documentType}?t=${Date.now()}`;
+            const url = `${API_BASE_URL}/employers/${employerId}/view-document/${documentType}?t=${Date.now()}`;
             
             const response = await fetch(url, {
                 headers: { 
@@ -276,7 +276,7 @@ function EmployerDetails() {
         try {
             setJobsLoading(true);
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`${API_BASE_URL}/admin/employers/${id}/jobs`, {
+            const response = await fetch(`${API_BASE_URL}/employers/${id}/jobs`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -299,7 +299,7 @@ function EmployerDetails() {
     const updateDocumentStatus = async (employerId, field, status) => {
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`${API_BASE_URL}/admin/employers/${employerId}/profile`, {
+            const response = await fetch(`${API_BASE_URL}/employers/${employerId}/profile`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -322,7 +322,7 @@ function EmployerDetails() {
     const handleApproveAuthorizationLetter = async (letterId) => {
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`${API_BASE_URL}/admin/employers/${id}/authorization-letters/${letterId}/approve`, {
+            const response = await fetch(`${API_BASE_URL}/employers/${id}/authorization-letters/${letterId}/approve`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -353,7 +353,7 @@ function EmployerDetails() {
     const handleRejectAuthorizationLetter = async (letterId) => {
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`${API_BASE_URL}/admin/employers/${id}/authorization-letters/${letterId}/reject`, {
+            const response = await fetch(`${API_BASE_URL}/employers/${id}/authorization-letters/${letterId}/reject`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,

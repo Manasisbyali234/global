@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { api, BACKEND_URL } from '../../../../utils/api';
+import { api, ADMIN_API_URL } from '../../../../utils/api';
 import { useWebSocket } from '../../../../contexts/WebSocketContext';
 import PageLoader from '../../../../components/PageLoader';
 import './placement-details.css';
@@ -46,7 +46,7 @@ const FILE_STATUS_FILTER_OPTIONS = [
     { value: 'resubmitted', label: 'Resubmitted' }
 ];
 
-const ADMIN_API_BASE = `${BACKEND_URL}/api/admin`;
+const ADMIN_API_BASE = ADMIN_API_URL;
 
 const getNormalizedFileStatus = (file) => {
     const rawStatus = String(file?.status || '').trim().toLowerCase();
