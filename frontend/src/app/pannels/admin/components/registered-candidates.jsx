@@ -272,7 +272,7 @@ function RegisteredCandidatesPage() {
                                                 <td>
                                                     <button 
                                                         className="action-btn btn-view"
-                                                        onClick={() => navigate(`/admin/candidate-review/${candidate._id}`)}
+                                                        onClick={() => navigate(`/manage/xK9mP2/candidate-review/${candidate._id}`)}
                                                         title="View Details"
                                                     >
                                                         <i className="fa fa-eye"></i>

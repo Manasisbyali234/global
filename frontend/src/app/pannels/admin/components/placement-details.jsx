@@ -295,7 +295,7 @@ function PlacementDetails() {
     // Global credits assignment removed - now using file-specific credits
 
     const handleOpenFileRecordsPage = (fileId) => {
-        navigate(`/admin/placement-details/${id}/files/${fileId}`);
+        navigate(`/manage/xK9mP2/placement-details/${id}/files/${fileId}`);
     };
 
     const handleFileCreditsManagement = (file) => {
@@ -613,9 +613,9 @@ function PlacementDetails() {
                             // Check if we came from approved section or use browser history
                             const referrer = location.state?.from || document.referrer;
                             if (referrer && referrer.includes('admin-placement-approved')) {
-                                navigate('/admin/admin-placement-approved');
+                                navigate('/manage/xK9mP2/admin-placement-approved');
                             } else if (referrer && referrer.includes('admin-placement-rejected')) {
-                                navigate('/admin/admin-placement-rejected');
+                                navigate('/manage/xK9mP2/admin-placement-rejected');
                             } else {
                                 // Default to all submissions (manage) or go back in history
                                 navigate(-1);
@@ -1034,7 +1034,7 @@ function PlacementDetails() {
                                     {viewingFile.name} - Student Data
                                 </h5>
                                 <button type="button" className="close" onClick={() => setViewingFile(null)}>
-                                    <span>×</span>
+                                    <span>ï¿½</span>
                                 </button>
                             </div>
                             <div className="modal-body">
@@ -1098,7 +1098,7 @@ function PlacementDetails() {
                                     File Credits Management - {selectedFile.fileName}
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowCreditsModal(false)}>
-                                    <span>×</span>
+                                    <span>ï¿½</span>
                                 </button>
                             </div>
                             <div className="modal-body">
@@ -1138,7 +1138,7 @@ function PlacementDetails() {
                                     Bulk Credits Assignment - All Files
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowBulkCreditsModal(false)}>
-                                    <span>×</span>
+                                    <span>ï¿½</span>
                                 </button>
                             </div>
                             <div className="modal-body">
@@ -1200,7 +1200,7 @@ function PlacementDetails() {
                                     Stored Excel Data from MongoDB
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowStoredDataModal(false)}>
-                                    <span>×</span>
+                                    <span>ï¿½</span>
                                 </button>
                             </div>
                             <div className="modal-body">
@@ -1283,7 +1283,7 @@ function PlacementDetails() {
                                     {viewImageModal.title}
                                 </h5>
                                 <button type="button" className="close" onClick={() => setViewImageModal(null)}>
-                                    <span>×</span>
+                                    <span>ï¿½</span>
                                 </button>
                             </div>
                             <div className="modal-body text-center">
@@ -1312,7 +1312,7 @@ function PlacementDetails() {
                                     Credits Not Assigned
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowCreditWarningModal(false)}>
-                                    <span>×</span>
+                                    <span>ï¿½</span>
                                 </button>
                             </div>
                             <div className="modal-body" style={{padding: '24px'}}>
@@ -1360,7 +1360,7 @@ function PlacementDetails() {
                                     Reject File: {rejectingFile.name}
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowRejectModal(false)}>
-                                    <span>×</span>
+                                    <span>ï¿½</span>
                                 </button>
                             </div>
                             <div className="modal-body">

@@ -264,7 +264,7 @@ function AdminPlacementOfficersAllRequest() {
                                                     )}
                                                     <button
                                                         className="placement-action-btn btn-view"
-                                                        onClick={() => navigate(`/admin/placement-details/${placement._id}`)}
+                                                        onClick={() => navigate(`/manage/xK9mP2/placement-details/${placement._id}`)}
                                                     >
                                                         <i className="fa fa-eye"></i> View
                                                     </button>

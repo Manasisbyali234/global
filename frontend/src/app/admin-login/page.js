@@ -5,7 +5,6 @@ import "../../admin-login-custom.css";
 import LetterCaptchaField from "../../components/LetterCaptchaField";
 import { api } from "../../utils/api";
 
-const DEFAULT_PHONE = "+91 90085 99697";
 const MASKED_PHONE = "+91 90*******97";
 
 const initialPasswordValidationState = {
@@ -51,7 +50,7 @@ export default function AdminLogin() {
             clearInterval(lockoutTimerRef.current);
         };
     }, []);
-    const { isLocked, countdown, startLockout, clearAttempts } = useLoginRateLimit();
+    const { isLocked, countdown, clearAttempts } = useLoginRateLimit();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

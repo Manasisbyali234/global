@@ -202,8 +202,8 @@ function AdminPlacementOfficersApproved() {
                                             <td style={{textAlign: 'center'}}>
                                                 <button
                                                     className="action-btn btn-view"
-                                                    onClick={() => navigate(`/admin/placement-details/${placement._id}`, {
-                                                        state: { from: '/admin/admin-placement-approved' }
+                                                    onClick={() => navigate(`/manage/xK9mP2/placement-details/${placement._id}`, {
+                                                        state: { from: '/manage/xK9mP2/admin-placement-approved' }
                                                     })}
                                                 >
                                                     <i className="fa fa-eye"></i>

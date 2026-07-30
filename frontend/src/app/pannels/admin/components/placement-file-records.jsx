@@ -63,7 +63,7 @@ function PlacementFileRecords() {
         return (
             <div className="placement-details-page container-fluid p-4" style={{background: '#f8f9fa', minHeight: '100vh'}}>
                 <div className="modern-card p-4">
-                    <button className="btn btn-outline-secondary mb-3" onClick={() => navigate(`/admin/placement-details/${id}`)}>
+                    <button className="btn btn-outline-secondary mb-3" onClick={() => navigate(`/manage/xK9mP2/placement-details/${id}`)}>
                         <i className="fa fa-arrow-left me-2"></i>
                         Back to Placement Details
                     </button>
@@ -91,7 +91,7 @@ function PlacementFileRecords() {
                     </div>
                     <button
                         className="btn btn-outline-secondary"
-                        onClick={() => navigate(`/admin/placement-details/${id}`)}
+                        onClick={() => navigate(`/manage/xK9mP2/placement-details/${id}`)}
                         style={{borderRadius: '8px'}}
                     >
                         <i className="fa fa-arrow-left me-2"></i>

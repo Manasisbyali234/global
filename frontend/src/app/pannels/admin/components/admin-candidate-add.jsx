@@ -25,7 +25,7 @@ const AdminCandidateAddEdit = () => {
 		e.preventDefault();
 		// Submit logic here (e.g., POST to API)
 		
-		navigate("/admin/candidates");
+		navigate("/manage/xK9mP2/candidates-list");
 	};
 
 	return (

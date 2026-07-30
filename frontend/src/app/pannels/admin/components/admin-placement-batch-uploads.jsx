@@ -167,7 +167,7 @@ function AdminBatchUploads() {
                                                         cursor: 'pointer',
                                                         display: 'inline-block'
                                                     }}
-                                                    onClick={() => navigate(`/admin/placement-details/${placement._id}`)}
+                                                    onClick={() => navigate(`/manage/xK9mP2/placement-details/${placement._id}`)}
                                                 >
                                                     View Details
                                                 </button>

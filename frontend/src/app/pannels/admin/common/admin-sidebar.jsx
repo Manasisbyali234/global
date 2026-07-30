@@ -473,7 +473,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                     </li>
                                     {!isSubAdmin && (
                                         <li>
-                                            <NavLink to="/admin/placement-credits">
+                                            <NavLink to="/manage/xK9mP2/placement-credits">
                                                 <span className="admin-nav-text">Credits</span>
                                             </NavLink>
                                         </li>

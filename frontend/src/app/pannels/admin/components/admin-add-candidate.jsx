@@ -98,7 +98,7 @@ function AdminAddCandidate() {
                     credits: ''
                 });
                 setTimeout(() => {
-                    navigate('/admin/placement-credits');
+                    navigate('/manage/xK9mP2/placement-credits');
                 }, 1500);
             } else {
                 showError(response.message || 'Failed to create candidate');
@@ -118,7 +118,7 @@ function AdminAddCandidate() {
                     <p>Create a new candidate account and assign credits</p>
                 </div>
                 <button
-                    onClick={() => navigate('/admin/placement-credits')}
+                    onClick={() => navigate('/manage/xK9mP2/placement-credits')}
                     style={{
                         backgroundColor: '#6c757d',
                         color: 'white',
@@ -216,7 +216,7 @@ function AdminAddCandidate() {
                             <button
                                 type="button"
                                 className="site-button"
-                                onClick={() => navigate('/admin/placement-credits')}
+                                onClick={() => navigate('/manage/xK9mP2/placement-credits')}
                                 style={{
                                     backgroundColor: '#6c757d',
                                     color: 'white',

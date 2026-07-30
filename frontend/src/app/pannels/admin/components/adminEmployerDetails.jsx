@@ -1321,7 +1321,7 @@ function EmployerDetails() {
                 <div className="job-count-container">
                     <div
                         className="job-count-card"
-                        onClick={() => navigate(`/admin/overview?employerId=${id}`)}
+                        onClick={() => navigate(`/manage/xK9mP2/overview?employerId=${id}`)}
                         style={{cursor: 'pointer'}}
                     >
                         <div className="job-count-info">

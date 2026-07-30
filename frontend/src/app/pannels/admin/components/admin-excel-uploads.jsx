@@ -186,8 +186,8 @@ function AdminExcelUploads() {
                                             <td style={{textAlign: 'center'}}>
                                                 <button
                                                     className="action-btn btn-view"
-                                                    onClick={() => navigate(`/admin/placement-details/${upload.placementId}`, {
-                                                        state: { from: '/admin/excel-uploads' }
+                                                    onClick={() => navigate(`/manage/xK9mP2/placement-details/${upload.placementId}`, {
+                                                        state: { from: '/manage/xK9mP2/excel-uploads' }
                                                     })}
                                                 >
                                                     <i className="fa fa-eye"></i>

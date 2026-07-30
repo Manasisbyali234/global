@@ -74,7 +74,7 @@ function AdminIndividualCredit() {
                 </div>
                 <button
                     className="site-button"
-                    onClick={() => navigate('/admin/placement-credits/add-candidate')}
+                    onClick={() => navigate('/manage/xK9mP2/placement-credits/add-candidate')}
                     style={{
                         backgroundColor: '#28a745',
                         color: 'white',

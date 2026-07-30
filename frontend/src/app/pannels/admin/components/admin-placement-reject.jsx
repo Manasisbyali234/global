@@ -133,7 +133,7 @@ function AdminPlacementOfficersRejected() {
                                             <td style={{textAlign: 'center'}}>
                                                 <button
                                                     className="action-btn btn-view"
-                                                    onClick={() => window.open(`/admin/placement-details/${placement._id}`, '_blank')}
+                                                    onClick={() => window.open(`/manage/xK9mP2/placement-details/${placement._id}`, '_blank')}
                                                 >
                                                     <i className="fa fa-eye"></i>
                                                     View

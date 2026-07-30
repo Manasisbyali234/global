@@ -102,7 +102,7 @@ function AdminPlacementOfficersTabs() {
             const response = await api.updatePlacementStatus(placementId, 'rejected');
             if (response.success) {
                 showSuccess('Placement Dean rejected successfully! Once rejected, you cannot approve or retake this action.');
-                navigate('/admin/admin-placement-rejected');
+                navigate('/manage/xK9mP2/admin-placement-rejected');
             } else {
                 showError('Failed to reject Placement Dean');
             }
@@ -197,7 +197,7 @@ function AdminPlacementOfficersTabs() {
                                                             </button>
                                                         </>
                                                     )}
-                                                    <button className="action-btn btn-view" onClick={() => navigate(`/admin/placement-details/${placement._id}`)}>
+                                                    <button className="action-btn btn-view" onClick={() => navigate(`/manage/xK9mP2/placement-details/${placement._id}`)}>
                                                         <i className="fa fa-eye"></i> View
                                                     </button>
                                                 </div>

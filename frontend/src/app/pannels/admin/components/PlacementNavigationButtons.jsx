@@ -31,19 +31,19 @@ function PlacementNavigationButtons() {
         {
             id: 'approved',
             label: 'Approved',
-            path: '/admin/admin-placement-approved',
+            path: '/manage/xK9mP2/admin-placement-approved',
             icon: 'fa-check-circle'
         },
         {
             id: 'excel',
             label: 'Excel Uploads',
-            path: '/admin/excel-uploads',
+            path: '/manage/xK9mP2/excel-uploads',
             icon: 'fa-file-excel-o'
         },
         {
             id: 'batch-uploads',
             label: 'Batch Uploads',
-            path: '/admin/placement-batch-upload',
+            path: '/manage/xK9mP2/placement-batch-upload',
             icon: 'fa-list-alt'
         }
     ];

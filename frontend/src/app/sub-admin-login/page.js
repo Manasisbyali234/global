@@ -23,7 +23,7 @@ export default function SubAdminLogin() {
 
     const captchaRef = useRef(null);
     
-    const { isLocked, countdown, startLockout, clearAttempts } = useLoginRateLimit();
+    const { isLocked, countdown, clearAttempts } = useLoginRateLimit();
 
     const handleChange = (e) => {
         setFormData({

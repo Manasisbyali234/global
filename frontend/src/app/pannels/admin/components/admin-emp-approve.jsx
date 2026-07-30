@@ -276,7 +276,7 @@ function AdminEmployersApproved() {
                                                 <td style={{textAlign: 'center'}}>
                                                     <button
                                                         className="action-btn btn-view"
-                                                        onClick={() => navigate(`/admin/employer-details/${employer._id}`)}
+                                                        onClick={() => navigate(`/manage/xK9mP2/employer-details/${employer._id}`)}
                                                     >
                                                         <i className="fa fa-eye"></i>
                                                         View
