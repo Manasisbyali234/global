@@ -1904,16 +1904,18 @@ function EmpCandidateReviewPage() {
 
     return (
         <div className="candidate-review-container emp-candidate-review-page">
-            <div className="candidate-review-header" style={{ position: 'relative' }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <div className="candidate-review-header">
                 <div className="header-title">
                     <h2>Candidate Application Review</h2>
                     <p>Evaluating <strong style={{ color: '#f97316', fontWeight: '700' }}>{candidate.name}</strong> for <strong style={{ color: '#f97316', fontWeight: '700' }}>{formatJobTitle(application.jobId?.title)}</strong></p>
                 </div>
-                <VideoTutorialButton videoId="tiaxYdj6O8Y" style={{ marginRight: '8px' }} />
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    <i className="fas fa-arrow-left"></i>
-                    <span>Back to Applications</span>
-                </button>
+                <div className="header-action-buttons">
+                    <VideoTutorialButton videoId="tiaxYdj6O8Y" />
+                    <button className="back-btn" onClick={() => navigate(-1)}>
+                        <i className="fas fa-arrow-left"></i>
+                        <span>Back to Applications</span>
+                    </button>
+                </div>
             </div>
 
             <div className="profile-section">

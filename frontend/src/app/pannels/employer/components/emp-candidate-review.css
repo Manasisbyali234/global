@@ -24,7 +24,31 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
     margin-bottom: 0;
+}
+
+.header-action-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+    .header-action-buttons {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .header-action-buttons > *,
+    .header-action-buttons .back-btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
 }
 
 
@@ -1985,7 +2009,6 @@
     }
 
     .back-btn {
-        width: 100%;
         justify-content: center;
         padding: 10px 20px !important;
     }
