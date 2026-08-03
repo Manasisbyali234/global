@@ -1909,12 +1909,12 @@ function EmpCandidateReviewPage() {
                     <h2>Candidate Application Review</h2>
                     <p>Evaluating <strong style={{ color: '#f97316', fontWeight: '700' }}>{candidate.name}</strong> for <strong style={{ color: '#f97316', fontWeight: '700' }}>{formatJobTitle(application.jobId?.title)}</strong></p>
                 </div>
-                <div className="header-action-buttons">
-                    <VideoTutorialButton videoId="tiaxYdj6O8Y" />
+                <div className="candidate-review-header-actions">
                     <button className="back-btn" onClick={() => navigate(-1)}>
                         <i className="fas fa-arrow-left"></i>
                         <span>Back to Applications</span>
                     </button>
+                    <VideoTutorialButton videoId="tiaxYdj6O8Y" pinned={false} />
                 </div>
             </div>
 
