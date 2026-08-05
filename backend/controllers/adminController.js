@@ -2595,22 +2595,35 @@ exports.getApplications = async (req, res) => {
 
 exports.getRegisteredCandidates = async (req, res) => {
   try {
-    const { page = 1, limit = 50 } = req.query;
+    const { page = 1, limit = 50, status } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
+    const isRejectedFilter = status === 'rejected';
 
-    const candidates = await Candidate.find()
+    let candidateIds;
+    let total;
+
+    if (isRejectedFilter) {
+      // Get distinct candidateIds that have at least one rejected application
+      const rejectedCandidateIds = await Application.distinct('candidateId', { status: 'rejected' });
+      total = rejectedCandidateIds.length;
+      candidateIds = rejectedCandidateIds;
+    }
+
+    const query = isRejectedFilter ? { _id: { $in: candidateIds } } : {};
+
+    const candidates = await Candidate.find(query)
       .select('-password')
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .skip(skip)
       .lean();
 
-    const candidateIds = candidates.map(c => c._id);
+    const pagedCandidateIds = candidates.map(c => c._id);
 
     const [profiles, applicationAggregates] = await Promise.all([
-      CandidateProfile.find({ candidateId: { $in: candidateIds } }).lean(),
+      CandidateProfile.find({ candidateId: { $in: pagedCandidateIds } }).lean(),
       Application.aggregate([
-        { $match: { candidateId: { $in: candidateIds } } },
+        { $match: { candidateId: { $in: pagedCandidateIds } } },
         {
           $group: {
             _id: '$candidateId',
@@ -2657,7 +2670,9 @@ exports.getRegisteredCandidates = async (req, res) => {
       };
     });
 
-    const total = await Candidate.countDocuments();
+    if (!isRejectedFilter) {
+      total = await Candidate.countDocuments();
+    }
 
     res.json({ 
       success: true, 

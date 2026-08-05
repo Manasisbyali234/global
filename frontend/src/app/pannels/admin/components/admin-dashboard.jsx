@@ -249,7 +249,7 @@ function AdminDashboardPage() {
                     </div>
 
                     <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
-                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate(adminRoute('/registered-candidates'))}>
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate(adminRoute('/registered-candidates') + '?status=rejected')}>
                             <div className="admin-stat-card__body">
                                 <div className="admin-stat-card__top">
                                     <i className="fa fa-user-times text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { api } from '../../../../utils/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './registered-candidates-styles.css';
 import './admin-search-styles.css';
 import SearchBar from '../../../../components/SearchBar';
@@ -9,6 +9,8 @@ import PageLoader from '../../../../components/PageLoader';
 
 function RegisteredCandidatesPage() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const isRejectedFilter = new URLSearchParams(location.search).get('status') === 'rejected';
     const [allCandidates, setAllCandidates] = useState([]);
     const [filteredCandidates, setFilteredCandidates] = useState([]);
     const [shortlistedApplications, setShortlistedApplications] = useState([]);
@@ -23,7 +25,7 @@ function RegisteredCandidatesPage() {
     useEffect(() => {
         fetchShortlisted();
         fetchAllCandidates();
-    }, []);
+    }, [isRejectedFilter]);
 
     useEffect(() => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -58,7 +60,9 @@ function RegisteredCandidatesPage() {
     const fetchAllCandidates = async () => {
         try {
             setLoading(true);
-            const res = await api.getRegisteredCandidates({ page: 1, limit: 10000 });
+            const params = { page: 1, limit: 10000 };
+            if (isRejectedFilter) params.status = 'rejected';
+            const res = await api.getRegisteredCandidates(params);
             if (res.success) {
                 setAllCandidates(res.data);
                 setFilteredCandidates(res.data);
@@ -116,11 +120,14 @@ function RegisteredCandidatesPage() {
             {/* Header Section */}
             <div className="candidates-header" data-aos="fade-down">
                 <h2>
-                    Registered Candidates Management
+                    {isRejectedFilter ? 'Rejected Candidates' : 'Registered Candidates Management'}
                 </h2>
                 <p className="candidates-subtitle">
                     <i className=""></i>
-                    Manage and monitor all registered candidates in the system
+                    {isRejectedFilter
+                        ? 'Candidates with at least one rejected application'
+                        : 'Manage and monitor all registered candidates in the system'
+                    }
                 </p>
             </div>
 
@@ -176,7 +183,7 @@ function RegisteredCandidatesPage() {
                     <div className="page-toolbar">
                         <h4 className="page-toolbar__title">
                             <i className="fa fa-list-alt"></i>
-                            All Registered Candidates ({filteredCandidates.length})
+                            {isRejectedFilter ? 'Rejected Candidates' : 'All Registered Candidates'} ({filteredCandidates.length})
                         </h4>
                         <div className="candidates-filters page-toolbar__controls page-toolbar__controls--dual">
                             <div className="search-section page-toolbar__section">
@@ -212,8 +219,8 @@ function RegisteredCandidatesPage() {
                     {pagedCandidates.length === 0 ? (
                         <div className="empty-state" data-aos="fade-in">
                             <i className="fa fa-users"></i>
-                            <h3>{searchTerm || profileStatusFilter ? 'No Candidates Found' : 'No Registered Candidates'}</h3>
-                            <p>{searchTerm || profileStatusFilter ? 'Try a different search term or filter.' : 'No candidates have registered yet.'}</p>
+                            <h3>{searchTerm || profileStatusFilter ? 'No Candidates Found' : isRejectedFilter ? 'No Rejected Candidates' : 'No Registered Candidates'}</h3>
+                            <p>{searchTerm || profileStatusFilter ? 'Try a different search term or filter.' : isRejectedFilter ? 'No rejected candidates found.' : 'No candidates have registered yet.'}</p>
                         </div>
                     ) : (
                         <div className="candidates-table-responsive">
