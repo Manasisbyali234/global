@@ -2165,14 +2165,34 @@ exports.deleteEmployer = async (req, res) => {
 
 exports.getEmployerProfile = async (req, res) => {
   try {
-    const profile = await EmployerProfile.findOne({ employerId: req.params.id })
-      .populate('employerId', 'name email phone companyName');
-    
+    const [profile, publicProfile, adminProfile] = await Promise.all([
+      EmployerProfile.findOne({ employerId: req.params.id })
+        .populate('employerId', 'name email phone companyName'),
+      EmployerPublicProfile.findOne({ employerId: req.params.id }).select('gallery').lean(),
+      EmployerAdminProfile.findOne({ employerId: req.params.id }).select('authorizationLetters hiringCompanies employerCategory').lean()
+    ]);
+
     if (!profile) {
       return res.status(404).json({ success: false, message: 'Employer profile not found' });
     }
 
-    res.json({ success: true, profile });
+    const profileObj = profile.toObject();
+    // Use EmployerPublicProfile gallery as the source of truth
+    profileObj.gallery = publicProfile?.gallery || profileObj.gallery || [];
+    // Merge admin profile fields
+    if (adminProfile) {
+      if (!profileObj.authorizationLetters?.length && adminProfile.authorizationLetters?.length) {
+        profileObj.authorizationLetters = adminProfile.authorizationLetters;
+      }
+      if (!profileObj.hiringCompanies?.length && adminProfile.hiringCompanies?.length) {
+        profileObj.hiringCompanies = adminProfile.hiringCompanies;
+      }
+      if (!profileObj.employerCategory && adminProfile.employerCategory) {
+        profileObj.employerCategory = adminProfile.employerCategory;
+      }
+    }
+
+    res.json({ success: true, profile: profileObj });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

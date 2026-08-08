@@ -1288,18 +1288,18 @@ function EmployerDetails() {
                 <div className="documents-section" data-aos="fade-up" data-aos-delay="350">
                     <h4 className="profile-section-title">
                         <i className="fa fa-images"></i>
-                        Company Gallery
+                        Company Gallery ({profile.gallery.length})
                     </h4>
                     <div className="gallery-preview mt-3">
                         <div className="gallery-container">
                             {profile.gallery.map((image, index) => (
                                 <div key={image._id || index} className="gallery-item">
                                     <img 
-                                        src={image.url} 
+                                        src={resolveMediaSrc(image.url)} 
                                         alt={`Gallery ${index + 1}`}
                                         className="gallery-image"
                                         onClick={() => {
-                                            setCurrentImage(image.url);
+                                            setCurrentImage(resolveMediaSrc(image.url));
                                             setCurrentImageType('image');
                                             setCurrentPreviewName(image.fileName || `Gallery ${index + 1}`);
                                             setShowImageModal(true);

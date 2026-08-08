@@ -1706,23 +1706,29 @@ exports.uploadGallery = async (req, res) => {
 exports.deleteGalleryImage = async (req, res) => {
   try {
     const { imageId } = req.params;
-    
-    await Promise.all([
+
+    let objectId;
+    try {
+      objectId = new mongoose.Types.ObjectId(imageId);
+    } catch (e) {
+      return res.status(400).json({ success: false, message: 'Invalid image ID' });
+    }
+
+    const [updatedPublicProfile] = await Promise.all([
       EmployerPublicProfile.findOneAndUpdate(
         { employerId: req.user._id },
-        { $pull: { gallery: { _id: imageId } } },
+        { $pull: { gallery: { _id: objectId } } },
         { new: true }
       ),
       EmployerProfile.findOneAndUpdate(
         { employerId: req.user._id },
-        { $pull: { gallery: { _id: imageId } } },
+        { $pull: { gallery: { _id: objectId } } },
         { new: true }
       )
     ]);
 
-    const publicProfile = await EmployerPublicProfile.findOne({ employerId: req.user._id });
-
-    res.json({ success: true, message: 'Gallery image deleted successfully', gallery: publicProfile?.gallery || [] });
+    const gallery = updatedPublicProfile?.gallery || [];
+    res.json({ success: true, message: 'Gallery image deleted successfully', gallery });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

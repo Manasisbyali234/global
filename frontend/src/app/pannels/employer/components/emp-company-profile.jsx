@@ -2611,7 +2611,7 @@ function EmpCompanyProfilePage() {
                                             {formData.gallery.map((image, index) => (
                                                 <div key={image._id || index} className="gallery-item position-relative" style={{width: '150px', height: '150px', position: 'relative'}}>
                                                     <img 
-                                                        src={image.url} 
+                                                        src={getImagePreviewSrc(image.url)} 
                                                         alt={`Gallery ${index + 1}`}
                                                         className="img-fluid rounded"
                                                         style={{width: '100%', height: '100%', objectFit: 'cover', border: '1px solid #ddd'}}
