@@ -477,33 +477,42 @@ exports.getPublicStats = async (req, res) => {
 exports.getEmployerProfile = async (req, res) => {
   try {
     const EmployerProfile = require('../models/EmployerProfile');
+    const EmployerPublicProfile = require('../models/EmployerPublicProfile');
     const Employer = require('../models/Employer');
-    
-    let profile = await EmployerProfile.findOne({ employerId: req.params.id })
-      .populate('employerId', 'name email phone companyName brandName employerType');
-    
-    // If no profile exists, create basic profile from employer data
+
+    const [profile, publicProfile] = await Promise.all([
+      EmployerProfile.findOne({ employerId: req.params.id })
+        .populate('employerId', 'name email phone companyName brandName employerType')
+        .lean(),
+      EmployerPublicProfile.findOne({ employerId: req.params.id })
+        .select('gallery')
+        .lean()
+    ]);
+
     if (!profile) {
       const employer = await Employer.findById(req.params.id);
       if (!employer) {
         return res.status(404).json({ success: false, message: 'Employer not found' });
       }
-      
-      profile = {
-        employerId: employer,
-        companyName: employer.companyName,
-        brandName: employer.brandName,
-        email: employer.email,
-        phone: employer.phone,
-        description: 'No company description available.',
-        whyJoinUs: 'No information available about why to join this company.',
-        location: 'Location not specified',
-        googleMapsEmbed: '',
-        gallery: []
-      };
+
+      return res.json({
+        success: true,
+        profile: {
+          employerId: employer,
+          companyName: employer.companyName,
+          brandName: employer.brandName,
+          email: employer.email,
+          phone: employer.phone,
+          description: 'No company description available.',
+          whyJoinUs: 'No information available about why to join this company.',
+          location: 'Location not specified',
+          googleMapsEmbed: '',
+          gallery: publicProfile?.gallery || []
+        }
+      });
     }
 
-    res.json({ success: true, profile });
+    res.json({ success: true, profile: { ...profile, gallery: publicProfile?.gallery || profile.gallery || [] } });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
