@@ -19,6 +19,7 @@ const Partner = require('../models/Partner');
 const SiteSettings = require('../models/SiteSettings');
 const EmployerProfile = require('../models/EmployerProfile');
 const EmployerAdminProfile = require('../models/EmployerAdminProfile');
+const EmployerPublicProfile = require('../models/EmployerPublicProfile');
 const Notification = require('../models/Notification');
 const InterviewProcess = require('../models/InterviewProcess');
 const InterviewRound = require('../models/InterviewRound');
