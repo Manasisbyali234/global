@@ -275,7 +275,7 @@ function EmployersDetail1Page() {
 														</h4>
 														<p className="twm-employer-industry" style={{color: '#6b7280', marginBottom: '10px'}}>
 															<i className="feather-briefcase" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-															{(() => { const v = (employer.industrySector || employer.industry || 'Various Industries').trim().toLowerCase(); if (v === 'it') return 'IT'; if (v === 'non-it') return 'Non-IT'; return employer.industrySector || employer.industry || 'Various Industries'; })()}
+															{(() => { const v = (employer.industrySector || employer.industry || '').trim().toLowerCase(); if (v === 'it') return 'IT'; if (v === 'non-it') return 'Non-IT'; const raw = employer.industrySector || employer.industry || 'Various Industries'; return raw.trim().replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); })()}
 														</p>
 														<div className="hiring-type-badge" style={{marginBottom: '15px'}}>
 															<span className={`badge ${employer.employerId?.employerType === 'consultant' ? 'badge-warning' : 'badge-success'}`} 

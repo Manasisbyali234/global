@@ -3,7 +3,7 @@ const normalizeIndustrySector = (value) => {
     const normalized = value.trim().toLowerCase();
     if (normalized === 'it') return 'IT';
     if (normalized === 'non-it') return 'Non-IT';
-    return value.replace(/_/g, ' ');
+    return value.trim().replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 };
 
 function SectionProfile({ employer }) {
