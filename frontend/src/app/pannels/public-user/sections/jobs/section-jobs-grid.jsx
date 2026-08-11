@@ -374,9 +374,20 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
 
     return (
         <>
+            {loading && (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: '60vh',
+                    gap: '12px'
+                }}>
+                    <i className="fa fa-spinner fa-spin" style={{fontSize: '36px', color: '#f97316'}} aria-hidden="true" />
+                    <p style={{margin: 0, color: '#334155', fontWeight: 600, fontSize: '1rem'}}>Loading..</p>
+                </div>
+            )}
             <Row style={{'--bs-gutter-x': '6px'}}>
-                {loading && isFirstLoad && skeletonCards}
-
                 {!loading && jobs.length > 0 ? 
                     jobs.filter(job => {
                         // Filter out jobs where offer letter date has passed

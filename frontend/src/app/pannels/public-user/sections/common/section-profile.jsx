@@ -1,3 +1,11 @@
+const normalizeIndustrySector = (value) => {
+    if (!value) return 'Not specified';
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'it') return 'IT';
+    if (normalized === 'non-it') return 'Non-IT';
+    return value.replace(/_/g, ' ');
+};
+
 function SectionProfile({ employer }) {
     const iconStyle = {
         color: '#ff6b35',
@@ -36,7 +44,7 @@ function SectionProfile({ employer }) {
                             <i className="fas fa-building" style={iconStyle}></i>
                             <div>
                                 <span className="twm-title">Company Type</span>
-                                <div className="twm-s-info-discription">{(employer?.industrySector || employer?.companyType || 'Not specified').replace(/_/g, ' ').replace(/\bit\b/gi, 'IT')}</div>
+                                <div className="twm-s-info-discription" style={{fontSize: '14px', fontWeight: '500', color: '#374151'}}>{normalizeIndustrySector(employer?.industrySector || employer?.companyType)}</div>
                             </div>
                         </div>
                     </li>

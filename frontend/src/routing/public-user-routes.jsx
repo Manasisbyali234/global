@@ -49,13 +49,32 @@ const AdminLogin = lazy(() => import("../app/admin-login/page"));
 const SubAdminLogin = lazy(() => import("../app/sub-admin-login/page"));
 const CreatePassword = lazy(() => import("../app/common/CreatePassword"));
 
+function JobGridFallback() {
+    return (
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '60vh',
+            width: '100%'
+        }}>
+            <PageLoader loadingText="Loading.." compact />
+        </div>
+    );
+}
+
 function PublicUserRoutes() {
     return (
         <Suspense fallback={<PageLoader pageName="Public Page" loadingText="Loading.." compact />}>
             <Routes>
             <Route path={publicUser.INITIAL} element={<Home16Page />} />
 
-            <Route path={publicUser.jobs.GRID} element={<JobsGridPage />} />
+            <Route path={publicUser.jobs.GRID} element={
+                <Suspense fallback={<JobGridFallback />}>
+                    <JobsGridPage />
+                </Suspense>
+            } />
             <Route path={publicUser.jobs.GRID_MAP} element={<JobsGridMapPage />} />
             <Route path={publicUser.jobs.LIST} element={<JobsListPage />} />
             <Route path={publicUser.jobs.DETAIL1} element={<JobDetail1Page />} />

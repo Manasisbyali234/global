@@ -375,9 +375,20 @@ const EmployersGridPage = memo(() => {
                         </div>
 
                         <div className="twm-employer-list-wrap">
+                            {loading && (
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    minHeight: '60vh',
+                                    gap: '12px'
+                                }}>
+                                    <i className="fa fa-spinner fa-spin" style={{fontSize: '36px', color: '#f97316'}} aria-hidden="true" />
+                                    <p style={{margin: 0, color: '#334155', fontWeight: 600, fontSize: '1rem'}}>Loading..</p>
+                                </div>
+                            )}
                             <Row className="justify-content-start" style={{'--bs-gutter-x': '6px'}}>
-                                {loading && isFirstLoad && skeletonCards}
-
                                 {!loading && employers.length > 0 &&
                                     employers.map((employer, index) => (
                                         <EmployerCard key={employer._id} employer={employer} index={index} />
